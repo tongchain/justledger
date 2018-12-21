@@ -89,13 +89,7 @@ func main() {
 		writeFile(filepath.Join(*outputDir, msp.IdemixConfigDirMsp, msp.IdemixConfigFileIssuerPublicKey), ipk)
 
 	case genSignerConfig.FullCommand():
-		roleMask := 0
-		if *genCredIsAdmin {
-			roleMask = msp.GetRoleMaskFromIdemixRole(msp.ADMIN)
-		} else {
-			roleMask = msp.GetRoleMaskFromIdemixRole(msp.MEMBER)
-		}
-		config, err := idemixca.GenerateSignerConfig(roleMask, *genCredOU, *genCredEnrollmentId, *genCredRevocationHandle, readIssuerKey(), readRevocationKey())
+		config, err := idemixca.GenerateSignerConfig(*genCredIsAdmin, *genCredOU, *genCredEnrollmentId, *genCredRevocationHandle, readIssuerKey(), readRevocationKey())
 		handleError(err)
 
 		path := filepath.Join(*outputDir, msp.IdemixConfigDirUser)

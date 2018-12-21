@@ -9,10 +9,10 @@ package kvledger
 import (
 	"testing"
 
+	"justledger/protos/ledger/rwset/kvrwset"
+
 	"justledger/common/ledger/testutil"
 	"justledger/core/ledger"
-	"justledger/core/ledger/mock"
-	"justledger/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -26,10 +26,7 @@ func TestStateListener(t *testing.T) {
 	channelid := "testLedger"
 	namespace := "testchaincode"
 	mockListener := &mockStateListener{namespace: namespace}
-	provider.Initialize(&ledger.Initializer{
-		DeployedChaincodeInfoProvider: &mock.DeployedChaincodeInfoProvider{},
-		StateListeners:                []ledger.StateListener{mockListener},
-	})
+	provider.Initialize([]ledger.StateListener{mockListener})
 
 	bg, gb := testutil.NewBlockGenerator(t, channelid, false)
 	lgr, err := provider.Create(gb)
@@ -100,8 +97,7 @@ func (l *mockStateListener) InterestedInNamespaces() []string {
 	return []string{l.namespace}
 }
 
-func (l *mockStateListener) HandleStateUpdates(trigger *ledger.StateUpdateTrigger) error {
-	channelName, stateUpdates := trigger.LedgerID, trigger.StateUpdates
+func (l *mockStateListener) HandleStateUpdates(channelName string, stateUpdates ledger.StateUpdates, committingBlockNum uint64) error {
 	l.channelName = channelName
 	l.kvWrites = stateUpdates[l.namespace].([]*kvrwset.KVWrite)
 	return nil

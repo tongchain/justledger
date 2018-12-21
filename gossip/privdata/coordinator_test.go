@@ -16,13 +16,11 @@ import (
 	"time"
 
 	pb "github.com/golang/protobuf/proto"
-	"justledger/bccsp/factory"
 	util2 "justledger/common/util"
 	"justledger/core/common/privdata"
 	"justledger/core/ledger"
 	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
 	"justledger/core/transientstore"
-	privdatacommon "justledger/gossip/privdata/common"
 	"justledger/gossip/util"
 	"justledger/protos/common"
 	proto "justledger/protos/gossip"
@@ -37,25 +35,6 @@ import (
 
 func init() {
 	viper.Set("peer.gossip.pvtData.pullRetryThreshold", time.Second*3)
-	factory.InitFactories(nil)
-}
-
-// CollectionCriteria aggregates criteria of
-// a collection
-type CollectionCriteria struct {
-	Channel    string
-	TxId       string
-	Collection string
-	Namespace  string
-}
-
-func fromCollectionCriteria(criteria common.CollectionCriteria) CollectionCriteria {
-	return CollectionCriteria{
-		TxId:       criteria.TxId,
-		Collection: criteria.Collection,
-		Namespace:  criteria.Namespace,
-		Channel:    criteria.Channel,
-	}
 }
 
 type persistCall struct {
@@ -199,11 +178,6 @@ type committerMock struct {
 	mock.Mock
 }
 
-func (mock *committerMock) GetMissingPvtDataTracker() (ledger.MissingPvtDataTracker, error) {
-	args := mock.Called()
-	return args.Get(0).(ledger.MissingPvtDataTracker), args.Error(1)
-}
-
 func (mock *committerMock) GetConfigHistoryRetriever() (ledger.ConfigHistoryRetriever, error) {
 	args := mock.Called()
 	return args.Get(0).(ledger.ConfigHistoryRetriever), args.Error(1)
@@ -217,11 +191,6 @@ func (mock *committerMock) GetPvtDataByNum(blockNum uint64, filter ledger.PvtNsC
 func (mock *committerMock) CommitWithPvtData(blockAndPvtData *ledger.BlockAndPvtData) error {
 	args := mock.Called(blockAndPvtData)
 	return args.Error(0)
-}
-
-func (mock *committerMock) CommitPvtData(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error) {
-	args := mock.Called(blockPvtData)
-	return args.Get(0).([]*ledger.PvtdataHashMismatch), args.Error(1)
 }
 
 func (mock *committerMock) GetPvtDataAndBlockByNum(seqNum uint64) (*ledger.BlockAndPvtData, error) {
@@ -269,13 +238,13 @@ func (v *validatorMock) Validate(block *common.Block) error {
 	return nil
 }
 
-type digests []privdatacommon.DigKey
+type digests []*proto.PvtDataDigest
 
 func (d digests) Equal(other digests) bool {
-	flatten := func(d digests) map[privdatacommon.DigKey]struct{} {
-		m := map[privdatacommon.DigKey]struct{}{}
+	flatten := func(d digests) map[proto.PvtDataDigest]struct{} {
+		m := map[proto.PvtDataDigest]struct{}{}
 		for _, dig := range d {
-			m[dig] = struct{}{}
+			m[*dig] = struct{}{}
 		}
 		return m
 	}
@@ -300,8 +269,8 @@ func (fc *fetchCall) expectingEndorsers(orgs ...string) *fetchCall {
 	return fc
 }
 
-func (fc *fetchCall) expectingDigests(digests []privdatacommon.DigKey) *fetchCall {
-	fc.fetcher.expectedDigests = digests
+func (fc *fetchCall) expectingDigests(dig []*proto.PvtDataDigest) *fetchCall {
+	fc.fetcher.expectedDigests = dig
 	return fc
 }
 
@@ -313,7 +282,7 @@ func (fc *fetchCall) Return(returnArguments ...interface{}) *mock.Call {
 type fetcherMock struct {
 	t *testing.T
 	mock.Mock
-	expectedDigests   []privdatacommon.DigKey
+	expectedDigests   []*proto.PvtDataDigest
 	expectedEndorsers map[string]struct{}
 }
 
@@ -324,7 +293,7 @@ func (f *fetcherMock) On(methodName string, arguments ...interface{}) *fetchCall
 	}
 }
 
-func (f *fetcherMock) fetch(dig2src dig2sources) (*privdatacommon.FetchedPvtDataContainer, error) {
+func (f *fetcherMock) fetch(dig2src dig2sources, _ uint64) (*FetchedPvtDataContainer, error) {
 	for _, endorsements := range dig2src {
 		for _, endorsement := range endorsements {
 			_, exists := f.expectedEndorsers[string(endorsement.Endorser)]
@@ -339,7 +308,7 @@ func (f *fetcherMock) fetch(dig2src dig2sources) (*privdatacommon.FetchedPvtData
 	assert.Empty(f.t, f.expectedEndorsers)
 	args := f.Called(dig2src)
 	if args.Get(1) == nil {
-		return args.Get(0).(*privdatacommon.FetchedPvtDataContainer), nil
+		return args.Get(0).(*FetchedPvtDataContainer), nil
 	}
 	return nil, args.Get(1).(error)
 }
@@ -347,27 +316,21 @@ func (f *fetcherMock) fetch(dig2src dig2sources) (*privdatacommon.FetchedPvtData
 func createcollectionStore(expectedSignedData common.SignedData) *collectionStore {
 	return &collectionStore{
 		expectedSignedData: expectedSignedData,
-		policies:           make(map[collectionAccessPolicy]CollectionCriteria),
-		store:              make(map[CollectionCriteria]collectionAccessPolicy),
+		policies:           make(map[collectionAccessPolicy]common.CollectionCriteria),
+		store:              make(map[common.CollectionCriteria]collectionAccessPolicy),
 	}
 }
 
 type collectionStore struct {
 	expectedSignedData common.SignedData
 	acceptsAll         bool
-	acceptsNone        bool
 	lenient            bool
-	store              map[CollectionCriteria]collectionAccessPolicy
-	policies           map[collectionAccessPolicy]CollectionCriteria
+	store              map[common.CollectionCriteria]collectionAccessPolicy
+	policies           map[collectionAccessPolicy]common.CollectionCriteria
 }
 
 func (cs *collectionStore) thatAcceptsAll() *collectionStore {
 	cs.acceptsAll = true
-	return cs
-}
-
-func (cs *collectionStore) thatAcceptsNone() *collectionStore {
-	cs.acceptsNone = true
 	return cs
 }
 
@@ -376,7 +339,7 @@ func (cs *collectionStore) andIsLenient() *collectionStore {
 	return cs
 }
 
-func (cs *collectionStore) thatAccepts(cc CollectionCriteria) *collectionStore {
+func (cs *collectionStore) thatAccepts(cc common.CollectionCriteria) *collectionStore {
 	sp := collectionAccessPolicy{
 		cs: cs,
 		n:  util.RandomUInt64(),
@@ -387,10 +350,10 @@ func (cs *collectionStore) thatAccepts(cc CollectionCriteria) *collectionStore {
 }
 
 func (cs *collectionStore) RetrieveCollectionAccessPolicy(cc common.CollectionCriteria) (privdata.CollectionAccessPolicy, error) {
-	if sp, exists := cs.store[fromCollectionCriteria(cc)]; exists {
+	if sp, exists := cs.store[cc]; exists {
 		return &sp, nil
 	}
-	if cs.acceptsAll || cs.acceptsNone || cs.lenient {
+	if cs.acceptsAll || cs.lenient {
 		return &collectionAccessPolicy{
 			cs: cs,
 			n:  util.RandomUInt64(),
@@ -423,10 +386,6 @@ func (cs *collectionStore) RetrieveCollectionPersistenceConfigs(cc common.Collec
 	panic("implement me")
 }
 
-func (cs *collectionStore) AccessFilter(channelName string, collectionPolicyConfig *common.CollectionPolicyConfig) (privdata.Filter, error) {
-	panic("implement me")
-}
-
 type collectionAccessPolicy struct {
 	cs *collectionStore
 	n  uint64
@@ -451,15 +410,8 @@ func (cap *collectionAccessPolicy) AccessFilter() privdata.Filter {
 		if hex.EncodeToString(that) != hex.EncodeToString(this) {
 			panic(fmt.Errorf("self signed data passed isn't equal to expected:%v, %v", sd, cap.cs.expectedSignedData))
 		}
-
-		if cap.cs.acceptsNone {
-			return false
-		} else if cap.cs.acceptsAll {
-			return true
-		}
-
 		_, exists := cap.cs.policies[*cap]
-		return exists
+		return exists || cap.cs.acceptsAll
 	}
 }
 
@@ -594,9 +546,7 @@ func TestPvtDataCollections_Unmarshal(t *testing.T) {
 
 	err = newCol.Unmarshal(bytes)
 	assertion.NoError(err)
-	assertion.Equal(1, len(newCol))
-	assertion.Equal(newCol[0].SeqInBlock, collection[0].SeqInBlock)
-	assertion.True(pb.Equal(newCol[0].WriteSet, collection[0].WriteSet))
+	assertion.Equal(newCol, collection)
 }
 
 type rwsTriplet struct {
@@ -680,8 +630,6 @@ var expectedCommittedPrivateData2 = map[uint64]*ledger.TxPvtData{
 		},
 	}},
 }
-
-var expectedCommittedPrivateData3 = map[uint64]*ledger.TxPvtData{}
 
 func TestCoordinatorStoreInvalidBlock(t *testing.T) {
 	peerSelfSignedData := common.SignedData{
@@ -868,12 +816,12 @@ func TestCoordinatorToFilterOutPvtRWSetsWithWrongHash(t *testing.T) {
 		Validator:       &validatorMock{},
 	}, peerSelfSignedData)
 
-	fetcher.On("fetch", mock.Anything).expectingDigests([]privdatacommon.DigKey{
+	fetcher.On("fetch", mock.Anything).expectingDigests([]*proto.PvtDataDigest{
 		{
 			TxId: "tx1", Namespace: "ns1", Collection: "c1", BlockSeq: 1,
 		},
-	}).expectingEndorsers("org1").Return(&privdatacommon.FetchedPvtDataContainer{
-		AvailableElements: []*proto.PvtDataElement{
+	}).expectingEndorsers("org1").Return(&FetchedPvtDataContainer{
+		AvailableElemenets: []*proto.PvtDataElement{
 			{
 				Digest: &proto.PvtDataDigest{
 					BlockSeq:   1,
@@ -991,15 +939,15 @@ func TestCoordinatorStoreBlock(t *testing.T) {
 	// but it is also missing ns2: c1, and that data doesn't exist in the transient store - but in a peer.
 	// Additionally, the coordinator should pass an endorser identity of org1, but not of org2, since
 	// the MemberOrgs() call doesn't return org2 but only org0 and org1.
-	fetcher.On("fetch", mock.Anything).expectingDigests([]privdatacommon.DigKey{
+	fetcher.On("fetch", mock.Anything).expectingDigests([]*proto.PvtDataDigest{
 		{
 			TxId: "tx1", Namespace: "ns1", Collection: "c2", BlockSeq: 1,
 		},
 		{
 			TxId: "tx2", Namespace: "ns2", Collection: "c1", BlockSeq: 1, SeqInBlock: 1,
 		},
-	}).expectingEndorsers("org1").Return(&privdatacommon.FetchedPvtDataContainer{
-		AvailableElements: []*proto.PvtDataElement{
+	}).expectingEndorsers("org1").Return(&FetchedPvtDataContainer{
+		AvailableElemenets: []*proto.PvtDataElement{
 			{
 				Digest: &proto.PvtDataDigest{
 					BlockSeq:   1,
@@ -1045,12 +993,12 @@ func TestCoordinatorStoreBlock(t *testing.T) {
 	// In this case, we should try to fetch data from peers.
 	block = bf.AddTxn("tx3", "ns3", hash, "c3").create()
 	fetcher = &fetcherMock{t: t}
-	fetcher.On("fetch", mock.Anything).expectingDigests([]privdatacommon.DigKey{
+	fetcher.On("fetch", mock.Anything).expectingDigests([]*proto.PvtDataDigest{
 		{
 			TxId: "tx3", Namespace: "ns3", Collection: "c3", BlockSeq: 1,
 		},
-	}).Return(&privdatacommon.FetchedPvtDataContainer{
-		AvailableElements: []*proto.PvtDataElement{
+	}).Return(&FetchedPvtDataContainer{
+		AvailableElemenets: []*proto.PvtDataElement{
 			{
 				Digest: &proto.PvtDataDigest{
 					BlockSeq:   1,
@@ -1094,7 +1042,7 @@ func TestCoordinatorStoreBlock(t *testing.T) {
 	// private data from the transient store or peers, and in fact- if it attempts to fetch the data it's not eligible
 	// for from the transient store or from peers - the test would fail because the Mock wasn't initialized.
 	block = bf.AddTxn("tx3", "ns3", hash, "c3", "c2", "c1").AddTxn("tx1", "ns1", hash, "c1").create()
-	cs = createcollectionStore(peerSelfSignedData).thatAccepts(CollectionCriteria{
+	cs = createcollectionStore(peerSelfSignedData).thatAccepts(common.CollectionCriteria{
 		TxId:       "tx3",
 		Collection: "c3",
 		Namespace:  "ns3",
@@ -1149,9 +1097,12 @@ func TestProceedWithoutPrivateData(t *testing.T) {
 		var privateDataPassed2Ledger privateData = blockAndPrivateData.BlockPvtData
 		assert.True(t, privateDataPassed2Ledger.Equal(expectedCommittedPrivateData2))
 		missingPrivateData := blockAndPrivateData.Missing
-		expectedMissingPvtData := &ledger.MissingPrivateDataList{}
-		expectedMissingPvtData.Add("tx1", 0, "ns3", "c2", true)
-		assert.Equal(t, expectedMissingPvtData, missingPrivateData)
+		assert.Equal(t, []ledger.MissingPrivateData{{
+			SeqInBlock: 0,
+			Collection: "c2",
+			Namespace:  "ns3",
+			TxId:       "tx1",
+		}}, missingPrivateData)
 		commitHappened = true
 	}).Return(nil)
 	purgedTxns := make(map[string]struct{})
@@ -1173,12 +1124,12 @@ func TestProceedWithoutPrivateData(t *testing.T) {
 
 	fetcher := &fetcherMock{t: t}
 	// Have the peer return in response to the pull, a private data with a non matching hash
-	fetcher.On("fetch", mock.Anything).expectingDigests([]privdatacommon.DigKey{
+	fetcher.On("fetch", mock.Anything).expectingDigests([]*proto.PvtDataDigest{
 		{
 			TxId: "tx1", Namespace: "ns3", Collection: "c2", BlockSeq: 1,
 		},
-	}).Return(&privdatacommon.FetchedPvtDataContainer{
-		AvailableElements: []*proto.PvtDataElement{
+	}).Return(&FetchedPvtDataContainer{
+		AvailableElemenets: []*proto.PvtDataElement{
 			{
 				Digest: &proto.PvtDataDigest{
 					BlockSeq:   1,
@@ -1212,53 +1163,6 @@ func TestProceedWithoutPrivateData(t *testing.T) {
 	assertPurged("tx1")
 }
 
-func TestProceedWithInEligiblePrivateData(t *testing.T) {
-	// Scenario: we are missing private data (c2 in ns3) and it cannot be obtained from any peer.
-	// Block needs to be committed with missing private data.
-	peerSelfSignedData := common.SignedData{
-		Identity:  []byte{0, 1, 2},
-		Signature: []byte{3, 4, 5},
-		Data:      []byte{6, 7, 8},
-	}
-
-	cs := createcollectionStore(peerSelfSignedData).thatAcceptsNone()
-
-	var commitHappened bool
-	assertCommitHappened := func() {
-		assert.True(t, commitHappened)
-		commitHappened = false
-	}
-	committer := &committerMock{}
-	committer.On("CommitWithPvtData", mock.Anything).Run(func(args mock.Arguments) {
-		blockAndPrivateData := args.Get(0).(*ledger.BlockAndPvtData)
-		var privateDataPassed2Ledger privateData = blockAndPrivateData.BlockPvtData
-		assert.True(t, privateDataPassed2Ledger.Equal(expectedCommittedPrivateData3))
-		missingPrivateData := blockAndPrivateData.Missing
-		expectedMissingPvtData := &ledger.MissingPrivateDataList{}
-		expectedMissingPvtData.Add("tx1", 0, "ns3", "c2", false)
-		assert.Equal(t, expectedMissingPvtData, missingPrivateData)
-		commitHappened = true
-	}).Return(nil)
-
-	hash := util2.ComputeSHA256([]byte("rws-pre-image"))
-	bf := &blockFactory{
-		channelID: "test",
-	}
-
-	block := bf.AddTxn("tx1", "ns3", hash, "c2").create()
-
-	coordinator := NewCoordinator(Support{
-		CollectionStore: cs,
-		Committer:       committer,
-		Fetcher:         nil,
-		TransientStore:  nil,
-		Validator:       &validatorMock{},
-	}, peerSelfSignedData)
-	err := coordinator.StoreBlock(block, nil)
-	assert.NoError(t, err)
-	assertCommitHappened()
-}
-
 func TestCoordinatorGetBlocks(t *testing.T) {
 	sd := common.SignedData{
 		Identity:  []byte{0, 1, 2},
@@ -1285,7 +1189,7 @@ func TestCoordinatorGetBlocks(t *testing.T) {
 
 	// Green path - block and private data is returned, but the requester isn't eligible for all the private data,
 	// but only to a subset of it.
-	cs = createcollectionStore(sd).thatAccepts(CollectionCriteria{
+	cs = createcollectionStore(sd).thatAccepts(common.CollectionCriteria{
 		Namespace:  "ns1",
 		Collection: "c2",
 		TxId:       "tx1",

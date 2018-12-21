@@ -19,6 +19,8 @@ import (
 )
 
 func TestChaincodeListCmd(t *testing.T) {
+	InitMSP()
+
 	signer, err := common.GetDefaultSigner()
 	if err != nil {
 		t.Fatalf("Get default signer error: %s", err)
@@ -105,6 +107,8 @@ func TestChaincodeListCmd(t *testing.T) {
 }
 
 func TestChaincodeListFailure(t *testing.T) {
+	InitMSP()
+
 	signer, err := common.GetDefaultSigner()
 	if err != nil {
 		t.Fatalf("Get default signer error: %s", err)

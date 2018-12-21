@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"justledger/gossip/util"
+	"github.com/op/go-logging"
 	"github.com/spf13/viper"
 )
 
@@ -156,7 +157,7 @@ type leaderElectionSvcImpl struct {
 	yield         int32
 	sleeping      bool
 	adapter       LeaderElectionAdapter
-	logger        util.Logger
+	logger        *logging.Logger
 	callback      leadershipCallback
 	yieldTimer    *time.Timer
 }

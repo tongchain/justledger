@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package nwo
 
-const DefaultCryptoTemplate = `---
+const CryptoTemplate = `---
 {{ with $w := . -}}
 OrdererOrgs:{{ range .OrdererOrgs }}
 - Name: {{ .Name }}
@@ -43,10 +43,6 @@ PeerOrgs:{{ range .PeerOrgs }}
     Count: {{ .Users }}
   Specs:{{ range $w.PeersInOrg .Name }}
   - Hostname: {{ .Name }}
-    SANS:
-    - localhost
-    - 127.0.0.1
-    - ::1
   {{- end }}
 {{- end }}
 {{- end }}

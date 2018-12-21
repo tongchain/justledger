@@ -22,89 +22,75 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
 	configtxtest "justledger/common/configtx/test"
 	"justledger/common/ledger/blkstorage/fsblkstorage"
 	"justledger/common/ledger/testutil"
 	"justledger/common/util"
-	lgr "justledger/core/ledger"
+	ledgerproto "justledger/core/ledger"
 	"justledger/core/ledger/ledgerconfig"
-	"justledger/core/ledger/mock"
 	"justledger/protos/common"
 	"justledger/protos/ledger/queryresult"
 	putils "justledger/protos/utils"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestLedgerProvider(t *testing.T) {
 	env := newTestEnv(t)
 	defer env.cleanup()
 	numLedgers := 10
-	provider := testutilNewProvider(t)
+	provider, _ := NewProvider()
 	existingLedgerIDs, err := provider.List()
-	assert.NoError(t, err)
-	assert.Len(t, existingLedgerIDs, 0)
-	genesisBlocks := make([]*common.Block, numLedgers)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, len(existingLedgerIDs), 0)
 	for i := 0; i < numLedgers; i++ {
 		genesisBlock, _ := configtxtest.MakeGenesisBlock(constructTestLedgerID(i))
-		genesisBlocks[i] = genesisBlock
 		provider.Create(genesisBlock)
 	}
 	existingLedgerIDs, err = provider.List()
-	assert.NoError(t, err)
-	assert.Len(t, existingLedgerIDs, numLedgers)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, len(existingLedgerIDs), numLedgers)
 
 	provider.Close()
 
-	provider = testutilNewProvider(t)
+	provider, _ = NewProvider()
 	defer provider.Close()
 	ledgerIds, _ := provider.List()
-	assert.Len(t, ledgerIds, numLedgers)
+	testutil.AssertEquals(t, len(ledgerIds), numLedgers)
 	t.Logf("ledgerIDs=%#v", ledgerIds)
 	for i := 0; i < numLedgers; i++ {
-		assert.Equal(t, constructTestLedgerID(i), ledgerIds[i])
+		testutil.AssertEquals(t, ledgerIds[i], constructTestLedgerID(i))
 	}
 	for i := 0; i < numLedgers; i++ {
-		ledgerid := constructTestLedgerID(i)
-		status, _ := provider.Exists(ledgerid)
-		assert.True(t, status)
-		ledger, err := provider.Open(ledgerid)
-		assert.NoError(t, err)
+		status, _ := provider.Exists(constructTestLedgerID(i))
+		testutil.AssertEquals(t, status, true)
+		ledger, err := provider.Open(constructTestLedgerID(i))
+		testutil.AssertNoError(t, err, "")
 		bcInfo, err := ledger.GetBlockchainInfo()
 		ledger.Close()
-		assert.NoError(t, err)
-		assert.Equal(t, uint64(1), bcInfo.Height)
-
-		// check that the genesis block was persisted in the provider's db
-		s := provider.(*Provider).idStore
-		gbBytesInProviderStore, err := s.db.Get(s.encodeLedgerKey(ledgerid))
-		assert.NoError(t, err)
-		gb := &common.Block{}
-		assert.NoError(t, proto.Unmarshal(gbBytesInProviderStore, gb))
-		assert.True(t, proto.Equal(gb, genesisBlocks[i]), "proto messages are not equal")
+		testutil.AssertNoError(t, err, "")
+		testutil.AssertEquals(t, bcInfo.Height, uint64(1))
 	}
 	gb, _ := configtxtest.MakeGenesisBlock(constructTestLedgerID(2))
 	_, err = provider.Create(gb)
-	assert.Equal(t, ErrLedgerIDExists, err)
+	testutil.AssertEquals(t, err, ErrLedgerIDExists)
 
 	status, err := provider.Exists(constructTestLedgerID(numLedgers))
-	assert.NoError(t, err, "Failed to check for ledger existence")
-	assert.Equal(t, status, false)
+	testutil.AssertNoError(t, err, "Failed to check for ledger existence")
+	testutil.AssertEquals(t, false, status)
 
 	_, err = provider.Open(constructTestLedgerID(numLedgers))
-	assert.Equal(t, ErrNonExistingLedgerID, err)
+	testutil.AssertEquals(t, err, ErrNonExistingLedgerID)
 }
 
 func TestRecovery(t *testing.T) {
 	env := newTestEnv(t)
 	defer env.cleanup()
-	provider := testutilNewProvider(t)
+	provider, _ := NewProvider()
 
 	// now create the genesis block
 	genesisBlock, _ := configtxtest.MakeGenesisBlock(constructTestLedgerID(1))
 	ledger, err := provider.(*Provider).openInternal(constructTestLedgerID(1))
-	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: genesisBlock})
+	ledger.CommitWithPvtData(&ledgerproto.BlockAndPvtData{Block: genesisBlock})
 	ledger.Close()
 
 	// Case 1: assume a crash happens, force underconstruction flag to be set to simulate
@@ -113,13 +99,14 @@ func TestRecovery(t *testing.T) {
 	provider.Close()
 
 	// construct a new provider to invoke recovery
-	provider = testutilNewProvider(t)
+	provider, err = NewProvider()
+	testutil.AssertNoError(t, err, "Provider failed to recover an underConstructionLedger")
 	// verify the underecoveryflag and open the ledger
 	flag, err := provider.(*Provider).idStore.getUnderConstructionFlag()
-	assert.NoError(t, err, "Failed to read the underconstruction flag")
-	assert.Equal(t, "", flag)
+	testutil.AssertNoError(t, err, "Failed to read the underconstruction flag")
+	testutil.AssertEquals(t, flag, "")
 	ledger, err = provider.Open(constructTestLedgerID(1))
-	assert.NoError(t, err, "Failed to open the ledger")
+	testutil.AssertNoError(t, err, "Failed to open the ledger")
 	ledger.Close()
 
 	// Case 0: assume a crash happens before the genesis block of ledger 2 is committed
@@ -128,11 +115,11 @@ func TestRecovery(t *testing.T) {
 	provider.Close()
 
 	// construct a new provider to invoke recovery
-	provider = testutilNewProvider(t)
-	assert.NoError(t, err, "Provider failed to recover an underConstructionLedger")
+	provider, err = NewProvider()
+	testutil.AssertNoError(t, err, "Provider failed to recover an underConstructionLedger")
 	flag, err = provider.(*Provider).idStore.getUnderConstructionFlag()
-	assert.NoError(t, err, "Failed to read the underconstruction flag")
-	assert.Equal(t, "", flag)
+	testutil.AssertNoError(t, err, "Failed to read the underconstruction flag")
+	testutil.AssertEquals(t, flag, "")
 
 }
 
@@ -140,35 +127,35 @@ func TestMultipleLedgerBasicRW(t *testing.T) {
 	env := newTestEnv(t)
 	defer env.cleanup()
 	numLedgers := 10
-	provider := testutilNewProvider(t)
-	ledgers := make([]lgr.PeerLedger, numLedgers)
+	provider, _ := NewProvider()
+	ledgers := make([]ledgerproto.PeerLedger, numLedgers)
 	for i := 0; i < numLedgers; i++ {
 		bg, gb := testutil.NewBlockGenerator(t, constructTestLedgerID(i), false)
 		l, err := provider.Create(gb)
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 		ledgers[i] = l
 		txid := util.GenerateUUID()
 		s, _ := l.NewTxSimulator(txid)
 		err = s.SetState("ns", "testKey", []byte(fmt.Sprintf("testValue_%d", i)))
 		s.Done()
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 		res, err := s.GetTxSimulationResults()
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 		pubSimBytes, _ := res.GetPubSimulationBytes()
 		b := bg.NextBlock([][]byte{pubSimBytes})
-		err = l.CommitWithPvtData(&lgr.BlockAndPvtData{Block: b})
+		err = l.CommitWithPvtData(&ledgerproto.BlockAndPvtData{Block: b})
 		l.Close()
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 	}
 
 	provider.Close()
 
-	provider = testutilNewProvider(t)
+	provider, _ = NewProvider()
 	defer provider.Close()
-	ledgers = make([]lgr.PeerLedger, numLedgers)
+	ledgers = make([]ledgerproto.PeerLedger, numLedgers)
 	for i := 0; i < numLedgers; i++ {
 		l, err := provider.Open(constructTestLedgerID(i))
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 		ledgers[i] = l
 	}
 
@@ -176,8 +163,8 @@ func TestMultipleLedgerBasicRW(t *testing.T) {
 		q, _ := l.NewQueryExecutor()
 		val, err := q.GetState("ns", "testKey")
 		q.Done()
-		assert.NoError(t, err)
-		assert.Equal(t, []byte(fmt.Sprintf("testValue_%d", i)), val)
+		testutil.AssertNoError(t, err, "")
+		testutil.AssertEquals(t, val, []byte(fmt.Sprintf("testValue_%d", i)))
 		l.Close()
 	}
 }
@@ -190,7 +177,7 @@ func TestLedgerBackup(t *testing.T) {
 
 	// create and populate a ledger in the original environment
 	env := createTestEnv(t, originalPath)
-	provider := testutilNewProvider(t)
+	provider, _ := NewProvider()
 	bg, gb := testutil.NewBlockGenerator(t, ledgerid, false)
 	gbHash := gb.Header.Hash()
 	ledger, _ := provider.Create(gb)
@@ -204,7 +191,7 @@ func TestLedgerBackup(t *testing.T) {
 	simRes, _ := simulator.GetTxSimulationResults()
 	pubSimBytes, _ := simRes.GetPubSimulationBytes()
 	block1 := bg.NextBlock([][]byte{pubSimBytes})
-	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block1})
+	ledger.CommitWithPvtData(&ledgerproto.BlockAndPvtData{Block: block1})
 
 	txid = util.GenerateUUID()
 	simulator, _ = ledger.NewTxSimulator(txid)
@@ -215,7 +202,7 @@ func TestLedgerBackup(t *testing.T) {
 	simRes, _ = simulator.GetTxSimulationResults()
 	pubSimBytes, _ = simRes.GetPubSimulationBytes()
 	block2 := bg.NextBlock([][]byte{pubSimBytes})
-	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block2})
+	ledger.CommitWithPvtData(&ledgerproto.BlockAndPvtData{Block: block2})
 
 	ledger.Close()
 	provider.Close()
@@ -225,18 +212,18 @@ func TestLedgerBackup(t *testing.T) {
 
 	// remove the statedb, historydb, and block indexes (they are supposed to be auto created during opening of an existing ledger)
 	// and rename the originalPath to restorePath
-	assert.NoError(t, os.RemoveAll(ledgerconfig.GetStateLevelDBPath()))
-	assert.NoError(t, os.RemoveAll(ledgerconfig.GetHistoryLevelDBPath()))
-	assert.NoError(t, os.RemoveAll(filepath.Join(ledgerconfig.GetBlockStorePath(), fsblkstorage.IndexDir)))
-	assert.NoError(t, os.Rename(originalPath, restorePath))
+	testutil.AssertNoError(t, os.RemoveAll(ledgerconfig.GetStateLevelDBPath()), "")
+	testutil.AssertNoError(t, os.RemoveAll(ledgerconfig.GetHistoryLevelDBPath()), "")
+	testutil.AssertNoError(t, os.RemoveAll(filepath.Join(ledgerconfig.GetBlockStorePath(), fsblkstorage.IndexDir)), "")
+	testutil.AssertNoError(t, os.Rename(originalPath, restorePath), "")
 	defer env.cleanup()
 
 	// Instantiate the ledger from restore environment and this should behave exactly as it would have in the original environment
-	provider = testutilNewProvider(t)
+	provider, _ = NewProvider()
 	defer provider.Close()
 
 	_, err := provider.Create(gb)
-	assert.Equal(t, ErrLedgerIDExists, err)
+	testutil.AssertEquals(t, err, ErrLedgerIDExists)
 
 	ledger, _ = provider.Open(ledgerid)
 	defer ledger.Close()
@@ -244,70 +231,60 @@ func TestLedgerBackup(t *testing.T) {
 	block1Hash := block1.Header.Hash()
 	block2Hash := block2.Header.Hash()
 	bcInfo, _ := ledger.GetBlockchainInfo()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash,
-	}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash})
 
 	b0, _ := ledger.GetBlockByHash(gbHash)
-	assert.True(t, proto.Equal(b0, gb), "proto messages are not equal")
+	testutil.AssertEquals(t, b0, gb)
 
 	b1, _ := ledger.GetBlockByHash(block1Hash)
-	assert.True(t, proto.Equal(b1, block1), "proto messages are not equal")
+	testutil.AssertEquals(t, b1, block1)
 
 	b2, _ := ledger.GetBlockByHash(block2Hash)
-	assert.True(t, proto.Equal(b2, block2), "proto messages are not equal")
+	testutil.AssertEquals(t, b2, block2)
 
 	b0, _ = ledger.GetBlockByNumber(0)
-	assert.True(t, proto.Equal(b0, gb), "proto messages are not equal")
+	testutil.AssertEquals(t, b0, gb)
 
 	b1, _ = ledger.GetBlockByNumber(1)
-	assert.True(t, proto.Equal(b1, block1), "proto messages are not equal")
+	testutil.AssertEquals(t, b1, block1)
 
 	b2, _ = ledger.GetBlockByNumber(2)
-	assert.True(t, proto.Equal(b2, block2), "proto messages are not equal")
+	testutil.AssertEquals(t, b2, block2)
 
 	// get the tran id from the 2nd block, then use it to test GetTransactionByID()
 	txEnvBytes2 := block1.Data.Data[0]
 	txEnv2, err := putils.GetEnvelopeFromBlock(txEnvBytes2)
-	assert.NoError(t, err, "Error upon GetEnvelopeFromBlock")
+	testutil.AssertNoError(t, err, "Error upon GetEnvelopeFromBlock")
 	payload2, err := putils.GetPayload(txEnv2)
-	assert.NoError(t, err, "Error upon GetPayload")
+	testutil.AssertNoError(t, err, "Error upon GetPayload")
 	chdr, err := putils.UnmarshalChannelHeader(payload2.Header.ChannelHeader)
-	assert.NoError(t, err, "Error upon GetChannelHeaderFromBytes")
+	testutil.AssertNoError(t, err, "Error upon GetChannelHeaderFromBytes")
 	txID2 := chdr.TxId
 	processedTran2, err := ledger.GetTransactionByID(txID2)
-	assert.NoError(t, err, "Error upon GetTransactionByID")
+	testutil.AssertNoError(t, err, "Error upon GetTransactionByID")
 	// get the tran envelope from the retrieved ProcessedTransaction
 	retrievedTxEnv2 := processedTran2.TransactionEnvelope
-	assert.Equal(t, txEnv2, retrievedTxEnv2)
+	testutil.AssertEquals(t, retrievedTxEnv2, txEnv2)
 
 	qe, _ := ledger.NewQueryExecutor()
 	value1, _ := qe.GetState("ns1", "key1")
-	assert.Equal(t, []byte("value4"), value1)
+	testutil.AssertEquals(t, value1, []byte("value4"))
 
 	hqe, err := ledger.NewHistoryQueryExecutor()
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	itr, err := hqe.GetHistoryForKey("ns1", "key1")
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	defer itr.Close()
 
 	result1, err := itr.Next()
-	assert.NoError(t, err)
-	assert.Equal(t, []byte("value1"), result1.(*queryresult.KeyModification).Value)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, result1.(*queryresult.KeyModification).Value, []byte("value1"))
 	result2, err := itr.Next()
-	assert.NoError(t, err)
-	assert.Equal(t, []byte("value4"), result2.(*queryresult.KeyModification).Value)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, result2.(*queryresult.KeyModification).Value, []byte("value4"))
 }
 
 func constructTestLedgerID(i int) string {
 	return fmt.Sprintf("ledger_%06d", i)
-}
-
-func testutilNewProvider(t *testing.T) lgr.PeerLedgerProvider {
-	provider, err := NewProvider()
-	assert.NoError(t, err)
-	provider.Initialize(&lgr.Initializer{
-		DeployedChaincodeInfoProvider: &mock.DeployedChaincodeInfoProvider{},
-	})
-	return provider
 }

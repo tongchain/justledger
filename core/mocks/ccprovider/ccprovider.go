@@ -7,7 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package ccprovider
 
 import (
+	"context"
+
 	commonledger "justledger/common/ledger"
+	"justledger/core/chaincode/shim"
 	"justledger/core/common/ccprovider"
 	"justledger/core/ledger"
 	"justledger/protos/peer"
@@ -50,15 +53,7 @@ func (m *MockTxSim) GetStateRangeScanIterator(namespace string, startKey string,
 	return nil, nil
 }
 
-func (m *MockTxSim) GetStateRangeScanIteratorWithMetadata(namespace string, startKey, endKey string, metadata map[string]interface{}) (ledger.QueryResultsIterator, error) {
-	return nil, nil
-}
-
 func (m *MockTxSim) ExecuteQuery(namespace, query string) (commonledger.ResultsIterator, error) {
-	return nil, nil
-}
-
-func (m *MockTxSim) ExecuteQueryWithMetadata(namespace, query string, metadata map[string]interface{}) (ledger.QueryResultsIterator, error) {
 	return nil, nil
 }
 
@@ -121,10 +116,6 @@ func (m *MockTxSim) GetPrivateDataMetadata(namespace, collection, key string) (m
 	return nil, nil
 }
 
-func (m *MockTxSim) GetPrivateDataMetadataByHash(namespace, collection string, keyhash []byte) (map[string][]byte, error) {
-	return nil, nil
-}
-
 func (m *MockTxSim) SetStateMetadata(namespace, key string, metadata map[string][]byte) error {
 	return nil
 }
@@ -141,18 +132,35 @@ func (m *MockTxSim) DeletePrivateDataMetadata(namespace, collection, key string)
 	return nil
 }
 
-// ExecuteInit executes the chaincode given context and spec deploy
-func (c *MockCcProviderImpl) ExecuteLegacyInit(txParams *ccprovider.TransactionParams, cccid *ccprovider.CCContext, spec *peer.ChaincodeDeploymentSpec) (*peer.Response, *peer.ChaincodeEvent, error) {
-	return &peer.Response{}, nil, nil
+// GetContext does nothing
+func (c *MockCcProviderImpl) GetContext(ledger ledger.PeerLedger, txid string) (context.Context, ledger.TxSimulator, error) {
+	return nil, &MockTxSim{}, nil
 }
 
-// Execute executes the chaincode given context and spec invocation
-func (c *MockCcProviderImpl) Execute(txParams *ccprovider.TransactionParams, cccid *ccprovider.CCContext, spec *peer.ChaincodeInput) (*peer.Response, *peer.ChaincodeEvent, error) {
+// GetCCValidationInfoFromLSCC does nothing
+func (c *MockCcProviderImpl) GetCCValidationInfoFromLSCC(ctxt context.Context, txid string, signedProp *peer.SignedProposal, prop *peer.Proposal, chainID string, chaincodeID string) (string, []byte, error) {
+	return "vscc", nil, nil
+}
+
+// ExecuteChaincode does nothing
+func (c *MockCcProviderImpl) ExecuteChaincode(ctxt context.Context, cccid *ccprovider.CCContext, args [][]byte) (*peer.Response, *peer.ChaincodeEvent, error) {
+	if c.ExecuteResultProvider != nil {
+		return c.ExecuteResultProvider.ExecuteChaincodeResult()
+	}
+	if c.ExecuteChaincodeResponse == nil {
+		return &peer.Response{Status: shim.OK}, nil, nil
+	} else {
+		return c.ExecuteChaincodeResponse, nil, nil
+	}
+}
+
+// Execute executes the chaincode given context and spec (invocation or deploy)
+func (c *MockCcProviderImpl) Execute(ctxt context.Context, cccid *ccprovider.CCContext, spec ccprovider.ChaincodeSpecGetter) (*peer.Response, *peer.ChaincodeEvent, error) {
 	return &peer.Response{}, nil, nil
 }
 
 // Stop stops the chaincode given context and deployment spec
-func (c *MockCcProviderImpl) Stop(ccci *ccprovider.ChaincodeContainerInfo) error {
+func (c *MockCcProviderImpl) Stop(ctxt context.Context, cccid *ccprovider.CCContext, spec *peer.ChaincodeDeploymentSpec) error {
 	return nil
 }
 

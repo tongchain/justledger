@@ -17,7 +17,7 @@ limitations under the License.
 syntax = "proto3";
 
 option java_package = "org.hyperledger.fabric.protos.peer";
-option go_package = "github.com/hyperledger/fabric/protos/peer";
+option go_package = "justledger/protos/peer";
 
 package protos;
 
@@ -44,7 +44,7 @@ message APIResource {
     string policy_ref = 1; // The policy name to use for this API
 }
 
-// ACLs provides mappings for resources in a channel. APIResource encapsulates
+// ACLs provides mappings for resources in a channel. APIResource encpasulates
 // reference to a policy used to determine ACL for the resource
 message ACLs {
     map<string, APIResource> acls = 1;

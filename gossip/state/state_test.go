@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"os"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -20,7 +21,6 @@ import (
 	"justledger/bccsp/factory"
 	"justledger/common/configtx/test"
 	errors2 "justledger/common/errors"
-	"justledger/common/flogging/floggingtest"
 	"justledger/common/util"
 	"justledger/core/committer"
 	"justledger/core/committer/txvalidator"
@@ -39,6 +39,7 @@ import (
 	proto "justledger/protos/gossip"
 	"justledger/protos/ledger/rwset"
 	transientstore2 "justledger/protos/transientstore"
+	"github.com/op/go-logging"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -237,28 +238,12 @@ func (mc *mockCommitter) GetBlocks(blockSeqs []uint64) []*pcomm.Block {
 	return mc.Called(blockSeqs).Get(0).([]*pcomm.Block)
 }
 
-func (*mockCommitter) GetMissingPvtDataTracker() (ledger.MissingPvtDataTracker, error) {
-	panic("implement me")
-}
-
-func (*mockCommitter) CommitPvtData(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error) {
-	panic("implement me")
-}
-
 func (*mockCommitter) Close() {
 }
 
 type ramLedger struct {
 	ledger map[uint64]*ledger.BlockAndPvtData
 	sync.RWMutex
-}
-
-func (mock *ramLedger) GetMissingPvtDataTracker() (ledger.MissingPvtDataTracker, error) {
-	panic("implement me")
-}
-
-func (mock *ramLedger) CommitPvtData(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error) {
-	panic("implement me")
 }
 
 func (mock *ramLedger) GetConfigHistoryRetriever() (ledger.ConfigHistoryRetriever, error) {
@@ -670,6 +655,7 @@ func TestBlockingEnqueue(t *testing.T) {
 }
 
 func TestHaltChainProcessing(t *testing.T) {
+	t.Parallel()
 	gossipChannel := func(c chan *proto.GossipMessage) <-chan *proto.GossipMessage {
 		return c
 	}
@@ -703,11 +689,14 @@ func TestHaltChainProcessing(t *testing.T) {
 			},
 		}
 	}
-
-	oldLogger := logger
-	defer func() { logger = oldLogger }()
-	l, recorder := floggingtest.NewTestLogger(t)
-	logger = l
+	logAsserter := &logBackend{
+		logEntries: make(chan string, 100),
+	}
+	logger.SetBackend(logAsserter)
+	// Restore old backend at the end of the test
+	defer func() {
+		logger.SetBackend(defaultBackend())
+	}()
 
 	mc := &mockCommitter{Mock: &mock.Mock{}}
 	mc.On("CommitWithPvtData", mock.Anything)
@@ -726,9 +715,8 @@ func TestHaltChainProcessing(t *testing.T) {
 	portPrefix := portStartRange + 350
 	newPeerNodeWithGossipWithValidator(newGossipConfig(portPrefix, 0), mc, noopPeerIdentityAcceptor, g, v)
 	gossipMsgs <- newBlockMsg(1)
-	assertLogged(t, recorder, "Got error while committing")
-	assertLogged(t, recorder, "Aborting chain processing")
-	assertLogged(t, recorder, "foobar")
+	logAsserter.assertLastLogContains(t, "Got error while committing")
+	logAsserter.assertLastLogContains(t, "foobar", "Aborting chain processing")
 }
 
 func TestFailures(t *testing.T) {
@@ -1467,7 +1455,7 @@ func TestTransferOfPrivateRWSet(t *testing.T) {
 			pvtRWSet := &rwset.TxPvtReadWriteSet{}
 			err = pb.Unmarshal(pvtDataPayload.Payload, pvtRWSet)
 			assertion.NoError(err)
-			assertion.True(pb.Equal(p.WriteSet, pvtRWSet))
+			assertion.Equal(p.WriteSet, pvtRWSet)
 		}
 	}
 }
@@ -1660,7 +1648,39 @@ func waitUntilTrueOrTimeout(t *testing.T, predicate func() bool, timeout time.Du
 	logger.Debug("Stop waiting until timeout or true")
 }
 
-func assertLogged(t *testing.T, r *floggingtest.Recorder, msg string) {
-	observed := func() bool { return len(r.MessagesContaining(msg)) > 0 }
-	waitUntilTrueOrTimeout(t, observed, 30*time.Second)
+type logBackend struct {
+	logEntries chan string
+}
+
+func (l *logBackend) assertLastLogContains(t *testing.T, ss ...string) {
+	lastLogMsg := <-l.logEntries
+	for _, s := range ss {
+		assert.Contains(t, lastLogMsg, s)
+	}
+}
+
+func (l *logBackend) Log(lvl logging.Level, n int, r *logging.Record) error {
+	l.logEntries <- fmt.Sprint(r.Message(), r.Args)
+	return nil
+}
+
+func (*logBackend) GetLevel(string) logging.Level {
+	return logging.DEBUG
+}
+
+func (*logBackend) SetLevel(logging.Level, string) {
+	panic("implement me")
+}
+
+func (*logBackend) IsEnabledFor(logging.Level, string) bool {
+	return true
+}
+
+func defaultBackend() logging.LeveledBackend {
+	backend := logging.NewLogBackend(os.Stderr, "", 0)
+	defaultFormat := "%{color}%{time:2006-01-02 15:04:05.000 MST} [%{module}] %{shortfunc} -> %{level:.4s} %{id:03x}%{color:reset} %{message}"
+	backendFormatter := logging.NewBackendFormatter(backend, logging.MustStringFormatter(defaultFormat))
+	be := logging.SetBackend(backendFormatter)
+	be.SetLevel(logging.WARNING, "")
+	return be
 }

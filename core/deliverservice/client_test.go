@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package deliverclient
 
 import (
-	"context"
 	"crypto/sha256"
 	"errors"
 	"math"
@@ -23,24 +22,29 @@ import (
 	"justledger/protos/orderer"
 	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
 var (
-	connWG sync.WaitGroup
+	connNumber = 0
+	connWG     sync.WaitGroup
 )
 
 func newConnection() *grpc.ClientConn {
 	// The balancer is in order to check connection leaks.
 	// When grpc.ClientConn.Close() is called, it calls the balancer's Close()
+	// method which decrements the connNumber
 	cc, _ := grpc.Dial("", grpc.WithInsecure(), grpc.WithBalancer(&balancer{}))
 	return cc
 }
 
-type balancer struct{}
+type balancer struct {
+}
 
 func (*balancer) Start(target string, config grpc.BalancerConfig) error {
 	connWG.Add(1)
+	connNumber++
 	return nil
 }
 
@@ -57,6 +61,7 @@ func (*balancer) Notify() <-chan []grpc.Address {
 }
 
 func (*balancer) Close() error {
+	connNumber--
 	connWG.Done()
 	return nil
 }
@@ -155,6 +160,7 @@ func TestOrderingServiceConnFailure(t *testing.T) {
 	testOrderingServiceConnFailure(t, blockDelivererConsumerWithRecv)
 	testOrderingServiceConnFailure(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testOrderingServiceConnFailure(t *testing.T, bdc blocksDelivererConsumer) {
@@ -192,6 +198,7 @@ func TestOrderingServiceStreamFailure(t *testing.T) {
 	testOrderingServiceStreamFailure(t, blockDelivererConsumerWithRecv)
 	testOrderingServiceStreamFailure(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testOrderingServiceStreamFailure(t *testing.T, bdc blocksDelivererConsumer) {
@@ -228,6 +235,7 @@ func TestOrderingServiceSetupFailure(t *testing.T) {
 	testOrderingServiceSetupFailure(t, blockDelivererConsumerWithRecv)
 	testOrderingServiceSetupFailure(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testOrderingServiceSetupFailure(t *testing.T, bdc blocksDelivererConsumer) {
@@ -262,6 +270,7 @@ func TestOrderingServiceFirstOperationFailure(t *testing.T) {
 	testOrderingServiceFirstOperationFailure(t, blockDelivererConsumerWithRecv)
 	testOrderingServiceFirstOperationFailure(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testOrderingServiceFirstOperationFailure(t *testing.T, bdc blocksDelivererConsumer) {
@@ -299,6 +308,7 @@ func TestOrderingServiceCrashAndRecover(t *testing.T) {
 	testOrderingServiceCrashAndRecover(t, blockDelivererConsumerWithRecv)
 	testOrderingServiceCrashAndRecover(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testOrderingServiceCrashAndRecover(t *testing.T, bdc blocksDelivererConsumer) {
@@ -340,6 +350,7 @@ func TestOrderingServicePermanentCrash(t *testing.T) {
 	testOrderingServicePermanentCrash(t, blockDelivererConsumerWithRecv)
 	testOrderingServicePermanentCrash(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testOrderingServicePermanentCrash(t *testing.T, bdc blocksDelivererConsumer) {
@@ -378,6 +389,7 @@ func TestLimitedConnAttempts(t *testing.T) {
 	testLimitedConnAttempts(t, blockDelivererConsumerWithRecv)
 	testLimitedConnAttempts(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testLimitedConnAttempts(t *testing.T, bdc blocksDelivererConsumer) {
@@ -406,11 +418,13 @@ func testLimitedConnAttempts(t *testing.T, bdc blocksDelivererConsumer) {
 func TestLimitedTotalConnTimeRcv(t *testing.T) {
 	testLimitedTotalConnTime(t, blockDelivererConsumerWithRecv)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func TestLimitedTotalConnTimeSnd(t *testing.T) {
 	testLimitedTotalConnTime(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testLimitedTotalConnTime(t *testing.T, bdc blocksDelivererConsumer) {
@@ -442,6 +456,7 @@ func TestGreenPath(t *testing.T) {
 	testGreenPath(t, blockDelivererConsumerWithRecv)
 	testGreenPath(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testGreenPath(t *testing.T, bdc blocksDelivererConsumer) {
@@ -508,6 +523,7 @@ func TestCloseWhileSleep(t *testing.T) {
 	testCloseWhileSleep(t, blockDelivererConsumerWithRecv)
 	testCloseWhileSleep(t, blockDelivererConsumerWithSend)
 	connWG.Wait()
+	assert.Equal(t, 0, connNumber)
 }
 
 func testCloseWhileSleep(t *testing.T, bdc blocksDelivererConsumer) {
@@ -737,6 +753,10 @@ func TestDisconnectAndDisableEndpoint(t *testing.T) {
 
 	// Disconnect from the node we are currently connected to, and attempt to black-list it
 	cl.Disconnect(true)
+
+	go func() {
+		cl.Recv()
+	}()
 
 	// Ensure we are still connected to some orderer, even though both endpoints are now black-listed
 	assert.True(t, waitForWithTimeout(time.Millisecond*100, func() bool {

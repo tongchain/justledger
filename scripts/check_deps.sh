@@ -5,4 +5,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 dep version
-dep check
+dep ensure --no-vendor --dry-run

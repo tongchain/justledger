@@ -1,6 +1,17 @@
 /*
-Copyright IBM Corp. All Rights Reserved.
-SPDX-License-Identifier: Apache-2.0
+Copyright IBM Corp. 2016 All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+		 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package lockbasedtxmgr
@@ -8,16 +19,15 @@ package lockbasedtxmgr
 import (
 	"testing"
 
+	"justledger/core/ledger/pvtdatapolicy"
+
 	commonledger "justledger/common/ledger"
 	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
 	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/pvtdatapolicy"
 	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
 	"justledger/core/ledger/util"
 	"justledger/protos/ledger/queryresult"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestPvtdataResultsItr(t *testing.T) {
@@ -47,12 +57,17 @@ func TestPvtdataResultsItr(t *testing.T) {
 	queryHelper := newQueryHelper(txMgr, nil)
 
 	resItr, err := queryHelper.getPrivateDataRangeScanIterator("ns1", "coll1", "key1", "key3")
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	testItr(t, resItr, "ns1", "coll1", []string{"key1", "key2"})
 
 	resItr, err = queryHelper.getPrivateDataRangeScanIterator("ns4", "coll1", "key1", "key3")
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	testItr(t, resItr, "ns4", "coll1", []string{})
+}
+
+func putPvtUpdates(t *testing.T, updates *privacyenabledstate.UpdateBatch, ns, coll, key string, value []byte, ver *version.Height) {
+	updates.PvtUpdates.Put(ns, coll, key, value, ver)
+	updates.HashUpdates.Put(ns, coll, util.ComputeStringHash(key), util.ComputeHash(value), ver)
 }
 
 func testItr(t *testing.T, itr commonledger.ResultsIterator, expectedNs string, expectedColl string, expectedKeys []string) {
@@ -63,56 +78,10 @@ func testItr(t *testing.T, itr commonledger.ResultsIterator, expectedNs string, 
 		pvtdataKV := queryResult.(*queryresult.KV)
 		ns := pvtdataKV.Namespace
 		key := pvtdataKV.Key
-		assert.Equal(t, expectedNs, ns)
-		assert.Equal(t, expectedKey, key)
+		testutil.AssertEquals(t, ns, expectedNs)
+		testutil.AssertEquals(t, key, expectedKey)
 	}
 	last, err := itr.Next()
-	assert.NoError(t, err)
-	assert.Nil(t, last)
-}
-
-func TestPrivateDataMetadataRetrievalByHash(t *testing.T) {
-	for _, testEnv := range testEnvs {
-		testPrivateDataMetadataRetrievalByHash(t, testEnv)
-	}
-}
-
-func testPrivateDataMetadataRetrievalByHash(t *testing.T, env testEnv) {
-	ledgerid := "test-privatedata-metadata-retrieval-byhash"
-	cs := btltestutil.NewMockCollectionStore()
-	cs.SetBTL("ns", "coll", 0)
-	btlPolicy := pvtdatapolicy.ConstructBTLPolicy(cs)
-	env.init(t, ledgerid, btlPolicy)
-	defer env.cleanup()
-
-	txMgr := env.getTxMgr()
-	bg, _ := testutil.NewBlockGenerator(t, ledgerid, false)
-	populateCollConfigForTest(t, txMgr.(*LockBasedTxMgr), []collConfigkey{{"ns", "coll"}}, version.NewHeight(1, 1))
-	// Simulate and commit tx1 - set val and metadata for key1
-	key1, value1, metadata1 := "key1", []byte("value1"), map[string][]byte{"entry1": []byte("meatadata1-entry1")}
-	s1, _ := txMgr.NewTxSimulator("test_tx1")
-	s1.SetPrivateData("ns", "coll", key1, value1)
-	s1.SetPrivateDataMetadata("ns", "coll", key1, metadata1)
-	s1.Done()
-	blkAndPvtdata1 := prepareNextBlockForTestFromSimulator(t, bg, s1)
-	assert.NoError(t, txMgr.ValidateAndPrepare(blkAndPvtdata1, true))
-	assert.NoError(t, txMgr.Commit())
-
-	t.Run("query-helper-for-queryexecutor", func(t *testing.T) {
-		queryHelper := newQueryHelper(txMgr.(*LockBasedTxMgr), nil)
-		metadataRetrieved, err := queryHelper.getPrivateDataMetadataByHash("ns", "coll", util.ComputeStringHash("key1"))
-		assert.NoError(t, err)
-		assert.Equal(t, metadata1, metadataRetrieved)
-	})
-
-	t.Run("query-helper-for-txsimulator", func(t *testing.T) {
-		queryHelper := newQueryHelper(txMgr.(*LockBasedTxMgr), rwsetutil.NewRWSetBuilder())
-		_, err := queryHelper.getPrivateDataMetadataByHash("ns", "coll", util.ComputeStringHash("key1"))
-		assert.EqualError(t, err, "retrieving private data metadata by keyhash is not supported in simulation. This function is only available for query as yet")
-	})
-}
-
-func putPvtUpdates(t *testing.T, updates *privacyenabledstate.UpdateBatch, ns, coll, key string, value []byte, ver *version.Height) {
-	updates.PvtUpdates.Put(ns, coll, key, value, ver)
-	updates.HashUpdates.Put(ns, coll, util.ComputeStringHash(key), util.ComputeHash(value), ver)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertNil(t, last)
 }

@@ -17,12 +17,11 @@ limitations under the License.
 package common
 
 import (
-	"context"
-
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
 	cb "justledger/protos/common"
 	pb "justledger/protos/peer"
+	context "golang.org/x/net/context"
 	grpc "google.golang.org/grpc"
 )
 

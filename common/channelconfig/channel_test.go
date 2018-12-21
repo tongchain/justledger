@@ -15,8 +15,13 @@ import (
 	"justledger/common/util"
 	cb "justledger/protos/common"
 
+	logging "github.com/op/go-logging"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "")
+}
 
 func TestInterface(t *testing.T) {
 	_ = Channel(&ChannelConfig{})

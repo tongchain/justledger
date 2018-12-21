@@ -13,13 +13,16 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/flogging"
-	"justledger/common/flogging/floggingtest"
 	"justledger/msp"
 	cb "justledger/protos/common"
 	mb "justledger/protos/msp"
+	logging "github.com/op/go-logging"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "")
+}
 
 var invalidSignature = []byte("badsigned")
 
@@ -269,33 +272,4 @@ func TestSignedByMspPeer(t *testing.T) {
 
 	assert.Equal(t, role.MspIdentifier, "A")
 	assert.Equal(t, role.Role, mb.MSPRole_PEER)
-}
-
-func TestReturnNil(t *testing.T) {
-	policy := Envelope(And(SignedBy(-1), SignedBy(-2)), signers)
-
-	spe, err := compile(policy.Rule, policy.Identities, &mockDeserializer{})
-	assert.Nil(t, spe)
-	assert.EqualError(t, err, "identity index out of range, requested -1, but identies length is 2")
-}
-
-func TestDeserializeIdentityError(t *testing.T) {
-	// Prepare
-	policy := Envelope(SignedBy(0), signers)
-	spe, err := compile(policy.Rule, policy.Identities, &mockDeserializer{fail: errors.New("myError")})
-	assert.NoError(t, err)
-
-	logger, recorder := floggingtest.NewTestLogger(t)
-	defer func(old *flogging.FabricLogger) {
-		cauthdslLogger = old
-	}(cauthdslLogger)
-	cauthdslLogger = logger
-
-	// Call
-	signedData, used := toSignedData([][]byte{nil}, [][]byte{nil}, [][]byte{nil})
-	ret := spe(signedData, used)
-
-	// Check result (ret and log)
-	assert.False(t, ret)
-	assert.Contains(t, string(recorder.Buffer().Contents()), "Principal deserialization failure (myError) for identity")
 }

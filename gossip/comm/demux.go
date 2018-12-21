@@ -8,6 +8,7 @@ package comm
 
 import (
 	"sync"
+	"sync/atomic"
 
 	"justledger/gossip/common"
 )
@@ -18,7 +19,7 @@ import (
 type ChannelDeMultiplexer struct {
 	channels []*channel
 	lock     *sync.RWMutex
-	closed   bool
+	closed   int32
 }
 
 // NewChannelDemultiplexer creates a new ChannelDeMultiplexer
@@ -26,6 +27,7 @@ func NewChannelDemultiplexer() *ChannelDeMultiplexer {
 	return &ChannelDeMultiplexer{
 		channels: make([]*channel, 0),
 		lock:     &sync.RWMutex{},
+		closed:   int32(0),
 	}
 }
 
@@ -35,19 +37,22 @@ type channel struct {
 }
 
 func (m *ChannelDeMultiplexer) isClosed() bool {
-	return m.closed
+	return atomic.LoadInt32(&m.closed) == int32(1)
 }
 
 // Close closes this channel, which makes all channels registered before
 // to close as well.
 func (m *ChannelDeMultiplexer) Close() {
+	defer func() {
+		// recover closing an already closed channel
+		recover()
+	}()
+	atomic.StoreInt32(&m.closed, int32(1))
 	m.lock.Lock()
 	defer m.lock.Unlock()
-	m.closed = true
 	for _, ch := range m.channels {
 		close(ch.ch)
 	}
-	m.channels = nil
 }
 
 // AddChannel registers a channel with a certain predicate
@@ -62,12 +67,19 @@ func (m *ChannelDeMultiplexer) AddChannel(predicate common.MessageAcceptor) chan
 // DeMultiplex broadcasts the message to all channels that were returned
 // by AddChannel calls and that hold the respected predicates.
 func (m *ChannelDeMultiplexer) DeMultiplex(msg interface{}) {
-	m.lock.RLock()
-	defer m.lock.RUnlock()
+	defer func() {
+		recover()
+	}() // recover from sending on a closed channel
+
 	if m.isClosed() {
 		return
 	}
-	for _, ch := range m.channels {
+
+	m.lock.RLock()
+	channels := m.channels
+	m.lock.RUnlock()
+
+	for _, ch := range channels {
 		if ch.pred(msg) {
 			ch.ch <- msg
 		}

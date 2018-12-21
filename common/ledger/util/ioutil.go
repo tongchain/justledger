@@ -1,7 +1,17 @@
 /*
-Copyright IBM Corp. All Rights Reserved.
+Copyright IBM Corp. 2016 All Rights Reserved.
 
-SPDX-License-Identifier: Apache-2.0
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+		 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package util
@@ -14,7 +24,6 @@ import (
 	"strings"
 
 	"justledger/common/flogging"
-	"github.com/pkg/errors"
 )
 
 var logger = flogging.MustGetLogger("kvledger.util")
@@ -29,8 +38,8 @@ func CreateDirIfMissing(dirPath string) (bool, error) {
 	logDirStatus("Before creating dir", dirPath)
 	err := os.MkdirAll(path.Dir(dirPath), 0755)
 	if err != nil {
-		logger.Debugf("Error creating dir [%s]", dirPath)
-		return false, errors.Wrapf(err, "error creating dir [%s]", dirPath)
+		logger.Debugf("Error while creating dir [%s]", dirPath)
+		return false, err
 	}
 	logDirStatus("After creating dir", dirPath)
 	return DirEmpty(dirPath)
@@ -40,8 +49,8 @@ func CreateDirIfMissing(dirPath string) (bool, error) {
 func DirEmpty(dirPath string) (bool, error) {
 	f, err := os.Open(dirPath)
 	if err != nil {
-		logger.Debugf("Error opening dir [%s]: %+v", dirPath, err)
-		return false, errors.Wrapf(err, "error opening dir [%s]", dirPath)
+		logger.Debugf("Error while opening dir [%s]: %s", dirPath, err)
+		return false, err
 	}
 	defer f.Close()
 
@@ -49,7 +58,6 @@ func DirEmpty(dirPath string) (bool, error) {
 	if err == io.EOF {
 		return true, nil
 	}
-	err = errors.Wrapf(err, "error checking if dir [%s] is empty", dirPath)
 	return false, err
 }
 
@@ -60,10 +68,7 @@ func FileExists(filePath string) (bool, int64, error) {
 	if os.IsNotExist(err) {
 		return false, 0, nil
 	}
-	if err != nil {
-		return false, 0, errors.Wrapf(err, "error checking if file [%s] exists", filePath)
-	}
-	return true, fileInfo.Size(), nil
+	return true, fileInfo.Size(), err
 }
 
 // ListSubdirs returns the subdirectories
@@ -71,7 +76,7 @@ func ListSubdirs(dirPath string) ([]string, error) {
 	subdirs := []string{}
 	files, err := ioutil.ReadDir(dirPath)
 	if err != nil {
-		return nil, errors.Wrapf(err, "error reading dir %s", dirPath)
+		return nil, err
 	}
 	for _, f := range files {
 		if f.IsDir() {
@@ -84,7 +89,7 @@ func ListSubdirs(dirPath string) ([]string, error) {
 func logDirStatus(msg string, dirPath string) {
 	exists, _, err := FileExists(dirPath)
 	if err != nil {
-		logger.Errorf("Error checking for dir existence")
+		logger.Errorf("Error while checking for dir existence")
 	}
 	if exists {
 		logger.Debugf("%s - [%s] exists", msg, dirPath)

@@ -17,7 +17,6 @@ import (
 	"justledger/core/ledger/kvledger/txmgmt/version"
 	"justledger/core/ledger/ledgerconfig"
 	"justledger/core/ledger/util/couchdb"
-	"github.com/pkg/errors"
 )
 
 var logger = flogging.MustGetLogger("statecouchdb")
@@ -39,7 +38,7 @@ func NewVersionedDBProvider() (*VersionedDBProvider, error) {
 	logger.Debugf("constructing CouchDB VersionedDBProvider")
 	couchDBDef := couchdb.GetCouchDBDefinition()
 	couchInstance, err := couchdb.CreateCouchInstance(couchDBDef.URL, couchDBDef.Username, couchDBDef.Password,
-		couchDBDef.MaxRetries, couchDBDef.MaxRetriesOnStartup, couchDBDef.RequestTimeout, couchDBDef.CreateGlobalChangesDB)
+		couchDBDef.MaxRetries, couchDBDef.MaxRetriesOnStartup, couchDBDef.RequestTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -129,8 +128,8 @@ func (vdb *VersionedDB) ProcessIndexesForChaincodeDeploy(namespace string, fileE
 		filename := fileEntry.FileHeader.Name
 		_, err = db.CreateIndex(string(indexData))
 		if err != nil {
-			return errors.WithMessage(err, fmt.Sprintf(
-				"error creating index from file [%s] for channel [%s]", filename, namespace))
+			return fmt.Errorf("error during creation of index from file=[%s] for chain=[%s]. Error=%s",
+				filename, namespace, err)
 		}
 	}
 
@@ -165,11 +164,7 @@ func (vdb *VersionedDB) LoadCommittedVersions(keys []*statedb.CompositeKey) erro
 		for _, keyMetadata := range nsMetadata {
 			// TODO - why would version be ever zero if loaded from db?
 			if len(keyMetadata.Version) != 0 {
-				version, _, err := decodeVersionAndMetadata(keyMetadata.Version)
-				if err != nil {
-					return err
-				}
-				committedDataCache.setVerAndRev(ns, keyMetadata.ID, version, keyMetadata.Rev)
+				committedDataCache.setVerAndRev(ns, keyMetadata.ID, createVersionHeightFromVersionString(keyMetadata.Version), keyMetadata.Rev)
 			}
 		}
 	}
@@ -254,163 +249,43 @@ func (vdb *VersionedDB) GetStateMultipleKeys(namespace string, keys []string) ([
 // startKey is inclusive
 // endKey is exclusive
 func (vdb *VersionedDB) GetStateRangeScanIterator(namespace string, startKey string, endKey string) (statedb.ResultsIterator, error) {
-	return vdb.GetStateRangeScanIteratorWithMetadata(namespace, startKey, endKey, nil)
-}
-
-const optionBookmark = "bookmark"
-const optionLimit = "limit"
-const returnCount = "count"
-
-// GetStateRangeScanIteratorWithMetadata implements method in VersionedDB interface
-// startKey is inclusive
-// endKey is exclusive
-// metadata contains a map of additional query options
-func (vdb *VersionedDB) GetStateRangeScanIteratorWithMetadata(namespace string, startKey string, endKey string, metadata map[string]interface{}) (statedb.QueryResultsIterator, error) {
-
-	logger.Debugf("Entering GetStateRangeScanIteratorWithMetadata  namespace: %s  startKey: %s  endKey: %s  metadata: %v", namespace, startKey, endKey, metadata)
-
-	// Get the internalQueryLimit from core.yaml
-	internalQueryLimit := int32(ledgerconfig.GetInternalQueryLimit())
-	requestedLimit := int32(0)
-	// if metadata is provided, validate and apply options
-	if metadata != nil {
-		//validate the metadata
-		err := statedb.ValidateRangeMetadata(metadata)
-		if err != nil {
-			return nil, err
-		}
-		if limitOption, ok := metadata[optionLimit]; ok {
-			requestedLimit = limitOption.(int32)
-		}
-	}
+	// Get the querylimit from core.yaml
+	queryLimit := ledgerconfig.GetQueryLimit()
 	db, err := vdb.getNamespaceDBHandle(namespace)
 	if err != nil {
 		return nil, err
 	}
-	return newQueryScanner(namespace, db, "", internalQueryLimit, requestedLimit, "", startKey, endKey)
-}
-
-func (scanner *queryScanner) getNextStateRangeScanResults() error {
-
-	queryLimit := scanner.queryDefinition.internalQueryLimit
-	if scanner.paginationInfo.requestedLimit > 0 {
-		moreResultsNeeded := scanner.paginationInfo.requestedLimit - scanner.resultsInfo.totalRecordsReturned
-		if moreResultsNeeded < scanner.queryDefinition.internalQueryLimit {
-			queryLimit = moreResultsNeeded
-		}
-	}
-	queryResult, nextStartKey, err := scanner.db.ReadDocRange(scanner.queryDefinition.startKey, scanner.queryDefinition.endKey,
-		queryLimit)
+	queryResult, err := db.ReadDocRange(startKey, endKey, queryLimit, querySkip)
 	if err != nil {
 		logger.Debugf("Error calling ReadDocRange(): %s\n", err.Error())
-		return err
+		return nil, err
 	}
-
-	scanner.resultsInfo.results = queryResult
-	scanner.queryDefinition.startKey = nextStartKey
-	scanner.paginationInfo.cursor = 0
-
-	return nil
+	logger.Debugf("Exiting GetStateRangeScanIterator")
+	return newQueryScanner(namespace, *queryResult), nil
 }
 
 // ExecuteQuery implements method in VersionedDB interface
 func (vdb *VersionedDB) ExecuteQuery(namespace, query string) (statedb.ResultsIterator, error) {
-
-	queryResult, err := vdb.ExecuteQueryWithMetadata(namespace, query, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	return queryResult, nil
-}
-
-// ExecuteQueryWithMetadata implements method in VersionedDB interface
-func (vdb *VersionedDB) ExecuteQueryWithMetadata(namespace, query string, metadata map[string]interface{}) (statedb.QueryResultsIterator, error) {
-
-	logger.Debugf("Entering ExecuteQueryWithMetadata  namespace: %s,  query: %s,  metadata: %v", namespace, query, metadata)
 	// Get the querylimit from core.yaml
-	internalQueryLimit := int32(ledgerconfig.GetInternalQueryLimit())
-	bookmark := ""
-	requestedLimit := int32(0)
-	// if metadata is provided, then validate and set provided options
-	if metadata != nil {
-		err := validateQueryMetadata(metadata)
-		if err != nil {
-			return nil, err
-		}
-		if limitOption, ok := metadata[optionLimit]; ok {
-			requestedLimit = limitOption.(int32)
-		}
-		if bookmarkOption, ok := metadata[optionBookmark]; ok {
-			bookmark = bookmarkOption.(string)
-		}
-	}
-	queryString, err := applyAdditionalQueryOptions(query, internalQueryLimit, bookmark)
+	queryLimit := ledgerconfig.GetQueryLimit()
+	// Explicit paging not yet supported.
+	// Use queryLimit from config and 0 skip.
+	queryString, err := applyAdditionalQueryOptions(query, queryLimit, 0)
 	if err != nil {
-		logger.Errorf("Error calling applyAdditionalQueryOptions(): %s", err.Error())
+		logger.Debugf("Error calling applyAdditionalQueryOptions(): %s\n", err.Error())
 		return nil, err
 	}
 	db, err := vdb.getNamespaceDBHandle(namespace)
 	if err != nil {
 		return nil, err
 	}
-	return newQueryScanner(namespace, db, queryString, internalQueryLimit, requestedLimit, bookmark, "", "")
-}
-
-// executeQueryWithBookmark executes a "paging" query with a bookmark, this method allows a
-// paged query without returning a new query iterator
-func (scanner *queryScanner) executeQueryWithBookmark() error {
-
-	queryLimit := scanner.queryDefinition.internalQueryLimit
-	if scanner.paginationInfo.requestedLimit > 0 {
-		if scanner.paginationInfo.requestedLimit-scanner.resultsInfo.totalRecordsReturned < scanner.queryDefinition.internalQueryLimit {
-			queryLimit = scanner.paginationInfo.requestedLimit - scanner.resultsInfo.totalRecordsReturned
-		}
-	}
-
-	queryString, err := applyAdditionalQueryOptions(scanner.queryDefinition.query,
-		queryLimit, scanner.paginationInfo.bookmark)
-	if err != nil {
-		logger.Debugf("Error calling applyAdditionalQueryOptions(): %s\n", err.Error())
-		return err
-	}
-
-	queryResult, bookmark, err := scanner.db.QueryDocuments(queryString)
+	queryResult, err := db.QueryDocuments(queryString)
 	if err != nil {
 		logger.Debugf("Error calling QueryDocuments(): %s\n", err.Error())
-		return err
+		return nil, err
 	}
-
-	scanner.resultsInfo.results = queryResult
-	scanner.paginationInfo.bookmark = bookmark
-	scanner.paginationInfo.cursor = 0
-
-	return nil
-}
-
-func validateQueryMetadata(metadata map[string]interface{}) error {
-	for key, keyVal := range metadata {
-		switch key {
-
-		case optionBookmark:
-			//Verify the bookmark is a string
-			if _, ok := keyVal.(string); ok {
-				continue
-			}
-			return fmt.Errorf("Invalid entry, \"bookmark\" must be a string")
-
-		case optionLimit:
-			//Verify the limit is an integer
-			if _, ok := keyVal.(int32); ok {
-				continue
-			}
-			return fmt.Errorf("Invalid entry, \"limit\" must be an int32")
-
-		default:
-			return fmt.Errorf("Invalid entry, option %s not recognized", key)
-		}
-	}
-	return nil
+	logger.Debugf("Exiting ExecuteQuery")
+	return newQueryScanner(namespace, *queryResult), nil
 }
 
 // ApplyUpdates implements method in VersionedDB interface
@@ -435,7 +310,7 @@ func (vdb *VersionedDB) ApplyUpdates(updates *statedb.UpdateBatch, height *versi
 	namespaces := updates.GetUpdatedNamespaces()
 	// Record a savepoint at a given height
 	if err = vdb.ensureFullCommitAndRecordSavepoint(height, namespaces); err != nil {
-		logger.Errorf("Error during recordSavepoint: %s", err.Error())
+		logger.Errorf("Error during recordSavepoint: %s\n", err.Error())
 		return err
 	}
 	return nil
@@ -490,7 +365,7 @@ func (vdb *VersionedDB) ensureFullCommitAndRecordSavepoint(height *version.Heigh
 	}
 	_, err = vdb.metadataDB.SaveDoc(savepointDocID, "", savepointCouchDoc)
 	if err != nil {
-		logger.Errorf("Failed to save the savepoint to DB %s", err.Error())
+		logger.Errorf("Failed to save the savepoint to DB %s\n", err.Error())
 		return err
 	}
 	// Note: Ensure full commit on metadataDB after storing the savepoint is not necessary
@@ -505,7 +380,7 @@ func (vdb *VersionedDB) GetLatestSavePoint() (*version.Height, error) {
 	var err error
 	couchDoc, _, err := vdb.metadataDB.ReadDoc(savepointDocID)
 	if err != nil {
-		logger.Errorf("Failed to read savepoint data %s", err.Error())
+		logger.Errorf("Failed to read savepoint data %s\n", err.Error())
 		return nil, err
 	}
 	// ReadDoc() not found (404) will result in nil response, in these cases return height nil
@@ -516,10 +391,10 @@ func (vdb *VersionedDB) GetLatestSavePoint() (*version.Height, error) {
 }
 
 // applyAdditionalQueryOptions will add additional fields to the query required for query processing
-func applyAdditionalQueryOptions(queryString string, queryLimit int32, queryBookmark string) (string, error) {
+func applyAdditionalQueryOptions(queryString string, queryLimit, querySkip int) (string, error) {
 	const jsonQueryFields = "fields"
 	const jsonQueryLimit = "limit"
-	const jsonQueryBookmark = "bookmark"
+	const jsonQuerySkip = "skip"
 	//create a generic map for the query json
 	jsonQueryMap := make(map[string]interface{})
 	//unmarshal the selector json into the generic map
@@ -536,17 +411,17 @@ func applyAdditionalQueryOptions(queryString string, queryLimit int32, queryBook
 			jsonQueryMap[jsonQueryFields] = append(fieldsJSONArray.([]interface{}),
 				idField, versionField)
 		default:
-			return "", errors.New("fields definition must be an array")
+			return "", fmt.Errorf("fields definition must be an array")
 		}
 	}
 	// Add limit
 	// This will override any limit passed in the query.
 	// Explicit paging not yet supported.
 	jsonQueryMap[jsonQueryLimit] = queryLimit
-	// Add the bookmark if provided
-	if queryBookmark != "" {
-		jsonQueryMap[jsonQueryBookmark] = queryBookmark
-	}
+	// Add skip of 0.
+	// This will override any skip passed in the query.
+	// Explicit paging not yet supported.
+	jsonQueryMap[jsonQuerySkip] = querySkip
 	//Marshal the updated json query
 	editedQuery, err := json.Marshal(jsonQueryMap)
 	if err != nil {
@@ -557,89 +432,21 @@ func applyAdditionalQueryOptions(queryString string, queryLimit int32, queryBook
 }
 
 type queryScanner struct {
-	namespace       string
-	db              *couchdb.CouchDatabase
-	queryDefinition *queryDefinition
-	paginationInfo  *paginationInfo
-	resultsInfo     *resultsInfo
+	cursor    int
+	namespace string
+	results   []couchdb.QueryResult
 }
 
-type queryDefinition struct {
-	startKey           string
-	endKey             string
-	query              string
-	internalQueryLimit int32
-}
-
-type paginationInfo struct {
-	cursor         int32
-	requestedLimit int32
-	bookmark       string
-}
-
-type resultsInfo struct {
-	totalRecordsReturned int32
-	results              []*couchdb.QueryResult
-}
-
-func newQueryScanner(namespace string, db *couchdb.CouchDatabase, query string, internalQueryLimit,
-	limit int32, bookmark, startKey, endKey string) (*queryScanner, error) {
-
-	scanner := &queryScanner{namespace, db, &queryDefinition{startKey, endKey, query, internalQueryLimit}, &paginationInfo{-1, limit, bookmark}, &resultsInfo{0, nil}}
-	var err error
-
-	// query is defined, then execute the query and return the records and bookmark
-	if scanner.queryDefinition.query != "" {
-		err = scanner.executeQueryWithBookmark()
-	} else {
-		err = scanner.getNextStateRangeScanResults()
-	}
-	if err != nil {
-		return nil, err
-	}
-	scanner.paginationInfo.cursor = -1
-
-	return scanner, nil
+func newQueryScanner(namespace string, queryResults []couchdb.QueryResult) *queryScanner {
+	return &queryScanner{-1, namespace, queryResults}
 }
 
 func (scanner *queryScanner) Next() (statedb.QueryResult, error) {
-
-	//test for no results case
-	if len(scanner.resultsInfo.results) == 0 {
+	scanner.cursor++
+	if scanner.cursor >= len(scanner.results) {
 		return nil, nil
 	}
-
-	// increment the cursor
-	scanner.paginationInfo.cursor++
-
-	// check to see if additional records are needed
-	// requery if the cursor exceeds the internalQueryLimit
-	if scanner.paginationInfo.cursor >= scanner.queryDefinition.internalQueryLimit {
-
-		var err error
-		// query is defined, then execute the query and return the records and bookmark
-		if scanner.queryDefinition.query != "" {
-			err = scanner.executeQueryWithBookmark()
-		} else {
-			err = scanner.getNextStateRangeScanResults()
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		//if no more results, then return
-		if len(scanner.resultsInfo.results) == 0 {
-			return nil, nil
-		}
-
-	}
-
-	//If the cursor is greater than or equal to the number of result records, return
-	if scanner.paginationInfo.cursor >= int32(len(scanner.resultsInfo.results)) {
-		return nil, nil
-	}
-
-	selectedResultRecord := scanner.resultsInfo.results[scanner.paginationInfo.cursor]
+	selectedResultRecord := scanner.results[scanner.cursor]
 	key := selectedResultRecord.ID
 
 	// remove the reserved fields from CouchDB JSON and return the value and version
@@ -647,9 +454,6 @@ func (scanner *queryScanner) Next() (statedb.QueryResult, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	scanner.resultsInfo.totalRecordsReturned++
-
 	return &statedb.VersionedKV{
 		CompositeKey:   statedb.CompositeKey{Namespace: scanner.namespace, Key: key},
 		VersionedValue: *kv.VersionedValue}, nil
@@ -657,15 +461,4 @@ func (scanner *queryScanner) Next() (statedb.QueryResult, error) {
 
 func (scanner *queryScanner) Close() {
 	scanner = nil
-}
-
-func (scanner *queryScanner) GetBookmarkAndClose() string {
-	retval := ""
-	if scanner.queryDefinition.query != "" {
-		retval = scanner.paginationInfo.bookmark
-	} else {
-		retval = scanner.queryDefinition.startKey
-	}
-	scanner.Close()
-	return retval
 }

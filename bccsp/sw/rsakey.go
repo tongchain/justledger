@@ -42,12 +42,12 @@ type rsaPrivateKey struct {
 
 // Bytes converts this key to its byte representation,
 // if this operation is allowed.
-func (k *rsaPrivateKey) Bytes() ([]byte, error) {
+func (k *rsaPrivateKey) Bytes() (raw []byte, err error) {
 	return nil, errors.New("Not supported.")
 }
 
 // SKI returns the subject key identifier of this key.
-func (k *rsaPrivateKey) SKI() []byte {
+func (k *rsaPrivateKey) SKI() (ski []byte) {
 	if k.privKey == nil {
 		return nil
 	}
@@ -100,7 +100,7 @@ func (k *rsaPublicKey) Bytes() (raw []byte, err error) {
 }
 
 // SKI returns the subject key identifier of this key.
-func (k *rsaPublicKey) SKI() []byte {
+func (k *rsaPublicKey) SKI() (ski []byte) {
 	if k.pubKey == nil {
 		return nil
 	}

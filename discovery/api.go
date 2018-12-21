@@ -11,7 +11,7 @@ import (
 	"justledger/gossip/common"
 	"justledger/gossip/discovery"
 	common2 "justledger/protos/common"
-	discprotos "justledger/protos/discovery"
+	discovery2 "justledger/protos/discovery"
 )
 
 // AccessControlSupport checks if clients are eligible of being serviced
@@ -50,19 +50,13 @@ type GossipSupport interface {
 // for chaincodes
 type EndorsementSupport interface {
 	// PeersForEndorsement returns an EndorsementDescriptor for a given set of peers, channel, and chaincode
-	PeersForEndorsement(channel common.ChainID, interest *discprotos.ChaincodeInterest) (*discprotos.EndorsementDescriptor, error)
-
-	// PeersAuthorizedByCriteria returns the peers of the channel that are authorized by the given chaincode interest
-	// That is - taking in account if the chaincode(s) in the interest are installed on the peers, and also
-	// taking in account whether the peers are part of the collections of the chaincodes.
-	// If a nil interest, or an empty interest is passed - no filtering is done.
-	PeersAuthorizedByCriteria(chainID common.ChainID, interest *discprotos.ChaincodeInterest) (discovery.Members, error)
+	PeersForEndorsement(channel common.ChainID, interest *discovery2.ChaincodeInterest) (*discovery2.EndorsementDescriptor, error)
 }
 
 // ConfigSupport provides access to channel configuration
 type ConfigSupport interface {
 	// Config returns the channel's configuration
-	Config(channel string) (*discprotos.ConfigResult, error)
+	Config(channel string) (*discovery2.ConfigResult, error)
 }
 
 // Support defines an interface that allows the discovery service

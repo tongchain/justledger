@@ -17,8 +17,6 @@ import (
 type Orderer struct {
 	// ConsensusTypeVal is returned as the result of ConsensusType()
 	ConsensusTypeVal string
-	// ConsensusMetadataVal is returned as the result of ConsensusMetadata()
-	ConsensusMetadataVal []byte
 	// BatchSizeVal is returned as the result of BatchSize()
 	BatchSizeVal *ab.BatchSize
 	// BatchTimeoutVal is returned as the result of BatchTimeout()
@@ -34,43 +32,38 @@ type Orderer struct {
 }
 
 // ConsensusType returns the ConsensusTypeVal
-func (o *Orderer) ConsensusType() string {
-	return o.ConsensusTypeVal
-}
-
-// ConsensusMetadata returns the ConsensusMetadataVal
-func (o *Orderer) ConsensusMetadata() []byte {
-	return o.ConsensusMetadataVal
+func (scm *Orderer) ConsensusType() string {
+	return scm.ConsensusTypeVal
 }
 
 // BatchSize returns the BatchSizeVal
-func (o *Orderer) BatchSize() *ab.BatchSize {
-	return o.BatchSizeVal
+func (scm *Orderer) BatchSize() *ab.BatchSize {
+	return scm.BatchSizeVal
 }
 
 // BatchTimeout returns the BatchTimeoutVal
-func (o *Orderer) BatchTimeout() time.Duration {
-	return o.BatchTimeoutVal
+func (scm *Orderer) BatchTimeout() time.Duration {
+	return scm.BatchTimeoutVal
 }
 
 // KafkaBrokers returns the KafkaBrokersVal
-func (o *Orderer) KafkaBrokers() []string {
-	return o.KafkaBrokersVal
+func (scm *Orderer) KafkaBrokers() []string {
+	return scm.KafkaBrokersVal
 }
 
 // MaxChannelsCount returns the MaxChannelsCountVal
-func (o *Orderer) MaxChannelsCount() uint64 {
-	return o.MaxChannelsCountVal
+func (scm *Orderer) MaxChannelsCount() uint64 {
+	return scm.MaxChannelsCountVal
 }
 
 // Organizations returns OrganizationsVal
-func (o *Orderer) Organizations() map[string]channelconfig.Org {
-	return o.OrganizationsVal
+func (scm *Orderer) Organizations() map[string]channelconfig.Org {
+	return scm.OrganizationsVal
 }
 
 // Capabilities returns CapabilitiesVal
-func (o *Orderer) Capabilities() channelconfig.OrdererCapabilities {
-	return o.CapabilitiesVal
+func (scm *Orderer) Capabilities() channelconfig.OrdererCapabilities {
+	return scm.CapabilitiesVal
 }
 
 // OrdererCapabilities mocks the channelconfig.OrdererCapabilities interface

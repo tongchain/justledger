@@ -264,11 +264,7 @@ func TestTransientStorePurgeByTxids(t *testing.T) {
 	sortResults(expectedEndorsersResults)
 	sortResults(actualEndorsersResults)
 
-	assert.Equal(len(expectedEndorsersResults), len(actualEndorsersResults))
-	for i, expected := range expectedEndorsersResults {
-		assert.Equal(expected.ReceivedAtBlockHeight, actualEndorsersResults[i].ReceivedAtBlockHeight)
-		assert.True(proto.Equal(expected.PvtSimulationResultsWithConfig, actualEndorsersResults[i].PvtSimulationResultsWithConfig))
-	}
+	assert.Equal(expectedEndorsersResults, actualEndorsersResults)
 
 	// Remove all private write set of txid-2 and txid-3
 	toRemoveTxids := []string{"txid-2", "txid-3"}
@@ -314,11 +310,7 @@ func TestTransientStorePurgeByTxids(t *testing.T) {
 	sortResults(expectedEndorsersResults)
 	sortResults(actualEndorsersResults)
 
-	assert.Equal(len(expectedEndorsersResults), len(actualEndorsersResults))
-	for i, expected := range expectedEndorsersResults {
-		assert.Equal(expected.ReceivedAtBlockHeight, actualEndorsersResults[i].ReceivedAtBlockHeight)
-		assert.True(proto.Equal(expected.PvtSimulationResultsWithConfig, actualEndorsersResults[i].PvtSimulationResultsWithConfig))
-	}
+	assert.Equal(expectedEndorsersResults, actualEndorsersResults)
 
 	toRemoveTxids = []string{"txid-1"}
 	err = env.TestStore.PurgeByTxids(toRemoveTxids)
@@ -427,11 +419,7 @@ func TestTransientStorePurgeByHeight(t *testing.T) {
 	sortResults(expectedEndorsersResults)
 	sortResults(actualEndorsersResults)
 
-	assert.Equal(len(expectedEndorsersResults), len(actualEndorsersResults))
-	for i, expected := range expectedEndorsersResults {
-		assert.Equal(expected.ReceivedAtBlockHeight, actualEndorsersResults[i].ReceivedAtBlockHeight)
-		assert.True(proto.Equal(expected.PvtSimulationResultsWithConfig, actualEndorsersResults[i].PvtSimulationResultsWithConfig))
-	}
+	assert.Equal(expectedEndorsersResults, actualEndorsersResults)
 
 	// Get the minimum block height remaining in transient store
 	var actualMinTransientBlkHt uint64
@@ -510,12 +498,7 @@ func TestTransientStoreRetrievalWithFilter(t *testing.T) {
 	// expectedRes and actualRes.
 	sortResults(expectedRes)
 	sortResults(actualRes)
-	assert.Equal(t, len(expectedRes), len(actualRes))
-	for i, expected := range expectedRes {
-		assert.Equal(t, expected.ReceivedAtBlockHeight, actualRes[i].ReceivedAtBlockHeight)
-		assert.True(t, proto.Equal(expected.PvtSimulationResultsWithConfig, actualRes[i].PvtSimulationResultsWithConfig))
-	}
-
+	assert.Equal(t, expectedRes, actualRes)
 }
 
 func sortResults(res []*EndorserPvtSimulationResultsWithConfig) {
@@ -573,13 +556,13 @@ func samplePvtDataWithConfigInfo(t *testing.T) *transientstore.TxPvtReadWriteSet
 		PvtRwset: pvtWriteSet,
 		CollectionConfigs: map[string]*common.CollectionConfigPackage{
 			"ns-1": {
-				Config: []*common.CollectionConfig{
+				[]*common.CollectionConfig{
 					sampleCollectionConfigPackage("coll-1"),
 					sampleCollectionConfigPackage("coll-2"),
 				},
 			},
 			"ns-2": {
-				Config: []*common.CollectionConfig{
+				[]*common.CollectionConfig{
 					sampleCollectionConfigPackage("coll-1"),
 					sampleCollectionConfigPackage("coll-2"),
 				},

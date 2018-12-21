@@ -9,8 +9,8 @@ package ledgerconfig
 import (
 	"path/filepath"
 
-	"justledger/core/config"
 	"github.com/spf13/viper"
+	"justledger/core/config"
 )
 
 //IsCouchDBEnabled exposes the useCouchDB variable
@@ -40,8 +40,7 @@ const confBookkeeper = "bookkeeper"
 const confConfigHistory = "configHistory"
 const confChains = "chains"
 const confPvtdataStore = "pvtdataStore"
-const confTotalQueryLimit = "ledger.state.totalQueryLimit"
-const confInternalQueryLimit = "ledger.state.couchDBConfig.internalQueryLimit"
+const confQueryLimit = "ledger.state.couchDBConfig.queryLimit"
 const confEnableHistoryDatabase = "ledger.history.enableHistoryDatabase"
 const confMaxBatchSize = "ledger.state.couchDBConfig.maxBatchUpdateSize"
 const confAutoWarmIndexes = "ledger.state.couchDBConfig.autoWarmIndexes"
@@ -94,24 +93,14 @@ func GetMaxBlockfileSize() int {
 	return 64 * 1024 * 1024
 }
 
-//GetTotalLimit exposes the totalLimit variable
-func GetTotalQueryLimit() int {
-	totalQueryLimit := viper.GetInt(confTotalQueryLimit)
-	// if queryLimit was unset, default to 10000
-	if !viper.IsSet(confTotalQueryLimit) {
-		totalQueryLimit = 10000
-	}
-	return totalQueryLimit
-}
-
 //GetQueryLimit exposes the queryLimit variable
-func GetInternalQueryLimit() int {
-	internalQueryLimit := viper.GetInt(confInternalQueryLimit)
-	// if queryLimit was unset, default to 1000
-	if !viper.IsSet(confInternalQueryLimit) {
-		internalQueryLimit = 1000
+func GetQueryLimit() int {
+	queryLimit := viper.GetInt(confQueryLimit)
+	// if queryLimit was unset, default to 10000
+	if !viper.IsSet(confQueryLimit) {
+		queryLimit = 10000
 	}
-	return internalQueryLimit
+	return queryLimit
 }
 
 //GetMaxBatchUpdateSize exposes the maxBatchUpdateSize variable

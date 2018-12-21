@@ -26,14 +26,8 @@ var cobraCommand = &cobra.Command{
 	Use:   "version",
 	Short: "Print fabric peer version.",
 	Long:  `Print current version of the fabric peer server.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) != 0 {
-			return fmt.Errorf("trailing args detected")
-		}
-		// Parsing of the command line is done so silence cmd usage
-		cmd.SilenceUsage = true
+	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print(GetInfo())
-		return nil
 	},
 }
 

@@ -18,7 +18,6 @@ package peer
 
 import (
 	"fmt"
-	"sync"
 	"time"
 
 	pb "justledger/protos/peer"
@@ -59,10 +58,8 @@ type MockCCComm struct {
 	recvStream  chan *pb.ChaincodeMessage
 	sendStream  chan *pb.ChaincodeMessage
 	respIndex   int
-	respLock    sync.Mutex
 	respSet     *MockResponseSet
 	pong        bool
-	skipClose   bool
 }
 
 func (s *MockCCComm) SetName(newname string) {
@@ -71,6 +68,9 @@ func (s *MockCCComm) SetName(newname string) {
 
 //Send sends a message
 func (s *MockCCComm) Send(msg *pb.ChaincodeMessage) error {
+	defer func() {
+		recover()
+	}()
 	s.sendStream <- msg
 	return nil
 }
@@ -96,11 +96,16 @@ func (s *MockCCComm) GetSendStream() chan *pb.ChaincodeMessage {
 	return s.sendStream
 }
 
-//Quit closes the channels...
+//Quit closes the channels...this will also close chaincode side
 func (s *MockCCComm) Quit() {
-	if !s.skipClose {
+	if s.recvStream != nil {
 		close(s.recvStream)
+		s.recvStream = nil
+	}
+
+	if s.sendStream != nil {
 		close(s.sendStream)
+		s.sendStream = nil
 	}
 }
 
@@ -121,32 +126,31 @@ func (s *MockCCComm) SetKeepAlive(ka *pb.ChaincodeMessage) {
 
 //SetResponses sets responses for an Init or Invoke
 func (s *MockCCComm) SetResponses(respSet *MockResponseSet) {
-	s.respLock.Lock()
 	s.respSet = respSet
 	s.respIndex = 0
-	s.respLock.Unlock()
 }
 
 //keepAlive
-func (s *MockCCComm) ka(done <-chan struct{}) {
+func (s *MockCCComm) ka() {
+	defer recover()
 	for {
 		if s.keepAlive == nil {
 			return
 		}
 		s.Send(s.keepAlive)
-		select {
-		case <-time.After(10 * time.Millisecond):
-		case <-done:
-			return
-		}
+		time.Sleep(10 * time.Millisecond)
 	}
 }
 
 //Run receives and sends indefinitely
-func (s *MockCCComm) Run(done <-chan struct{}) error {
+func (s *MockCCComm) Run() error {
 	//start the keepalive
-	go s.ka(done)
-	defer s.Quit()
+	go s.ka()
+
+	//if we started keep alive this will kill it
+	defer func() {
+		s.keepAlive = nil
+	}()
 
 	for {
 		msg, err := s.Recv()
@@ -176,9 +180,6 @@ func (s *MockCCComm) respond(msg *pb.ChaincodeMessage) error {
 		}
 		return nil
 	}
-
-	s.respLock.Lock()
-	defer s.respLock.Unlock()
 
 	var err error
 	if s.respIndex < len(s.respSet.Responses) {

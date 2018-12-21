@@ -8,13 +8,14 @@ package statecouchdb
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
 	"justledger/core/ledger/kvledger/txmgmt/statedb"
 	"justledger/core/ledger/kvledger/txmgmt/version"
 	"justledger/core/ledger/util/couchdb"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -41,14 +42,13 @@ func tryCastingToJSON(b []byte) (isJSON bool, val jsonValue) {
 func castToJSON(b []byte) (jsonValue, error) {
 	var jsonVal map[string]interface{}
 	err := json.Unmarshal(b, &jsonVal)
-	err = errors.Wrap(err, "error unmarshalling json data")
 	return jsonVal, err
 }
 
 func (v jsonValue) checkReservedFieldsNotPresent() error {
 	for fieldName := range v {
 		if fieldName == versionField || strings.HasPrefix(fieldName, "_") {
-			return errors.Errorf("field [%s] is not valid for the CouchDB state database", fieldName)
+			return fmt.Errorf("The field [%s] is not valid for the CouchDB state database", fieldName)
 		}
 	}
 	return nil
@@ -59,9 +59,7 @@ func (v jsonValue) removeRevField() {
 }
 
 func (v jsonValue) toBytes() ([]byte, error) {
-	jsonBytes, err := json.Marshal(v)
-	err = errors.Wrap(err, "error marshalling json data")
-	return jsonBytes, err
+	return json.Marshal(v)
 }
 
 func couchDocToKeyValue(doc *couchdb.CouchDoc) (*keyValue, error) {
@@ -77,15 +75,11 @@ func couchDocToKeyValue(doc *couchdb.CouchDoc) (*keyValue, error) {
 	}
 	// verify the version field exists
 	if _, fieldFound := jsonResult[versionField]; !fieldFound {
-		return nil, errors.Errorf("version field %s was not found", versionField)
+		return nil, fmt.Errorf("The version field %s was not found", versionField)
 	}
 	key := jsonResult[idField].(string)
 	// create the return version from the version field in the JSON
-
-	returnVersion, returnMetadata, err := decodeVersionAndMetadata(jsonResult[versionField].(string))
-	if err != nil {
-		return nil, err
-	}
+	returnVersion := createVersionHeightFromVersionString(jsonResult[versionField].(string))
 	// remove the _id, _rev and version fields
 	delete(jsonResult, idField)
 	delete(jsonResult, revField)
@@ -105,11 +99,7 @@ func couchDocToKeyValue(doc *couchdb.CouchDoc) (*keyValue, error) {
 			return nil, err
 		}
 	}
-	return &keyValue{key, &statedb.VersionedValue{
-		Value:    returnValue,
-		Metadata: returnMetadata,
-		Version:  returnVersion},
-	}, nil
+	return &keyValue{key, &statedb.VersionedValue{Value: returnValue, Version: returnVersion}}, nil
 }
 
 func keyValToCouchDoc(kv *keyValue, revision string) (*couchdb.CouchDoc, error) {
@@ -119,7 +109,7 @@ func keyValToCouchDoc(kv *keyValue, revision string) (*couchdb.CouchDoc, error) 
 		kvTypeJSON
 		kvTypeAttachment
 	)
-	key, value, metadata, version := kv.key, kv.Value, kv.Metadata, kv.Version
+	key, value, version := kv.key, kv.VersionedValue.Value, kv.VersionedValue.Version
 	jsonMap := make(jsonValue)
 
 	var kvtype kvType
@@ -141,12 +131,8 @@ func keyValToCouchDoc(kv *keyValue, revision string) (*couchdb.CouchDoc, error) 
 		kvtype = kvTypeAttachment
 	}
 
-	verAndMetadata, err := encodeVersionAndMetadata(version, metadata)
-	if err != nil {
-		return nil, err
-	}
-	// add the (version + metadata), id, revision, and delete marker (if needed)
-	jsonMap[versionField] = verAndMetadata
+	// add the version, id, revision, and delete marker (if needed)
+	jsonMap[versionField] = fmt.Sprintf("%v:%v", version.BlockNum, version.TxNum)
 	jsonMap[idField] = key
 	if revision != "" {
 		jsonMap[revField] = revision
@@ -184,8 +170,7 @@ func encodeSavepoint(height *version.Height) (*couchdb.CouchDoc, error) {
 	savepointDoc.TxNum = height.TxNum
 	savepointDocJSON, err := json.Marshal(savepointDoc)
 	if err != nil {
-		err = errors.Wrap(err, "failed to marshal savepoint data")
-		logger.Errorf("%+v", err)
+		logger.Errorf("Failed to create savepoint data %s\n", err.Error())
 		return nil, err
 	}
 	return &couchdb.CouchDoc{JSONValue: savepointDocJSON, Attachments: nil}, nil
@@ -194,11 +179,19 @@ func encodeSavepoint(height *version.Height) (*couchdb.CouchDoc, error) {
 func decodeSavepoint(couchDoc *couchdb.CouchDoc) (*version.Height, error) {
 	savepointDoc := &couchSavepointData{}
 	if err := json.Unmarshal(couchDoc.JSONValue, &savepointDoc); err != nil {
-		err = errors.Wrap(err, "failed to unmarshal savepoint data")
-		logger.Errorf("%+v", err)
+		logger.Errorf("Failed to unmarshal savepoint data %s\n", err.Error())
 		return nil, err
 	}
 	return &version.Height{BlockNum: savepointDoc.BlockNum, TxNum: savepointDoc.TxNum}, nil
+}
+
+func createVersionHeightFromVersionString(encodedVersion string) *version.Height {
+	versionArray := strings.Split(fmt.Sprintf("%s", encodedVersion), ":")
+	// convert the blockNum from String to unsigned int
+	blockNum, _ := strconv.ParseUint(versionArray[0], 10, 64)
+	// convert the txNum from String to unsigned int
+	txNum, _ := strconv.ParseUint(versionArray[1], 10, 64)
+	return version.NewHeight(blockNum, txNum)
 }
 
 func validateValue(value []byte) error {
@@ -211,10 +204,10 @@ func validateValue(value []byte) error {
 
 func validateKey(key string) error {
 	if !utf8.ValidString(key) {
-		return errors.Errorf("invalid key [%x], must be a UTF-8 string", key)
+		return fmt.Errorf("Key should be a valid utf8 string: [%x]", key)
 	}
 	if strings.HasPrefix(key, "_") {
-		return errors.Errorf("invalid key [%s], cannot begin with \"_\"", key)
+		return fmt.Errorf("The key [%s] is not valid for the CouchDB state database.  The key must not begin with \"_\"", key)
 	}
 	return nil
 }
@@ -223,12 +216,12 @@ func validateKey(key string) error {
 func removeJSONRevision(jsonValue *[]byte) error {
 	jsonVal, err := castToJSON(*jsonValue)
 	if err != nil {
-		logger.Errorf("Failed to unmarshal couchdb JSON data: %+v", err)
+		logger.Errorf("Failed to unmarshal couchdb JSON data %s\n", err.Error())
 		return err
 	}
 	jsonVal.removeRevField()
 	if *jsonValue, err = jsonVal.toBytes(); err != nil {
-		logger.Errorf("Failed to marshal couchdb JSON data: %+v", err)
+		logger.Errorf("Failed to marshal couchdb JSON data %s\n", err.Error())
 	}
 	return err
 }

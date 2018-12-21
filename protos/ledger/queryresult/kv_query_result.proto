@@ -18,7 +18,7 @@ syntax = "proto3";
 
 package queryresult;
 
-option go_package = "github.com/hyperledger/fabric/protos/ledger/queryresult";
+option go_package = "justledger/protos/ledger/queryresult";
 option java_package = "org.hyperledger.fabric.protos.ledger.queryresult";
 
 import "google/protobuf/timestamp.proto";

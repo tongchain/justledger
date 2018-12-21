@@ -11,6 +11,7 @@ import (
 	"justledger/core/container/ccintf"
 	"justledger/core/container/mock"
 	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -20,9 +21,11 @@ var _ = Describe("Container", func() {
 	Describe("VMCReqs", func() {
 		var (
 			fakeVM *mock.VM
+			ctxt   context.Context
 		)
 
 		BeforeEach(func() {
+			ctxt = context.Background()
 			fakeVM = &mock.VM{}
 		})
 
@@ -45,10 +48,11 @@ var _ = Describe("Container", func() {
 
 			Describe("Do", func() {
 				It("starts a vm", func() {
-					err := startReq.Do(fakeVM)
+					err := startReq.Do(ctxt, fakeVM)
 					Expect(err).NotTo(HaveOccurred())
 					Expect(fakeVM.StartCallCount()).To(Equal(1))
-					ccid, args, env, filesToUpload, builder := fakeVM.StartArgsForCall(0)
+					rctxt, ccid, args, env, filesToUpload, builder := fakeVM.StartArgsForCall(0)
+					Expect(rctxt).To(Equal(ctxt))
 					Expect(ccid).To(Equal(ccintf.CCID{Name: "start-name"}))
 					Expect(args).To(Equal([]string{"foo", "bar"}))
 					Expect(env).To(Equal([]string{"Bar", "Foo"}))
@@ -61,7 +65,7 @@ var _ = Describe("Container", func() {
 				Context("when the vm provider fails", func() {
 					It("returns the error", func() {
 						fakeVM.StartReturns(errors.New("Boo"))
-						err := startReq.Do(fakeVM)
+						err := startReq.Do(ctxt, fakeVM)
 						Expect(err).To(MatchError("Boo"))
 					})
 				})
@@ -90,10 +94,11 @@ var _ = Describe("Container", func() {
 
 			Describe("Do", func() {
 				It("stops the vm", func() {
-					resp := stopReq.Do(fakeVM)
+					resp := stopReq.Do(ctxt, fakeVM)
 					Expect(resp).To(BeNil())
 					Expect(fakeVM.StopCallCount()).To(Equal(1))
-					ccid, timeout, dontKill, dontRemove := fakeVM.StopArgsForCall(0)
+					rctxt, ccid, timeout, dontKill, dontRemove := fakeVM.StopArgsForCall(0)
+					Expect(rctxt).To(Equal(ctxt))
 					Expect(ccid).To(Equal(ccintf.CCID{Name: "stop-name"}))
 					Expect(timeout).To(Equal(uint(283)))
 					Expect(dontKill).To(Equal(true))
@@ -103,7 +108,7 @@ var _ = Describe("Container", func() {
 				Context("when the vm provider fails", func() {
 					It("returns the error", func() {
 						fakeVM.StopReturns(errors.New("Boo"))
-						err := stopReq.Do(fakeVM)
+						err := stopReq.Do(ctxt, fakeVM)
 						Expect(err).To(MatchError("Boo"))
 					})
 				})
@@ -119,6 +124,7 @@ var _ = Describe("Container", func() {
 
 	Describe("VMController", func() {
 		var (
+			ctxt         = context.Background()
 			vmProvider   *mock.VMProvider
 			vmController *container.VMController
 			vmcReq       *mock.VMCReq
@@ -135,14 +141,14 @@ var _ = Describe("Container", func() {
 
 		Describe("Process", func() {
 			It("completes the request using the correct vm provider", func() {
-				err := vmController.Process("FakeProvider", vmcReq)
+				err := vmController.Process(ctxt, "FakeProvider", vmcReq)
 				Expect(vmProvider.NewVMCallCount()).To(Equal(1))
 				Expect(err).NotTo(HaveOccurred())
 			})
 
 			Context("the request is for an unknown VM provider type", func() {
 				It("causes the system to halt as this is a serious bug", func() {
-					Expect(func() { vmController.Process("Unknown-Type", nil) }).To(Panic())
+					Expect(func() { vmController.Process(ctxt, "Unknown-Type", nil) }).To(Panic())
 					Expect(vmProvider.NewVMCallCount()).To(Equal(0))
 				})
 			})

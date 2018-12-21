@@ -104,12 +104,11 @@ func OrdererAddressesValue(addresses []string) *StandardConfigValue {
 
 // ConsensusTypeValue returns the config definition for the orderer consensus type.
 // It is a value for the /Channel/Orderer group.
-func ConsensusTypeValue(consensusType string, consensusMetadata []byte) *StandardConfigValue {
+func ConsensusTypeValue(consensusType string) *StandardConfigValue {
 	return &StandardConfigValue{
 		key: ConsensusTypeKey,
 		value: &ab.ConsensusType{
-			Type:     consensusType,
-			Metadata: consensusMetadata,
+			Type: consensusType,
 		},
 	}
 }

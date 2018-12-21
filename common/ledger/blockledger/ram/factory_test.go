@@ -20,7 +20,13 @@ import (
 	"testing"
 
 	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+
+	logging "github.com/op/go-logging"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "")
+}
 
 func TestGetOrCreate(t *testing.T) {
 	rlf := New(3)

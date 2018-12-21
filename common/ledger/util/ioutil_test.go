@@ -17,10 +17,12 @@ limitations under the License.
 package util
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 
+	"justledger/common/ledger/testutil"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,8 +37,8 @@ func TestCreatingDBDirWithPathSeperator(t *testing.T) {
 	defer cleanup(dbPathTestWSeparator)
 
 	dirEmpty, err := CreateDirIfMissing(dbPathTestWSeparator)
-	assert.NoError(t, err, "Error when trying to create a test db directory at [%s]", dbPathTestWSeparator)
-	assert.True(t, dirEmpty) //test directory is empty is returning true
+	testutil.AssertNoError(t, err, fmt.Sprintf("Error when trying to create a test db directory at [%s]", dbPathTestWSeparator))
+	testutil.AssertEquals(t, dirEmpty, true) //test directory is empty is returning true
 }
 
 func TestCreatingDBDirWhenDirDoesAndDoesNotExists(t *testing.T) {
@@ -46,13 +48,13 @@ func TestCreatingDBDirWhenDirDoesAndDoesNotExists(t *testing.T) {
 
 	//test creating a directory without path separator passed
 	dirEmpty, err := CreateDirIfMissing(dbPathTest)
-	assert.NoError(t, err, "Error when trying to create a test db directory at [%s]", dbPathTest)
-	assert.True(t, dirEmpty)
+	testutil.AssertNoError(t, err, fmt.Sprintf("Error when trying to create a test db directory at [%s]", dbPathTest))
+	testutil.AssertEquals(t, dirEmpty, true)
 
 	//test creating directory AGAIN, that is the directory already exists
 	dirEmpty2, err2 := CreateDirIfMissing(dbPathTest)
-	assert.NoError(t, err2, "Error not handling existing directory when trying to create a test db directory at [%s]", dbPathTest)
-	assert.True(t, dirEmpty2)
+	testutil.AssertNoError(t, err2, fmt.Sprintf("Error not handling existing directory when trying to create a test db directory at [%s]", dbPathTest))
+	testutil.AssertEquals(t, dirEmpty2, true)
 }
 
 func TestDirNotEmptyAndFileExists(t *testing.T) {
@@ -62,31 +64,31 @@ func TestDirNotEmptyAndFileExists(t *testing.T) {
 
 	//create the directory
 	dirEmpty, err := CreateDirIfMissing(dbPathTest)
-	assert.NoError(t, err, "Error when trying to create a test db directory at [%s]", dbPathTest)
-	assert.True(t, dirEmpty)
+	testutil.AssertNoError(t, err, fmt.Sprintf("Error when trying to create a test db directory at [%s]", dbPathTest))
+	testutil.AssertEquals(t, dirEmpty, true)
 
 	//test file does not exists and size is returned correctly
 	exists2, size2, err2 := FileExists(dbFileTest)
-	assert.NoError(t, err2, "Error when trying to determine if file exist when it does not at [%s]", dbFileTest)
-	assert.Equal(t, int64(0), size2)
-	assert.False(t, exists2) //test file that does not exists reports false
+	testutil.AssertNoError(t, err2, fmt.Sprintf("Error when trying to determine if file exist when it does not at [%s]", dbFileTest))
+	testutil.AssertEquals(t, size2, int64(0))
+	testutil.AssertEquals(t, exists2, false) //test file that does not exists reports false
 
 	//create file
 	testStr := "This is some test data in a file"
 	sizeOfFileCreated, err3 := createAndWriteAFile(testStr)
-	assert.NoError(t, err3, "Error when trying to create and write to file at [%s]", dbFileTest)
-	assert.Equal(t, len(testStr), sizeOfFileCreated) //test file size returned is correct
+	testutil.AssertNoError(t, err3, fmt.Sprintf("Error when trying to create and write to file at [%s]", dbFileTest))
+	testutil.AssertEquals(t, sizeOfFileCreated, len(testStr)) //test file size returned is correct
 
 	//test that the file exists and size is returned correctly
 	exists, size, err4 := FileExists(dbFileTest)
-	assert.NoError(t, err4, "Error when trying to determine if file exist at [%s]", dbFileTest)
-	assert.Equal(t, int64(sizeOfFileCreated), size)
-	assert.True(t, exists) //test file that does exists reports true
+	testutil.AssertNoError(t, err4, fmt.Sprintf("Error when trying to determine if file exist at [%s]", dbFileTest))
+	testutil.AssertEquals(t, size, int64(sizeOfFileCreated))
+	testutil.AssertEquals(t, exists, true) //test file that does exists reports true
 
 	//test that if the directory is not empty
 	dirEmpty5, err5 := DirEmpty(dbPathTest)
-	assert.NoError(t, err5, "Error when detecting if empty at db directory [%s]", dbPathTest)
-	assert.False(t, dirEmpty5) //test directory is empty is returning false
+	testutil.AssertNoError(t, err5, fmt.Sprintf("Error when detecting if empty at db directory [%s]", dbPathTest))
+	testutil.AssertEquals(t, dirEmpty5, false) //test directory is empty is returning false
 }
 
 func TestListSubdirs(t *testing.T) {
@@ -98,7 +100,7 @@ func TestListSubdirs(t *testing.T) {
 	}
 	subFolders, err := ListSubdirs(dbPathTest)
 	assert.NoError(t, err)
-	assert.Equal(t, subFolders, childFolders)
+	assert.Equal(t, childFolders, subFolders)
 }
 
 func createAndWriteAFile(sentence string) (int, error) {

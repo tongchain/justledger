@@ -10,25 +10,23 @@ import (
 	"testing"
 
 	"justledger/common/util"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
 	"justledger/core/container"
 	pb "justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestVM_GetChaincodePackageBytes(t *testing.T) {
-	_, err := container.GetChaincodePackageBytes(nil, nil)
+	_, err := container.GetChaincodePackageBytes(nil)
 	assert.Error(t, err,
 		"GetChaincodePackageBytes did not return error when chaincode spec is nil")
 	spec := &pb.ChaincodeSpec{ChaincodeId: nil}
-	_, err = container.GetChaincodePackageBytes(nil, spec)
+	_, err = container.GetChaincodePackageBytes(spec)
 	assert.Error(t, err, "Error expected when GetChaincodePackageBytes is called with nil chaincode ID")
 	assert.Contains(t, err.Error(), "invalid chaincode spec")
 	spec = &pb.ChaincodeSpec{Type: pb.ChaincodeSpec_GOLANG,
 		ChaincodeId: nil,
 		Input:       &pb.ChaincodeInput{Args: util.ToChaincodeArgs("f")}}
-	_, err = container.GetChaincodePackageBytes(platforms.NewRegistry(&golang.Platform{}), spec)
+	_, err = container.GetChaincodePackageBytes(spec)
 	assert.Error(t, err,
 		"GetChaincodePackageBytes did not return error when chaincode ID is nil")
 }

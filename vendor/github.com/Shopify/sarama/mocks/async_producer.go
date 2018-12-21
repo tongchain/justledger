@@ -44,7 +44,6 @@ func NewAsyncProducer(t ErrorReporter, config *sarama.Config) *AsyncProducer {
 		defer func() {
 			close(mp.successes)
 			close(mp.errors)
-			close(mp.closed)
 		}()
 
 		for msg := range mp.input {
@@ -87,6 +86,8 @@ func NewAsyncProducer(t ErrorReporter, config *sarama.Config) *AsyncProducer {
 			mp.t.Errorf("Expected to exhaust all expectations, but %d are left.", len(mp.expectations))
 		}
 		mp.l.Unlock()
+
+		close(mp.closed)
 	}()
 
 	return mp

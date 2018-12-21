@@ -8,7 +8,6 @@ package discovery
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"math/rand"
@@ -28,6 +27,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -1280,29 +1280,6 @@ func TestFilter(t *testing.T) {
 		return cc.Version == "2.0" && cc.Name == "cc"
 	})
 	assert.Equal(t, Members{members[1]}, res)
-}
-
-func TestMap(t *testing.T) {
-	members := Members{
-		{PKIid: common.PKIidType("p0"), Endpoint: "p0"},
-		{PKIid: common.PKIidType("p1"), Endpoint: "p1"},
-	}
-	expectedMembers := Members{
-		{PKIid: common.PKIidType("p0"), Endpoint: "p0", Properties: &proto.Properties{LedgerHeight: 2}},
-		{PKIid: common.PKIidType("p1"), Endpoint: "p1", Properties: &proto.Properties{LedgerHeight: 2}},
-	}
-
-	addProperty := func(member NetworkMember) NetworkMember {
-		member.Properties = &proto.Properties{
-			LedgerHeight: 2,
-		}
-		return member
-	}
-
-	assert.Equal(t, expectedMembers, members.Map(addProperty))
-	// Ensure original members didn't change
-	assert.Nil(t, members[0].Properties)
-	assert.Nil(t, members[1].Properties)
 }
 
 func TestMembersIntersect(t *testing.T) {

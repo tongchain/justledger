@@ -22,8 +22,7 @@ import (
 	"justledger/common/ledger/util"
 )
 
-// CompositeKeySep is a nil byte used as a separator between different components of a composite key
-var CompositeKeySep = []byte{0x00}
+var compositeKeySep = []byte{0x00}
 
 //ConstructCompositeHistoryKey builds the History Key of namespace~key~blocknum~trannum
 // using an order preserving encoding so that history query results are ordered by height
@@ -31,9 +30,9 @@ func ConstructCompositeHistoryKey(ns string, key string, blocknum uint64, trannu
 
 	var compositeKey []byte
 	compositeKey = append(compositeKey, []byte(ns)...)
-	compositeKey = append(compositeKey, CompositeKeySep...)
+	compositeKey = append(compositeKey, compositeKeySep...)
 	compositeKey = append(compositeKey, []byte(key)...)
-	compositeKey = append(compositeKey, CompositeKeySep...)
+	compositeKey = append(compositeKey, compositeKeySep...)
 	compositeKey = append(compositeKey, util.EncodeOrderPreservingVarUint64(blocknum)...)
 	compositeKey = append(compositeKey, util.EncodeOrderPreservingVarUint64(trannum)...)
 
@@ -45,9 +44,9 @@ func ConstructCompositeHistoryKey(ns string, key string, blocknum uint64, trannu
 func ConstructPartialCompositeHistoryKey(ns string, key string, endkey bool) []byte {
 	var compositeKey []byte
 	compositeKey = append(compositeKey, []byte(ns)...)
-	compositeKey = append(compositeKey, CompositeKeySep...)
+	compositeKey = append(compositeKey, compositeKeySep...)
 	compositeKey = append(compositeKey, []byte(key)...)
-	compositeKey = append(compositeKey, CompositeKeySep...)
+	compositeKey = append(compositeKey, compositeKeySep...)
 	if endkey {
 		compositeKey = append(compositeKey, []byte{0xff}...)
 	}

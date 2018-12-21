@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
@@ -20,6 +19,7 @@ import (
 
 	"justledger/common/flogging"
 	"justledger/core/config"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -205,12 +205,10 @@ func NewClientConnectionWithAddress(peerAddress string, block bool, tslEnabled b
 	if block {
 		opts = append(opts, grpc.WithBlock())
 	}
-	opts = append(opts, grpc.WithDefaultCallOptions(
-		grpc.MaxCallRecvMsgSize(MaxRecvMsgSize),
-		grpc.MaxCallSendMsgSize(MaxSendMsgSize),
-	))
-	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
-	defer cancel()
+	opts = append(opts, grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(MaxRecvMsgSize),
+		grpc.MaxCallSendMsgSize(MaxSendMsgSize)))
+	ctx := context.Background()
+	ctx, _ = context.WithTimeout(ctx, defaultTimeout)
 	conn, err := grpc.DialContext(ctx, peerAddress, opts...)
 	if err != nil {
 		return nil, err

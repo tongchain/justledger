@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package filter
 
 import (
-	"context"
 	"io/ioutil"
 	"path/filepath"
 	"testing"
@@ -18,6 +17,7 @@ import (
 	"justledger/protos/peer"
 	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 )
 
 type mutator func([]byte) []byte

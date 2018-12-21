@@ -13,7 +13,7 @@ go.fqp.counterfeiter := github.com/maxbrunsfeld/counterfeiter
 go.fqp.gocov         := github.com/axw/gocov/gocov
 go.fqp.gocov-xml     := github.com/AlekSi/gocov-xml
 go.fqp.goimports     := golang.org/x/tools/cmd/goimports
-go.fqp.golint        := golang.org/x/lint/golint
+go.fqp.golint        := github.com/golang/lint/golint
 go.fqp.manifest-tool := github.com/estesp/manifest-tool
 go.fqp.misspell      := github.com/client9/misspell/cmd/misspell
 go.fqp.mockery       := github.com/vektra/mockery/cmd/mockery
@@ -40,7 +40,7 @@ gotool.ginkgo:
 	@GOPATH=$(abspath $(GOTOOLS_GOPATH)) GOBIN=$(abspath $(GOTOOLS_BINDIR)) go install github.com/onsi/ginkgo/ginkgo
 
 # Lock to a versioned dep
-gotool.dep: DEP_VERSION ?= "v0.5.0"
+gotool.dep: DEP_VERSION ?= "v0.4.1"
 gotool.dep:
 	@GOPATH=$(abspath $(GOTOOLS_GOPATH)) go get -d -u github.com/golang/dep
 	@git -C $(abspath $(GOTOOLS_GOPATH))/src/github.com/golang/dep checkout -q $(DEP_VERSION)

@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/stretchr/testify/assert"
+	"justledger/common/ledger/testutil"
 )
 
 func TestBuffer(t *testing.T) {
@@ -36,11 +36,11 @@ func TestBuffer(t *testing.T) {
 
 	b := NewBuffer(pb.Bytes())
 	b.DecodeVarint()
-	assert.Equal(t, pos1, b.GetBytesConsumed())
+	testutil.AssertEquals(t, b.GetBytesConsumed(), pos1)
 	b.DecodeRawBytes(false)
-	assert.Equal(t, pos2, b.GetBytesConsumed())
+	testutil.AssertEquals(t, b.GetBytesConsumed(), pos2)
 	b.DecodeRawBytes(false)
-	assert.Equal(t, pos3, b.GetBytesConsumed())
+	testutil.AssertEquals(t, b.GetBytesConsumed(), pos3)
 	b.DecodeVarint()
-	assert.Equal(t, pos4, b.GetBytesConsumed())
+	testutil.AssertEquals(t, b.GetBytesConsumed(), pos4)
 }

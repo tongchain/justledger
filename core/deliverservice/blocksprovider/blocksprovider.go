@@ -20,6 +20,7 @@ import (
 	"justledger/protos/common"
 	gossip_proto "justledger/protos/gossip"
 	"justledger/protos/orderer"
+	"github.com/op/go-logging"
 )
 
 // LedgerInfo an adapter to provide the interface to query
@@ -102,7 +103,12 @@ type blocksProviderImpl struct {
 const wrongStatusThreshold = 10
 
 var maxRetryDelay = time.Second * 10
-var logger = flogging.MustGetLogger("blocksProvider")
+
+var logger *logging.Logger // package-level logger
+
+func init() {
+	logger = flogging.MustGetLogger("blocksProvider")
+}
 
 // NewBlocksProvider constructor function to create blocks deliverer instance
 func NewBlocksProvider(chainID string, client streamClient, gossip GossipServiceAdapter, mcs api.MessageCryptoService) BlocksProvider {
@@ -159,37 +165,37 @@ func (b *blocksProviderImpl) DeliverBlocks() {
 		case *orderer.DeliverResponse_Block:
 			errorStatusCounter = 0
 			statusCounter = 0
-			blockNum := t.Block.Header.Number
+			seqNum := t.Block.Header.Number
 
 			marshaledBlock, err := proto.Marshal(t.Block)
 			if err != nil {
-				logger.Errorf("[%s] Error serializing block with sequence number %d, due to %s", b.chainID, blockNum, err)
+				logger.Errorf("[%s] Error serializing block with sequence number %d, due to %s", b.chainID, seqNum, err)
 				continue
 			}
-			if err := b.mcs.VerifyBlock(gossipcommon.ChainID(b.chainID), blockNum, marshaledBlock); err != nil {
-				logger.Errorf("[%s] Error verifying block with sequnce number %d, due to %s", b.chainID, blockNum, err)
+			if err := b.mcs.VerifyBlock(gossipcommon.ChainID(b.chainID), seqNum, marshaledBlock); err != nil {
+				logger.Errorf("[%s] Error verifying block with sequnce number %d, due to %s", b.chainID, seqNum, err)
 				continue
 			}
 
 			numberOfPeers := len(b.gossip.PeersOfChannel(gossipcommon.ChainID(b.chainID)))
 			// Create payload with a block received
-			payload := createPayload(blockNum, marshaledBlock)
+			payload := createPayload(seqNum, marshaledBlock)
 			// Use payload to create gossip message
 			gossipMsg := createGossipMsg(b.chainID, payload)
 
-			logger.Debugf("[%s] Adding payload to local buffer, blockNum = [%d]", b.chainID, blockNum)
+			logger.Debugf("[%s] Adding payload locally, buffer seqNum = [%d], peers number [%d]", b.chainID, seqNum, numberOfPeers)
 			// Add payload to local state payloads buffer
 			if err := b.gossip.AddPayload(b.chainID, payload); err != nil {
-				logger.Warningf("Block [%d] received from ordering service wasn't added to payload buffer: %v", blockNum, err)
+				logger.Warning("Failed adding payload of", seqNum, "because:", err)
 			}
 
 			// Gossip messages with other nodes
-			logger.Debugf("[%s] Gossiping block [%d], peers number [%d]", b.chainID, blockNum, numberOfPeers)
+			logger.Debugf("[%s] Gossiping block [%d], peers number [%d]", b.chainID, seqNum, numberOfPeers)
 			if !b.isDone() {
 				b.gossip.Gossip(gossipMsg)
 			}
 		default:
-			logger.Warningf("[%s] Received unknown: %v", b.chainID, t)
+			logger.Warningf("[%s] Received unknown: ", b.chainID, t)
 			return
 		}
 	}

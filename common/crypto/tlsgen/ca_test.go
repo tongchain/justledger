@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package tlsgen
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
@@ -18,6 +17,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -66,8 +66,8 @@ func TestTLSCA(t *testing.T) {
 		}
 		tlsCfg.RootCAs.AppendCertsFromPEM(ca.CertBytes())
 		tlsOpts := grpc.WithTransportCredentials(credentials.NewTLS(tlsCfg))
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
+		ctx := context.Background()
+		ctx, _ = context.WithTimeout(ctx, time.Second)
 		conn, err := grpc.DialContext(ctx, fmt.Sprintf("127.0.0.1:%d", randomPort), tlsOpts, grpc.WithBlock())
 		if err != nil {
 			return err

@@ -329,6 +329,7 @@ func TestQueryGeneratedBlock(t *testing.T) {
 }
 
 func addBlockForTesting(t *testing.T, chainid string) *common.Block {
+	bg, _ := testutil.NewBlockGenerator(t, chainid, false)
 	ledger := peer.GetLedger(chainid)
 	defer ledger.Close()
 
@@ -350,10 +351,9 @@ func addBlockForTesting(t *testing.T, chainid string) *common.Block {
 	simRes2, _ := simulator.GetTxSimulationResults()
 	pubSimResBytes2, _ := simRes2.GetPubSimulationBytes()
 
-	bcInfo, err := ledger.GetBlockchainInfo()
-	assert.NoError(t, err)
-	block1 := testutil.ConstructBlock(t, 1, bcInfo.CurrentBlockHash, [][]byte{pubSimResBytes1, pubSimResBytes2}, false)
+	block1 := bg.NextBlock([][]byte{pubSimResBytes1, pubSimResBytes2})
 	ledger.CommitWithPvtData(&ledger2.BlockAndPvtData{Block: block1})
+
 	return block1
 }
 

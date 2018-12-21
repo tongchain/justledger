@@ -10,7 +10,6 @@ import (
 	"sync"
 
 	"justledger/common/flogging"
-	"justledger/core/chaincode/platforms"
 	"justledger/core/common/sysccprovider"
 )
 
@@ -19,8 +18,8 @@ var logger = flogging.MustGetLogger("cceventmgmt")
 var mgr *Mgr
 
 // Initialize initializes event mgmt
-func Initialize(pr *platforms.Registry) {
-	initialize(&chaincodeInfoProviderImpl{PlatformRegistry: pr})
+func Initialize() {
+	initialize(&chaincodeInfoProviderImpl{})
 }
 
 func initialize(ccInfoProvider ChaincodeInfoProvider) {

@@ -16,7 +16,7 @@ limitations under the License.
 
 syntax = "proto3";
 
-option go_package = "github.com/hyperledger/fabric/protos/peer";
+option go_package = "justledger/protos/peer";
 option java_package = "org.hyperledger.fabric.protos.peer";
 option java_outer_classname = "ProposalResponsePackage";
 

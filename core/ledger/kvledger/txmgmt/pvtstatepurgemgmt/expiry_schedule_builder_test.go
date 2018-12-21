@@ -10,10 +10,10 @@ import (
 	"testing"
 
 	"justledger/core/ledger/pvtdatapolicy"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/davecgh/go-spew/spew"
 
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
 	"justledger/core/ledger/kvledger/txmgmt/version"
 	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
@@ -35,7 +35,7 @@ func TestBuildExpirySchedule(t *testing.T) {
 	putPvtAndHashUpdates(t, updates, "ns3", "coll4", "pvtkey4", []byte("pvtvalue4"), version.NewHeight(4, 1))
 
 	listExpinfo, err := buildExpirySchedule(btlPolicy, updates.PvtUpdates, updates.HashUpdates)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	t.Logf("listExpinfo=%s", spew.Sdump(listExpinfo))
 
 	pvtdataKeys1 := newPvtdataKeys()
@@ -53,8 +53,8 @@ func TestBuildExpirySchedule(t *testing.T) {
 		{expiryInfoKey: &expiryInfoKey{expiryBlk: 7, committingBlk: 3}, pvtdataKeys: pvtdataKeys3},
 	}
 
-	assert.Len(t, listExpinfo, 3)
-	assert.ElementsMatch(t, expectedListExpInfo, listExpinfo)
+	testutil.AssertEquals(t, len(listExpinfo), 3)
+	testutil.AssertContainsAll(t, listExpinfo, expectedListExpInfo)
 }
 
 func TestBuildExpiryScheduleWithMissingPvtdata(t *testing.T) {
@@ -84,7 +84,7 @@ func TestBuildExpiryScheduleWithMissingPvtdata(t *testing.T) {
 	deleteHashUpdates(updates, "ns3", "coll5", "pvtkey6", version.NewHeight(50, 6))
 
 	listExpinfo, err := buildExpirySchedule(btlPolicy, updates.PvtUpdates, updates.HashUpdates)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	t.Logf("listExpinfo=%s", spew.Sdump(listExpinfo))
 
 	pvtdataKeys1 := newPvtdataKeys()
@@ -100,8 +100,8 @@ func TestBuildExpiryScheduleWithMissingPvtdata(t *testing.T) {
 		{expiryInfoKey: &expiryInfoKey{expiryBlk: 54, committingBlk: 50}, pvtdataKeys: pvtdataKeys3},
 	}
 
-	assert.Len(t, listExpinfo, 3)
-	assert.ElementsMatch(t, expectedListExpInfo, listExpinfo)
+	testutil.AssertEquals(t, len(listExpinfo), 3)
+	testutil.AssertContainsAll(t, listExpinfo, expectedListExpInfo)
 }
 
 func putPvtAndHashUpdates(t *testing.T, updates *privacyenabledstate.UpdateBatch, ns, coll, key string, value []byte, ver *version.Height) {

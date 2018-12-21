@@ -1,13 +1,24 @@
 /*
-Copyright IBM Corp. All Rights Reserved.
+Copyright IBM Corp. 2016 All Rights Reserved.
 
-SPDX-License-Identifier: Apache-2.0
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+		 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package fsblkstorage
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
@@ -17,7 +28,6 @@ import (
 	ledgerUtil "justledger/core/ledger/util"
 	"justledger/protos/common"
 	"justledger/protos/peer"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -69,7 +79,7 @@ func newBlockIndex(indexConfig *blkstorage.IndexConfig, db *leveldbhelper.DBHand
 	// for efficiency purpose - [FAB-10587]
 	if (indexItemsMap[blkstorage.IndexableAttrTxValidationCode] || indexItemsMap[blkstorage.IndexableAttrBlockTxID]) &&
 		!indexItemsMap[blkstorage.IndexableAttrTxID] {
-		return nil, errors.Errorf("dependent index [%s] is not enabled for [%s] or [%s]",
+		return nil, fmt.Errorf("dependent index [%s] is not enabled for [%s] or [%s]",
 			blkstorage.IndexableAttrTxID, blkstorage.IndexableAttrTxValidationCode, blkstorage.IndexableAttrBlockTxID)
 	}
 	return &blockIndex{indexItemsMap, db}, nil
@@ -116,8 +126,8 @@ func (index *blockIndex) indexBlock(blockIdxInfo *blockIdxInfo) error {
 	//Index3 Used to find a transaction by it's transaction id
 	if _, ok := index.indexItemsMap[blkstorage.IndexableAttrTxID]; ok {
 		if err = index.markDuplicateTxids(blockIdxInfo); err != nil {
-			logger.Errorf("error detecting duplicate txids: %s", err)
-			return errors.WithMessage(err, "error detecting duplicate txids")
+			logger.Errorf("error while detecting duplicate txids:%s", err)
+			return err
 		}
 		for _, txoffset := range txOffsets {
 			if txoffset.isDuplicate { // do not overwrite txid entry in the index - FAB-8557
@@ -289,7 +299,7 @@ func (index *blockIndex) getTxValidationCodeByTxID(txID string) (peer.TxValidati
 	} else if raw == nil {
 		return peer.TxValidationCode(-1), blkstorage.ErrNotFoundInIndex
 	} else if len(raw) != 1 {
-		return peer.TxValidationCode(-1), errors.New("invalid value in indexItems")
+		return peer.TxValidationCode(-1), errors.New("Invalid value in indexItems")
 	}
 
 	result := peer.TxValidationCode(int32(raw[0]))

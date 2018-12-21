@@ -19,12 +19,12 @@ package statebasedval
 import (
 	"testing"
 
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
 	"justledger/core/ledger/kvledger/txmgmt/statedb"
 	"justledger/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
 	"justledger/core/ledger/kvledger/txmgmt/version"
 	"justledger/protos/ledger/rwset/kvrwset"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestRangeQueryBoundaryConditions(t *testing.T) {
@@ -68,17 +68,17 @@ func testRangeQuery(t *testing.T, testcase string, stateData *statedb.UpdateBatc
 		testDBEnv := stateleveldb.NewTestVDBEnv(t)
 		defer testDBEnv.Cleanup()
 		db, err := testDBEnv.DBProvider.GetDBHandle("TestDB")
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 		if stateData != nil {
 			db.ApplyUpdates(stateData, savepoint)
 		}
 
 		itr, err := db.GetStateRangeScanIterator(ns, rqi.StartKey, rqi.EndKey)
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 		validator := &rangeQueryResultsValidator{}
 		validator.init(rqi, itr)
 		isValid, err := validator.validate()
-		assert.NoError(t, err)
-		assert.Equal(t, expectedResult, isValid)
+		testutil.AssertNoError(t, err, "")
+		testutil.AssertEquals(t, isValid, expectedResult)
 	})
 }

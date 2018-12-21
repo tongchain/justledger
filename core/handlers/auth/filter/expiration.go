@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package filter
 
 import (
-	"context"
 	"time"
 
 	"justledger/common/crypto"
@@ -15,6 +14,7 @@ import (
 	"justledger/protos/peer"
 	"justledger/protos/utils"
 	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 )
 
 // NewExpirationCheckFilter creates a new Filter that checks identity expiration

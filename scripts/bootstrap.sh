@@ -6,25 +6,23 @@
 #
 
 # if version not passed in, default to latest released version
-export VERSION=1.3.0
+export VERSION=1.2.0
 # if ca version not passed in, default to latest released version
 export CA_VERSION=$VERSION
 # current version of thirdparty images (couchdb, kafka and zookeeper) released
-export THIRDPARTY_IMAGE_VERSION=0.4.13
+export THIRDPARTY_IMAGE_VERSION=0.4.10
 export ARCH=$(echo "$(uname -s|tr '[:upper:]' '[:lower:]'|sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')")
 export MARCH=$(uname -m)
 
 printHelp() {
-  echo "Usage: bootstrap.sh [version [ca_version [thirdparty_version]]] [options]"
+  echo "Usage: bootstrap.sh [<version>] [<ca_version>] [<thirdparty_version>][-d -s -b]"
   echo
-  echo "options:"
-  echo "-h : this help"
-  echo "-d : bypass docker image download"
-  echo "-s : bypass fabric-samples repo clone"
-  echo "-b : bypass download of platform-specific binaries"
+  echo "-d - bypass docker image download"
+  echo "-s - bypass fabric-samples repo clone"
+  echo "-b - bypass download of platform-specific binaries"
   echo
-  echo "e.g. bootstrap.sh 1.3.0 -s"
-  echo "would download docker images and binaries for version 1.3.0"
+  echo "e.g. bootstrap.sh 1.2.0 -s"
+  echo "would download docker images and binaries for version 1.2.0"
 }
 
 dockerFabricPull() {
@@ -60,12 +58,12 @@ samplesInstall() {
   # version to the binaries and docker images to be downloaded
   if [ -d first-network ]; then
     # if we are in the fabric-samples repo, checkout corresponding version
-    echo "===> Checking out v${VERSION} of hyperledger/fabric-samples"
+    echo "===> Checking out v${VERSION} branch of hyperledger/fabric-samples"
     git checkout v${VERSION}
   elif [ -d fabric-samples ]; then
     # if fabric-samples repo already cloned and in current directory,
     # cd fabric-samples and checkout corresponding version
-    echo "===> Checking out v${VERSION} of hyperledger/fabric-samples"
+    echo "===> Checking out v${VERSION} branch of hyperledger/fabric-samples"
     cd fabric-samples && git checkout v${VERSION}
   else
     echo "===> Cloning hyperledger/fabric-samples repo and checkout v${VERSION}"
@@ -176,11 +174,11 @@ BINARIES=true
 
 # Parse commandline args pull out
 # version and/or ca-version strings first
-if [ ! -z $1 -a ${1:0:1} != "-" ]; then
+if [ ! -z $1 ]; then
   VERSION=$1;shift
-  if [ ! -z $1  -a ${1:0:1} != "-" ]; then
+  if [ ! -z $1 ]; then
     CA_VERSION=$1;shift
-    if [ ! -z $1  -a ${1:0:1} != "-" ]; then
+    if [ ! -z $1 ]; then
       THIRDPARTY_IMAGE_VERSION=$1;shift
     fi
   fi

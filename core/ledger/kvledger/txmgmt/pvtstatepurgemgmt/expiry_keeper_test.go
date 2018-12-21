@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/golang/protobuf/proto"
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/bookkeeping"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,11 +22,10 @@ func TestExpiryKVEncoding(t *testing.T) {
 	expiryInfo := &expiryInfo{&expiryInfoKey{expiryBlk: 10, committingBlk: 2}, pvtdataKeys}
 	t.Logf("expiryInfo:%s", spew.Sdump(expiryInfo))
 	k, v, err := encodeKV(expiryInfo)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	expiryInfo1, err := decodeExpiryInfo(k, v)
-	assert.NoError(t, err)
-	assert.Equal(t, expiryInfo.expiryInfoKey, expiryInfo1.expiryInfoKey)
-	assert.True(t, proto.Equal(expiryInfo.pvtdataKeys, expiryInfo1.pvtdataKeys), "proto messages are not equal")
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, expiryInfo, expiryInfo1)
 }
 
 func TestExpiryKeeper(t *testing.T) {
@@ -46,21 +45,13 @@ func TestExpiryKeeper(t *testing.T) {
 
 	// Retrieve entries by expiring block 13, 15, and 17
 	listExpinfo1, _ := expiryKeeper.retrieve(13)
-	assert.Len(t, listExpinfo1, 2)
-	assert.Equal(t, expinfo1.expiryInfoKey, listExpinfo1[0].expiryInfoKey)
-	assert.True(t, proto.Equal(expinfo1.pvtdataKeys, listExpinfo1[0].pvtdataKeys))
-	assert.Equal(t, expinfo3.expiryInfoKey, listExpinfo1[1].expiryInfoKey)
-	assert.True(t, proto.Equal(expinfo3.pvtdataKeys, listExpinfo1[1].pvtdataKeys))
+	assert.Equal(t, []*expiryInfo{expinfo1, expinfo3}, listExpinfo1)
 
 	listExpinfo2, _ := expiryKeeper.retrieve(15)
-	assert.Len(t, listExpinfo2, 1)
-	assert.Equal(t, expinfo2.expiryInfoKey, listExpinfo2[0].expiryInfoKey)
-	assert.True(t, proto.Equal(expinfo2.pvtdataKeys, listExpinfo2[0].pvtdataKeys))
+	assert.Equal(t, []*expiryInfo{expinfo2}, listExpinfo2)
 
 	listExpinfo3, _ := expiryKeeper.retrieve(17)
-	assert.Len(t, listExpinfo3, 1)
-	assert.Equal(t, expinfo4.expiryInfoKey, listExpinfo3[0].expiryInfoKey)
-	assert.True(t, proto.Equal(expinfo4.pvtdataKeys, listExpinfo3[0].pvtdataKeys))
+	assert.Equal(t, []*expiryInfo{expinfo4}, listExpinfo3)
 
 	// Clear entries for keys expiring at block 13 and 15 and again retrieve by expiring block 13, 15, and 17
 	expiryKeeper.updateBookkeeping(nil, []*expiryInfoKey{expinfo1.expiryInfoKey, expinfo2.expiryInfoKey, expinfo3.expiryInfoKey})
@@ -71,9 +62,7 @@ func TestExpiryKeeper(t *testing.T) {
 	assert.Nil(t, listExpinfo5)
 
 	listExpinfo6, _ := expiryKeeper.retrieve(17)
-	assert.Len(t, listExpinfo6, 1)
-	assert.Equal(t, expinfo4.expiryInfoKey, listExpinfo6[0].expiryInfoKey)
-	assert.True(t, proto.Equal(expinfo4.pvtdataKeys, listExpinfo6[0].pvtdataKeys))
+	assert.Equal(t, []*expiryInfo{expinfo4}, listExpinfo6)
 }
 
 func buildPvtdataKeysForTest(startingEntry int, numEntries int) *PvtdataKeys {

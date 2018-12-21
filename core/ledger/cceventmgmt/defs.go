@@ -9,17 +9,15 @@ package cceventmgmt
 import (
 	"fmt"
 
-	"justledger/core/chaincode/platforms"
 	"justledger/core/common/ccprovider"
 	"justledger/core/common/sysccprovider"
 )
 
 // ChaincodeDefinition captures the info about chaincode
 type ChaincodeDefinition struct {
-	Name              string
-	Hash              []byte
-	Version           string
-	CollectionConfigs []byte
+	Name    string
+	Hash    []byte
+	Version string
 }
 
 func (cdef *ChaincodeDefinition) String() string {
@@ -52,7 +50,6 @@ type ChaincodeInfoProvider interface {
 }
 
 type chaincodeInfoProviderImpl struct {
-	PlatformRegistry *platforms.Registry
 }
 
 // IsChaincodeDeployed implements function in the interface ChaincodeInfoProvider
@@ -62,5 +59,5 @@ func (p *chaincodeInfoProviderImpl) IsChaincodeDeployed(chainid string, chaincod
 
 // RetrieveChaincodeArtifacts implements function in the interface ChaincodeInfoProvider
 func (p *chaincodeInfoProviderImpl) RetrieveChaincodeArtifacts(chaincodeDefinition *ChaincodeDefinition) (installed bool, dbArtifactsTar []byte, err error) {
-	return ccprovider.ExtractStatedbArtifactsForChaincode(chaincodeDefinition.Name, chaincodeDefinition.Version, p.PlatformRegistry)
+	return ccprovider.ExtractStatedbArtifactsForChaincode(chaincodeDefinition.Name, chaincodeDefinition.Version)
 }

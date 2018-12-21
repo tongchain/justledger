@@ -13,7 +13,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/gogo/protobuf/proto"
 	"justledger/cmd/common"
 	"justledger/discovery/client"
 	. "justledger/protos/discovery"
@@ -172,7 +172,7 @@ func (ec *chaincodesAndCollections) parseInput() (map[string][]string, error) {
 func parseEndorsementDescriptors(descriptors []*EndorsementDescriptor) []endorsermentDescriptor {
 	var res []endorsermentDescriptor
 	for _, desc := range descriptors {
-		endorsersByGroups := make(map[string][]endorser)
+		endorsersByGroups := make(map[string][]peer)
 		for grp, endorsers := range desc.EndorsersByGroups {
 			for _, p := range endorsers.Peers {
 				endorsersByGroups[grp] = append(endorsersByGroups[grp], endorserFromRaw(p))
@@ -187,23 +187,16 @@ func parseEndorsementDescriptors(descriptors []*EndorsementDescriptor) []endorse
 	return res
 }
 
-type endorser struct {
-	MSPID        string
-	LedgerHeight uint64
-	Endpoint     string
-	Identity     string
-}
-
 type endorsermentDescriptor struct {
 	Chaincode         string
-	EndorsersByGroups map[string][]endorser
+	EndorsersByGroups map[string][]peer
 	Layouts           []*Layout
 }
 
-func endorserFromRaw(p *Peer) endorser {
+func endorserFromRaw(p *Peer) peer {
 	sId := &msp.SerializedIdentity{}
 	proto.Unmarshal(p.Identity, sId)
-	return endorser{
+	return peer{
 		MSPID:        sId.Mspid,
 		Endpoint:     endpointFromEnvelope(p.MembershipInfo),
 		LedgerHeight: ledgerHeightFromEnvelope(p.StateInfo),

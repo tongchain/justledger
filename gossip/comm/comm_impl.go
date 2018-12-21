@@ -8,7 +8,6 @@ package comm
 
 import (
 	"bytes"
-	"context"
 	"crypto/tls"
 	"encoding/hex"
 	"fmt"
@@ -23,19 +22,20 @@ import (
 	"justledger/gossip/identity"
 	"justledger/gossip/util"
 	proto "justledger/protos/gossip"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
 )
 
 const (
-	handshakeTimeout = time.Second * time.Duration(10)
-	defDialTimeout   = time.Second * time.Duration(3)
-	defConnTimeout   = time.Second * time.Duration(2)
-	defRecvBuffSize  = 20
-	defSendBuffSize  = 20
+	defDialTimeout  = time.Second * time.Duration(3)
+	defConnTimeout  = time.Second * time.Duration(2)
+	defRecvBuffSize = 20
+	defSendBuffSize = 20
 )
 
 // SecurityAdvisor defines an external auxiliary object
@@ -86,7 +86,7 @@ func NewCommInstanceWithServer(port int, idMapper identity.Mapper, peerIdentity 
 		lock:           &sync.Mutex{},
 		deadEndpoints:  make(chan common.PKIidType, 100),
 		stopping:       int32(0),
-		exitChan:       make(chan struct{}),
+		exitChan:       make(chan struct{}, 1),
 		subscriptions:  make([]chan proto.ReceivedMessage, 0),
 		dialTimeout:    util.GetDurationOrDefault("peer.gossip.dialTimeout", defDialTimeout),
 		tlsCerts:       certs,
@@ -128,7 +128,7 @@ type commImpl struct {
 	pubSub         *util.PubSub
 	peerIdentity   api.PeerIdentityType
 	idMapper       identity.Mapper
-	logger         util.Logger
+	logger         *logging.Logger
 	opts           []grpc.DialOption
 	secureDialOpts func() []grpc.DialOption
 	connStore      *connectionStore
@@ -306,9 +306,7 @@ func (c *commImpl) Handshake(remotePeer *RemotePeer) (api.PeerIdentityType, erro
 		return nil, err
 	}
 
-	ctx, cancel = context.WithTimeout(context.Background(), handshakeTimeout)
-	defer cancel()
-	stream, err := cl.GossipStream(ctx)
+	stream, err := cl.GossipStream(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -336,24 +334,21 @@ func (c *commImpl) Accept(acceptor common.MessageAcceptor) <-chan proto.Received
 	c.subscriptions = append(c.subscriptions, specificChan)
 	c.lock.Unlock()
 
-	c.stopWG.Add(1)
 	go func() {
 		defer c.logger.Debug("Exiting Accept() loop")
+		defer func() {
+			recover()
+		}()
 
+		c.stopWG.Add(1)
 		defer c.stopWG.Done()
 
 		for {
 			select {
 			case msg := <-genericChan:
-				if msg == nil {
-					return
-				}
-				select {
-				case specificChan <- msg.(*ReceivedMessageImpl):
-				case <-c.exitChan:
-					return
-				}
-			case <-c.exitChan:
+				specificChan <- msg.(*ReceivedMessageImpl)
+			case s := <-c.exitChan:
+				c.exitChan <- s
 				return
 			}
 		}
@@ -370,7 +365,7 @@ func (c *commImpl) CloseConn(peer *RemotePeer) {
 	c.connStore.closeConn(peer)
 }
 
-func (c *commImpl) closeSubscriptions() {
+func (c *commImpl) emptySubscriptions() {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 	for _, ch := range c.subscriptions {
@@ -379,9 +374,10 @@ func (c *commImpl) closeSubscriptions() {
 }
 
 func (c *commImpl) Stop() {
-	if !atomic.CompareAndSwapInt32(&c.stopping, 0, int32(1)) {
+	if c.isStopping() {
 		return
 	}
+	atomic.StoreInt32(&c.stopping, int32(1))
 	c.logger.Info("Stopping")
 	defer c.logger.Info("Stopped")
 	if c.gSrv != nil {
@@ -392,10 +388,12 @@ func (c *commImpl) Stop() {
 	}
 	c.connStore.shutdown()
 	c.logger.Debug("Shut down connection store, connection count:", c.connStore.connNum())
+	c.exitChan <- struct{}{}
 	c.msgPublisher.Close()
-	close(c.exitChan)
+	c.logger.Debug("Shut down publisher")
+	c.emptySubscriptions()
+	c.logger.Debug("Closed subscriptions, waiting for goroutines to stop...")
 	c.stopWG.Wait()
-	c.closeSubscriptions()
 }
 
 func (c *commImpl) GetPKIid() common.PKIidType {
@@ -459,7 +457,7 @@ func (c *commImpl) authenticateRemotePeer(stream stream, initiator bool) (*proto
 	}
 
 	if receivedMsg.PkiId == nil {
-		c.logger.Warningf("%s didn't send a pkiID", remoteAddress)
+		c.logger.Warning("%s didn't send a pkiID", remoteAddress)
 		return nil, fmt.Errorf("No PKI-ID")
 	}
 

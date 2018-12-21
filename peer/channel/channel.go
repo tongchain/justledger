@@ -91,13 +91,10 @@ func attachFlags(cmd *cobra.Command, names []string) {
 }
 
 var channelCmd = &cobra.Command{
-	Use:   "channel",
-	Short: "Operate a channel: create|fetch|join|list|update|signconfigtx|getinfo.",
-	Long:  "Operate a channel: create|fetch|join|list|update|signconfigtx|getinfo.",
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		common.InitCmd(cmd, args)
-		common.SetOrdererEnv(cmd, args)
-	},
+	Use:              "channel",
+	Short:            "Operate a channel: create|fetch|join|list|update|signconfigtx|getinfo.",
+	Long:             "Operate a channel: create|fetch|join|list|update|signconfigtx|getinfo.",
+	PersistentPreRun: common.SetOrdererEnv,
 }
 
 type BroadcastClientFactory func() (common.BroadcastClient, error)

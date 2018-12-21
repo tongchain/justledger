@@ -15,6 +15,7 @@ import (
 	"justledger/gossip/discovery"
 	"justledger/gossip/util"
 	proto "justledger/protos/gossip"
+	"github.com/op/go-logging"
 )
 
 type msgImpl struct {
@@ -64,7 +65,7 @@ type adapterImpl struct {
 
 	channel common.ChainID
 
-	logger util.Logger
+	logger *logging.Logger
 
 	doneCh   chan struct{}
 	stopOnce *sync.Once

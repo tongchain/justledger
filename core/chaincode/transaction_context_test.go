@@ -17,21 +17,21 @@ import (
 
 var _ = Describe("TransactionContext", func() {
 	var (
-		resultsIterator    *mock.QueryResultsIterator
+		resultsIterator    *mock.ResultsIterator
 		transactionContext *chaincode.TransactionContext
 	)
 
 	BeforeEach(func() {
-		resultsIterator = &mock.QueryResultsIterator{}
+		resultsIterator = &mock.ResultsIterator{}
 		transactionContext = &chaincode.TransactionContext{}
 	})
 
 	Describe("InitializeQueryContext", func() {
-		var iter1, iter2 *mock.QueryResultsIterator
+		var iter1, iter2 *mock.ResultsIterator
 
 		BeforeEach(func() {
-			iter1 = &mock.QueryResultsIterator{}
-			iter2 = &mock.QueryResultsIterator{}
+			iter1 = &mock.ResultsIterator{}
+			iter2 = &mock.ResultsIterator{}
 		})
 
 		It("stores a references to the results iterator", func() {
@@ -49,13 +49,6 @@ var _ = Describe("TransactionContext", func() {
 			pqr := transactionContext.GetPendingQueryResult("query-id")
 
 			Expect(pqr).To(Equal(&chaincode.PendingQueryResult{}))
-		})
-
-		It("populates a total return count", func() {
-			transactionContext.InitializeQueryContext("query-id", iter1)
-			count := transactionContext.GetTotalReturnCount("query-id")
-
-			Expect(*count).To(Equal(int32(0)))
 		})
 	})
 
@@ -98,26 +91,6 @@ var _ = Describe("TransactionContext", func() {
 		})
 	})
 
-	Describe("GetPendingTotalRecordCount", func() {
-		Context("when a query context has been initialized", func() {
-			BeforeEach(func() {
-				transactionContext.InitializeQueryContext("query-id", nil)
-			})
-
-			It("returns a non-nil total record count", func() {
-				retCount := transactionContext.GetTotalReturnCount("query-id")
-				Expect(*retCount).To(Equal(int32(0)))
-			})
-		})
-
-		Context("when a query context has not been initialized", func() {
-			It("returns a nil total return count", func() {
-				retCount := transactionContext.GetTotalReturnCount("query-id")
-				Expect(retCount).To(BeNil())
-			})
-		})
-	})
-
 	Describe("CleanupQueryContext", func() {
 		It("removes references to the the iterator and results", func() {
 			transactionContext.InitializeQueryContext("query-id", resultsIterator)
@@ -127,8 +100,6 @@ var _ = Describe("TransactionContext", func() {
 			Expect(iter).To(BeNil())
 			pqr := transactionContext.GetPendingQueryResult("query-id")
 			Expect(pqr).To(BeNil())
-			retCount := transactionContext.GetTotalReturnCount("query-id")
-			Expect(retCount).To(BeNil())
 		})
 
 		It("closes the query iterator", func() {
@@ -150,11 +121,11 @@ var _ = Describe("TransactionContext", func() {
 	})
 
 	Describe("CloseQueryIterators", func() {
-		var resultsIterators []*mock.QueryResultsIterator
+		var resultsIterators []*mock.ResultsIterator
 
 		BeforeEach(func() {
 			for i := 0; i < 5; i++ {
-				resultsIterators = append(resultsIterators, &mock.QueryResultsIterator{})
+				resultsIterators = append(resultsIterators, &mock.ResultsIterator{})
 				transactionContext.InitializeQueryContext(fmt.Sprintf("query-id-%d", i+1), resultsIterators[i])
 			}
 		})

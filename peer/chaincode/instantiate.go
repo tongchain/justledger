@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -15,6 +14,7 @@ import (
 	pb "justledger/protos/peer"
 	"justledger/protos/utils"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
 )
 
 var chaincodeInstantiateCmd *cobra.Command

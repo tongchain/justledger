@@ -8,20 +8,17 @@ package peer
 
 import (
 	"fmt"
-	"math/rand"
 	"net"
 	"testing"
 
 	configtxtest "justledger/common/configtx/test"
 	"justledger/common/localmsp"
 	mscc "justledger/common/mocks/scc"
-	"justledger/core/chaincode/platforms"
 	"justledger/core/comm"
 	"justledger/core/committer/txvalidator"
 	"justledger/core/deliverservice"
 	"justledger/core/deliverservice/blocksprovider"
 	"justledger/core/handlers/validation/api"
-	ledgermocks "justledger/core/ledger/mock"
 	"justledger/core/mocks/ccprovider"
 	"justledger/gossip/api"
 	"justledger/gossip/service"
@@ -86,15 +83,14 @@ func TestInitialize(t *testing.T) {
 	cleanup := setupPeerFS(t)
 	defer cleanup()
 
-	Initialize(nil, &ccprovider.MockCcProviderImpl{}, (&mscc.MocksccProviderFactory{}).NewSystemChaincodeProvider(), txvalidator.MapBasedPluginMapper(map[string]validation.PluginFactory{}), nil, &ledgermocks.DeployedChaincodeInfoProvider{})
+	Initialize(nil, &ccprovider.MockCcProviderImpl{}, (&mscc.MocksccProviderFactory{}).NewSystemChaincodeProvider(), txvalidator.MapBasedPluginMapper(map[string]validation.PluginFactory{}))
 }
 
 func TestCreateChainFromBlock(t *testing.T) {
 	cleanup := setupPeerFS(t)
 	defer cleanup()
 
-	Initialize(nil, &ccprovider.MockCcProviderImpl{}, (&mscc.MocksccProviderFactory{}).NewSystemChaincodeProvider(), txvalidator.MapBasedPluginMapper(map[string]validation.PluginFactory{}), &platforms.Registry{}, &ledgermocks.DeployedChaincodeInfoProvider{})
-	testChainID := fmt.Sprintf("mytestchainid-%d", rand.Int())
+	testChainID := "mytestchainid"
 	block, err := configtxtest.MakeGenesisBlock(testChainID)
 	if err != nil {
 		fmt.Printf("Failed to create a config block, err %s\n", err)
@@ -191,11 +187,6 @@ func TestCreateChainFromBlock(t *testing.T) {
 	if len(channels) != 1 {
 		t.Fatalf("incorrect number of channels")
 	}
-
-	// cleanup the chain referenes to enable execution with -count n
-	chains.Lock()
-	chains.list = map[string]*chain{}
-	chains.Unlock()
 }
 
 func TestGetLocalIP(t *testing.T) {

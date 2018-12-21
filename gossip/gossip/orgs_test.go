@@ -483,9 +483,9 @@ func extractOrgsFromMsg(msg *proto.GossipMessage, sec api.SecurityAdvisor) []str
 		if msg.IsDigestMsg() || msg.IsDataReq() {
 			var digests []string
 			if msg.IsDigestMsg() {
-				digests = util.BytesToStrings(msg.GetDataDig().Digests)
+				digests = msg.GetDataDig().Digests
 			} else {
-				digests = util.BytesToStrings(msg.GetDataReq().Digests)
+				digests = msg.GetDataReq().Digests
 			}
 
 			for _, dig := range digests {

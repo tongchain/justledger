@@ -8,10 +8,8 @@ package comm
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"time"
 
-	"justledger/common/flogging"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )
@@ -51,14 +49,6 @@ type ServerConfig struct {
 	SecOpts *SecureOptions
 	// KaOpts defines the keepalive parameters
 	KaOpts *KeepaliveOptions
-	// StreamInterceptors specifies a list of interceptors to apply to
-	// streaming RPCs.  They are executed in order.
-	StreamInterceptors []grpc.StreamServerInterceptor
-	// UnaryInterceptors specifies a list of interceptors to apply to unary
-	// RPCs.  They are executed in order.
-	UnaryInterceptors []grpc.UnaryServerInterceptor
-	// Logger specifies the logger the server will use
-	Logger *flogging.FabricLogger
 }
 
 // ClientConfig defines the parameters for configuring a GRPCClient instance
@@ -75,10 +65,6 @@ type ClientConfig struct {
 // SecureOptions defines the security parameters (e.g. TLS) for a
 // GRPCServer or GRPCClient instance
 type SecureOptions struct {
-	// VerifyCertificate, if not nil, is called after normal
-	// certificate verification by either a TLS client or server.
-	// If it returns a non-nil error, the handshake is aborted and that error results.
-	VerifyCertificate func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error
 	// PEM-encoded X509 public key to be used for TLS communication
 	Certificate []byte
 	// PEM-encoded private key to be used for TLS communication

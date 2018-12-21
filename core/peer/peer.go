@@ -21,7 +21,6 @@ import (
 	"justledger/common/ledger/blockledger"
 	fileledger "justledger/common/ledger/blockledger/file"
 	"justledger/common/policies"
-	"justledger/core/chaincode/platforms"
 	"justledger/core/comm"
 	"justledger/core/committer"
 	"justledger/core/committer/txvalidator"
@@ -66,7 +65,8 @@ type chainSupport struct {
 	bundleSource *channelconfig.BundleSource
 	channelconfig.Resources
 	channelconfig.Application
-	ledger ledger.PeerLedger
+	ledger     ledger.PeerLedger
+	fileLedger *fileledger.FileLedger
 }
 
 var TransientStoreFactory = &storeProvider{stores: make(map[string]transientstore.Store)}
@@ -130,11 +130,11 @@ func capabilitiesSupportedOrPanic(res channelconfig.Resources) {
 	}
 
 	if err := ac.Capabilities().Supported(); err != nil {
-		peerLogger.Panicf("[channel %s] incompatible: %s", res.ConfigtxValidator().ChainID(), err)
+		peerLogger.Panicf("[channel %s] incompatible %s", res.ConfigtxValidator(), err)
 	}
 
 	if err := res.ChannelConfig().Capabilities().Supported(); err != nil {
-		peerLogger.Panicf("[channel %s] incompatible: %s", res.ConfigtxValidator().ChainID(), err)
+		peerLogger.Panicf("[channel %s] incompatible %s", res.ConfigtxValidator(), err)
 	}
 }
 
@@ -151,16 +151,9 @@ func (cs *chainSupport) Sequence() uint64 {
 	sb := cs.bundleSource.StableBundle()
 	return sb.ConfigtxValidator().Sequence()
 }
-
-// Reader returns an iterator to read from the ledger
 func (cs *chainSupport) Reader() blockledger.Reader {
-	return fileledger.NewFileLedger(fileLedgerBlockStore{cs.ledger})
+	return cs.fileLedger
 }
-
-// Errored returns a channel that can be used to determine
-// if a backing resource has errored. At this point in time,
-// the peer does not have any error conditions that lead to
-// this function signaling that an error has occurred.
 func (cs *chainSupport) Errored() <-chan struct{} {
 	return nil
 }
@@ -195,7 +188,7 @@ var validationWorkersSemaphore *semaphore.Weighted
 // Initialize sets up any chains that the peer has from the persistence. This
 // function should be called at the start up when the ledger and gossip
 // ready
-func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccprovider.SystemChaincodeProvider, pm txvalidator.PluginMapper, pr *platforms.Registry, deployedCCInfoProvider ledger.DeployedChaincodeInfoProvider) {
+func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccprovider.SystemChaincodeProvider, pm txvalidator.PluginMapper) {
 	nWorkers := viper.GetInt("peer.validatorPoolSize")
 	if nWorkers <= 0 {
 		nWorkers = runtime.NumCPU()
@@ -207,11 +200,7 @@ func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccp
 
 	var cb *common.Block
 	var ledger ledger.PeerLedger
-	ledgermgmt.Initialize(&ledgermgmt.Initializer{
-		CustomTxProcessors:            ConfigTxProcessors,
-		PlatformRegistry:              pr,
-		DeployedChaincodeInfoProvider: deployedCCInfoProvider,
-	})
+	ledgermgmt.Initialize(ConfigTxProcessors)
 	ledgerIds, err := ledgermgmt.GetLedgerIDs()
 	if err != nil {
 		panic(fmt.Errorf("Error in initializing ledgermgmt: %s", err))
@@ -243,7 +232,7 @@ func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccp
 func InitChain(cid string) {
 	if chainInitializer != nil {
 		// Initialize chaincode, namely deploy system CC
-		peerLogger.Debugf("Initializing channel %s", cid)
+		peerLogger.Debugf("Init chain %s", cid)
 		chainInitializer(cid)
 	}
 }
@@ -348,6 +337,7 @@ func createChain(cid string, ledger ledger.PeerLedger, cb *common.Block, ccp ccp
 	cs := &chainSupport{
 		Application: ac, // TODO, refactor as this is accessible through Manager
 		ledger:      ledger,
+		fileLedger:  fileledger.NewFileLedger(fileLedgerBlockStore{ledger}),
 	}
 
 	peerSingletonCallback := func(bundle *channelconfig.Bundle) {
@@ -371,7 +361,7 @@ func createChain(cid string, ledger ledger.PeerLedger, cb *common.Block, ccp ccp
 		*chainSupport
 		*semaphore.Weighted
 	}{cs, validationWorkersSemaphore}
-	validator := txvalidator.NewTxValidator(cid, vcs, sccp, pm)
+	validator := txvalidator.NewTxValidator(vcs, sccp, pm)
 	c := committer.NewLedgerCommitterReactive(ledger, func(block *common.Block) error {
 		chainID, err := utils.GetChainIDFromBlock(block)
 		if err != nil {
@@ -382,13 +372,13 @@ func createChain(cid string, ledger ledger.PeerLedger, cb *common.Block, ccp ccp
 
 	ordererAddresses := bundle.ChannelConfig().OrdererAddresses()
 	if len(ordererAddresses) == 0 {
-		return errors.New("no ordering service endpoint provided in configuration block")
+		return errors.New("No ordering service endpoint provided in configuration block")
 	}
 
 	// TODO: does someone need to call Close() on the transientStoreFactory at shutdown of the peer?
 	store, err := TransientStoreFactory.OpenStore(bundle.ConfigtxValidator().ChainID())
 	if err != nil {
-		return errors.Wrapf(err, "[channel %s] failed opening transient store", bundle.ConfigtxValidator().ChainID())
+		return errors.Wrapf(err, "Failed opening transient store for %s", bundle.ConfigtxValidator().ChainID())
 	}
 	csStoreSupport := &collectionSupport{
 		PeerLedger: ledger,
@@ -423,7 +413,7 @@ func CreateChainFromBlock(cb *common.Block, ccp ccprovider.ChaincodeProvider, sc
 
 	var l ledger.PeerLedger
 	if l, err = ledgermgmt.CreateLedger(cb); err != nil {
-		return errors.WithMessage(err, "cannot create ledger from genesis block")
+		return fmt.Errorf("Cannot create ledger from genesis block, due to %s", err)
 	}
 
 	return createChain(cid, l, cb, ccp, sccp, pluginMapper)
@@ -622,7 +612,7 @@ func GetMSPIDs(cid string) []string {
 	return nil
 }
 
-// SetCurrConfigBlock sets the current config block of the specified channel
+// SetCurrConfigBlock sets the current config block of the specified chain
 func SetCurrConfigBlock(block *common.Block, cid string) error {
 	chains.Lock()
 	defer chains.Unlock()
@@ -630,7 +620,7 @@ func SetCurrConfigBlock(block *common.Block, cid string) error {
 		c.cb = block
 		return nil
 	}
-	return errors.Errorf("[channel %s] channel not associated with this peer", cid)
+	return fmt.Errorf("Chain %s doesn't exist on the peer", cid)
 }
 
 // GetLocalIP returns the non loopback local IP of the host
@@ -734,7 +724,7 @@ func (flbs fileLedgerBlockStore) RetrieveBlocks(startBlockNumber uint64) (common
 	return flbs.GetBlocksIterator(startBlockNumber)
 }
 
-// NewConfigSupport returns
+// NewResourceConfigSupport returns
 func NewConfigSupport() cc.Manager {
 	return &configSupport{}
 }
@@ -751,7 +741,7 @@ func (*configSupport) GetChannelConfig(channel string) cc.Config {
 	defer chains.RUnlock()
 	chain := chains.list[channel]
 	if chain == nil {
-		peerLogger.Errorf("[channel %s] channel not associated with this peer", channel)
+		peerLogger.Error("GetChannelConfig: channel", channel, "not found in the list of channels associated with this peer")
 		return nil
 	}
 	return chain.cs.bundleSource.ConfigtxValidator()

@@ -7,15 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package admin
 
 import (
-	"context"
-	"strings"
-
 	"github.com/golang/protobuf/ptypes/empty"
 	"justledger/common/flogging"
 	"justledger/protos/common"
 	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
-	"go.uber.org/zap/zapcore"
+	"golang.org/x/net/context"
 )
 
 var logger = flogging.MustGetLogger("server")
@@ -38,7 +35,6 @@ func NewAdminServer(ace AccessControlEvaluator) *ServerAdmin {
 		v: &validator{
 			ace: ace,
 		},
-		levelsAtStartup: flogging.GetModuleLevels(),
 	}
 	return s
 }
@@ -46,8 +42,6 @@ func NewAdminServer(ace AccessControlEvaluator) *ServerAdmin {
 // ServerAdmin implementation of the Admin service for the Peer
 type ServerAdmin struct {
 	v requestValidator
-
-	levelsAtStartup map[string]zapcore.Level
 }
 
 func (s *ServerAdmin) GetStatus(ctx context.Context, env *common.Envelope) (*pb.ServerStatus, error) {
@@ -91,8 +85,8 @@ func (s *ServerAdmin) SetModuleLogLevel(ctx context.Context, env *common.Envelop
 	if request == nil {
 		return nil, errors.New("request is nil")
 	}
-	err = flogging.SetModuleLevels(request.LogModule, request.LogLevel)
-	logResponse := &pb.LogLevelResponse{LogModule: request.LogModule, LogLevel: strings.ToUpper(request.LogLevel)}
+	logLevelString, err := flogging.SetModuleLevel(request.LogModule, request.LogLevel)
+	logResponse := &pb.LogLevelResponse{LogModule: request.LogModule, LogLevel: logLevelString}
 	return logResponse, err
 }
 
@@ -100,6 +94,6 @@ func (s *ServerAdmin) RevertLogLevels(ctx context.Context, env *common.Envelope)
 	if _, err := s.v.validate(ctx, env); err != nil {
 		return nil, err
 	}
-	flogging.RestoreLevels(s.levelsAtStartup)
-	return &empty.Empty{}, nil
+	err := flogging.RevertToPeerStartupLevels()
+	return &empty.Empty{}, err
 }

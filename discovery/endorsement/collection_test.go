@@ -10,8 +10,6 @@ import (
 	"bytes"
 	"testing"
 
-	"fmt"
-
 	"justledger/common/policies"
 	"justledger/gossip/api"
 	gcommon "justledger/gossip/common"
@@ -40,8 +38,8 @@ func TestPrincipalsFromCollectionConfig(t *testing.T) {
 		config := buildCollectionConfig(col2principals)
 		res, err := principalsFromCollectionConfig(config)
 		assert.NoError(t, err)
-		assertEqualPrincipalSets(t, policies.PrincipalSet(org1AndOrg2), res["foo"])
-		assertEqualPrincipalSets(t, policies.PrincipalSet(org3AndOrg4), res["bar"])
+		assert.Equal(t, policies.PrincipalSet(org1AndOrg2), res["foo"])
+		assert.Equal(t, policies.PrincipalSet(org3AndOrg4), res["bar"])
 		assert.Empty(t, res["baz"])
 	})
 }
@@ -250,10 +248,4 @@ func orgPrincipal(mspID string) *msp.MSPPrincipal {
 			Role:          msp.MSPRole_PEER,
 		}),
 	}
-}
-
-func assertEqualPrincipalSets(t *testing.T, ps1, ps2 policies.PrincipalSet) {
-	ps1s := fmt.Sprintf("%v", ps1)
-	ps2s := fmt.Sprintf("%v", ps2)
-	assert.Equal(t, ps1s, ps2s)
 }

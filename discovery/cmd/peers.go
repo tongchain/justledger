@@ -26,7 +26,7 @@ func NewPeerCmd(stub Stub, parser ResponseParser) *PeerCmd {
 	}
 }
 
-// PeerCmd executes channelPeer listing command
+// PeerCmd executes peer listing command
 type PeerCmd struct {
 	stub    Stub
 	server  *string
@@ -72,7 +72,7 @@ func (pc *PeerCmd) Execute(conf common.Config) error {
 	return pc.parser.ParseResponse(channel, res)
 }
 
-// PeerResponseParser parses a channelPeer response
+// PeerResponseParser parses a peer response
 type PeerResponseParser struct {
 	io.Writer
 }
@@ -83,35 +83,24 @@ func (parser *PeerResponseParser) ParseResponse(channel string, res ServiceRespo
 	if channel == "" {
 		listPeers = res.ForLocal()
 	} else {
-		listPeers = &simpleChannelResponse{res.ForChannel(channel)}
+		listPeers = res.ForChannel(channel)
 	}
 	peers, err := listPeers.Peers()
 	if err != nil {
 		return err
 	}
 
-	channelState := channel != ""
-	b, _ := json.MarshalIndent(assemblePeers(peers, channelState), "", "\t")
+	var peerSlices []peer
+	for _, p := range peers {
+		peerSlices = append(peerSlices, rawPeerToPeer(p))
+	}
+
+	b, _ := json.MarshalIndent(peerSlices, "", "\t")
 	fmt.Fprintln(parser.Writer, string(b))
 	return nil
 }
 
-func assemblePeers(peers []*discovery.Peer, withChannelState bool) interface{} {
-	if withChannelState {
-		var peerSlices []channelPeer
-		for _, p := range peers {
-			peerSlices = append(peerSlices, rawPeerToChannelPeer(p))
-		}
-		return peerSlices
-	}
-	var peerSlices []localPeer
-	for _, p := range peers {
-		peerSlices = append(peerSlices, rawPeerToLocalPeer(p))
-	}
-	return peerSlices
-}
-
-type channelPeer struct {
+type peer struct {
 	MSPID        string
 	LedgerHeight uint64
 	Endpoint     string
@@ -119,25 +108,11 @@ type channelPeer struct {
 	Chaincodes   []string
 }
 
-type localPeer struct {
-	MSPID    string
-	Endpoint string
-	Identity string
-}
-
 type peerLister interface {
 	Peers() ([]*discovery.Peer, error)
 }
 
-type simpleChannelResponse struct {
-	discovery.ChannelResponse
-}
-
-func (scr *simpleChannelResponse) Peers() ([]*discovery.Peer, error) {
-	return scr.ChannelResponse.Peers()
-}
-
-func rawPeerToChannelPeer(p *discovery.Peer) channelPeer {
+func rawPeerToPeer(p *discovery.Peer) peer {
 	var ledgerHeight uint64
 	var ccs []string
 	if p.StateInfoMessage != nil && p.StateInfoMessage.GetStateInfo() != nil && p.StateInfoMessage.GetStateInfo().Properties != nil {
@@ -156,25 +131,11 @@ func rawPeerToChannelPeer(p *discovery.Peer) channelPeer {
 	}
 	sID := &msp.SerializedIdentity{}
 	proto.Unmarshal(p.Identity, sID)
-	return channelPeer{
+	return peer{
 		MSPID:        p.MSPID,
 		Endpoint:     endpoint,
 		LedgerHeight: ledgerHeight,
 		Identity:     string(sID.IdBytes),
 		Chaincodes:   ccs,
-	}
-}
-
-func rawPeerToLocalPeer(p *discovery.Peer) localPeer {
-	var endpoint string
-	if p.AliveMessage != nil && p.AliveMessage.GetAliveMsg() != nil && p.AliveMessage.GetAliveMsg().Membership != nil {
-		endpoint = p.AliveMessage.GetAliveMsg().Membership.Endpoint
-	}
-	sID := &msp.SerializedIdentity{}
-	proto.Unmarshal(p.Identity, sID)
-	return localPeer{
-		MSPID:    p.MSPID,
-		Endpoint: endpoint,
-		Identity: string(sID.IdBytes),
 	}
 }

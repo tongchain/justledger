@@ -15,6 +15,7 @@ import (
 	"justledger/gossip/identity"
 	"justledger/gossip/util"
 	proto "justledger/protos/gossip"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 )
 
@@ -23,7 +24,7 @@ type certStore struct {
 	selfIdentity api.PeerIdentityType
 	idMapper     identity.Mapper
 	pull         pull.Mediator
-	logger       util.Logger
+	logger       *logging.Logger
 	mcs          api.MessageCryptoService
 }
 

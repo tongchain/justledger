@@ -7,10 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package clilogging
 
 import (
-	"context"
-
 	"justledger/protos/peer"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
 )
 
 func revertLevelsCmd(cf *LoggingCmdFactory) *cobra.Command {

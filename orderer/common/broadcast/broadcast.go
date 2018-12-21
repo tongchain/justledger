@@ -14,12 +14,17 @@ import (
 	"justledger/orderer/common/msgprocessor"
 	cb "justledger/protos/common"
 	ab "justledger/protos/orderer"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 )
 
 const pkgLogID = "orderer/common/broadcast"
 
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger *logging.Logger
+
+func init() {
+	logger = flogging.MustGetLogger(pkgLogID)
+}
 
 // Handler defines an interface which handles broadcasts
 type Handler interface {

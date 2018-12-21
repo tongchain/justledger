@@ -11,8 +11,13 @@ import (
 
 	ab "justledger/protos/orderer"
 
+	logging "github.com/op/go-logging"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "")
+}
 
 func TestBatchSize(t *testing.T) {
 	validMaxMessageCount := uint32(10)

@@ -17,7 +17,6 @@ type Config struct {
 	Orderers      []*Orderer      `yaml:"orderers,omitempty"`
 	Peers         []*Peer         `yaml:"peers,omitempty"`
 	Profiles      []*Profile      `yaml:"profiles,omitempty"`
-	Templates     *Templates      `yaml:"templates,omitempty"`
 }
 
 func (c *Config) RemovePeer(orgName, peerName string) {

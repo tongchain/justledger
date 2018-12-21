@@ -4,7 +4,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"math"
@@ -19,6 +18,7 @@ import (
 	ab "justledger/protos/orderer"
 	"justledger/protos/utils"
 
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 

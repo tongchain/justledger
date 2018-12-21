@@ -14,7 +14,8 @@ import (
 	"justledger/msp"
 	cb "justledger/protos/common"
 	mb "justledger/protos/msp"
-	"go.uber.org/zap/zapcore"
+
+	"github.com/op/go-logging"
 )
 
 var cauthdslLogger = flogging.MustGetLogger("cauthdsl")
@@ -92,7 +93,7 @@ func compile(policy *cb.SignaturePolicy, identities []*mb.MSPPrincipal, deserial
 					cauthdslLogger.Debugf("%p skipping identity %d because it has already been used", signedData, i)
 					continue
 				}
-				if cauthdslLogger.IsEnabledFor(zapcore.DebugLevel) {
+				if cauthdslLogger.IsEnabledFor(logging.DEBUG) {
 					// Unlike most places, this is a huge print statement, and worth checking log level before create garbage
 					cauthdslLogger.Debugf("%p processing identity %d with bytes of %x", signedData, i, sd.Identity)
 				}

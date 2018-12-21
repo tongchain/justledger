@@ -14,13 +14,7 @@ import (
 	localconfig "justledger/orderer/common/localconfig"
 )
 
-func newBrokerConfig(
-	tlsConfig localconfig.TLS,
-	saslPlain localconfig.SASLPlain,
-	retryOptions localconfig.Retry,
-	kafkaVersion sarama.KafkaVersion,
-	chosenStaticPartition int32) *sarama.Config {
-
+func newBrokerConfig(tlsConfig localconfig.TLS, retryOptions localconfig.Retry, kafkaVersion sarama.KafkaVersion, chosenStaticPartition int32) *sarama.Config {
 	// Max. size for request headers, etc. Set in bytes. Too big on purpose.
 	paddingDelta := 1 * 1024 * 1024
 
@@ -58,11 +52,6 @@ func newBrokerConfig(
 			MinVersion:   tls.VersionTLS12,
 			MaxVersion:   0, // Latest supported TLS version
 		}
-	}
-	brokerConfig.Net.SASL.Enable = saslPlain.Enabled
-	if brokerConfig.Net.SASL.Enable {
-		brokerConfig.Net.SASL.User = saslPlain.User
-		brokerConfig.Net.SASL.Password = saslPlain.Password
 	}
 
 	// Set equivalent of Kafka producer config max.request.bytes to the default

@@ -19,7 +19,6 @@ import (
 	"strings"
 
 	"justledger/common/flogging"
-	"justledger/core/chaincode/platforms"
 	"justledger/core/chaincode/platforms/ccmetadata"
 	"justledger/core/chaincode/platforms/util"
 	cutil "justledger/core/container/util"
@@ -44,21 +43,16 @@ func pathExists(path string) (bool, error) {
 	return true, err
 }
 
-// Name returns the name of this platform
-func (nodePlatform *Platform) Name() string {
-	return pb.ChaincodeSpec_NODE.String()
-}
-
 // ValidateSpec validates Go chaincodes
-func (nodePlatform *Platform) ValidatePath(rawPath string) error {
-	path, err := url.Parse(rawPath)
+func (nodePlatform *Platform) ValidateSpec(spec *pb.ChaincodeSpec) error {
+	path, err := url.Parse(spec.ChaincodeId.Path)
 	if err != nil || path == nil {
 		return fmt.Errorf("invalid path: %s", err)
 	}
 
 	//Treat empty scheme as a local filesystem path
 	if path.Scheme == "" {
-		pathToCheck, err := filepath.Abs(rawPath)
+		pathToCheck, err := filepath.Abs(spec.ChaincodeId.Path)
 		if err != nil {
 			return fmt.Errorf("error obtaining absolute path of the chaincode: %s", err)
 		}
@@ -68,15 +62,15 @@ func (nodePlatform *Platform) ValidatePath(rawPath string) error {
 			return fmt.Errorf("error validating chaincode path: %s", err)
 		}
 		if !exists {
-			return fmt.Errorf("path to chaincode does not exist: %s", rawPath)
+			return fmt.Errorf("path to chaincode does not exist: %s", spec.ChaincodeId.Path)
 		}
 	}
 	return nil
 }
 
-func (nodePlatform *Platform) ValidateCodePackage(code []byte) error {
+func (nodePlatform *Platform) ValidateDeploymentSpec(cds *pb.ChaincodeDeploymentSpec) error {
 
-	if len(code) == 0 {
+	if cds.CodePackage == nil || len(cds.CodePackage) == 0 {
 		// Nothing to validate if no CodePackage was included
 		return nil
 	}
@@ -89,7 +83,7 @@ func (nodePlatform *Platform) ValidateCodePackage(code []byte) error {
 	// resilient in enforcing constraints. However, we should still do our best to keep as much
 	// garbage out of the system as possible.
 	re := regexp.MustCompile(`^(/)?(src|META-INF)/.*`)
-	is := bytes.NewReader(code)
+	is := bytes.NewReader(cds.CodePackage)
 	gr, err := gzip.NewReader(is)
 	if err != nil {
 		return fmt.Errorf("failure opening codepackage gzip stream: %s", err)
@@ -134,7 +128,7 @@ func (nodePlatform *Platform) ValidateCodePackage(code []byte) error {
 }
 
 // Generates a deployment payload by putting source files in src/$file entries in .tar.gz format
-func (nodePlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) {
+func (nodePlatform *Platform) GetDeploymentPayload(spec *pb.ChaincodeSpec) ([]byte, error) {
 
 	var err error
 
@@ -145,7 +139,7 @@ func (nodePlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) 
 	gw := gzip.NewWriter(payload)
 	tw := tar.NewWriter(gw)
 
-	folder := path
+	folder := spec.ChaincodeId.Path
 	if folder == "" {
 		return nil, errors.New("ChaincodeSpec's path cannot be empty")
 	}
@@ -157,7 +151,7 @@ func (nodePlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) 
 
 	logger.Debugf("Packaging node.js project from path %s", folder)
 
-	if err = cutil.WriteFolderToTarPackage(tw, folder, []string{"node_modules"}, nil, nil); err != nil {
+	if err = cutil.WriteFolderToTarPackage(tw, folder, "node_modules", nil, nil); err != nil {
 
 		logger.Errorf("Error writing folder to tar package %s", err)
 		return nil, fmt.Errorf("Error writing Chaincode package contents: %s", err)
@@ -174,7 +168,7 @@ func (nodePlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) 
 	return payload.Bytes(), nil
 }
 
-func (nodePlatform *Platform) GenerateDockerfile() (string, error) {
+func (nodePlatform *Platform) GenerateDockerfile(cds *pb.ChaincodeDeploymentSpec) (string, error) {
 
 	var buf []string
 
@@ -186,9 +180,9 @@ func (nodePlatform *Platform) GenerateDockerfile() (string, error) {
 	return dockerFileContents, nil
 }
 
-func (nodePlatform *Platform) GenerateDockerBuild(path string, code []byte, tw *tar.Writer) error {
+func (nodePlatform *Platform) GenerateDockerBuild(cds *pb.ChaincodeDeploymentSpec, tw *tar.Writer) error {
 
-	codepackage := bytes.NewReader(code)
+	codepackage := bytes.NewReader(cds.CodePackage)
 	binpackage := bytes.NewBuffer(nil)
 	err := util.DockerBuild(util.DockerBuildOptions{
 		Cmd:          fmt.Sprint("cp -R /chaincode/input/src/. /chaincode/output && cd /chaincode/output && npm install --production"),
@@ -203,6 +197,6 @@ func (nodePlatform *Platform) GenerateDockerBuild(path string, code []byte, tw *
 }
 
 //GetMetadataProvider fetches metadata provider given deployment spec
-func (nodePlatform *Platform) GetMetadataProvider(code []byte) platforms.MetadataProvider {
-	return &ccmetadata.TargzMetadataProvider{Code: code}
+func (nodePlatform *Platform) GetMetadataProvider(cds *pb.ChaincodeDeploymentSpec) ccmetadata.MetadataProvider {
+	return &ccmetadata.TargzMetadataProvider{cds}
 }

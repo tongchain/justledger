@@ -6,7 +6,9 @@ SPDX-License-Identifier: Apache-2.0
 
 package nwo
 
-const DefaultCoreTemplate = `---
+// CoreTemplate is a basic core configuration. It serves as the template
+// for all core.yaml documents.
+const CoreTemplate = `---
 logging:
   level:      info
   cauthdsl:   warning
@@ -22,9 +24,9 @@ logging:
 peer:
   id: {{ Peer.ID }}
   networkId: {{ .NetworkID }}
-  address: 127.0.0.1:{{ .PeerPort Peer "Listen" }}
-  addressAutoDetect: true
-  listenAddress: 127.0.0.1:{{ .PeerPort Peer "Listen" }}
+  address: 0.0.0.0:{{ .PeerPort Peer "Listen" }}
+  addressAutoDetect: false
+  listenAddress: 0.0.0.0:{{ .PeerPort Peer "Listen" }}
   chaincodeListenAddress: 0.0.0.0:{{ .PeerPort Peer "Chaincode" }}
   gomaxprocs: -1
   keepalive:
@@ -36,7 +38,7 @@ peer:
       interval: 60s
       timeout: 20s
   gossip:
-    bootstrap: 127.0.0.1:{{ .PeerPort Peer "Listen" }}
+    bootstrap: 0.0.0.0:{{ .PeerPort Peer "Listen" }}
     useLeaderElection: true
     orgLeader: false
     endpoint:
@@ -61,7 +63,7 @@ peer:
     aliveTimeInterval: 5s
     aliveExpirationTimeout: 25s
     reconnectInterval: 25s
-    externalEndpoint: 127.0.0.1:{{ .PeerPort Peer "Listen" }}
+    externalEndpoint: 0.0.0.0:{{ .PeerPort Peer "Listen" }}
     election:
       startupGracePeriod: 15s
       membershipSampleInterval: 1s
@@ -72,24 +74,24 @@ peer:
       transientstoreMaxBlockRetention: 1000
       pushAckTimeout: 3s
   events:
-    address: 127.0.0.1:{{ .PeerPort Peer "Events" }}
+    address: 0.0.0.0:{{ .PeerPort Peer "Events" }}
     buffersize: 100
     timeout: 10ms
     timewindow: 15m
     keepalive:
       minInterval: 60s
   tls:
-    enabled:  true
+    enabled:  false
     clientAuthRequired: false
     cert:
-      file: {{ .PeerLocalTLSDir Peer }}/server.crt
+      file: tls/server.crt
     key:
-      file: {{ .PeerLocalTLSDir Peer }}/server.key
+      file: tls/server.key
     rootcert:
-      file: {{ .PeerLocalTLSDir Peer }}/ca.crt
+      file: tls/ca.crt
     clientRootCAs:
       files:
-      - {{ .PeerLocalTLSDir Peer }}/ca.crt
+      - tls/ca.crt
   authentication:
     timewindow: 15m
   fileSystemPath: filesystem
@@ -159,7 +161,8 @@ chaincode:
   car:
     runtime: $(BASE_DOCKER_NS)/fabric-baseos:$(ARCH)-$(BASE_VERSION)
   java:
-    runtime: $(DOCKER_NS)/fabric-javaenv:$(ARCH)-$(PROJECT_VERSION)
+    Dockerfile:  |
+      from $(DOCKER_NS)/fabric-javaenv:$(ARCH)-1.1.0
   node:
       runtime: $(BASE_DOCKER_NS)/fabric-baseimage:$(ARCH)-$(BASE_VERSION)
   startuptimeout: 300s

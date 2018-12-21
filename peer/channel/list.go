@@ -17,7 +17,6 @@ limitations under the License.
 package channel
 
 import (
-	"context"
 	"errors"
 	"fmt"
 
@@ -27,6 +26,7 @@ import (
 	pb "justledger/protos/peer"
 	"justledger/protos/utils"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
 )
 
 type endorserClient struct {

@@ -9,16 +9,34 @@ package chaincode
 import (
 	"errors"
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
+	"justledger/msp/mgmt/testtools"
 	"justledger/peer/common"
 	pb "justledger/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
+var once sync.Once
+
+// InitMSP init MSP
+func InitMSP() {
+	once.Do(initMSP)
+}
+
+func initMSP() {
+	err := msptesttools.LoadMSPSetupForTesting()
+	if err != nil {
+		panic(fmt.Errorf("Fatal error when reading MSP config: %s\n", err))
+	}
+}
+
 func TestUpgradeCmd(t *testing.T) {
+	InitMSP()
+
 	signer, err := common.GetDefaultSigner()
 	if err != nil {
 		t.Fatalf("Get default signer error: %v", err)
@@ -56,6 +74,8 @@ func TestUpgradeCmd(t *testing.T) {
 }
 
 func TestUpgradeCmdEndorseFail(t *testing.T) {
+	InitMSP()
+
 	signer, err := common.GetDefaultSigner()
 	if err != nil {
 		t.Fatalf("Get default signer error: %v", err)
@@ -80,7 +100,7 @@ func TestUpgradeCmdEndorseFail(t *testing.T) {
 		"-v", "anotherversion", "-c", "{\"Function\":\"init\",\"Args\": [\"param\",\"1\"]}"}
 	cmd.SetArgs(args)
 
-	expectErrMsg := fmt.Sprintf("could not assemble transaction, err proposal response was not successful, error code %d, msg %s", errCode, errMsg)
+	expectErrMsg := fmt.Sprintf("could not assemble transaction, err Proposal response was not successful, error code %d, msg %s", errCode, errMsg)
 	if err := cmd.Execute(); err == nil {
 		t.Errorf("Run chaincode upgrade cmd error:%v", err)
 	} else {
@@ -91,6 +111,8 @@ func TestUpgradeCmdEndorseFail(t *testing.T) {
 }
 
 func TestUpgradeCmdSendTXFail(t *testing.T) {
+	InitMSP()
+
 	signer, err := common.GetDefaultSigner()
 	if err != nil {
 		t.Fatalf("Get default signer error: %v", err)
@@ -142,6 +164,7 @@ func TestUpgradeCmdWithNilCF(t *testing.T) {
 	}()
 
 	channelID = ""
+	InitMSP()
 
 	cmd := upgradeCmd(nil)
 	addFlags(cmd)

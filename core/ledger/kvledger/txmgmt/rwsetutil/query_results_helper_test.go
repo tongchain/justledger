@@ -23,24 +23,24 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	bccspfactory "justledger/bccsp/factory"
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/txmgmt/version"
 	"justledger/protos/ledger/rwset/kvrwset"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestQueryResultHelper_NoResults(t *testing.T) {
 	helper, _ := NewRangeQueryResultsHelper(true, 3)
 	r, h, err := helper.Done()
-	assert.NoError(t, err)
-	assert.Nil(t, h)
-	assert.Nil(t, r)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertNil(t, h)
+	testutil.AssertNil(t, r)
 }
 
 func TestQueryResultHelper_HashNotEnabled(t *testing.T) {
 	kvReads := buildTestKVReads(t, 5)
 	r, h := buildTestResults(t, false, 3, kvReads)
-	assert.Nil(t, h)
-	assert.Equal(t, kvReads, r)
+	testutil.AssertNil(t, h)
+	testutil.AssertEquals(t, r, kvReads)
 }
 
 func TestQueryResultHelper_ResultsNoMoreThanMaxDegree(t *testing.T) {
@@ -48,8 +48,8 @@ func TestQueryResultHelper_ResultsNoMoreThanMaxDegree(t *testing.T) {
 	numResults := 3
 	kvReads := buildTestKVReads(t, numResults)
 	r, h := buildTestResults(t, true, maxDegree, kvReads)
-	assert.Nil(t, h)
-	assert.Equal(t, kvReads, r)
+	testutil.AssertNil(t, h)
+	testutil.AssertEquals(t, r, kvReads)
 }
 
 func TestQueryResultHelper_Hash_OneLevel(t *testing.T) {
@@ -59,12 +59,11 @@ func TestQueryResultHelper_Hash_OneLevel(t *testing.T) {
 	level1_1 := computeTestHashKVReads(t, kvReads[0:4])
 	level1_2 := computeTestHashKVReads(t, kvReads[4:8])
 	level1_3 := computeTestHashKVReads(t, kvReads[8:])
-	assert.Nil(t, r)
-	assert.Equal(t, &kvrwset.QueryReadsMerkleSummary{
+	testutil.AssertNil(t, r)
+	testutil.AssertEquals(t, h, &kvrwset.QueryReadsMerkleSummary{
 		MaxDegree:      uint32(maxDegree),
 		MaxLevel:       1,
-		MaxLevelHashes: hashesToBytes([]Hash{level1_1, level1_2, level1_3})}, h)
-
+		MaxLevelHashes: hashesToBytes([]Hash{level1_1, level1_2, level1_3})})
 }
 
 func TestQueryResultHelper_Hash_TwoLevel(t *testing.T) {
@@ -81,12 +80,11 @@ func TestQueryResultHelper_Hash_TwoLevel(t *testing.T) {
 
 	level2_1 := computeTestCombinedHash(t, level1_1, level1_2, level1_3, level1_4)
 	level2_2 := computeTestCombinedHash(t, level1_5, level1_6, level1_7)
-	assert.Nil(t, r)
-	assert.Equal(t, &kvrwset.QueryReadsMerkleSummary{
+	testutil.AssertNil(t, r)
+	testutil.AssertEquals(t, h, &kvrwset.QueryReadsMerkleSummary{
 		MaxDegree:      uint32(maxDegree),
 		MaxLevel:       2,
-		MaxLevelHashes: hashesToBytes([]Hash{level2_1, level2_2})}, h)
-
+		MaxLevelHashes: hashesToBytes([]Hash{level2_1, level2_2})})
 }
 
 func TestQueryResultHelper_Hash_ThreeLevel(t *testing.T) {
@@ -118,12 +116,11 @@ func TestQueryResultHelper_Hash_ThreeLevel(t *testing.T) {
 
 	level3_1 := computeTestCombinedHash(t, level2_1, level2_2, level2_3, level2_4)
 	level3_2 := level1_17
-	assert.Nil(t, r)
-	assert.Equal(t, &kvrwset.QueryReadsMerkleSummary{
+	testutil.AssertNil(t, r)
+	testutil.AssertEquals(t, h, &kvrwset.QueryReadsMerkleSummary{
 		MaxDegree:      uint32(maxDegree),
 		MaxLevel:       3,
-		MaxLevelHashes: hashesToBytes([]Hash{level3_1, level3_2})}, h)
-
+		MaxLevelHashes: hashesToBytes([]Hash{level3_1, level3_2})})
 }
 
 func TestQueryResultHelper_Hash_MaxLevelIncrementNeededInDone(t *testing.T) {
@@ -145,12 +142,11 @@ func TestQueryResultHelper_Hash_MaxLevelIncrementNeededInDone(t *testing.T) {
 
 	level3_1 := computeTestCombinedHash(t, level2_1, level2_2, level2_3)
 
-	assert.Nil(t, r)
-	assert.Equal(t, &kvrwset.QueryReadsMerkleSummary{
+	testutil.AssertNil(t, r)
+	testutil.AssertEquals(t, h, &kvrwset.QueryReadsMerkleSummary{
 		MaxDegree:      uint32(maxDegree),
 		MaxLevel:       3,
-		MaxLevelHashes: hashesToBytes([]Hash{level3_1})}, h)
-
+		MaxLevelHashes: hashesToBytes([]Hash{level3_1})})
 }
 
 func TestQueryResultHelper_Hash_FirstLevelSkipNeededInDone(t *testing.T) {
@@ -182,12 +178,11 @@ func TestQueryResultHelper_Hash_FirstLevelSkipNeededInDone(t *testing.T) {
 	level3_1 := computeTestCombinedHash(t, level2_1, level2_2, level2_3)
 	level3_2 := computeTestCombinedHash(t, level2_4, level2_5)
 
-	assert.Nil(t, r)
-	assert.Equal(t, &kvrwset.QueryReadsMerkleSummary{
+	testutil.AssertNil(t, r)
+	testutil.AssertEquals(t, h, &kvrwset.QueryReadsMerkleSummary{
 		MaxDegree:      uint32(maxDegree),
 		MaxLevel:       3,
-		MaxLevelHashes: hashesToBytes([]Hash{level3_1, level3_2})}, h)
-
+		MaxLevelHashes: hashesToBytes([]Hash{level3_1, level3_2})})
 }
 
 func buildTestResults(t *testing.T, enableHashing bool, maxDegree int, kvReads []*kvrwset.KVRead) ([]*kvrwset.KVRead, *kvrwset.QueryReadsMerkleSummary) {
@@ -196,7 +191,7 @@ func buildTestResults(t *testing.T, enableHashing bool, maxDegree int, kvReads [
 		helper.AddResult(kvRead)
 	}
 	r, h, err := helper.Done()
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	return r, h
 }
 
@@ -212,14 +207,14 @@ func computeTestHashKVReads(t *testing.T, kvReads []*kvrwset.KVRead) Hash {
 	queryReads := &kvrwset.QueryReads{}
 	queryReads.KvReads = kvReads
 	b, err := proto.Marshal(queryReads)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	h, err := bccspfactory.GetDefault().Hash(b, hashOpts)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	return h
 }
 
 func computeTestCombinedHash(t *testing.T, hashes ...Hash) Hash {
 	h, err := computeCombinedHash(hashes)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	return h
 }

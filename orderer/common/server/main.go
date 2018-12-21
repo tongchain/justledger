@@ -37,12 +37,17 @@ import (
 	"justledger/common/util"
 	mspmgmt "justledger/msp/mgmt"
 	"justledger/orderer/common/performance"
+	"github.com/op/go-logging"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const pkgLogID = "orderer/common/server"
 
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger *logging.Logger
+
+func init() {
+	logger = flogging.MustGetLogger(pkgLogID)
+}
 
 //command line flags
 var (
@@ -114,11 +119,8 @@ func Start(cmd string, conf *localconfig.TopLevel) {
 
 // Set the logging level
 func initializeLoggingLevel(conf *localconfig.TopLevel) {
-	flogging.Init(flogging.Config{
-		Format:  conf.General.LogFormat,
-		Writer:  os.Stderr,
-		LogSpec: conf.General.LogLevel,
-	})
+	flogging.InitBackend(flogging.SetFormat(conf.General.LogFormat), os.Stderr)
+	flogging.InitFromSpec(conf.General.LogLevel)
 }
 
 // Start the profiling service if enabled.

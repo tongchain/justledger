@@ -29,9 +29,7 @@ import (
 	"justledger/core/ledger/pvtdatapolicy"
 	"justledger/core/ledger/util"
 	"justledger/protos/common"
-	"justledger/protos/ledger/queryresult"
 	"justledger/protos/ledger/rwset"
-	"github.com/stretchr/testify/assert"
 )
 
 type testEnv interface {
@@ -83,10 +81,10 @@ func (env *lockBasedEnv) init(t *testing.T, testLedgerID string, btlPolicy pvtda
 	env.t = t
 	env.testDBEnv.Init(t)
 	env.testDB = env.testDBEnv.GetDBHandle(testLedgerID)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	env.testBookkeepingEnv = bookkeeping.NewTestEnv(t)
 	env.txmgr, err = NewLockBasedTxMgr(testLedgerID, env.testDB, nil, btlPolicy, env.testBookkeepingEnv.TestProvider)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 }
 
 func (env *lockBasedEnv) getTxMgr() txmgr.TxMgr {
@@ -120,7 +118,7 @@ func (h *txMgrTestHelper) validateAndCommitRWSet(txRWSet *rwset.TxReadWriteSet) 
 	rwSetBytes, _ := proto.Marshal(txRWSet)
 	block := h.bg.NextBlock([][]byte{rwSetBytes})
 	err := h.txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block, BlockPvtData: nil}, true)
-	assert.NoError(h.t, err)
+	testutil.AssertNoError(h.t, err, "")
 	txsFltr := util.TxValidationFlags(block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER])
 	invalidTxNum := 0
 	for i := 0; i < len(block.Data.Data); i++ {
@@ -128,16 +126,16 @@ func (h *txMgrTestHelper) validateAndCommitRWSet(txRWSet *rwset.TxReadWriteSet) 
 			invalidTxNum++
 		}
 	}
-	assert.Equal(h.t, 0, invalidTxNum)
+	testutil.AssertEquals(h.t, invalidTxNum, 0)
 	err = h.txMgr.Commit()
-	assert.NoError(h.t, err)
+	testutil.AssertNoError(h.t, err, "")
 }
 
 func (h *txMgrTestHelper) checkRWsetInvalid(txRWSet *rwset.TxReadWriteSet) {
 	rwSetBytes, _ := proto.Marshal(txRWSet)
 	block := h.bg.NextBlock([][]byte{rwSetBytes})
 	err := h.txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block, BlockPvtData: nil}, true)
-	assert.NoError(h.t, err)
+	testutil.AssertNoError(h.t, err, "")
 	txsFltr := util.TxValidationFlags(block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER])
 	invalidTxNum := 0
 	for i := 0; i < len(block.Data.Data); i++ {
@@ -145,7 +143,7 @@ func (h *txMgrTestHelper) checkRWsetInvalid(txRWSet *rwset.TxReadWriteSet) {
 			invalidTxNum++
 		}
 	}
-	assert.Equal(h.t, 1, invalidTxNum)
+	testutil.AssertEquals(h.t, invalidTxNum, 1)
 }
 
 func populateCollConfigForTest(t *testing.T, txMgr *LockBasedTxMgr, nsColls []collConfigkey, ht *version.Height) {
@@ -168,16 +166,8 @@ func populateCollConfigForTest(t *testing.T, txMgr *LockBasedTxMgr, nsColls []co
 
 	for ns, pkg := range m {
 		pkgBytes, err := proto.Marshal(pkg)
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 		updates.PubUpdates.Put(lsccNamespace, constructCollectionConfigKey(ns), pkgBytes, ht)
 	}
 	txMgr.db.ApplyPrivacyAwareUpdates(updates, ht)
-}
-
-func testutilPopulateDB(t *testing.T, txMgr *LockBasedTxMgr, ns string, data []*queryresult.KV, version *version.Height) {
-	updates := privacyenabledstate.NewUpdateBatch()
-	for _, kv := range data {
-		updates.PubUpdates.Put(ns, kv.Key, kv.Value, version)
-	}
-	txMgr.db.ApplyPrivacyAwareUpdates(updates, version)
 }

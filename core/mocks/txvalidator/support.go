@@ -17,8 +17,6 @@ limitations under the License.
 package support
 
 import (
-	"sync"
-
 	"justledger/common/channelconfig"
 	mockpolicies "justledger/common/mocks/policies"
 	"justledger/common/policies"
@@ -28,20 +26,16 @@ import (
 )
 
 type Support struct {
-	LedgerVal     ledger.PeerLedger
-	MSPManagerVal msp.MSPManager
-	ApplyVal      error
-	ACVal         channelconfig.ApplicationCapabilities
-
-	sync.Mutex
-	capabilitiesInvokeCount int
-	mspManagerInvokeCount   int
+	LedgerVal               ledger.PeerLedger
+	MSPManagerVal           msp.MSPManager
+	ApplyVal                error
+	ACVal                   channelconfig.ApplicationCapabilities
+	CapabilitiesInvokeCount int
+	MSPManagerInvokeCount   int
 }
 
 func (ms *Support) Capabilities() channelconfig.ApplicationCapabilities {
-	ms.Lock()
-	defer ms.Unlock()
-	ms.capabilitiesInvokeCount++
+	ms.CapabilitiesInvokeCount++
 	return ms.ACVal
 }
 
@@ -52,9 +46,7 @@ func (ms *Support) Ledger() ledger.PeerLedger {
 
 // MSPManager returns MSPManagerVal
 func (ms *Support) MSPManager() msp.MSPManager {
-	ms.Lock()
-	defer ms.Unlock()
-	ms.mspManagerInvokeCount++
+	ms.MSPManagerInvokeCount++
 	return ms.MSPManagerVal
 }
 
@@ -67,18 +59,6 @@ func (ms *Support) PolicyManager() policies.Manager {
 	return &mockpolicies.Manager{}
 }
 
-func (ms *Support) GetMSPIDs(cid string) []string {
+func (cs *Support) GetMSPIDs(cid string) []string {
 	return []string{"SampleOrg"}
-}
-
-func (ms *Support) CapabilitiesInvokeCount() int {
-	ms.Lock()
-	defer ms.Unlock()
-	return ms.capabilitiesInvokeCount
-}
-
-func (ms *Support) MSPManagerInvokeCount() int {
-	ms.Lock()
-	defer ms.Unlock()
-	return ms.mspManagerInvokeCount
 }

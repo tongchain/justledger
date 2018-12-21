@@ -9,7 +9,6 @@ package chaincode
 import (
 	"testing"
 
-	"justledger/peer/common"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -35,11 +34,7 @@ func TestOrdererFlags(t *testing.T) {
 			assert.Equal(t, sn, viper.GetString("orderer.tls.serverhostoverride"))
 			assert.Equal(t, true, viper.GetBool("orderer.tls.enabled"))
 			assert.Equal(t, true, viper.GetBool("orderer.tls.clientAuthRequired"))
-		},
-		PersistentPreRun: func(cmd *cobra.Command, args []string) {
-			common.SetOrdererEnv(cmd, args)
-		},
-	}
+		}}
 
 	runCmd := Cmd(nil)
 

@@ -11,8 +11,13 @@ import (
 
 	cb "justledger/protos/common"
 
+	logging "github.com/op/go-logging"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "")
+}
 
 func TestBadKey(t *testing.T) {
 	assert.Error(t, addToMap(comparable{key: "[Label]", path: []string{}}, make(map[string]comparable)),

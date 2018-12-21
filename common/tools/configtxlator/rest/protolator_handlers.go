@@ -25,6 +25,12 @@ import (
 
 	"justledger/common/tools/protolator"
 
+	// Import these to register the proto types
+	_ "justledger/protos/common"
+	_ "justledger/protos/msp"
+	_ "justledger/protos/orderer"
+	_ "justledger/protos/peer"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/mux"
 )

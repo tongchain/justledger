@@ -14,12 +14,11 @@ import (
 	"testing"
 	"time"
 
+	"justledger/core/config/configtest"
+	"justledger/gossip/util"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-
-	"justledger/core/config/configtest"
-	"justledger/gossip/util"
 )
 
 const (
@@ -207,7 +206,7 @@ func TestInitPeersAtSameTime(t *testing.T) {
 func TestInitPeersStartAtIntervals(t *testing.T) {
 	t.Parallel()
 	// Scenario: Peers are spawned one by one in a slow rate
-	// expected outcome: the first peer is the leader although its ID is highest
+	// expected outcome: the first peer is the leader although its ID is lowest
 	peers := createPeers(getStartupGracePeriod()+getLeadershipDeclarationInterval(), 3, 2, 1, 0)
 	waitForLeaderElection(t, peers)
 	assert.True(t, peers[0].IsLeader())

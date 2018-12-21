@@ -1,7 +1,17 @@
 /*
-Copyright IBM Corp. All Rights Reserved.
+Copyright IBM Corp. 2016 All Rights Reserved.
 
-SPDX-License-Identifier: Apache-2.0
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+		 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package golang
@@ -22,7 +32,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"justledger/common/metadata"
-	"justledger/core/chaincode/platforms"
 	"justledger/core/chaincode/platforms/ccmetadata"
 	"justledger/core/chaincode/platforms/util"
 	cutil "justledger/core/container/util"
@@ -45,14 +54,14 @@ func pathExists(path string) (bool, error) {
 	return true, err
 }
 
-func decodeUrl(path string) (string, error) {
+func decodeUrl(spec *pb.ChaincodeSpec) (string, error) {
 	var urlLocation string
-	if strings.HasPrefix(path, "http://") {
-		urlLocation = path[7:]
-	} else if strings.HasPrefix(path, "https://") {
-		urlLocation = path[8:]
+	if strings.HasPrefix(spec.ChaincodeId.Path, "http://") {
+		urlLocation = spec.ChaincodeId.Path[7:]
+	} else if strings.HasPrefix(spec.ChaincodeId.Path, "https://") {
+		urlLocation = spec.ChaincodeId.Path[8:]
 	} else {
-		urlLocation = path
+		urlLocation = spec.ChaincodeId.Path
 	}
 
 	if len(urlLocation) < 2 {
@@ -89,14 +98,9 @@ func filter(vs []string, f func(string) bool) []string {
 	return vsf
 }
 
-// Name returns the name of this platform
-func (goPlatform *Platform) Name() string {
-	return pb.ChaincodeSpec_GOLANG.String()
-}
-
 // ValidateSpec validates Go chaincodes
-func (goPlatform *Platform) ValidatePath(rawPath string) error {
-	path, err := url.Parse(rawPath)
+func (goPlatform *Platform) ValidateSpec(spec *pb.ChaincodeSpec) error {
+	path, err := url.Parse(spec.ChaincodeId.Path)
 	if err != nil || path == nil {
 		return fmt.Errorf("invalid path: %s", err)
 	}
@@ -109,7 +113,7 @@ func (goPlatform *Platform) ValidatePath(rawPath string) error {
 		if err != nil {
 			return err
 		}
-		pathToCheck := filepath.Join(gopath, "src", rawPath)
+		pathToCheck := filepath.Join(gopath, "src", spec.ChaincodeId.Path)
 		exists, err := pathExists(pathToCheck)
 		if err != nil {
 			return fmt.Errorf("error validating chaincode path: %s", err)
@@ -121,9 +125,9 @@ func (goPlatform *Platform) ValidatePath(rawPath string) error {
 	return nil
 }
 
-func (goPlatform *Platform) ValidateCodePackage(code []byte) error {
+func (goPlatform *Platform) ValidateDeploymentSpec(cds *pb.ChaincodeDeploymentSpec) error {
 
-	if len(code) == 0 {
+	if cds.CodePackage == nil || len(cds.CodePackage) == 0 {
 		// Nothing to validate if no CodePackage was included
 		return nil
 	}
@@ -139,7 +143,7 @@ func (goPlatform *Platform) ValidateCodePackage(code []byte) error {
 	// resilient in enforcing constraints. However, we should still do our best to keep as much
 	// garbage out of the system as possible.
 	re := regexp.MustCompile(`^(/)?(src|META-INF)/.*`)
-	is := bytes.NewReader(code)
+	is := bytes.NewReader(cds.CodePackage)
 	gr, err := gzip.NewReader(is)
 	if err != nil {
 		return fmt.Errorf("failure opening codepackage gzip stream: %s", err)
@@ -246,14 +250,14 @@ func vendorDependencies(pkg string, files Sources) {
 }
 
 // Generates a deployment payload for GOLANG as a series of src/$pkg entries in .tar.gz format
-func (goPlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) {
+func (goPlatform *Platform) GetDeploymentPayload(spec *pb.ChaincodeSpec) ([]byte, error) {
 
 	var err error
 
 	// --------------------------------------------------------------------------------------
 	// retrieve a CodeDescriptor from either HTTP or the filesystem
 	// --------------------------------------------------------------------------------------
-	code, err := getCode(path)
+	code, err := getCode(spec)
 	if err != nil {
 		return nil, err
 	}
@@ -473,13 +477,16 @@ func (goPlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) {
 		err = gw.Close()
 	}
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create tar for chaincode")
+		return nil, errors.Wrapf(
+			err,
+			"failed to create tar for chaincode: %s",
+			spec.GetChaincodeId().GetName())
 	}
 
 	return payload.Bytes(), nil
 }
 
-func (goPlatform *Platform) GenerateDockerfile() (string, error) {
+func (goPlatform *Platform) GenerateDockerfile(cds *pb.ChaincodeDeploymentSpec) (string, error) {
 
 	var buf []string
 
@@ -501,8 +508,10 @@ func getLDFlagsOpts() string {
 	return staticLDFlagsOpts
 }
 
-func (goPlatform *Platform) GenerateDockerBuild(path string, code []byte, tw *tar.Writer) error {
-	pkgname, err := decodeUrl(path)
+func (goPlatform *Platform) GenerateDockerBuild(cds *pb.ChaincodeDeploymentSpec, tw *tar.Writer) error {
+	spec := cds.ChaincodeSpec
+
+	pkgname, err := decodeUrl(spec)
 	if err != nil {
 		return fmt.Errorf("could not decode url: %s", err)
 	}
@@ -517,7 +526,7 @@ func (goPlatform *Platform) GenerateDockerBuild(path string, code []byte, tw *ta
 	}
 	logger.Infof("building chaincode with tags: %s", gotags)
 
-	codepackage := bytes.NewReader(code)
+	codepackage := bytes.NewReader(cds.CodePackage)
 	binpackage := bytes.NewBuffer(nil)
 	err = util.DockerBuild(util.DockerBuildOptions{
 		Cmd:          fmt.Sprintf("GOPATH=/chaincode/input:$GOPATH go build -tags \"%s\" %s -o /chaincode/output/chaincode %s", gotags, ldflagsOpt, pkgname),
@@ -532,6 +541,6 @@ func (goPlatform *Platform) GenerateDockerBuild(path string, code []byte, tw *ta
 }
 
 //GetMetadataProvider fetches metadata provider given deployment spec
-func (goPlatform *Platform) GetMetadataProvider(code []byte) platforms.MetadataProvider {
-	return &ccmetadata.TargzMetadataProvider{Code: code}
+func (goPlatform *Platform) GetMetadataProvider(cds *pb.ChaincodeDeploymentSpec) ccmetadata.MetadataProvider {
+	return &ccmetadata.TargzMetadataProvider{cds}
 }

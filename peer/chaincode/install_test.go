@@ -28,6 +28,8 @@ func initInstallTest(fsPath string, t *testing.T) (*cobra.Command, *ChaincodeCmd
 		t.Fatalf("could not create install env")
 	}
 
+	InitMSP()
+
 	signer, err := common.GetDefaultSigner()
 	if err != nil {
 		t.Fatalf("Get default signer error: %v", err)
@@ -169,6 +171,7 @@ func installEx02(t *testing.T) error {
 }
 
 func TestInstall(t *testing.T) {
+	InitMSP()
 	if err := installEx02(t); err != nil {
 		t.Fatalf("Install failed with error: %v", err)
 	}

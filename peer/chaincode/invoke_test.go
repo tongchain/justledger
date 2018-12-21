@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode
 
 import (
-	"context"
+	"bytes"
 	"errors"
 	"fmt"
 	"testing"
 	"time"
 
-	"justledger/common/flogging/floggingtest"
+	"justledger/common/flogging"
 	"justledger/common/util"
 	"justledger/msp"
 	ccapi "justledger/peer/chaincode/api"
@@ -24,8 +24,10 @@ import (
 	cb "justledger/protos/common"
 	pb "justledger/protos/peer"
 	"justledger/protos/utils"
+	logging "github.com/op/go-logging"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
@@ -33,6 +35,7 @@ func TestInvokeCmd(t *testing.T) {
 	defer viper.Reset()
 	defer resetFlags()
 
+	InitMSP()
 	resetFlags()
 	mockCF, err := getMockChaincodeCmdFactory()
 	assert.NoError(t, err, "Error getting mock chaincode command factory")
@@ -169,10 +172,14 @@ func TestInvokeCmdSimulateESCCPluginResponse(t *testing.T) {
 	mockCF.EndorserClients[0] = common.GetMockEndorserClient(mockResponse, nil)
 
 	// set logger to logger with a backend that writes to a byte buffer
-	oldLogger := logger
-	defer func() { logger = oldLogger }()
-	l, recorder := floggingtest.NewTestLogger(t)
-	logger = l
+	var buffer bytes.Buffer
+	logger.SetBackend(logging.AddModuleLevel(logging.NewLogBackend(&buffer, "", 0)))
+	// reset the logger after test
+	defer func() {
+		flogging.Reset()
+	}()
+	// make sure buffer is "clean" before running the invoke
+	buffer.Reset()
 
 	cmd := invokeCmd(mockCF)
 	addFlags(cmd)
@@ -183,13 +190,13 @@ func TestInvokeCmdSimulateESCCPluginResponse(t *testing.T) {
 	assert.NoError(t, err, "Run chaincode invoke cmd error")
 	err = cmd.Execute()
 	assert.Nil(t, err)
-
-	assert.NotEmpty(t, recorder.MessagesContaining("Chaincode invoke successful"), "missing invoke success log record")
-	assert.NotEmpty(t, recorder.MessagesContaining("result: <nil>"), "missing result log record")
+	assert.Regexp(t, "Chaincode invoke successful", buffer.String())
+	assert.Regexp(t, fmt.Sprintf("result: <nil>"), buffer.String())
 }
 
 func TestInvokeCmdEndorsementError(t *testing.T) {
 	defer resetFlags()
+	InitMSP()
 	mockCF, err := getMockChaincodeCmdFactoryWithErr()
 	assert.NoError(t, err, "Error getting mock chaincode command factory")
 
@@ -203,6 +210,7 @@ func TestInvokeCmdEndorsementError(t *testing.T) {
 
 func TestInvokeCmdEndorsementFailure(t *testing.T) {
 	defer resetFlags()
+	InitMSP()
 	ccRespStatus := [2]int32{502, 400}
 	ccRespPayload := [][]byte{[]byte("Invalid function name"), []byte("Incorrect parameters")}
 
@@ -218,7 +226,7 @@ func TestInvokeCmdEndorsementFailure(t *testing.T) {
 		err = cmd.Execute()
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "endorsement failure during invoke")
-		assert.Contains(t, err.Error(), fmt.Sprintf("response: status:%d payload:\"%s\"", ccRespStatus[i], ccRespPayload[i]))
+		assert.Contains(t, err.Error(), fmt.Sprintf("chaincode result: status:%d payload:\"%s\"", ccRespStatus[i], ccRespPayload[i]))
 	}
 }
 

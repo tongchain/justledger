@@ -10,7 +10,6 @@ import (
 	"justledger/gossip/common"
 	"justledger/gossip/discovery"
 	gossip2 "justledger/gossip/gossip"
-	"justledger/protos/gossip"
 )
 
 // DiscoverySupport implements support that is used for service discovery
@@ -49,19 +48,6 @@ func (s *DiscoverySupport) PeersOfChannel(chain common.ChainID) discovery.Member
 func (s *DiscoverySupport) Peers() discovery.Members {
 	peers := s.Gossip.Peers()
 	peers = append(peers, s.Gossip.SelfMembershipInfo())
-	// Return only the peers that have an external endpoint, and sanitizes the envelopes.
-	return discovery.Members(peers).Filter(discovery.HasExternalEndpoint).Map(sanitizeEnvelope)
-}
-
-func sanitizeEnvelope(member discovery.NetworkMember) discovery.NetworkMember {
-	// Make a local copy of the member
-	returnedMember := member
-	if returnedMember.Envelope == nil {
-		return returnedMember
-	}
-	returnedMember.Envelope = &gossip.Envelope{
-		Payload:   member.Envelope.Payload,
-		Signature: member.Envelope.Signature,
-	}
-	return returnedMember
+	// Return only the peers that have an external endpoint.
+	return discovery.Members(peers).Filter(discovery.HasExternalEndpoint)
 }

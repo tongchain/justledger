@@ -19,8 +19,7 @@ package ledger
 import (
 	"fmt"
 
-	commonledger "justledger/common/ledger"
-	"justledger/core/ledger"
+	"justledger/common/ledger"
 )
 
 type MockQueryExecutor struct {
@@ -51,19 +50,12 @@ func (m *MockQueryExecutor) GetStateMultipleKeys(namespace string, keys []string
 	return [][]byte{res}, nil
 }
 
-func (m *MockQueryExecutor) GetStateRangeScanIterator(namespace string, startKey string, endKey string) (commonledger.ResultsIterator, error) {
+func (m *MockQueryExecutor) GetStateRangeScanIterator(namespace string, startKey string, endKey string) (ledger.ResultsIterator, error) {
 	return nil, nil
+
 }
 
-func (m *MockQueryExecutor) GetStateRangeScanIteratorWithMetadata(namespace string, startKey, endKey string, metadata map[string]interface{}) (ledger.QueryResultsIterator, error) {
-	return nil, nil
-}
-
-func (m *MockQueryExecutor) ExecuteQuery(namespace, query string) (commonledger.ResultsIterator, error) {
-	return nil, nil
-}
-
-func (m *MockQueryExecutor) ExecuteQueryWithMetadata(namespace, query string, metadata map[string]interface{}) (ledger.QueryResultsIterator, error) {
+func (m *MockQueryExecutor) ExecuteQuery(namespace, query string) (ledger.ResultsIterator, error) {
 	return nil, nil
 }
 
@@ -71,19 +63,15 @@ func (m *MockQueryExecutor) GetPrivateData(namespace, collection, key string) ([
 	return nil, nil
 }
 
-func (m *MockQueryExecutor) GetPrivateDataMetadataByHash(namespace, collection string, keyhash []byte) (map[string][]byte, error) {
-	return nil, nil
-}
-
 func (m *MockQueryExecutor) GetPrivateDataMultipleKeys(namespace, collection string, keys []string) ([][]byte, error) {
 	return nil, nil
 }
 
-func (m *MockQueryExecutor) GetPrivateDataRangeScanIterator(namespace, collection, startKey, endKey string) (commonledger.ResultsIterator, error) {
+func (m *MockQueryExecutor) GetPrivateDataRangeScanIterator(namespace, collection, startKey, endKey string) (ledger.ResultsIterator, error) {
 	return nil, nil
 }
 
-func (m *MockQueryExecutor) ExecuteQueryOnPrivateData(namespace, collection, query string) (commonledger.ResultsIterator, error) {
+func (m *MockQueryExecutor) ExecuteQueryOnPrivateData(namespace, collection, query string) (ledger.ResultsIterator, error) {
 	return nil, nil
 }
 

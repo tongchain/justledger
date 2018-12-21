@@ -18,7 +18,6 @@ import (
 type Broker struct {
 	id   int32
 	addr string
-	rack *string
 
 	conf          *Config
 	correlationID int32
@@ -86,7 +85,6 @@ func (b *Broker) Open(conf *Config) error {
 		dialer := net.Dialer{
 			Timeout:   conf.Net.DialTimeout,
 			KeepAlive: conf.Net.KeepAlive,
-			LocalAddr: conf.Net.LocalAddr,
 		}
 
 		if conf.Net.TLS.Enable {
@@ -222,18 +220,6 @@ func (b *Broker) GetMetadata(request *MetadataRequest) (*MetadataResponse, error
 
 func (b *Broker) GetConsumerMetadata(request *ConsumerMetadataRequest) (*ConsumerMetadataResponse, error) {
 	response := new(ConsumerMetadataResponse)
-
-	err := b.sendAndReceive(request, response)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
-
-func (b *Broker) FindCoordinator(request *FindCoordinatorRequest) (*FindCoordinatorResponse, error) {
-	response := new(FindCoordinatorResponse)
 
 	err := b.sendAndReceive(request, response)
 
@@ -409,28 +395,6 @@ func (b *Broker) DeleteTopics(request *DeleteTopicsRequest) (*DeleteTopicsRespon
 	return response, nil
 }
 
-func (b *Broker) CreatePartitions(request *CreatePartitionsRequest) (*CreatePartitionsResponse, error) {
-	response := new(CreatePartitionsResponse)
-
-	err := b.sendAndReceive(request, response)
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
-
-func (b *Broker) DeleteRecords(request *DeleteRecordsRequest) (*DeleteRecordsResponse, error) {
-	response := new(DeleteRecordsResponse)
-
-	err := b.sendAndReceive(request, response)
-	if err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
-
 func (b *Broker) DescribeAcls(request *DescribeAclsRequest) (*DescribeAclsResponse, error) {
 	response := new(DescribeAclsResponse)
 
@@ -540,17 +504,6 @@ func (b *Broker) AlterConfigs(request *AlterConfigsRequest) (*AlterConfigsRespon
 
 	return response, nil
 }
-
-func (b *Broker) DeleteGroups(request *DeleteGroupsRequest) (*DeleteGroupsResponse, error) {
-	response := new(DeleteGroupsResponse)
-
-	if err := b.sendAndReceive(request, response); err != nil {
-		return nil, err
-	}
-
-	return response, nil
-}
-
 func (b *Broker) send(rb protocolBody, promiseResponse bool) (*responsePromise, error) {
 	b.lock.Lock()
 	defer b.lock.Unlock()
@@ -616,7 +569,7 @@ func (b *Broker) sendAndReceive(req protocolBody, res versionedDecoder) error {
 	}
 }
 
-func (b *Broker) decode(pd packetDecoder, version int16) (err error) {
+func (b *Broker) decode(pd packetDecoder) (err error) {
 	b.id, err = pd.getInt32()
 	if err != nil {
 		return err
@@ -632,13 +585,6 @@ func (b *Broker) decode(pd packetDecoder, version int16) (err error) {
 		return err
 	}
 
-	if version >= 1 {
-		b.rack, err = pd.getNullableString()
-		if err != nil {
-			return err
-		}
-	}
-
 	b.addr = net.JoinHostPort(host, fmt.Sprint(port))
 	if _, _, err := net.SplitHostPort(b.addr); err != nil {
 		return err
@@ -647,7 +593,7 @@ func (b *Broker) decode(pd packetDecoder, version int16) (err error) {
 	return nil
 }
 
-func (b *Broker) encode(pe packetEncoder, version int16) (err error) {
+func (b *Broker) encode(pe packetEncoder) (err error) {
 
 	host, portstr, err := net.SplitHostPort(b.addr)
 	if err != nil {
@@ -666,13 +612,6 @@ func (b *Broker) encode(pe packetEncoder, version int16) (err error) {
 	}
 
 	pe.putInt32(int32(port))
-
-	if version >= 1 {
-		err = pe.putNullableString(b.rack)
-		if err != nil {
-			return err
-		}
-	}
 
 	return nil
 }

@@ -10,7 +10,7 @@ import (
 	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
 	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
 	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/validator/internal"
+	"justledger/core/ledger/kvledger/txmgmt/validator/valinternal"
 	"justledger/core/ledger/kvledger/txmgmt/version"
 	"justledger/protos/ledger/rwset/kvrwset"
 	"justledger/protos/peer"
@@ -31,7 +31,7 @@ func NewValidator(db privacyenabledstate.DB) *Validator {
 
 // preLoadCommittedVersionOfRSet loads committed version of all keys in each
 // transaction's read set into a cache.
-func (v *Validator) preLoadCommittedVersionOfRSet(block *internal.Block) error {
+func (v *Validator) preLoadCommittedVersionOfRSet(block *valinternal.Block) error {
 
 	// Collect both public and hashed keys in read sets of all transactions in a given block
 	var pubKeys []*statedb.CompositeKey
@@ -86,7 +86,7 @@ func (v *Validator) preLoadCommittedVersionOfRSet(block *internal.Block) error {
 }
 
 // ValidateAndPrepareBatch implements method in Validator interface
-func (v *Validator) ValidateAndPrepareBatch(block *internal.Block, doMVCCValidation bool) (*internal.PubAndHashUpdates, error) {
+func (v *Validator) ValidateAndPrepareBatch(block *valinternal.Block, doMVCCValidation bool) (*valinternal.PubAndHashUpdates, error) {
 	// Check whether statedb implements BulkOptimizable interface. For now,
 	// only CouchDB implements BulkOptimizable to reduce the number of REST
 	// API calls from peer to CouchDB instance.
@@ -97,7 +97,7 @@ func (v *Validator) ValidateAndPrepareBatch(block *internal.Block, doMVCCValidat
 		}
 	}
 
-	updates := internal.NewPubAndHashUpdates()
+	updates := valinternal.NewPubAndHashUpdates()
 	for _, tx := range block.Txs {
 		var validationCode peer.TxValidationCode
 		var err error
@@ -109,7 +109,7 @@ func (v *Validator) ValidateAndPrepareBatch(block *internal.Block, doMVCCValidat
 		if validationCode == peer.TxValidationCode_VALID {
 			logger.Debugf("Block [%d] Transaction index [%d] TxId [%s] marked as valid by state validator", block.Num, tx.IndexInBlock, tx.ID)
 			committingTxHeight := version.NewHeight(block.Num, uint64(tx.IndexInBlock))
-			updates.ApplyWriteSet(tx.RWSet, committingTxHeight, v.db)
+			updates.ApplyWriteSet(tx.RWSet, committingTxHeight)
 		} else {
 			logger.Warningf("Block [%d] Transaction index [%d] TxId [%s] marked as invalid by state validator. Reason code [%s]",
 				block.Num, tx.IndexInBlock, tx.ID, validationCode.String())
@@ -122,7 +122,7 @@ func (v *Validator) ValidateAndPrepareBatch(block *internal.Block, doMVCCValidat
 func (v *Validator) validateEndorserTX(
 	txRWSet *rwsetutil.TxRwSet,
 	doMVCCValidation bool,
-	updates *internal.PubAndHashUpdates) (peer.TxValidationCode, error) {
+	updates *valinternal.PubAndHashUpdates) (peer.TxValidationCode, error) {
 
 	var validationCode = peer.TxValidationCode_VALID
 	var err error
@@ -133,7 +133,7 @@ func (v *Validator) validateEndorserTX(
 	return validationCode, err
 }
 
-func (v *Validator) validateTx(txRWSet *rwsetutil.TxRwSet, updates *internal.PubAndHashUpdates) (peer.TxValidationCode, error) {
+func (v *Validator) validateTx(txRWSet *rwsetutil.TxRwSet, updates *valinternal.PubAndHashUpdates) (peer.TxValidationCode, error) {
 	// Uncomment the following only for local debugging. Don't want to print data in the logs in production
 	//logger.Debugf("validateTx - validating txRWSet: %s", spew.Sdump(txRWSet))
 	for _, nsRWSet := range txRWSet.NsRwSets {

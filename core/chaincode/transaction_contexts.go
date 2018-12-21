@@ -7,14 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode
 
 import (
-	"context"
 	"sync"
 
 	commonledger "justledger/common/ledger"
-	"justledger/core/common/ccprovider"
 	"justledger/core/ledger"
 	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 )
 
 type key string
@@ -50,22 +49,22 @@ func contextID(chainID, txID string) string {
 // Create creates a new TransactionContext for the specified chain and
 // transaction ID. An error is returned when a transaction context has already
 // been created for the specified chain and transaction ID.
-func (c *TransactionContexts) Create(txParams *ccprovider.TransactionParams) (*TransactionContext, error) {
+func (c *TransactionContexts) Create(ctx context.Context, chainID, txID string, signedProp *pb.SignedProposal, proposal *pb.Proposal) (*TransactionContext, error) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 
-	ctxID := contextID(txParams.ChannelID, txParams.TxID)
+	ctxID := contextID(chainID, txID)
 	if c.contexts[ctxID] != nil {
-		return nil, errors.Errorf("txid: %s(%s) exists", txParams.TxID, txParams.ChannelID)
+		return nil, errors.Errorf("txid: %s(%s) exists", txID, chainID)
 	}
 
 	txctx := &TransactionContext{
-		ChainID:              txParams.ChannelID,
-		SignedProp:           txParams.SignedProp,
-		Proposal:             txParams.Proposal,
+		ChainID:              chainID,
+		SignedProp:           signedProp,
+		Proposal:             proposal,
 		ResponseNotifier:     make(chan *pb.ChaincodeMessage, 1),
-		TXSimulator:          txParams.TXSimulator,
-		HistoryQueryExecutor: txParams.HistoryQueryExecutor,
+		TXSimulator:          getTxSimulator(ctx),
+		HistoryQueryExecutor: getHistoryQueryExecutor(ctx),
 		queryIteratorMap:     map[string]commonledger.ResultsIterator{},
 		pendingQueryResults:  map[string]*PendingQueryResult{},
 	}

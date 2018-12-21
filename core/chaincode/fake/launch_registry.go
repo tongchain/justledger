@@ -8,18 +8,18 @@ import (
 )
 
 type LaunchRegistry struct {
-	LaunchingStub        func(cname string) (*chaincode_test.LaunchState, bool)
+	LaunchingStub        func(cname string) (*chaincode_test.LaunchState, error)
 	launchingMutex       sync.RWMutex
 	launchingArgsForCall []struct {
 		cname string
 	}
 	launchingReturns struct {
 		result1 *chaincode_test.LaunchState
-		result2 bool
+		result2 error
 	}
 	launchingReturnsOnCall map[int]struct {
 		result1 *chaincode_test.LaunchState
-		result2 bool
+		result2 error
 	}
 	DeregisterStub        func(cname string) error
 	deregisterMutex       sync.RWMutex
@@ -36,7 +36,7 @@ type LaunchRegistry struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *LaunchRegistry) Launching(cname string) (*chaincode_test.LaunchState, bool) {
+func (fake *LaunchRegistry) Launching(cname string) (*chaincode_test.LaunchState, error) {
 	fake.launchingMutex.Lock()
 	ret, specificReturn := fake.launchingReturnsOnCall[len(fake.launchingArgsForCall)]
 	fake.launchingArgsForCall = append(fake.launchingArgsForCall, struct {
@@ -65,25 +65,25 @@ func (fake *LaunchRegistry) LaunchingArgsForCall(i int) string {
 	return fake.launchingArgsForCall[i].cname
 }
 
-func (fake *LaunchRegistry) LaunchingReturns(result1 *chaincode_test.LaunchState, result2 bool) {
+func (fake *LaunchRegistry) LaunchingReturns(result1 *chaincode_test.LaunchState, result2 error) {
 	fake.LaunchingStub = nil
 	fake.launchingReturns = struct {
 		result1 *chaincode_test.LaunchState
-		result2 bool
+		result2 error
 	}{result1, result2}
 }
 
-func (fake *LaunchRegistry) LaunchingReturnsOnCall(i int, result1 *chaincode_test.LaunchState, result2 bool) {
+func (fake *LaunchRegistry) LaunchingReturnsOnCall(i int, result1 *chaincode_test.LaunchState, result2 error) {
 	fake.LaunchingStub = nil
 	if fake.launchingReturnsOnCall == nil {
 		fake.launchingReturnsOnCall = make(map[int]struct {
 			result1 *chaincode_test.LaunchState
-			result2 bool
+			result2 error
 		})
 	}
 	fake.launchingReturnsOnCall[i] = struct {
 		result1 *chaincode_test.LaunchState
-		result2 bool
+		result2 error
 	}{result1, result2}
 }
 

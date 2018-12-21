@@ -125,8 +125,3 @@ func TestSet(t *testing.T) {
 	s.Clear()
 	assert.False(t, s.Exists(42))
 }
-
-func TestStringsToBytesToStrings(t *testing.T) {
-	strings := []string{"foo", "bar"}
-	assert.Equal(t, strings, BytesToStrings(StringsToBytes(strings)))
-}

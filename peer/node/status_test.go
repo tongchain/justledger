@@ -17,7 +17,6 @@ limitations under the License.
 package node
 
 import (
-	"context"
 	"testing"
 	"time"
 
@@ -32,6 +31,7 @@ import (
 	pb "justledger/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 )
 
 type testServiceServer struct{}

@@ -17,44 +17,26 @@ limitations under the License.
 package ledgermgmt
 
 import (
-	"fmt"
 	"os"
 
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
 	"justledger/core/ledger/customtx"
+
 	"justledger/core/ledger/ledgerconfig"
-	"justledger/core/ledger/mock"
+
+	"fmt"
 )
 
 // InitializeTestEnv initializes ledgermgmt for tests
 func InitializeTestEnv() {
 	remove()
-	initialize(&Initializer{
-		PlatformRegistry:              platforms.NewRegistry(&golang.Platform{}),
-		DeployedChaincodeInfoProvider: &mock.DeployedChaincodeInfoProvider{},
-	})
+	initialize(nil, nil)
 }
 
 // InitializeTestEnvWithCustomProcessors initializes ledgermgmt for tests with the supplied custom tx processors
 func InitializeTestEnvWithCustomProcessors(customTxProcessors customtx.Processors) {
 	remove()
 	customtx.InitializeTestEnv(customTxProcessors)
-	initialize(&Initializer{
-		CustomTxProcessors:            customTxProcessors,
-		PlatformRegistry:              platforms.NewRegistry(&golang.Platform{}),
-		DeployedChaincodeInfoProvider: &mock.DeployedChaincodeInfoProvider{},
-	})
-}
-
-// InitializeExistingTestEnvWithCustomProcessors initializes ledgermgmt for tests with existing ledgers
-// This function does not remove the existing ledgers and is used in upgrade tests
-// TODO ledgermgmt should be reworked to move the package scoped functions to a struct
-func InitializeExistingTestEnvWithCustomProcessors(customTxProcessors customtx.Processors) {
-	customtx.InitializeTestEnv(customTxProcessors)
-	initialize(&Initializer{
-		CustomTxProcessors: customTxProcessors,
-	})
+	initialize(customTxProcessors, nil)
 }
 
 // CleanupTestEnv closes the ledgermagmt and removes the store directory

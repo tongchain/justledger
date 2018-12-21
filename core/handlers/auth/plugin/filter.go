@@ -7,10 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"context"
-
 	"justledger/core/handlers/auth"
 	"justledger/protos/peer"
+	"golang.org/x/net/context"
 )
 
 // NewFilter creates a new Filter

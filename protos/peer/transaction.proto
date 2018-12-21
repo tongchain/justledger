@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 syntax = "proto3";
 
-option go_package = "github.com/hyperledger/fabric/protos/peer";
+option go_package = "justledger/protos/peer";
 option java_package = "org.hyperledger.fabric.protos.peer";
 option java_outer_classname = "TransactionPackage";
 
@@ -140,9 +140,4 @@ enum TxValidationCode {
 	INVALID_WRITESET = 24;
 	NOT_VALIDATED = 254;
 	INVALID_OTHER_REASON = 255;
-}
-
-// Reserved entries in the key-level metadata map
-enum MetaDataKeys {
-	VALIDATION_PARAMETER = 0;
 }

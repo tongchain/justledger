@@ -8,7 +8,7 @@ RUN mkdir src && mkdir pkg && mkdir bin
 ADD . src/justledger
 WORKDIR /opt/gopath/src/justledger
 ENV EXECUTABLES go git curl
-RUN make configtxgen configtxlator cryptogen peer discover idemixgen
+RUN make configtxgen configtxlator cryptogen peer
 
 FROM _BASE_NS_/fabric-baseimage:_BASE_TAG_
 ENV FABRIC_CFG_PATH /etc/hyperledger/fabric
@@ -16,4 +16,3 @@ RUN apt-get update && apt-get install -y jq
 VOLUME /etc/hyperledger/fabric
 COPY --from=builder /opt/gopath/src/justledger/.build/bin /usr/local/bin
 COPY --from=builder /opt/gopath/src/justledger/sampleconfig $FABRIC_CFG_PATH
-

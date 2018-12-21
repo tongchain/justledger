@@ -1,4 +1,4 @@
-// +build go1.9,linux,cgo go1.10,darwin,cgo
+// +build go1.9,linux,cgo
 // +build !ppc64le
 
 /*
@@ -10,12 +10,13 @@ SPDX-License-Identifier: Apache-2.0
 package library
 
 import (
-	"context"
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
+	"strings"
 	"testing"
+
+	"golang.org/x/net/context"
 
 	"github.com/golang/protobuf/proto"
 	"justledger/core/handlers/endorsement/api"
@@ -31,29 +32,18 @@ const (
 	validationTestPlugin   = "justledger/core/handlers/validation/testdata/"
 )
 
-// raceEnabled is set to true when the race build tag is enabled.
-// see race_test.go
-var raceEnabled bool
-
-func buildPlugin(t *testing.T, dest, pkg string) {
-	cmd := exec.Command("go", "build", "-o", dest, "-buildmode=plugin")
-	if raceEnabled {
-		cmd.Args = append(cmd.Args, "-race")
-	}
-	cmd.Args = append(cmd.Args, pkg)
-	output, err := cmd.CombinedOutput()
-	assert.NoError(t, err, "Could not build plugin: "+string(output))
-}
-
 func TestLoadAuthPlugin(t *testing.T) {
 	endorser := &mockEndorserServer{}
 
 	testDir, err := ioutil.TempDir("", "")
 	assert.NoError(t, err, "Could not create temp directory for plugins")
 	defer os.Remove(testDir)
+	pluginPath := strings.Join([]string{testDir, "/", "authplugin.so"}, "")
 
-	pluginPath := filepath.Join(testDir, "authplugin.so")
-	buildPlugin(t, pluginPath, authPluginPackage)
+	cmd := exec.Command("go", "build", "-o", pluginPath, "-buildmode=plugin",
+		authPluginPackage)
+	output, err := cmd.CombinedOutput()
+	assert.NoError(t, err, "Could not build plugin: "+string(output))
 
 	testReg := registry{}
 	testReg.loadPlugin(pluginPath, Auth)
@@ -71,9 +61,12 @@ func TestLoadDecoratorPlugin(t *testing.T) {
 	testDir, err := ioutil.TempDir("", "")
 	assert.NoError(t, err, "Could not create temp directory for plugins")
 	defer os.Remove(testDir)
+	pluginPath := strings.Join([]string{testDir, "/", "decoratorplugin.so"}, "")
 
-	pluginPath := filepath.Join(testDir, "decoratorplugin.so")
-	buildPlugin(t, pluginPath, decoratorPluginPackage)
+	cmd := exec.Command("go", "build", "-o", pluginPath, "-buildmode=plugin",
+		decoratorPluginPackage)
+	output, err := cmd.CombinedOutput()
+	assert.NoError(t, err, "Could not build plugin: "+string(output))
 
 	testReg := registry{}
 	testReg.loadPlugin(pluginPath, Decoration)
@@ -88,8 +81,12 @@ func TestEndorsementPlugin(t *testing.T) {
 	assert.NoError(t, err, "Could not create temp directory for plugins")
 	defer os.Remove(testDir)
 
-	pluginPath := filepath.Join(testDir, "endorsementplugin.so")
-	buildPlugin(t, pluginPath, endorsementTestPlugin)
+	pluginPath := strings.Join([]string{testDir, "/", "endorsementplugin.so"}, "")
+
+	cmd := exec.Command("go", "build", "-o", pluginPath, "-buildmode=plugin",
+		endorsementTestPlugin)
+	output, err := cmd.CombinedOutput()
+	assert.NoError(t, err, "Could not build plugin: "+string(output))
 
 	testReg := registry{endorsers: make(map[string]endorsement.PluginFactory)}
 	testReg.loadPlugin(pluginPath, Endorsement, "escc")
@@ -99,7 +96,7 @@ func TestEndorsementPlugin(t *testing.T) {
 	instance := factory.New()
 	assert.NotNil(t, instance)
 	assert.NoError(t, instance.Init())
-	_, output, err := instance.Endorse([]byte{1, 2, 3}, nil)
+	_, output, err = instance.Endorse([]byte{1, 2, 3}, nil)
 	assert.NoError(t, err)
 	assert.Equal(t, []byte{1, 2, 3}, output)
 }
@@ -109,8 +106,12 @@ func TestValidationPlugin(t *testing.T) {
 	assert.NoError(t, err, "Could not create temp directory for plugins")
 	defer os.Remove(testDir)
 
-	pluginPath := filepath.Join(testDir, "validationplugin.so")
-	buildPlugin(t, pluginPath, validationTestPlugin)
+	pluginPath := strings.Join([]string{testDir, "/", "validationplugin.so"}, "")
+
+	cmd := exec.Command("go", "build", "-o", pluginPath, "-buildmode=plugin",
+		validationTestPlugin)
+	output, err := cmd.CombinedOutput()
+	assert.NoError(t, err, "Could not build plugin: "+string(output))
 
 	testReg := registry{validators: make(map[string]validation.PluginFactory)}
 	testReg.loadPlugin(pluginPath, Validation, "vscc")

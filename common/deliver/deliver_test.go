@@ -7,11 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package deliver_test
 
 import (
-	"context"
 	"io"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"justledger/common/deliver"
 	"justledger/common/deliver/mock"
@@ -21,6 +19,7 @@ import (
 	ab "justledger/protos/orderer"
 	"justledger/protos/utils"
 	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -191,7 +190,7 @@ var _ = Describe("Deliver", func() {
 			Expect(fakeInspector.InspectCallCount()).To(Equal(1))
 			ctx, header := fakeInspector.InspectArgsForCall(0)
 			Expect(ctx).To(Equal(context.Background()))
-			Expect(proto.Equal(header, channelHeader)).To(BeTrue())
+			Expect(header).To(Equal(channelHeader))
 		})
 
 		Context("when channel header validation fails", func() {
@@ -231,7 +230,7 @@ var _ = Describe("Deliver", func() {
 
 			Expect(fakePolicyChecker.CheckPolicyCallCount()).To(BeNumerically(">=", 1))
 			e, cid := fakePolicyChecker.CheckPolicyArgsForCall(0)
-			Expect(proto.Equal(e, envelope)).To(BeTrue())
+			Expect(e).To(Equal(envelope))
 			Expect(cid).To(Equal("chain-id"))
 		})
 
@@ -241,7 +240,7 @@ var _ = Describe("Deliver", func() {
 
 			Expect(fakeBlockReader.IteratorCallCount()).To(Equal(1))
 			startPosition := fakeBlockReader.IteratorArgsForCall(0)
-			Expect(proto.Equal(startPosition, seekInfo.Start)).To(BeTrue())
+			Expect(startPosition).To(Equal(seekInfo.Start))
 		})
 
 		Context("when multiple blocks are requested", func() {

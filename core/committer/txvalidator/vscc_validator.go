@@ -29,16 +29,14 @@ import (
 // VsccValidatorImpl is the implementation used to call
 // the vscc chaincode and validate block transactions
 type VsccValidatorImpl struct {
-	chainID         string
 	support         Support
 	sccprovider     sysccprovider.SystemChaincodeProvider
 	pluginValidator *PluginValidator
 }
 
 // newVSCCValidator creates new vscc validator
-func newVSCCValidator(chainID string, support Support, sccp sysccprovider.SystemChaincodeProvider, pluginValidator *PluginValidator) *VsccValidatorImpl {
+func newVSCCValidator(support Support, sccp sysccprovider.SystemChaincodeProvider, pluginValidator *PluginValidator) *VsccValidatorImpl {
 	return &VsccValidatorImpl{
-		chainID:         chainID,
 		support:         support,
 		sccprovider:     sccp,
 		pluginValidator: pluginValidator,
@@ -47,8 +45,8 @@ func newVSCCValidator(chainID string, support Support, sccp sysccprovider.System
 
 // VSCCValidateTx executes vscc validation for transaction
 func (v *VsccValidatorImpl) VSCCValidateTx(seq int, payload *common.Payload, envBytes []byte, block *common.Block) (error, peer.TxValidationCode) {
-	chainID := v.chainID
-	logger.Debugf("[%s] VSCCValidateTx starts for bytes %p", chainID, envBytes)
+	logger.Debugf("VSCCValidateTx starts for bytes %p", envBytes)
+	defer logger.Debugf("VSCCValidateTx completes env bytes %p", envBytes)
 
 	// get header extensions so we have the chaincode ID
 	hdrExt, err := utils.GetChaincodeHeaderExtension(payload.Header)
@@ -255,7 +253,7 @@ func (v *VsccValidatorImpl) VSCCValidateTx(seq int, payload *common.Payload, env
 			}
 		}
 	}
-	logger.Debugf("[%s] VSCCValidateTx completes env bytes %p", chainID, envBytes)
+
 	return nil, peer.TxValidationCode_VALID
 }
 
@@ -287,9 +285,7 @@ func (v *VsccValidatorImpl) getCDataForCC(chid, ccid string) (ccprovider.Chainco
 
 	bytes, err := qe.GetState("lscc", ccid)
 	if err != nil {
-		return nil, &commonerrors.VSCCInfoLookupFailureError{
-			Reason: fmt.Sprintf("Could not retrieve state for chaincode %s, error %s", ccid, err),
-		}
+		return nil, &commonerrors.VSCCInfoLookupFailureError{fmt.Sprintf("Could not retrieve state for chaincode %s, error %s", ccid, err)}
 	}
 
 	if bytes == nil {
@@ -364,28 +360,14 @@ func (v *VsccValidatorImpl) txWritesToNamespace(ns *rwsetutil.NsRwSet) bool {
 		return true
 	}
 
-	// only look at collection data if we support that capability
-	if v.support.Capabilities().PrivateChannelData() {
-		// check for private writes for all collections
-		for _, c := range ns.CollHashedRwSets {
-			if c.HashedRwSet != nil && len(c.HashedRwSet.HashedWrites) > 0 {
-				return true
-			}
-
-			// only look at private metadata writes if we support that capability
-			if v.support.Capabilities().KeyLevelEndorsement() {
-				// private metadata updates
-				if c.HashedRwSet != nil && len(c.HashedRwSet.MetadataWrites) > 0 {
-					return true
-				}
-			}
-		}
+	// do not look at collection data if we don't support that capability
+	if !v.support.Capabilities().PrivateChannelData() {
+		return false
 	}
 
-	// only look at metadata writes if we support that capability
-	if v.support.Capabilities().KeyLevelEndorsement() {
-		// public metadata updates
-		if ns.KvRwSet != nil && len(ns.KvRwSet.MetadataWrites) > 0 {
+	// check for private writes for all collections
+	for _, c := range ns.CollHashedRwSets {
+		if c.HashedRwSet != nil && len(c.HashedRwSet.HashedWrites) > 0 {
 			return true
 		}
 	}

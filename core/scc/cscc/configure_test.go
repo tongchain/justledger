@@ -29,8 +29,6 @@ import (
 	"justledger/core/aclmgmt/resources"
 	"justledger/core/chaincode"
 	"justledger/core/chaincode/accesscontrol"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
 	"justledger/core/chaincode/shim"
 	"justledger/core/common/ccprovider"
 	"justledger/core/container"
@@ -224,7 +222,6 @@ func TestConfigerInvokeJoinChainCorrectParams(t *testing.T) {
 		ca.CertBytes(),
 		certGenerator,
 		&ccprovider.CCInfoFSImpl{},
-		nil,
 		mockAclProvider,
 		container.NewVMController(
 			map[string]container.VMProvider{
@@ -232,8 +229,6 @@ func TestConfigerInvokeJoinChainCorrectParams(t *testing.T) {
 			},
 		),
 		mp,
-		platforms.NewRegistry(&golang.Platform{}),
-		peer.DefaultSupport,
 	)
 
 	// Init the policy checker

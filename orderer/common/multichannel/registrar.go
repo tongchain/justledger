@@ -11,7 +11,6 @@ package multichannel
 
 import (
 	"fmt"
-	"sync"
 
 	"justledger/common/channelconfig"
 	"justledger/common/configtx"
@@ -24,6 +23,7 @@ import (
 	ab "justledger/protos/orderer"
 	"justledger/protos/utils"
 
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 )
 
@@ -34,7 +34,11 @@ const (
 	epoch      = 0
 )
 
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger *logging.Logger
+
+func init() {
+	logger = flogging.MustGetLogger(pkgLogID)
+}
 
 // checkResources makes sure that the channel config is compatible with this binary and logs sanity checks
 func checkResources(res channelconfig.Resources) error {
@@ -92,9 +96,7 @@ type ledgerResources struct {
 
 // Registrar serves as a point of access and control for the individual channel resources.
 type Registrar struct {
-	lock   sync.RWMutex
-	chains map[string]*ChainSupport
-
+	chains          map[string]*ChainSupport
 	consenters      map[string]consensus.Consenter
 	ledgerFactory   blockledger.Factory
 	signer          crypto.LocalSigner
@@ -205,7 +207,7 @@ func (r *Registrar) BroadcastChannelSupport(msg *cb.Envelope) (*cb.ChannelHeader
 		return nil, false, nil, fmt.Errorf("could not determine channel ID: %s", err)
 	}
 
-	cs, ok := r.GetChain(chdr.ChannelId)
+	cs, ok := r.chains[chdr.ChannelId]
 	if !ok {
 		cs = r.systemChannel
 	}
@@ -224,9 +226,6 @@ func (r *Registrar) BroadcastChannelSupport(msg *cb.Envelope) (*cb.ChannelHeader
 
 // GetChain retrieves the chain support for a chain (and whether it exists)
 func (r *Registrar) GetChain(chainID string) (*ChainSupport, bool) {
-	r.lock.RLock()
-	defer r.lock.RUnlock()
-
 	cs, ok := r.chains[chainID]
 	return cs, ok
 }
@@ -272,9 +271,6 @@ func (r *Registrar) newLedgerResources(configTx *cb.Envelope) *ledgerResources {
 }
 
 func (r *Registrar) newChain(configtx *cb.Envelope) {
-	r.lock.Lock()
-	defer r.lock.Unlock()
-
 	ledgerResources := r.newLedgerResources(configtx)
 	ledgerResources.Append(blockledger.CreateNextBlock(ledgerResources, []*cb.Envelope{configtx}))
 
@@ -297,9 +293,6 @@ func (r *Registrar) newChain(configtx *cb.Envelope) {
 
 // ChannelsCount returns the count of the current total number of channels.
 func (r *Registrar) ChannelsCount() int {
-	r.lock.RLock()
-	defer r.lock.RUnlock()
-
 	return len(r.chains)
 }
 

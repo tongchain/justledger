@@ -15,7 +15,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 )
 
@@ -88,7 +87,6 @@ func NewGRPCServerFromListener(listener net.Listener, serverConfig ServerConfig)
 			}
 			//base server certificate
 			grpcServer.tlsConfig = &tls.Config{
-				VerifyPeerCertificate:  secureConfig.VerifyCertificate,
 				GetCertificate:         getCert,
 				SessionTicketsDisabled: true,
 				CipherSuites:           secureConfig.CipherSuites,
@@ -112,8 +110,7 @@ func NewGRPCServerFromListener(listener net.Listener, serverConfig ServerConfig)
 			}
 
 			// create credentials and add to server options
-			creds := NewServerTransportCredentials(grpcServer.tlsConfig,
-				serverConfig.Logger)
+			creds := NewServerTransportCredentials(grpcServer.tlsConfig)
 			serverOpts = append(serverOpts, grpc.Creds(creds))
 		} else {
 			return nil, errors.New("serverConfig.SecOpts must contain both Key and " +
@@ -132,21 +129,6 @@ func NewGRPCServerFromListener(listener net.Listener, serverConfig ServerConfig)
 	serverOpts = append(
 		serverOpts,
 		grpc.ConnectionTimeout(serverConfig.ConnectionTimeout))
-	// set the interceptors
-	if len(serverConfig.StreamInterceptors) > 0 {
-		serverOpts = append(
-			serverOpts,
-			grpc.StreamInterceptor(
-				grpc_middleware.ChainStreamServer(
-					serverConfig.StreamInterceptors...)))
-	}
-	if len(serverConfig.UnaryInterceptors) > 0 {
-		serverOpts = append(
-			serverOpts,
-			grpc.UnaryInterceptor(
-				grpc_middleware.ChainUnaryServer(
-					serverConfig.UnaryInterceptors...)))
-	}
 
 	grpcServer.server = grpc.NewServer(serverOpts...)
 

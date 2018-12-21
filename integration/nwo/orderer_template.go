@@ -6,18 +6,18 @@ SPDX-License-Identifier: Apache-2.0
 
 package nwo
 
-const DefaultOrdererTemplate = `---
+const OrdererTemplate = `---
 {{ with $w := . -}}
 General:
   LedgerType: file
   ListenAddress: 127.0.0.1
   ListenPort: {{ .OrdererPort Orderer "Listen" }}
   TLS:
-    Enabled: true
-    PrivateKey: {{ $w.OrdererLocalTLSDir Orderer }}/server.key
-    Certificate: {{ $w.OrdererLocalTLSDir Orderer }}/server.crt
+    Enabled: false
+    PrivateKey: tls/server.key
+    Certificate: tls/server.crt
     RootCAs:
-    -  {{ $w.OrdererLocalTLSDir Orderer }}/ca.crt
+    - tls/ca.crt
     ClientAuthRequired: false
     ClientRootCAs:
   Keepalive:
@@ -68,18 +68,12 @@ Kafka:
       RetryMax: 3
     Consumer:
       RetryBackoff: 2s
-  Topic:
-    ReplicationFactor: 1
   Verbose: false
   TLS:
     Enabled: false
     PrivateKey:
     Certificate:
     RootCAs:
-  SASLPlain:
-    Enabled: false
-    User:
-    Password:
   Version:{{ end }}
 Debug:
     BroadcastTraceDir:

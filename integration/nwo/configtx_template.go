@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package nwo
 
-const DefaultConfigTxTemplate = `---
+const ConfigTxTemplate = `---
 {{ with $w := . -}}
 Organizations:{{ range .PeerOrgs }}
 - &{{ .MSPID }}
@@ -47,7 +47,7 @@ Organizations:{{ range .PeerOrgs }}
 
 Channel: &ChannelDefaults
   Capabilities:
-    V1_3: true
+    V1_1: true
   Policies:
     Readers:
       Type: ImplicitMeta
@@ -106,7 +106,7 @@ Profiles:{{ range .Profiles }}
     {{- else }}
     Application:
       Capabilities:
-        V1_3: true
+        V1_2: true
       Organizations:{{ range .Organizations }}
       - *{{ ($w.Organization .).MSPID }}
       {{- end}}

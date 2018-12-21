@@ -11,7 +11,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"reflect"
 	"runtime"
 	"strconv"
 	"strings"
@@ -19,6 +18,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"reflect"
 
 	"justledger/bccsp/factory"
 	"justledger/gossip/api"
@@ -1144,7 +1145,7 @@ func TestSendByCriteria(t *testing.T) {
 	msg, _ := createDataMsg(1, []byte{}, common.ChainID("A")).NoopSign()
 
 	// We send without specifying maximum peers,
-	// which sets it to the zero value, and
+	// whic sets it to the zero value, and
 	// this is a no-op.
 	criteria := SendCriteria{
 		IsEligible: func(discovery.NetworkMember) bool {

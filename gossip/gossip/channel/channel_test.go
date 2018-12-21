@@ -15,10 +15,6 @@ import (
 	"testing"
 	"time"
 
-	gproto "github.com/golang/protobuf/proto"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-
 	"justledger/bccsp/factory"
 	"justledger/gossip/api"
 	"justledger/gossip/comm"
@@ -27,6 +23,8 @@ import (
 	"justledger/gossip/gossip/algo"
 	"justledger/gossip/util"
 	proto "justledger/protos/gossip"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 type msgMutator func(message *proto.Envelope)
@@ -302,7 +300,7 @@ func TestSelf(t *testing.T) {
 	gMsg := gc.Self().GossipMessage
 	env := gc.Self().Envelope
 	sMsg, _ := env.ToGossipMessage()
-	assert.True(t, gproto.Equal(gMsg, sMsg.GossipMessage))
+	assert.Equal(t, gMsg, sMsg.GossipMessage)
 	assert.Equal(t, gMsg.GetStateInfo().Properties.LedgerHeight, uint64(1))
 	assert.Equal(t, gMsg.GetStateInfo().PkiId, []byte("1"))
 }
@@ -608,7 +606,7 @@ func TestChannelMsgStoreEviction(t *testing.T) {
 	// Since we checked the length, it proves that the old blocks were discarded, since we had much more
 	// total blocks overall than our capacity
 	for seq := range lastPullPhase {
-		assert.Contains(t, msg.GetDataDig().Digests, []byte(fmt.Sprintf("%d", seq)))
+		assert.Contains(t, msg.GetDataDig().Digests, fmt.Sprintf("%d", seq))
 	}
 }
 
@@ -616,7 +614,7 @@ func TestChannelPull(t *testing.T) {
 	t.Parallel()
 	cs := &cryptoService{}
 	cs.On("VerifyBlock", mock.Anything).Return(nil)
-	receivedBlocksChan := make(chan *proto.SignedGossipMessage, 2)
+	receivedBlocksChan := make(chan *proto.SignedGossipMessage)
 	adapter := new(gossipAdapterMock)
 	configureAdapter(adapter, discovery.NetworkMember{PKIid: pkiIDInOrg1})
 	adapter.On("Gossip", mock.Anything)
@@ -634,12 +632,11 @@ func TestChannelPull(t *testing.T) {
 	go gc.HandleMessage(&receivedMsg{PKIID: pkiIDInOrg1, msg: createStateInfoMsg(100, pkiIDInOrg1, channelA)})
 
 	var wg sync.WaitGroup
-	wg.Add(1)
 	pullPhase := simulatePullPhase(gc, t, &wg, func(envelope *proto.Envelope) {}, 10, 11)
 	adapter.On("Send", mock.Anything, mock.Anything).Run(pullPhase)
 
 	wg.Wait()
-	for expectedSeq := 10; expectedSeq <= 11; expectedSeq++ {
+	for expectedSeq := 10; expectedSeq < 11; expectedSeq++ {
 		select {
 		case <-time.After(time.Second * 5):
 			t.Fatal("Haven't received blocks on time")
@@ -1795,7 +1792,7 @@ func TestChannelPullWithDigestsFilter(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	pullPhase := simulatePullPhaseWithVariableDigest(gc, t, &wg, func(envelope *proto.Envelope) {}, [][]byte{[]byte("10"), []byte("11")}, []string{"11"}, 11)
+	pullPhase := simulatePullPhaseWithVariableDigest(gc, t, &wg, func(envelope *proto.Envelope) {}, []string{"10", "11"}, []string{"11"}, 11)
 	adapter.On("Send", mock.Anything, mock.Anything).Run(pullPhase)
 	wg.Wait()
 
@@ -1914,10 +1911,10 @@ func createDataMsg(seqnum uint64, channel common.ChainID) *proto.SignedGossipMes
 }
 
 func simulatePullPhase(gc GossipChannel, t *testing.T, wg *sync.WaitGroup, mutator msgMutator, seqs ...uint64) func(args mock.Arguments) {
-	return simulatePullPhaseWithVariableDigest(gc, t, wg, mutator, [][]byte{[]byte("10"), []byte("11")}, []string{"10", "11"}, seqs...)
+	return simulatePullPhaseWithVariableDigest(gc, t, wg, mutator, []string{"10", "11"}, []string{"10", "11"}, seqs...)
 }
 
-func simulatePullPhaseWithVariableDigest(gc GossipChannel, t *testing.T, wg *sync.WaitGroup, mutator msgMutator, proposedDigestSeqs [][]byte, resultDigestSeqs []string, seqs ...uint64) func(args mock.Arguments) {
+func simulatePullPhaseWithVariableDigest(gc GossipChannel, t *testing.T, wg *sync.WaitGroup, mutator msgMutator, proposedDigestSeqs []string, resultDigestSeqs []string, seqs ...uint64) func(args mock.Arguments) {
 	var l sync.Mutex
 	var sentHello bool
 	var sentReq bool
@@ -1948,7 +1945,7 @@ func simulatePullPhaseWithVariableDigest(gc GossipChannel, t *testing.T, wg *syn
 		if msg.IsDataReq() && !sentReq {
 			sentReq = true
 			dataReq := msg.GetDataReq()
-			for _, expectedDigest := range util.StringsToBytes(resultDigestSeqs) {
+			for _, expectedDigest := range resultDigestSeqs {
 				assert.Contains(t, dataReq.Digests, expectedDigest)
 			}
 			assert.Equal(t, len(resultDigestSeqs), len(dataReq.Digests))

@@ -13,6 +13,8 @@ import (
 )
 
 func TestInstantiateCmd(t *testing.T) {
+	InitMSP()
+
 	mockCF, err := getMockChaincodeCmdFactory()
 	assert.NoError(t, err, "Error getting mock chaincode command factory")
 

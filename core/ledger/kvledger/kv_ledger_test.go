@@ -7,6 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package kvledger
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -32,7 +33,6 @@ func TestMain(m *testing.M) {
 	flogging.SetModuleLevel("statevalidator", "debug")
 	flogging.SetModuleLevel("valimpl", "debug")
 	flogging.SetModuleLevel("confighistory", "debug")
-	flogging.SetModuleLevel("pvtstatepurgemgmt", "debug")
 	viper.Set("peer.fileSystemPath", "/tmp/fabric/ledgertests/kvledger")
 	viper.Set("ledger.history.enableHistoryDatabase", true)
 	os.Exit(m.Run())
@@ -41,7 +41,7 @@ func TestMain(m *testing.M) {
 func TestKVLedgerBlockStorage(t *testing.T) {
 	env := newTestEnv(t)
 	defer env.cleanup()
-	provider := testutilNewProvider(t)
+	provider, _ := NewProvider()
 	defer provider.Close()
 
 	bg, gb := testutil.NewBlockGenerator(t, "testLedger", false)
@@ -50,10 +50,8 @@ func TestKVLedgerBlockStorage(t *testing.T) {
 	defer ledger.Close()
 
 	bcInfo, _ := ledger.GetBlockchainInfo()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 1, CurrentBlockHash: gbHash, PreviousBlockHash: nil,
-	}, bcInfo)
-
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 1, CurrentBlockHash: gbHash, PreviousBlockHash: nil})
 	txid := util.GenerateUUID()
 	simulator, _ := ledger.NewTxSimulator(txid)
 	simulator.SetState("ns1", "key1", []byte("value1"))
@@ -67,9 +65,8 @@ func TestKVLedgerBlockStorage(t *testing.T) {
 
 	bcInfo, _ = ledger.GetBlockchainInfo()
 	block1Hash := block1.Header.Hash()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 2, CurrentBlockHash: block1Hash, PreviousBlockHash: gbHash,
-	}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 2, CurrentBlockHash: block1Hash, PreviousBlockHash: gbHash})
 
 	txid = util.GenerateUUID()
 	simulator, _ = ledger.NewTxSimulator(txid)
@@ -84,50 +81,50 @@ func TestKVLedgerBlockStorage(t *testing.T) {
 
 	bcInfo, _ = ledger.GetBlockchainInfo()
 	block2Hash := block2.Header.Hash()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash})
 
 	b0, _ := ledger.GetBlockByHash(gbHash)
-	assert.True(t, proto.Equal(b0, gb), "proto messages are not equal")
+	testutil.AssertEquals(t, b0, gb)
 
 	b1, _ := ledger.GetBlockByHash(block1Hash)
-	assert.True(t, proto.Equal(b1, block1), "proto messages are not equal")
+	testutil.AssertEquals(t, b1, block1)
 
 	b0, _ = ledger.GetBlockByNumber(0)
-	assert.True(t, proto.Equal(b0, gb), "proto messages are not equal")
+	testutil.AssertEquals(t, b0, gb)
 
 	b1, _ = ledger.GetBlockByNumber(1)
-	assert.Equal(t, block1, b1)
+	testutil.AssertEquals(t, b1, block1)
 
 	// get the tran id from the 2nd block, then use it to test GetTransactionByID()
 	txEnvBytes2 := block1.Data.Data[0]
 	txEnv2, err := putils.GetEnvelopeFromBlock(txEnvBytes2)
-	assert.NoError(t, err, "Error upon GetEnvelopeFromBlock")
+	testutil.AssertNoError(t, err, "Error upon GetEnvelopeFromBlock")
 	payload2, err := putils.GetPayload(txEnv2)
-	assert.NoError(t, err, "Error upon GetPayload")
+	testutil.AssertNoError(t, err, "Error upon GetPayload")
 	chdr, err := putils.UnmarshalChannelHeader(payload2.Header.ChannelHeader)
-	assert.NoError(t, err, "Error upon GetChannelHeaderFromBytes")
+	testutil.AssertNoError(t, err, "Error upon GetChannelHeaderFromBytes")
 	txID2 := chdr.TxId
 	processedTran2, err := ledger.GetTransactionByID(txID2)
-	assert.NoError(t, err, "Error upon GetTransactionByID")
+	testutil.AssertNoError(t, err, "Error upon GetTransactionByID")
 	// get the tran envelope from the retrieved ProcessedTransaction
 	retrievedTxEnv2 := processedTran2.TransactionEnvelope
-	assert.Equal(t, txEnv2, retrievedTxEnv2)
+	testutil.AssertEquals(t, retrievedTxEnv2, txEnv2)
 
 	//  get the tran id from the 2nd block, then use it to test GetBlockByTxID
 	b1, _ = ledger.GetBlockByTxID(txID2)
-	assert.True(t, proto.Equal(b1, block1), "proto messages are not equal")
+	testutil.AssertEquals(t, b1, block1)
 
 	// get the transaction validation code for this transaction id
 	validCode, _ := ledger.GetTxValidationCodeByTxID(txID2)
-	assert.Equal(t, peer.TxValidationCode_VALID, validCode)
+	testutil.AssertEquals(t, validCode, peer.TxValidationCode_VALID)
 }
 
 func TestKVLedgerBlockStorageWithPvtdata(t *testing.T) {
 	t.Skip()
 	env := newTestEnv(t)
 	defer env.cleanup()
-	provider := testutilNewProvider(t)
+	provider, _ := NewProvider()
 	defer provider.Close()
 
 	bg, gb := testutil.NewBlockGenerator(t, "testLedger", false)
@@ -136,10 +133,8 @@ func TestKVLedgerBlockStorageWithPvtdata(t *testing.T) {
 	defer ledger.Close()
 
 	bcInfo, _ := ledger.GetBlockchainInfo()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 1, CurrentBlockHash: gbHash, PreviousBlockHash: nil,
-	}, bcInfo)
-
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 1, CurrentBlockHash: gbHash, PreviousBlockHash: nil})
 	txid := util.GenerateUUID()
 	simulator, _ := ledger.NewTxSimulator(txid)
 	simulator.SetState("ns1", "key1", []byte("value1"))
@@ -149,13 +144,12 @@ func TestKVLedgerBlockStorageWithPvtdata(t *testing.T) {
 	simRes, _ := simulator.GetTxSimulationResults()
 	pubSimBytes, _ := simRes.GetPubSimulationBytes()
 	block1 := bg.NextBlockWithTxid([][]byte{pubSimBytes}, []string{txid})
-	assert.NoError(t, ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block1}))
+	testutil.AssertNoError(t, ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block1}), "")
 
 	bcInfo, _ = ledger.GetBlockchainInfo()
 	block1Hash := block1.Header.Hash()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 2, CurrentBlockHash: block1Hash, PreviousBlockHash: gbHash,
-	}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 2, CurrentBlockHash: block1Hash, PreviousBlockHash: gbHash})
 
 	txid = util.GenerateUUID()
 	simulator, _ = ledger.NewTxSimulator(txid)
@@ -170,29 +164,28 @@ func TestKVLedgerBlockStorageWithPvtdata(t *testing.T) {
 
 	bcInfo, _ = ledger.GetBlockchainInfo()
 	block2Hash := block2.Header.Hash()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash,
-	}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash})
 
 	pvtdataAndBlock, _ := ledger.GetPvtDataAndBlockByNum(0, nil)
-	assert.Equal(t, gb, pvtdataAndBlock.Block)
-	assert.Nil(t, pvtdataAndBlock.BlockPvtData)
+	testutil.AssertEquals(t, pvtdataAndBlock.Block, gb)
+	testutil.AssertNil(t, pvtdataAndBlock.BlockPvtData)
 
 	pvtdataAndBlock, _ = ledger.GetPvtDataAndBlockByNum(1, nil)
-	assert.Equal(t, block1, pvtdataAndBlock.Block)
-	assert.NotNil(t, pvtdataAndBlock.BlockPvtData)
-	assert.True(t, pvtdataAndBlock.BlockPvtData[0].Has("ns1", "coll1"))
-	assert.True(t, pvtdataAndBlock.BlockPvtData[0].Has("ns1", "coll2"))
+	testutil.AssertEquals(t, pvtdataAndBlock.Block, block1)
+	testutil.AssertNotNil(t, pvtdataAndBlock.BlockPvtData)
+	testutil.AssertEquals(t, pvtdataAndBlock.BlockPvtData[0].Has("ns1", "coll1"), true)
+	testutil.AssertEquals(t, pvtdataAndBlock.BlockPvtData[0].Has("ns1", "coll2"), true)
 
 	pvtdataAndBlock, _ = ledger.GetPvtDataAndBlockByNum(2, nil)
-	assert.Equal(t, block2, pvtdataAndBlock.Block)
-	assert.Nil(t, pvtdataAndBlock.BlockPvtData)
+	testutil.AssertEquals(t, pvtdataAndBlock.Block, block2)
+	testutil.AssertNil(t, pvtdataAndBlock.BlockPvtData)
 }
 
 func TestKVLedgerDBRecovery(t *testing.T) {
 	env := newTestEnv(t)
 	defer env.cleanup()
-	provider := testutilNewProvider(t)
+	provider, _ := NewProvider()
 	defer provider.Close()
 	testLedgerid := "testLedger"
 	bg, gb := testutil.NewBlockGenerator(t, testLedgerid, false)
@@ -207,7 +200,7 @@ func TestKVLedgerDBRecovery(t *testing.T) {
 
 	// creating and committing the first block with collection configs
 	collectionConfigBlk := prepareNextBlockForTestCollectionConfigs(t, ledger, bg, "simulationForCollConfig", "ns", map[string]uint64{"coll": 0})
-	assert.NoError(t, ledger.CommitWithPvtData(collectionConfigBlk))
+	testutil.AssertNoError(t, ledger.CommitWithPvtData(collectionConfigBlk), "")
 	checkBCSummaryForTest(t, ledger,
 		&bcSummary{
 			bcInfo: &common.BlockchainInfo{Height: 2,
@@ -222,7 +215,7 @@ func TestKVLedgerDBRecovery(t *testing.T) {
 	blockAndPvtdata1 := prepareNextBlockForTest(t, ledger, bg, "SimulateForBlk1",
 		map[string]string{"key1": "value1.1", "key2": "value2.1", "key3": "value3.1"},
 		map[string]string{"key1": "pvtValue1.1", "key2": "pvtValue2.1", "key3": "pvtValue3.1"})
-	assert.NoError(t, ledger.CommitWithPvtData(blockAndPvtdata1))
+	testutil.AssertNoError(t, ledger.CommitWithPvtData(blockAndPvtdata1), "")
 	checkBCSummaryForTest(t, ledger,
 		&bcSummary{
 			bcInfo: &common.BlockchainInfo{Height: 3,
@@ -264,7 +257,7 @@ func TestKVLedgerDBRecovery(t *testing.T) {
 
 	// Here the peer comes online and calls NewKVLedger to get a handler for the ledger
 	// StateDB and HistoryDB should be recovered before returning from NewKVLedger call
-	provider = testutilNewProvider(t)
+	provider, _ = NewProvider()
 	ledger, _ = provider.Open(testLedgerid)
 	checkBCSummaryForTest(t, ledger,
 		&bcSummary{
@@ -312,7 +305,7 @@ func TestKVLedgerDBRecovery(t *testing.T) {
 
 	// we assume here that the peer comes online and calls NewKVLedger to get a handler for the ledger
 	// history DB should be recovered before returning from NewKVLedger call
-	provider = testutilNewProvider(t)
+	provider, _ = NewProvider()
 	ledger, _ = provider.Open(testLedgerid)
 
 	checkBCSummaryForTest(t, ledger,
@@ -361,7 +354,7 @@ func TestKVLedgerDBRecovery(t *testing.T) {
 
 	// we assume here that the peer comes online and calls NewKVLedger to get a handler for the ledger
 	// state DB should be recovered before returning from NewKVLedger call
-	provider = testutilNewProvider(t)
+	provider, _ = NewProvider()
 	ledger, _ = provider.Open(testLedgerid)
 	checkBCSummaryForTest(t, ledger,
 		&bcSummary{
@@ -386,7 +379,7 @@ func TestLedgerWithCouchDbEnabledWithBinaryAndJSONData(t *testing.T) {
 
 	env := newTestEnv(t)
 	defer env.cleanup()
-	provider := testutilNewProvider(t)
+	provider, _ := NewProvider()
 	defer provider.Close()
 	bg, gb := testutil.NewBlockGenerator(t, "testLedger", false)
 	gbHash := gb.Header.Hash()
@@ -394,8 +387,8 @@ func TestLedgerWithCouchDbEnabledWithBinaryAndJSONData(t *testing.T) {
 	defer ledger.Close()
 
 	bcInfo, _ := ledger.GetBlockchainInfo()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 1, CurrentBlockHash: gbHash, PreviousBlockHash: nil}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 1, CurrentBlockHash: gbHash, PreviousBlockHash: nil})
 
 	txid := util.GenerateUUID()
 	simulator, _ := ledger.NewTxSimulator(txid)
@@ -412,8 +405,8 @@ func TestLedgerWithCouchDbEnabledWithBinaryAndJSONData(t *testing.T) {
 
 	bcInfo, _ = ledger.GetBlockchainInfo()
 	block1Hash := block1.Header.Hash()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 2, CurrentBlockHash: block1Hash, PreviousBlockHash: gbHash}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 2, CurrentBlockHash: block1Hash, PreviousBlockHash: gbHash})
 
 	simulationResults := [][]byte{}
 	txid = util.GenerateUUID()
@@ -443,36 +436,35 @@ func TestLedgerWithCouchDbEnabledWithBinaryAndJSONData(t *testing.T) {
 
 	bcInfo, _ = ledger.GetBlockchainInfo()
 	block2Hash := block2.Header.Hash()
-	assert.Equal(t, &common.BlockchainInfo{
-		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash,
-	}, bcInfo)
+	testutil.AssertEquals(t, bcInfo, &common.BlockchainInfo{
+		Height: 3, CurrentBlockHash: block2Hash, PreviousBlockHash: block1Hash})
 
 	b0, _ := ledger.GetBlockByHash(gbHash)
-	assert.True(t, proto.Equal(b0, gb), "proto messages are not equal")
+	testutil.AssertEquals(t, b0, gb)
 
 	b1, _ := ledger.GetBlockByHash(block1Hash)
-	assert.True(t, proto.Equal(b1, block1), "proto messages are not equal")
+	testutil.AssertEquals(t, b1, block1)
 
 	b2, _ := ledger.GetBlockByHash(block2Hash)
-	assert.True(t, proto.Equal(b2, block2), "proto messages are not equal")
+	testutil.AssertEquals(t, b2, block2)
 
 	b0, _ = ledger.GetBlockByNumber(0)
-	assert.True(t, proto.Equal(b0, gb), "proto messages are not equal")
+	testutil.AssertEquals(t, b0, gb)
 
 	b1, _ = ledger.GetBlockByNumber(1)
-	assert.True(t, proto.Equal(b1, block1), "proto messages are not equal")
+	testutil.AssertEquals(t, b1, block1)
 
 	b2, _ = ledger.GetBlockByNumber(2)
-	assert.True(t, proto.Equal(b2, block2), "proto messages are not equal")
+	testutil.AssertEquals(t, b2, block2)
 
 	//Similar test has been pushed down to historyleveldb_test.go as well
 	if ledgerconfig.IsHistoryDBEnabled() == true {
 		logger.Debugf("History is enabled\n")
 		qhistory, err := ledger.NewHistoryQueryExecutor()
-		assert.NoError(t, err, "Error when trying to retrieve history database executor")
+		testutil.AssertNoError(t, err, fmt.Sprintf("Error when trying to retrieve history database executor"))
 
 		itr, err2 := qhistory.GetHistoryForKey("ns1", "key7")
-		assert.NoError(t, err2, "Error upon GetHistoryForKey")
+		testutil.AssertNoError(t, err2, fmt.Sprintf("Error upon GetHistoryForKey"))
 
 		var retrievedValue []byte
 		count := 0
@@ -484,10 +476,10 @@ func TestLedgerWithCouchDbEnabledWithBinaryAndJSONData(t *testing.T) {
 			retrievedValue = kmod.(*queryresult.KeyModification).Value
 			count++
 		}
-		assert.Equal(t, 3, count)
+		testutil.AssertEquals(t, count, 3)
 		// test the last value in the history matches the last value set for key7
 		expectedValue := []byte("{\"shipmentID\":\"161003PKC7600\",\"customsInvoice\":{\"methodOfTransport\":\"TRAIN\",\"invoiceNumber\":\"00091624\"},\"weightUnitOfMeasure\":\"KGM\",\"volumeUnitOfMeasure\": \"CO\",\"dimensionUnitOfMeasure\":\"CM\",\"currency\":\"USD\"}")
-		assert.Equal(t, expectedValue, retrievedValue)
+		testutil.AssertEquals(t, retrievedValue, expectedValue)
 
 	}
 }
@@ -514,12 +506,12 @@ func prepareNextBlockForTest(t *testing.T, l lgr.PeerLedger, bg *testutil.BlockG
 func checkBCSummaryForTest(t *testing.T, l lgr.PeerLedger, expectedBCSummary *bcSummary) {
 	if expectedBCSummary.bcInfo != nil {
 		actualBCInfo, _ := l.GetBlockchainInfo()
-		assert.Equal(t, expectedBCSummary.bcInfo, actualBCInfo)
+		testutil.AssertEquals(t, actualBCInfo, expectedBCSummary.bcInfo)
 	}
 
 	if expectedBCSummary.stateDBSavePoint != 0 {
 		actualStateDBSavepoint, _ := l.(*kvLedger).txtmgmt.GetLastSavepoint()
-		assert.Equal(t, expectedBCSummary.stateDBSavePoint, actualStateDBSavepoint.BlockNum)
+		testutil.AssertEquals(t, actualStateDBSavepoint.BlockNum, expectedBCSummary.stateDBSavePoint)
 	}
 
 	if !(expectedBCSummary.stateDBKVs == nil && expectedBCSummary.stateDBPvtKVs == nil) {
@@ -528,7 +520,7 @@ func checkBCSummaryForTest(t *testing.T, l lgr.PeerLedger, expectedBCSummary *bc
 
 	if expectedBCSummary.historyDBSavePoint != 0 {
 		actualHistoryDBSavepoint, _ := l.(*kvLedger).historyDB.GetLastSavepoint()
-		assert.Equal(t, expectedBCSummary.historyDBSavePoint, actualHistoryDBSavepoint.BlockNum)
+		testutil.AssertEquals(t, actualHistoryDBSavepoint.BlockNum, expectedBCSummary.historyDBSavePoint)
 	}
 
 	if expectedBCSummary.historyKey != "" {
@@ -541,12 +533,12 @@ func checkStateDBForTest(t *testing.T, l lgr.PeerLedger, expectedKVs map[string]
 	defer simulator.Done()
 	for expectedKey, expectedVal := range expectedKVs {
 		actualVal, _ := simulator.GetState("ns", expectedKey)
-		assert.Equal(t, []byte(expectedVal), actualVal)
+		testutil.AssertEquals(t, actualVal, []byte(expectedVal))
 	}
 
 	for expectedPvtKey, expectedPvtVal := range expectedPvtKVs {
 		actualPvtVal, _ := simulator.GetPrivateData("ns", "coll", expectedPvtKey)
-		assert.Equal(t, []byte(expectedPvtVal), actualPvtVal)
+		testutil.AssertEquals(t, actualPvtVal, []byte(expectedPvtVal))
 	}
 }
 
@@ -556,14 +548,14 @@ func checkHistoryDBForTest(t *testing.T, l lgr.PeerLedger, key string, expectedV
 	var actualVals []string
 	for {
 		kmod, err := itr.Next()
-		assert.NoError(t, err, "Error upon Next()")
+		testutil.AssertNoError(t, err, "Error upon Next()")
 		if kmod == nil {
 			break
 		}
 		retrievedValue := kmod.(*queryresult.KeyModification).Value
 		actualVals = append(actualVals, string(retrievedValue))
 	}
-	assert.Equal(t, expectedVals, actualVals)
+	testutil.AssertEquals(t, expectedVals, actualVals)
 }
 
 type bcSummary struct {
@@ -589,7 +581,7 @@ func prepareNextBlockForTestCollectionConfigs(t *testing.T, l lgr.PeerLedger, bg
 	}
 	collectionConfPkg := &common.CollectionConfigPackage{Config: conf}
 	value, err := proto.Marshal(collectionConfPkg)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	simulator.SetState("lscc", key, value)
 	simulator.Done()
 	simRes, _ := simulator.GetTxSimulationResults()

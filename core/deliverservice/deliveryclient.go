@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package deliverclient
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -20,11 +19,17 @@ import (
 	"justledger/gossip/api"
 	"justledger/gossip/util"
 	"justledger/protos/orderer"
+	"github.com/op/go-logging"
 	"github.com/spf13/viper"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
-var logger = flogging.MustGetLogger("deliveryClient")
+var logger *logging.Logger // package-level logger
+
+func init() {
+	logger = flogging.MustGetLogger("deliveryClient")
+}
 
 const (
 	defaultReConnectTotalTimeThreshold = time.Second * 60 * 60
@@ -209,8 +214,6 @@ func (d *deliverServiceImpl) Stop() {
 }
 
 func (d *deliverServiceImpl) newClient(chainID string, ledgerInfoProvider blocksprovider.LedgerInfo) *broadcastClient {
-	reconnectBackoffThreshold := getReConnectBackoffThreshold()
-	reconnectTotalTimeThreshold := getReConnectTotalTimeThreshold()
 	requester := &blocksRequester{
 		tls:     viper.GetBool("peer.tls.enabled"),
 		chainID: chainID,
@@ -219,12 +222,12 @@ func (d *deliverServiceImpl) newClient(chainID string, ledgerInfoProvider blocks
 		return requester.RequestBlocks(ledgerInfoProvider)
 	}
 	backoffPolicy := func(attemptNum int, elapsedTime time.Duration) (time.Duration, bool) {
-		if elapsedTime > reconnectTotalTimeThreshold {
+		if elapsedTime.Nanoseconds() > getReConnectTotalTimeThreshold().Nanoseconds() {
 			return 0, false
 		}
 		sleepIncrement := float64(time.Millisecond * 500)
 		attempt := float64(attemptNum)
-		return time.Duration(math.Min(math.Pow(2, attempt)*sleepIncrement, reconnectBackoffThreshold)), true
+		return time.Duration(math.Min(math.Pow(2, attempt)*sleepIncrement, getReConnectBackoffThreshold())), true
 	}
 	connProd := comm.NewConnectionProducer(d.conf.ConnFactory(chainID), d.conf.Endpoints)
 	bClient := NewBroadcastClient(connProd, d.conf.ABCFactory, broadcastSetup, backoffPolicy)
@@ -259,8 +262,9 @@ func DefaultConnectionFactory(channelID string) func(endpoint string) (*grpc.Cli
 		} else {
 			dialOpts = append(dialOpts, grpc.WithInsecure())
 		}
-		ctx, cancel := context.WithTimeout(context.Background(), getConnectionTimeout())
-		defer cancel()
+		grpc.EnableTracing = true
+		ctx := context.Background()
+		ctx, _ = context.WithTimeout(ctx, getConnectionTimeout())
 		return grpc.DialContext(ctx, endpoint, dialOpts...)
 	}
 }

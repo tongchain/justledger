@@ -17,6 +17,7 @@ limitations under the License.
 package fsblkstorage
 
 import (
+	"fmt"
 	"io/ioutil"
 	"math"
 	"os"
@@ -24,7 +25,7 @@ import (
 
 	"justledger/common/flogging"
 	"justledger/common/ledger/blkstorage"
-	"github.com/stretchr/testify/assert"
+	"justledger/common/ledger/testutil"
 
 	"justledger/protos/common"
 )
@@ -81,14 +82,14 @@ type testBlockfileMgrWrapper struct {
 
 func newTestBlockfileWrapper(env *testEnv, ledgerid string) *testBlockfileMgrWrapper {
 	blkStore, err := env.provider.OpenBlockStore(ledgerid)
-	assert.NoError(env.t, err)
+	testutil.AssertNoError(env.t, err, "")
 	return &testBlockfileMgrWrapper{env.t, blkStore.(*fsBlockStore).fileMgr}
 }
 
 func (w *testBlockfileMgrWrapper) addBlocks(blocks []*common.Block) {
 	for _, blk := range blocks {
 		err := w.blockfileMgr.addBlock(blk)
-		assert.NoError(w.t, err, "Error while adding block to blockfileMgr")
+		testutil.AssertNoError(w.t, err, "Error while adding block to blockfileMgr")
 	}
 }
 
@@ -96,22 +97,22 @@ func (w *testBlockfileMgrWrapper) testGetBlockByHash(blocks []*common.Block) {
 	for i, block := range blocks {
 		hash := block.Header.Hash()
 		b, err := w.blockfileMgr.retrieveBlockByHash(hash)
-		assert.NoError(w.t, err, "Error while retrieving [%d]th block from blockfileMgr", i)
-		assert.Equal(w.t, block, b)
+		testutil.AssertNoError(w.t, err, fmt.Sprintf("Error while retrieving [%d]th block from blockfileMgr", i))
+		testutil.AssertEquals(w.t, b, block)
 	}
 }
 
 func (w *testBlockfileMgrWrapper) testGetBlockByNumber(blocks []*common.Block, startingNum uint64) {
 	for i := 0; i < len(blocks); i++ {
 		b, err := w.blockfileMgr.retrieveBlockByNumber(startingNum + uint64(i))
-		assert.NoError(w.t, err, "Error while retrieving [%d]th block from blockfileMgr", i)
-		assert.Equal(w.t, blocks[i].Header, b.Header)
+		testutil.AssertNoError(w.t, err, fmt.Sprintf("Error while retrieving [%d]th block from blockfileMgr", i))
+		testutil.AssertEquals(w.t, b.Header, blocks[i].Header)
 	}
 	// test getting the last block
 	b, err := w.blockfileMgr.retrieveBlockByNumber(math.MaxUint64)
 	iLastBlock := len(blocks) - 1
-	assert.NoError(w.t, err, "Error while retrieving last block from blockfileMgr")
-	assert.Equal(w.t, blocks[iLastBlock], b)
+	testutil.AssertNoError(w.t, err, "Error while retrieving last block from blockfileMgr")
+	testutil.AssertEquals(w.t, b, blocks[iLastBlock])
 }
 
 func (w *testBlockfileMgrWrapper) close() {

@@ -17,7 +17,6 @@ import (
 	pb "justledger/protos/peer"
 	ptestutils "justledger/protos/testutils"
 	"justledger/protos/utils"
-	"github.com/stretchr/testify/assert"
 )
 
 //BlockGenerator generates a series of blocks for testing
@@ -31,7 +30,7 @@ type BlockGenerator struct {
 // NewBlockGenerator instantiates new BlockGenerator for testing
 func NewBlockGenerator(t *testing.T, ledgerID string, signTxs bool) (*BlockGenerator, *common.Block) {
 	gb, err := test.MakeGenesisBlock(ledgerID)
-	assert.NoError(t, err)
+	AssertNoError(t, err, "")
 	gb.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER] = lutils.NewTxValidationFlagsSetValue(len(gb.Data.Data), pb.TxValidationCode_VALID)
 	return &BlockGenerator{1, gb.GetHeader().Hash(), signTxs, t}, gb
 }
@@ -85,7 +84,7 @@ func ConstructTransaction(_ *testing.T, simulationResults []byte, txid string, s
 	var txEnv *common.Envelope
 	var err error
 	if sign {
-		txEnv, txID, err = ptestutils.ConstructSignedTxEnvWithDefaultSigner(util.GetTestChainID(), ccid, nil, simulationResults, txid, nil, nil)
+		txEnv, txID, err = ptestutils.ConstructSingedTxEnvWithDefaultSigner(util.GetTestChainID(), ccid, nil, simulationResults, txid, nil, nil)
 	} else {
 		txEnv, txID, err = ptestutils.ConstructUnsignedTxEnv(util.GetTestChainID(), ccid, nil, simulationResults, txid, nil, nil)
 	}

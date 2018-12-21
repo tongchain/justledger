@@ -1,7 +1,17 @@
 /*
-Copyright IBM Corp. All Rights Reserved.
+Copyright IBM Corp. 2016 All Rights Reserved.
 
-SPDX-License-Identifier: Apache-2.0
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+                 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package committer
@@ -9,17 +19,23 @@ package committer
 import (
 	"justledger/common/flogging"
 	"justledger/core/ledger"
+	"justledger/events/producer"
 	"justledger/protos/common"
 	"justledger/protos/utils"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 )
-
-var logger = flogging.MustGetLogger("committer")
 
 //--------!!!IMPORTANT!!-!!IMPORTANT!!-!!IMPORTANT!!---------
 // This is used merely to complete the loop for the "skeleton"
 // path so we can reason about and  modify committer component
 // more effectively using code.
+
+var logger *logging.Logger // package-level logger
+
+func init() {
+	logger = flogging.MustGetLogger("committer")
+}
 
 // PeerLedgerSupport abstract out the API's of ledger.PeerLedger interface
 // required to implement LedgerCommitter
@@ -30,15 +46,11 @@ type PeerLedgerSupport interface {
 
 	CommitWithPvtData(blockAndPvtdata *ledger.BlockAndPvtData) error
 
-	CommitPvtData(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error)
-
 	GetBlockchainInfo() (*common.BlockchainInfo, error)
 
 	GetBlockByNumber(blockNumber uint64) (*common.Block, error)
 
 	GetConfigHistoryRetriever() (ledger.ConfigHistoryRetriever, error)
-
-	GetMissingPvtDataTracker() (ledger.MissingPvtDataTracker, error)
 
 	Close()
 }
@@ -94,12 +106,31 @@ func (lc *LedgerCommitter) CommitWithPvtData(blockAndPvtData *ledger.BlockAndPvt
 		return err
 	}
 
+	// post commit actions, such as event publishing
+	lc.postCommit(blockAndPvtData.Block)
+
 	return nil
 }
 
 // GetPvtDataAndBlockByNum retrieves private data and block for given sequence number
 func (lc *LedgerCommitter) GetPvtDataAndBlockByNum(seqNum uint64) (*ledger.BlockAndPvtData, error) {
 	return lc.PeerLedgerSupport.GetPvtDataAndBlockByNum(seqNum, nil)
+}
+
+// postCommit publish event or handle other tasks once block committed to the ledger
+func (lc *LedgerCommitter) postCommit(block *common.Block) {
+	// create/send block events *after* the block has been committed
+	bevent, fbevent, channelID, err := producer.CreateBlockEvents(block)
+	if err != nil {
+		logger.Errorf("Channel [%s] Error processing block events for block number [%d]: %+v", channelID, block.Header.Number, err)
+	} else {
+		if err := producer.Send(bevent); err != nil {
+			logger.Errorf("Channel [%s] Error sending block event for block number [%d]: %+v", channelID, block.Header.Number, err)
+		}
+		if err := producer.Send(fbevent); err != nil {
+			logger.Errorf("Channel [%s] Error sending filtered block event for block number [%d]: %+v", channelID, block.Header.Number, err)
+		}
+	}
 }
 
 // LedgerHeight returns recently committed block sequence number

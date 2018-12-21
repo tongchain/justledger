@@ -15,7 +15,12 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	. "github.com/onsi/gomega"
+	logging "github.com/op/go-logging"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "")
+}
 
 func TestApplicationInterface(t *testing.T) {
 	_ = Application((*ApplicationConfig)(nil))

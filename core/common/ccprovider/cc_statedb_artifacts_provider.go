@@ -31,30 +31,31 @@ type TarFileEntry struct {
 // ExtractStatedbArtifactsAsTarbytes extracts the statedb artifacts from the code package tar and create a statedb artifact tar.
 // The state db artifacts are expected to contain state db specific artifacts such as index specification in the case of couchdb.
 // This function is intented to be used during chaincode instantiate/upgrade so that statedb artifacts can be created.
-func ExtractStatedbArtifactsForChaincode(ccname, ccversion string, pr *platforms.Registry) (installed bool, statedbArtifactsTar []byte, err error) {
+func ExtractStatedbArtifactsForChaincode(ccname, ccversion string) (installed bool, statedbArtifactsTar []byte, err error) {
 	ccpackage, err := GetChaincodeFromFS(ccname, ccversion)
 	if err != nil {
 		// TODO for now, we assume that an error indicates that the chaincode is not installed on the peer.
 		// However, we need a way to differentiate between the 'not installed' and a general error so that on general error,
 		// we can abort the chaincode instantiate/upgrade/install operation.
-		ccproviderLogger.Infof("Error while loading installation package for ccname=%s, ccversion=%s. Err=%s", ccname, ccversion, err)
+		ccproviderLogger.Info("Error while loading installation package for ccname=%s, ccversion=%s. Err=%s", ccname, ccversion, err)
 		return false, nil, nil
 	}
 
-	statedbArtifactsTar, err = ExtractStatedbArtifactsFromCCPackage(ccpackage, pr)
+	statedbArtifactsTar, err = ExtractStatedbArtifactsFromCCPackage(ccpackage)
 	return true, statedbArtifactsTar, err
 }
 
 // ExtractStatedbArtifactsFromCCPackage extracts the statedb artifacts from the code package tar and create a statedb artifact tar.
 // The state db artifacts are expected to contain state db specific artifacts such as index specification in the case of couchdb.
 // This function is called during chaincode instantiate/upgrade (from above), and from install, so that statedb artifacts can be created.
-func ExtractStatedbArtifactsFromCCPackage(ccpackage CCPackage, pr *platforms.Registry) (statedbArtifactsTar []byte, err error) {
+func ExtractStatedbArtifactsFromCCPackage(ccpackage CCPackage) (statedbArtifactsTar []byte, err error) {
 	cds := ccpackage.GetDepSpec()
-	metaprov, err := pr.GetMetadataProvider(cds.CCType(), cds.Bytes())
+	pform, err := platforms.Find(cds.ChaincodeSpec.Type)
 	if err != nil {
-		ccproviderLogger.Infof("invalid deployment spec: %s", err)
+		ccproviderLogger.Infof("invalid deployment spec (bad platform type:%s)", cds.ChaincodeSpec.Type)
 		return nil, fmt.Errorf("invalid deployment spec")
 	}
+	metaprov := pform.GetMetadataProvider(cds)
 	return metaprov.GetMetadataAsTarEntries()
 }
 

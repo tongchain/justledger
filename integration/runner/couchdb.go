@@ -80,7 +80,7 @@ func (c *CouchDB) Run(sigCh <-chan os.Signal, ready chan<- struct{}) error {
 	hostConfig := &docker.HostConfig{
 		AutoRemove: true,
 		PortBindings: map[docker.Port][]docker.PortBinding{
-			c.ContainerPort: {{
+			c.ContainerPort: []docker.PortBinding{{
 				HostIP:   c.HostIP,
 				HostPort: strconv.Itoa(c.HostPort),
 			}},

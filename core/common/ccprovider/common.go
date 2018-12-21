@@ -12,9 +12,9 @@ import (
 	"justledger/core/config"
 )
 
-// GetChaincodeInstallPathFromViper returns the path where chaincodes are installed
-func GetChaincodeInstallPathFromViper() string {
-	return filepath.Join(config.GetPath("peer.fileSystemPath"), "chaincodes")
+// GetCCsPath returns the path where chaincodes are installed
+func GetCCsPath() string {
+	return config.GetPath("peer.fileSystemPath") + string(filepath.Separator) + "chaincodes"
 }
 
 // LoadPackage loads a chaincode package from the file system

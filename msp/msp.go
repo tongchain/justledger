@@ -203,19 +203,16 @@ const (
 	OTHER                      // MSP is of OTHER TYPE
 
 	// NOTE: as new types are added to this set,
-	// the mspTypes map below must be extended
+	// the mspTypes array below must be extended
 )
 
-var mspTypeStrings = map[ProviderType]string{
-	FABRIC: "bccsp",
-	IDEMIX: "idemix",
-}
+var mspTypeStrings []string = []string{"bccsp", "idemix"}
 
 // ProviderTypeToString returns a string that represents the ProviderType integer
 func ProviderTypeToString(id ProviderType) string {
-	if res, found := mspTypeStrings[id]; found {
-		return res
+	if int(id) < 0 || int(id) > len(mspTypeStrings) {
+		return ""
 	}
 
-	return ""
+	return mspTypeStrings[id]
 }

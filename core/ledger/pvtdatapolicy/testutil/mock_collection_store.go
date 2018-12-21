@@ -7,9 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package testutil
 
 import (
+	"errors"
+
 	"justledger/core/common/privdata"
 	"justledger/protos/common"
-	"github.com/pkg/errors"
 )
 
 type MockCollectionStore struct {
@@ -21,15 +22,15 @@ func NewMockCollectionStore() *MockCollectionStore {
 }
 
 func (m *MockCollectionStore) RetrieveCollection(common.CollectionCriteria) (privdata.Collection, error) {
-	return nil, errors.New("not implemented")
+	return nil, errors.New("Not implemented")
 }
 
 func (m *MockCollectionStore) RetrieveCollectionAccessPolicy(common.CollectionCriteria) (privdata.CollectionAccessPolicy, error) {
-	return nil, errors.New("not implemented")
+	return nil, errors.New("Not implemented")
 }
 
 func (m *MockCollectionStore) RetrieveCollectionConfigPackage(common.CollectionCriteria) (*common.CollectionConfigPackage, error) {
-	return nil, errors.New("not implemented")
+	return nil, errors.New("Not implemented")
 }
 
 func (m *MockCollectionStore) RetrieveCollectionPersistenceConfigs(cc common.CollectionCriteria) (privdata.CollectionPersistenceConfigs, error) {
@@ -41,10 +42,6 @@ func (m *MockCollectionStore) RetrieveCollectionPersistenceConfigs(cc common.Col
 		return &mockResponse{btl}, nil
 	}
 	return nil, privdata.NoSuchCollectionError{}
-}
-
-func (m *MockCollectionStore) AccessFilter(channelName string, collectionPolicyConfig *common.CollectionPolicyConfig) (privdata.Filter, error) {
-	return nil, errors.New("not implemented")
 }
 
 func (m *MockCollectionStore) SetBTL(ns, collection string, btl uint64) {

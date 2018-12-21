@@ -23,11 +23,16 @@ import (
 	"justledger/common/flogging"
 	"justledger/orderer/consensus"
 	cb "justledger/protos/common"
+	"github.com/op/go-logging"
 )
 
 const pkgLogID = "orderer/consensus/solo"
 
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger *logging.Logger
+
+func init() {
+	logger = flogging.MustGetLogger(pkgLogID)
+}
 
 type consenter struct{}
 
@@ -129,27 +134,18 @@ func (ch *chain) main() {
 						continue
 					}
 				}
-				batches, pending := ch.support.BlockCutter().Ordered(msg.normalMsg)
-
+				batches, _ := ch.support.BlockCutter().Ordered(msg.normalMsg)
+				if len(batches) == 0 && timer == nil {
+					timer = time.After(ch.support.SharedConfig().BatchTimeout())
+					continue
+				}
 				for _, batch := range batches {
 					block := ch.support.CreateNextBlock(batch)
 					ch.support.WriteBlock(block, nil)
 				}
-
-				switch {
-				case timer != nil && !pending:
-					// Timer is already running but there are no messages pending, stop the timer
+				if len(batches) > 0 {
 					timer = nil
-				case timer == nil && pending:
-					// Timer is not already running and there are messages pending, so start it
-					timer = time.After(ch.support.SharedConfig().BatchTimeout())
-					logger.Debugf("Just began %s batch timer", ch.support.SharedConfig().BatchTimeout().String())
-				default:
-					// Do nothing when:
-					// 1. Timer is already running and there are messages pending
-					// 2. Timer is not set and there are no messages pending
 				}
-
 			} else {
 				// ConfigMsg
 				if msg.configSeq < seq {

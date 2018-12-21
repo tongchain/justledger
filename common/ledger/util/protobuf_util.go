@@ -18,7 +18,6 @@ package util
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/pkg/errors"
 )
 
 // Buffer provides a wrapper on top of proto.Buffer.
@@ -38,8 +37,6 @@ func (b *Buffer) DecodeVarint() (uint64, error) {
 	val, err := b.buf.DecodeVarint()
 	if err == nil {
 		b.position += proto.SizeVarint(val)
-	} else {
-		err = errors.Wrap(err, "error decoding varint with proto.Buffer")
 	}
 	return val, err
 }
@@ -49,8 +46,6 @@ func (b *Buffer) DecodeRawBytes(alloc bool) ([]byte, error) {
 	val, err := b.buf.DecodeRawBytes(alloc)
 	if err == nil {
 		b.position += proto.SizeVarint(uint64(len(val))) + len(val)
-	} else {
-		err = errors.Wrap(err, "error decoding raw bytes with proto.Buffer")
 	}
 	return val, err
 }

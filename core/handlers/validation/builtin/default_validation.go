@@ -11,19 +11,14 @@ import (
 	"reflect"
 
 	commonerrors "justledger/common/errors"
-	"justledger/common/flogging"
 	"justledger/core/handlers/validation/api"
 	. "justledger/core/handlers/validation/api/capabilities"
 	. "justledger/core/handlers/validation/api/identities"
 	. "justledger/core/handlers/validation/api/policies"
 	. "justledger/core/handlers/validation/api/state"
-	"justledger/core/handlers/validation/builtin/v12"
-	"justledger/core/handlers/validation/builtin/v13"
 	"justledger/protos/common"
 	"github.com/pkg/errors"
 )
-
-var logger = flogging.MustGetLogger("vscc")
 
 type DefaultValidationFactory struct {
 }
@@ -33,14 +28,12 @@ func (*DefaultValidationFactory) New() validation.Plugin {
 }
 
 type DefaultValidation struct {
-	Capabilities    Capabilities
-	TxValidatorV1_2 TransactionValidator
-	TxValidatorV1_3 TransactionValidator
+	TxValidator TransactionValidator
 }
 
 //go:generate mockery -dir . -name TransactionValidator -case underscore -output mocks/
 type TransactionValidator interface {
-	Validate(block *common.Block, namespace string, txPosition int, actionPosition int, policy []byte) commonerrors.TxValidationError
+	Validate(txData []byte, policy []byte) commonerrors.TxValidationError
 }
 
 func (v *DefaultValidation) Validate(block *common.Block, namespace string, txPosition int, actionPosition int, contextData ...validation.ContextDatum) error {
@@ -61,19 +54,7 @@ func (v *DefaultValidation) Validate(block *common.Block, namespace string, txPo
 	if block.Header == nil {
 		return errors.Errorf("no block header")
 	}
-
-	var err error
-	switch {
-	case v.Capabilities.V1_3Validation():
-		err = v.TxValidatorV1_3.Validate(block, namespace, txPosition, actionPosition, serializedPolicy.Bytes())
-
-	case v.Capabilities.V1_2Validation():
-		fallthrough
-
-	default:
-		err = v.TxValidatorV1_2.Validate(block, namespace, txPosition, actionPosition, serializedPolicy.Bytes())
-	}
-
+	err := v.TxValidator.Validate(block.Data.Data[txPosition], serializedPolicy.Bytes())
 	logger.Debugf("block %d, namespace: %s, tx %d validation results is: %v", block.Header.Number, namespace, txPosition, err)
 	return convertErrorTypeOrPanic(err)
 }
@@ -127,10 +108,11 @@ func (v *DefaultValidation) Init(dependencies ...validation.Dependency) error {
 	if pe == nil {
 		return errors.New("policy fetcher not passed in init")
 	}
-
-	v.Capabilities = c
-	v.TxValidatorV1_2 = v12.New(c, sf, d, pe)
-	v.TxValidatorV1_3 = v13.New(c, sf, d, pe)
-
+	v.TxValidator = &ValidatorOneValidSignature{
+		policyEvaluator: pe,
+		deserializer:    d,
+		stateFetcher:    sf,
+		capabilities:    c,
+	}
 	return nil
 }

@@ -20,6 +20,8 @@ Maintainers
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
 | Jason Yellick             | jyellick            | jyellick         | jyellick       | jyellick@us.ibm.com                 |
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
+| Jim Zhang                 | jimthematrix        | jimthematrix     | jimthematrix   | jim\_the\_matrix@hotmail.com        |
++---------------------------+---------------------+------------------+----------------+-------------------------------------+
 | Jonathan Levi             | JonathanLevi        | hacera           | JonathanLevi   | jonathan@hacera.com                 |
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
 | Keith Smith               | smithbk             | smithbk          | smithbk        | bksmith@us.ibm.com                  |
@@ -28,11 +30,11 @@ Maintainers
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
 | Manish Sethi              | manish-sethi        | manish-sethi     | manish-sethi   | manish.sethi@gmail.com              |
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
-| Matthew Sykes             | sykesm              | sykesm           | sykesm         | sykesmat@us.ibm.com                 |
-+---------------------------+---------------------+------------------+----------------+-------------------------------------+
 | Srinivasan Muralidharan   | muralisr            | muralisrini      | muralisr       | srinivasan.muralidharan99@gmail.com |
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
 | Yacov Manevich            | yacovm              | yacovm           | yacovm         | yacovm@il.ibm.com                   |
++---------------------------+---------------------+------------------+----------------+-------------------------------------+
+| Yaoguo Jiang              | jiangyaoguo         | jiangyaoguo      | jiangyaoguo    | jiangyaoguo@gmail.com               |
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
 
 **Release Managers**
@@ -55,10 +57,6 @@ Maintainers
 | Sheehan Anderson          | sheehan             | srderson         | sheehan        | sranderson@gmail.com                |
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
 | Tamas Blummer             | TamasBlummer        | tamasblummer     | tamas          | tamas@digitalasset.com              |
-+---------------------------+---------------------+------------------+----------------+-------------------------------------+
-| Jim Zhang                 | jimthematrix        | jimthematrix     | jimthematrix   | jim\_the\_matrix@hotmail.com        |
-+---------------------------+---------------------+------------------+----------------+-------------------------------------+
-| Yaoguo Jiang              | jiangyaoguo         | jiangyaoguo      | jiangyaoguo    | jiangyaoguo@gmail.com               |
 +---------------------------+---------------------+------------------+----------------+-------------------------------------+
 
 .. Licensed under Creative Commons Attribution 4.0 International License

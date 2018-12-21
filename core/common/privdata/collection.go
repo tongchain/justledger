@@ -85,13 +85,6 @@ type CollectionStore interface {
 
 	// RetrieveCollectionPersistenceConfigs retrieves the collection's persistence related configurations
 	RetrieveCollectionPersistenceConfigs(cc common.CollectionCriteria) (CollectionPersistenceConfigs, error)
-
-	CollectionFilter
-}
-
-type CollectionFilter interface {
-	// AccessFilter retrieves the collection's filter that matches a given channel and a collectionPolicyConfig
-	AccessFilter(channelName string, collectionPolicyConfig *common.CollectionPolicyConfig) (Filter, error)
 }
 
 const (
@@ -108,7 +101,7 @@ const (
 	collectionSuffix = "collection"
 )
 
-// BuildCollectionKVSKey constructs the collection config key for a given chaincode name
+// BuildCollectionKVSKey returns the KVS key string for a chaincode, given its name and version
 func BuildCollectionKVSKey(ccname string) string {
 	return ccname + collectionSeparator + collectionSuffix
 }
@@ -116,10 +109,4 @@ func BuildCollectionKVSKey(ccname string) string {
 // IsCollectionConfigKey detects if a key is a collection key
 func IsCollectionConfigKey(key string) bool {
 	return strings.Contains(key, collectionSeparator)
-}
-
-// GetCCNameFromCollectionConfigKey returns the chaincode name given a collection config key
-func GetCCNameFromCollectionConfigKey(key string) string {
-	splittedKey := strings.Split(key, collectionSeparator)
-	return splittedKey[0]
 }

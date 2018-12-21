@@ -18,15 +18,14 @@ package ledgermgmt
 
 import (
 	"fmt"
-	"os"
 	"testing"
 
+	"os"
+
 	"justledger/common/configtx/test"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -38,17 +37,17 @@ func TestLedgerMgmt(t *testing.T) {
 	// Check for error when creating/opening ledger without initialization.
 	gb, _ := test.MakeGenesisBlock(constructTestLedgerID(0))
 	l, err := CreateLedger(gb)
-	assert.Nil(t, l)
-	assert.Equal(t, ErrLedgerMgmtNotInitialized, err)
+	testutil.AssertNil(t, l)
+	testutil.AssertEquals(t, err, ErrLedgerMgmtNotInitialized)
 
 	ledgerID := constructTestLedgerID(2)
 	l, err = OpenLedger(ledgerID)
-	assert.Nil(t, l)
-	assert.Equal(t, ErrLedgerMgmtNotInitialized, err)
+	testutil.AssertNil(t, l)
+	testutil.AssertEquals(t, err, ErrLedgerMgmtNotInitialized)
 
 	ids, err := GetLedgerIDs()
-	assert.Nil(t, ids)
-	assert.Equal(t, ErrLedgerMgmtNotInitialized, err)
+	testutil.AssertNil(t, ids)
+	testutil.AssertEquals(t, err, ErrLedgerMgmtNotInitialized)
 
 	Close()
 
@@ -64,33 +63,31 @@ func TestLedgerMgmt(t *testing.T) {
 	}
 
 	ids, _ = GetLedgerIDs()
-	assert.Len(t, ids, numLedgers)
+	testutil.AssertEquals(t, len(ids), numLedgers)
 	for i := 0; i < numLedgers; i++ {
-		assert.Equal(t, constructTestLedgerID(i), ids[i])
+		testutil.AssertEquals(t, ids[i], constructTestLedgerID(i))
 	}
 
 	ledgerID = constructTestLedgerID(2)
 	t.Logf("Ledger selected for test = %s", ledgerID)
 	_, err = OpenLedger(ledgerID)
-	assert.Equal(t, ErrLedgerAlreadyOpened, err)
+	testutil.AssertEquals(t, err, ErrLedgerAlreadyOpened)
 
 	l = ledgers[2]
 	l.Close()
 	l, err = OpenLedger(ledgerID)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 
 	l, err = OpenLedger(ledgerID)
-	assert.Equal(t, ErrLedgerAlreadyOpened, err)
+	testutil.AssertEquals(t, err, ErrLedgerAlreadyOpened)
 
 	// close all opened ledgers and ledger mgmt
 	Close()
 
 	// Restart ledger mgmt with existing ledgers
-	Initialize(&Initializer{
-		PlatformRegistry: platforms.NewRegistry(&golang.Platform{}),
-	})
+	Initialize(nil)
 	l, err = OpenLedger(ledgerID)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	Close()
 }
 

@@ -24,6 +24,7 @@ import (
 	pb "justledger/protos/peer"
 	"justledger/protos/utils"
 
+	logging "github.com/op/go-logging"
 	"github.com/pkg/errors"
 )
 
@@ -49,7 +50,7 @@ func doOutputBlock(config *genesisconfig.Profile, channelID string, outputBlock 
 func doOutputChannelCreateTx(conf *genesisconfig.Profile, channelID string, outputChannelCreateTx string) error {
 	logger.Info("Generating new channel configtx")
 
-	configtx, err := encoder.MakeChannelCreationTransaction(channelID, nil, conf)
+	configtx, err := encoder.MakeChannelCreationTransaction(channelID, nil, nil, conf)
 	if err != nil {
 		return err
 	}
@@ -222,9 +223,9 @@ func main() {
 
 	flag.Parse()
 
-	if channelID == "" && (outputBlock != "" || outputChannelCreateTx != "" || outputAnchorPeersUpdate != "") {
+	if channelID == "" {
 		channelID = genesisconfig.TestChainID
-		logger.Warningf("Omitting the channel ID for configtxgen for output operations is deprecated.  Explicitly passing the channel ID will be required in the future, defaulting to '%s'.", channelID)
+		logger.Warningf("Omitting the channel ID for configtxgen is deprecated.  Explicitly passing the channel ID will be required in the future, defaulting to '%s'.", channelID)
 	}
 
 	// show version
@@ -232,6 +233,8 @@ func main() {
 		printVersion()
 		os.Exit(exitCode)
 	}
+
+	logging.SetLevel(logging.INFO, "")
 
 	// don't need to panic when running via command line
 	defer func() {

@@ -20,13 +20,12 @@ import (
 	"justledger/gossip/common"
 	"justledger/gossip/discovery"
 	"justledger/gossip/filter"
-	privdatacommon "justledger/gossip/privdata/common"
 	"justledger/gossip/util"
 	fcommon "justledger/protos/common"
 	proto "justledger/protos/gossip"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -36,14 +35,11 @@ const (
 	btlPullMarginDefault        = 10
 )
 
-// Dig2PvtRWSetWithConfig
-type Dig2PvtRWSetWithConfig map[privdatacommon.DigKey]*util.PrivateRWSetWithConfig
-
-// PrivateDataRetriever interface which defines API capable
+// PrivateDataRetriever interfacce which defines API capable
 // of retrieving required private data
 type PrivateDataRetriever interface {
 	// CollectionRWSet returns the bytes of CollectionPvtReadWriteSet for a given txID and collection from the transient store
-	CollectionRWSet(dig []*proto.PvtDataDigest, blockNum uint64) (Dig2PvtRWSetWithConfig, error)
+	CollectionRWSet(dig *proto.PvtDataDigest) (*util.PrivateRWSetWithConfig, error)
 }
 
 // gossip defines capabilities that the gossip module gives the Coordinator
@@ -139,41 +135,54 @@ func (p *puller) handleRequest(message proto.ReceivedMessage) {
 func (p *puller) createResponse(message proto.ReceivedMessage) []*proto.PvtDataElement {
 	authInfo := message.GetConnectionInfo().Auth
 	var returned []*proto.PvtDataElement
-	connectionEndpoint := message.GetConnectionInfo().Endpoint
-
 	defer func() {
-		logger.Debug("Returning", connectionEndpoint, len(returned), "elements")
+		logger.Debug("Returning", message.GetConnectionInfo().Endpoint, len(returned), "elements")
 	}()
-
 	msg := message.GetGossipMessage()
-
-	// group all digest by block number
-	block2dig := groupDigestsByBlockNum(msg.GetPrivateReq().Digests)
-
-	for blockNum, digests := range block2dig {
-		dig2rwSets, err := p.CollectionRWSet(digests, blockNum)
+	for _, dig := range msg.GetPrivateReq().Digests {
+		rwSets, err := p.CollectionRWSet(dig)
 		if err != nil {
-			logger.Warningf("could not obtain private collection rwset for block %d, because of %s, continue...", blockNum, err)
+			logger.Errorf("Wasn't able to get private rwset for [%s] channel, chaincode [%s], collection [%s], txID = [%s], due to [%s]",
+				p.channel, dig.Namespace, dig.Collection, dig.TxId, err)
+			continue
+		}
+		if rwSets == nil {
+			logger.Errorf("No private rwset for [%s] channel, chaincode [%s], collection [%s], txID = [%s] is available, skipping...",
+				p.channel, dig.Namespace, dig.Collection, dig.TxId)
+			continue
+		}
+		logger.Debug("Found", len(rwSets.RWSet), "for TxID", dig.TxId, ", collection", dig.Collection, "for", message.GetConnectionInfo().Endpoint)
+		if len(rwSets.RWSet) == 0 {
 			continue
 		}
 
-		returned = append(returned, p.filterNotEligible(dig2rwSets, fcommon.SignedData{
+		colAP, err := p.AccessPolicy(rwSets.CollectionConfig, p.channel)
+		if err != nil {
+			logger.Debug("No policy found for channel", p.channel, ", collection", dig.Collection, "txID", dig.TxId, ":", err, "skipping...")
+			continue
+		}
+		colFilter := colAP.AccessFilter()
+		if colFilter == nil {
+			logger.Debug("Collection ", dig.Collection, " has no access filter, txID", dig.TxId, "skipping...")
+			continue
+		}
+		eligibleForCollection := colFilter(fcommon.SignedData{
 			Identity:  message.GetConnectionInfo().Identity,
 			Data:      authInfo.SignedData,
 			Signature: authInfo.Signature,
-		}, connectionEndpoint)...)
-	}
+		})
 
+		if !eligibleForCollection {
+			logger.Debug("Peer", message.GetConnectionInfo().Endpoint, "isn't eligible for txID", dig.TxId, "at collection", dig.Collection)
+			continue
+		}
+
+		returned = append(returned, &proto.PvtDataElement{
+			Digest:  dig,
+			Payload: util.PrivateRWSets(rwSets.RWSet...),
+		})
+	}
 	return returned
-}
-
-// groupDigestsByBlockNum group all digest by block sequence number
-func groupDigestsByBlockNum(digests []*proto.PvtDataDigest) map[uint64][]*proto.PvtDataDigest {
-	results := make(map[uint64][]*proto.PvtDataDigest)
-	for _, dig := range digests {
-		results[dig.BlockSeq] = append(results[dig.BlockSeq], dig)
-	}
-	return results
 }
 
 func (p *puller) handleResponse(message proto.ReceivedMessage) {
@@ -208,25 +217,12 @@ func (p *puller) waitForMembership() []discovery.NetworkMember {
 	}
 }
 
-func (p *puller) fetch(dig2src dig2sources) (*privdatacommon.FetchedPvtDataContainer, error) {
+func (p *puller) fetch(dig2src dig2sources, blockSeq uint64) (*FetchedPvtDataContainer, error) {
 	// computeFilters returns a map from a digest to a routing filter
 	dig2Filter, err := p.computeFilters(dig2src)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
-	return p.fetchPrivateData(dig2Filter)
-}
-
-func (p *puller) FetchReconciledItems(dig2collectionConfig privdatacommon.Dig2CollectionConfig) (*privdatacommon.FetchedPvtDataContainer, error) {
-	// computeFilters returns a map from a digest to a routing filter
-	dig2Filter, err := p.computeReconciliationFilters(dig2collectionConfig)
-	if err != nil {
-		return nil, errors.WithStack(err)
-	}
-	return p.fetchPrivateData(dig2Filter)
-}
-
-func (p *puller) fetchPrivateData(dig2Filter digestToFilterMapping) (*privdatacommon.FetchedPvtDataContainer, error) {
 	// Get a list of peers per channel
 	allFilters := dig2Filter.flattenFilterValues()
 	members := p.waitForMembership()
@@ -238,7 +234,7 @@ func (p *puller) fetchPrivateData(dig2Filter digestToFilterMapping) (*privdataco
 		return nil, errors.New("Empty membership")
 	}
 	members = randomizeMemberList(members)
-	res := &privdatacommon.FetchedPvtDataContainer{}
+	res := &FetchedPvtDataContainer{}
 	// Distribute requests to peers, and obtain subscriptions for all their messages
 	// matchDigestToPeer returns a map from a peer to the digests which we would ask it for
 	var peer2digests peer2Digests
@@ -246,18 +242,12 @@ func (p *puller) fetchPrivateData(dig2Filter digestToFilterMapping) (*privdataco
 	itemsLeftToCollect := len(dig2Filter)
 	// As long as we still have some data to collect and new members to ask the data for:
 	for itemsLeftToCollect > 0 && len(members) > 0 {
-		purgedPvt := p.getPurgedCollections(members, dig2Filter)
+		purgedPvt := p.getPurgedCollections(members, dig2Filter, blockSeq)
 		// Need to remove purged digest from mapping
 		for _, dig := range purgedPvt {
-			res.PurgedElements = append(res.PurgedElements, &proto.PvtDataDigest{
-				TxId:       dig.TxId,
-				BlockSeq:   dig.BlockSeq,
-				SeqInBlock: dig.SeqInBlock,
-				Namespace:  dig.Namespace,
-				Collection: dig.Collection,
-			})
+			res.PurgedElements = append(res.PurgedElements, dig)
 			// remove digest so we won't even try to pull purged data
-			delete(dig2Filter, dig)
+			delete(dig2Filter, *dig)
 			itemsLeftToCollect--
 		}
 
@@ -282,16 +272,10 @@ func (p *puller) fetchPrivateData(dig2Filter digestToFilterMapping) (*privdataco
 				logger.Debug("Got empty response for", resp.Digest)
 				continue
 			}
-			delete(dig2Filter, privdatacommon.DigKey{
-				TxId:       resp.Digest.TxId,
-				BlockSeq:   resp.Digest.BlockSeq,
-				SeqInBlock: resp.Digest.SeqInBlock,
-				Namespace:  resp.Digest.Namespace,
-				Collection: resp.Digest.Collection,
-			})
+			delete(dig2Filter, *resp.Digest)
 			itemsLeftToCollect--
 		}
-		res.AvailableElements = append(res.AvailableElements, responses...)
+		res.AvailableElemenets = append(res.AvailableElemenets, responses...)
 	}
 	return res, nil
 }
@@ -358,16 +342,16 @@ type peer2Digests map[remotePeer][]proto.PvtDataDigest
 type noneSelectedPeers []discovery.NetworkMember
 
 func (p *puller) assignDigestsToPeers(members []discovery.NetworkMember, dig2Filter digestToFilterMapping) (peer2Digests, noneSelectedPeers) {
-	if logger.IsEnabledFor(zapcore.DebugLevel) {
+	if logger.IsEnabledFor(logging.DEBUG) {
 		logger.Debug("Matching", members, "to", dig2Filter.String())
 	}
 	res := make(map[remotePeer][]proto.PvtDataDigest)
 	// Create a mapping between peer and digests to ask for
 	for dig, collectionFilter := range dig2Filter {
-		// Find a peer that is a preferred peer
-		selectedPeer := filter.First(members, collectionFilter.preferredPeer)
+		// Find a peer that is an endorser
+		selectedPeer := filter.First(members, collectionFilter.endorser)
 		if selectedPeer == nil {
-			logger.Debug("No preferred peer found for", dig)
+			logger.Debug("No endorser found for", dig)
 			// Find some peer that is in the collection
 			selectedPeer = filter.First(members, collectionFilter.anyPeer)
 		}
@@ -377,13 +361,7 @@ func (p *puller) assignDigestsToPeers(members []discovery.NetworkMember, dig2Fil
 		}
 		// Add the peer to the mapping from peer to digest slice
 		peer := remotePeer{pkiID: string(selectedPeer.PKIID), endpoint: selectedPeer.Endpoint}
-		res[peer] = append(res[peer], proto.PvtDataDigest{
-			TxId:       dig.TxId,
-			BlockSeq:   dig.BlockSeq,
-			SeqInBlock: dig.SeqInBlock,
-			Namespace:  dig.Namespace,
-			Collection: dig.Collection,
-		})
+		res[peer] = append(res[peer], dig)
 	}
 
 	var noneSelectedPeers []discovery.NetworkMember
@@ -398,16 +376,16 @@ func (p *puller) assignDigestsToPeers(members []discovery.NetworkMember, dig2Fil
 }
 
 type collectionRoutingFilter struct {
-	anyPeer       filter.RoutingFilter
-	preferredPeer filter.RoutingFilter
+	anyPeer  filter.RoutingFilter
+	endorser filter.RoutingFilter
 }
 
-type digestToFilterMapping map[privdatacommon.DigKey]collectionRoutingFilter
+type digestToFilterMapping map[proto.PvtDataDigest]collectionRoutingFilter
 
 func (dig2f digestToFilterMapping) flattenFilterValues() []filter.RoutingFilter {
 	var filters []filter.RoutingFilter
 	for _, f := range dig2f {
-		filters = append(filters, f.preferredPeer)
+		filters = append(filters, f.endorser)
 		filters = append(filters, f.anyPeer)
 	}
 	return filters
@@ -416,13 +394,7 @@ func (dig2f digestToFilterMapping) flattenFilterValues() []filter.RoutingFilter 
 func (dig2f digestToFilterMapping) digests() []proto.PvtDataDigest {
 	var digs []proto.PvtDataDigest
 	for d := range dig2f {
-		digs = append(digs, proto.PvtDataDigest{
-			TxId:       d.TxId,
-			BlockSeq:   d.BlockSeq,
-			SeqInBlock: d.SeqInBlock,
-			Namespace:  d.Namespace,
-			Collection: d.Collection,
-		})
+		digs = append(digs, d)
 	}
 	return digs
 }
@@ -441,13 +413,33 @@ func (dig2f digestToFilterMapping) String() string {
 }
 
 func (p *puller) computeFilters(dig2src dig2sources) (digestToFilterMapping, error) {
-	filters := make(map[privdatacommon.DigKey]collectionRoutingFilter)
+	filters := make(map[proto.PvtDataDigest]collectionRoutingFilter)
 	for digest, sources := range dig2src {
-		anyPeerInCollection, err := p.getLatestCollectionConfigRoutingFilter(digest.Namespace, digest.Collection)
+		cc := fcommon.CollectionCriteria{
+			Channel:    p.channel,
+			TxId:       digest.TxId,
+			Collection: digest.Collection,
+			Namespace:  digest.Namespace,
+		}
+		collection, err := p.cs.RetrieveCollectionAccessPolicy(cc)
+		if err != nil {
+			return nil, errors.WithMessage(err, fmt.Sprintf("failed obtaining collection policy for channel %s, txID %s, collection %s", p.channel, digest.TxId, digest.Collection))
+		}
+		f := collection.AccessFilter()
+		if f == nil {
+			return nil, errors.Errorf("Failed obtaining collection filter for channel %s, txID %s, collection %s", p.channel, digest.TxId, digest.Collection)
+		}
+		anyPeerInCollection, err := p.PeerFilter(common.ChainID(p.channel), func(peerSignature api.PeerSignature) bool {
+			return f(fcommon.SignedData{
+				Signature: peerSignature.Signature,
+				Identity:  peerSignature.PeerIdentity,
+				Data:      peerSignature.Message,
+			})
+		})
+
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
-
 		sources := sources
 		endorserPeer, err := p.PeerFilter(common.ChainID(p.channel), func(peerSignature api.PeerSignature) bool {
 			for _, endorsement := range sources {
@@ -457,94 +449,27 @@ func (p *puller) computeFilters(dig2src dig2sources) (digestToFilterMapping, err
 			}
 			return false
 		})
+
 		if err != nil {
 			return nil, errors.WithStack(err)
 		}
 
-		filters[digest] = collectionRoutingFilter{
-			anyPeer:       anyPeerInCollection,
-			preferredPeer: endorserPeer,
+		filters[*digest] = collectionRoutingFilter{
+			anyPeer:  anyPeerInCollection,
+			endorser: endorserPeer,
 		}
 	}
 	return filters, nil
 }
 
-func (p *puller) computeReconciliationFilters(dig2collectionConfig privdatacommon.Dig2CollectionConfig) (digestToFilterMapping, error) {
-	filters := make(map[privdatacommon.DigKey]collectionRoutingFilter)
-	for digest, originalCollectionConfig := range dig2collectionConfig {
-		anyPeerInCollection, err := p.getLatestCollectionConfigRoutingFilter(digest.Namespace, digest.Collection)
-		if err != nil {
-			return nil, err
-		}
+func (p *puller) getPurgedCollections(members []discovery.NetworkMember,
+	dig2Filter digestToFilterMapping, blockSeq uint64) []*proto.PvtDataDigest {
 
-		originalConfigFilter, err := p.cs.AccessFilter(p.channel, originalCollectionConfig.MemberOrgsPolicy)
-		if err != nil {
-			return nil, err
-		}
-		if originalConfigFilter == nil {
-			return nil, errors.Errorf("Failed obtaining original collection filter for channel %s, config %s", p.channel, digest.Collection)
-		}
-
-		// get peers that were in the collection config while the missing data was created
-		peerFromDataCreation, err := p.getMatchAllRoutingFilter(originalConfigFilter)
-		if err != nil {
-			return nil, err
-		}
-
-		// prefer peers that are in the collection from the time the data was created rather than ones that were added later.
-		// the assumption is that the longer the peer is in the collection config, the chances it has the data are bigger.
-		preferredPeer := func(member discovery.NetworkMember) bool {
-			return peerFromDataCreation(member) && anyPeerInCollection(member)
-		}
-
-		filters[digest] = collectionRoutingFilter{
-			anyPeer:       anyPeerInCollection,
-			preferredPeer: preferredPeer,
-		}
-	}
-	return filters, nil
-}
-
-func (p *puller) getLatestCollectionConfigRoutingFilter(chaincode string, collection string) (filter.RoutingFilter, error) {
-	cc := fcommon.CollectionCriteria{
-		Channel:    p.channel,
-		Collection: collection,
-		Namespace:  chaincode,
-	}
-
-	latestCollectionConfig, err := p.cs.RetrieveCollectionAccessPolicy(cc)
-	if err != nil {
-		return nil, errors.WithMessage(err, fmt.Sprintf("failed obtaining collection policy for channel %s, chaincode %s, config %s", p.channel, chaincode, collection))
-	}
-
-	filt := latestCollectionConfig.AccessFilter()
-	if filt == nil {
-		return nil, errors.Errorf("Failed obtaining collection filter for channel %s, chaincode %s, collection %s", p.channel, chaincode, collection)
-	}
-
-	anyPeerInCollection, err := p.getMatchAllRoutingFilter(filt)
-	if err != nil {
-		return nil, err
-	}
-
-	return anyPeerInCollection, nil
-}
-
-func (p *puller) getMatchAllRoutingFilter(filt privdata.Filter) (filter.RoutingFilter, error) {
-	routingFilter, err := p.PeerFilter(common.ChainID(p.channel), func(peerSignature api.PeerSignature) bool {
-		return filt(fcommon.SignedData{
-			Signature: peerSignature.Signature,
-			Identity:  peerSignature.PeerIdentity,
-			Data:      peerSignature.Message,
-		})
-	})
-	return routingFilter, err
-}
-
-func (p *puller) getPurgedCollections(members []discovery.NetworkMember, dig2Filter digestToFilterMapping) []privdatacommon.DigKey {
-	var res []privdatacommon.DigKey
+	var res []*proto.PvtDataDigest
 	for dig := range dig2Filter {
-		purged, err := p.purgedFilter(dig)
+		dig := dig
+
+		purged, err := p.purgedFilter(dig, blockSeq)
 		if err != nil {
 			logger.Debug("Failed to obtain purged filter for digest %v", dig, "error", err)
 			continue
@@ -556,13 +481,13 @@ func (p *puller) getPurgedCollections(members []discovery.NetworkMember, dig2Fil
 			logger.Debugf("Private data on channel [%s], chaincode [%s], collection name [%s] for txID = [%s],"+
 				"has been purged at peers [%v]", p.channel, dig.Namespace,
 				dig.Collection, dig.TxId, membersWithPurgedData)
-			res = append(res, dig)
+			res = append(res, &dig)
 		}
 	}
 	return res
 }
 
-func (p *puller) purgedFilter(dig privdatacommon.DigKey) (filter.RoutingFilter, error) {
+func (p *puller) purgedFilter(dig proto.PvtDataDigest, blockSeq uint64) (filter.RoutingFilter, error) {
 	cc := fcommon.CollectionCriteria{
 		Channel:    p.channel,
 		TxId:       dig.TxId,
@@ -584,7 +509,7 @@ func (p *puller) purgedFilter(dig privdatacommon.DigKey) (filter.RoutingFilter, 
 			return false
 		}
 		// handle overflow
-		expirationSeqNum := addWithOverflow(dig.BlockSeq, colPersistConfig.BlockToLive())
+		expirationSeqNum := addWithOverflow(blockSeq, colPersistConfig.BlockToLive())
 		peerLedgerHeightWithMargin := addWithOverflow(peer.Properties.LedgerHeight, p.btlPullMargin)
 
 		isPurged := peerLedgerHeightWithMargin >= expirationSeqNum
@@ -595,50 +520,6 @@ func (p *puller) purgedFilter(dig privdatacommon.DigKey) (filter.RoutingFilter, 
 		}
 		return isPurged
 	}, nil
-}
-
-func (p *puller) filterNotEligible(dig2rwSets Dig2PvtRWSetWithConfig, signedData fcommon.SignedData, endpoint string) []*proto.PvtDataElement {
-	var returned []*proto.PvtDataElement
-	for d, rwSets := range dig2rwSets {
-		if rwSets == nil {
-			logger.Errorf("No private rwset for [%s] channel, chaincode [%s], collection [%s], txID = [%s] is available, skipping...",
-				p.channel, d.Namespace, d.Collection, d.TxId)
-			continue
-		}
-		logger.Debug("Found", len(rwSets.RWSet), "for TxID", d.TxId, ", collection", d.Collection, "for", endpoint)
-		if len(rwSets.RWSet) == 0 {
-			continue
-		}
-
-		colAP, err := p.AccessPolicy(rwSets.CollectionConfig, p.channel)
-		if err != nil {
-			logger.Debug("No policy found for channel", p.channel, ", collection", d.Collection, "txID", d.TxId, ":", err, "skipping...")
-			continue
-		}
-		colFilter := colAP.AccessFilter()
-		if colFilter == nil {
-			logger.Debug("Collection ", d.Collection, " has no access filter, txID", d.TxId, "skipping...")
-			continue
-		}
-		eligibleForCollection := colFilter(signedData)
-
-		if !eligibleForCollection {
-			logger.Debug("Peer", endpoint, "isn't eligible for txID", d.TxId, "at collection", d.Collection)
-			continue
-		}
-
-		returned = append(returned, &proto.PvtDataElement{
-			Digest: &proto.PvtDataDigest{
-				TxId:       d.TxId,
-				BlockSeq:   d.BlockSeq,
-				Collection: d.Collection,
-				Namespace:  d.Namespace,
-				SeqInBlock: d.SeqInBlock,
-			},
-			Payload: util.PrivateRWSets(rwSets.RWSet...),
-		})
-	}
-	return returned
 }
 
 func randomizeMemberList(members []discovery.NetworkMember) []discovery.NetworkMember {

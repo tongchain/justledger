@@ -10,14 +10,12 @@ import (
 )
 
 type QueryResponseBuilder struct {
-	BuildQueryResponseStub        func(txContext *chaincode_test.TransactionContext, iter commonledger.ResultsIterator, iterID string, isPaginated bool, totalReturnLimit int32) (*pb.QueryResponse, error)
+	BuildQueryResponseStub        func(txContext *chaincode_test.TransactionContext, iter commonledger.ResultsIterator, iterID string) (*pb.QueryResponse, error)
 	buildQueryResponseMutex       sync.RWMutex
 	buildQueryResponseArgsForCall []struct {
-		txContext        *chaincode_test.TransactionContext
-		iter             commonledger.ResultsIterator
-		iterID           string
-		isPaginated      bool
-		totalReturnLimit int32
+		txContext *chaincode_test.TransactionContext
+		iter      commonledger.ResultsIterator
+		iterID    string
 	}
 	buildQueryResponseReturns struct {
 		result1 *pb.QueryResponse
@@ -31,20 +29,18 @@ type QueryResponseBuilder struct {
 	invocationsMutex sync.RWMutex
 }
 
-func (fake *QueryResponseBuilder) BuildQueryResponse(txContext *chaincode_test.TransactionContext, iter commonledger.ResultsIterator, iterID string, isPaginated bool, totalReturnLimit int32) (*pb.QueryResponse, error) {
+func (fake *QueryResponseBuilder) BuildQueryResponse(txContext *chaincode_test.TransactionContext, iter commonledger.ResultsIterator, iterID string) (*pb.QueryResponse, error) {
 	fake.buildQueryResponseMutex.Lock()
 	ret, specificReturn := fake.buildQueryResponseReturnsOnCall[len(fake.buildQueryResponseArgsForCall)]
 	fake.buildQueryResponseArgsForCall = append(fake.buildQueryResponseArgsForCall, struct {
-		txContext        *chaincode_test.TransactionContext
-		iter             commonledger.ResultsIterator
-		iterID           string
-		isPaginated      bool
-		totalReturnLimit int32
-	}{txContext, iter, iterID, isPaginated, totalReturnLimit})
-	fake.recordInvocation("BuildQueryResponse", []interface{}{txContext, iter, iterID, isPaginated, totalReturnLimit})
+		txContext *chaincode_test.TransactionContext
+		iter      commonledger.ResultsIterator
+		iterID    string
+	}{txContext, iter, iterID})
+	fake.recordInvocation("BuildQueryResponse", []interface{}{txContext, iter, iterID})
 	fake.buildQueryResponseMutex.Unlock()
 	if fake.BuildQueryResponseStub != nil {
-		return fake.BuildQueryResponseStub(txContext, iter, iterID, isPaginated, totalReturnLimit)
+		return fake.BuildQueryResponseStub(txContext, iter, iterID)
 	}
 	if specificReturn {
 		return ret.result1, ret.result2
@@ -58,10 +54,10 @@ func (fake *QueryResponseBuilder) BuildQueryResponseCallCount() int {
 	return len(fake.buildQueryResponseArgsForCall)
 }
 
-func (fake *QueryResponseBuilder) BuildQueryResponseArgsForCall(i int) (*chaincode_test.TransactionContext, commonledger.ResultsIterator, string, bool, int32) {
+func (fake *QueryResponseBuilder) BuildQueryResponseArgsForCall(i int) (*chaincode_test.TransactionContext, commonledger.ResultsIterator, string) {
 	fake.buildQueryResponseMutex.RLock()
 	defer fake.buildQueryResponseMutex.RUnlock()
-	return fake.buildQueryResponseArgsForCall[i].txContext, fake.buildQueryResponseArgsForCall[i].iter, fake.buildQueryResponseArgsForCall[i].iterID, fake.buildQueryResponseArgsForCall[i].isPaginated, fake.buildQueryResponseArgsForCall[i].totalReturnLimit
+	return fake.buildQueryResponseArgsForCall[i].txContext, fake.buildQueryResponseArgsForCall[i].iter, fake.buildQueryResponseArgsForCall[i].iterID
 }
 
 func (fake *QueryResponseBuilder) BuildQueryResponseReturns(result1 *pb.QueryResponse, result2 error) {

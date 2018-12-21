@@ -10,21 +10,23 @@ import (
 	"archive/tar"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"testing"
 	"time"
 
-	docker "github.com/fsouza/go-dockerclient"
+	"github.com/fsouza/go-dockerclient"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"justledger/common/ledger/testutil"
 	"justledger/common/util"
 	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
 	"justledger/core/container/ccintf"
 	coreutil "justledger/core/testutil"
 	pb "justledger/protos/peer"
@@ -33,21 +35,22 @@ import (
 // This test used to be part of an integration style test in core/container, moved to here
 func TestIntegrationPath(t *testing.T) {
 	coreutil.SetupTestConfig()
-	dc := NewDockerVM("", util.GenerateUUID())
+	ctxt := context.Background()
+	dc := NewDockerVM("", "")
 	ccid := ccintf.CCID{Name: "simple"}
 
-	err := dc.Start(ccid, nil, nil, nil, InMemBuilder{})
+	err := dc.Start(ctxt, ccid, nil, nil, nil, InMemBuilder{})
 	require.NoError(t, err)
 
 	// Stop, killing, and deleting
-	err = dc.Stop(ccid, 0, true, true)
+	err = dc.Stop(ctxt, ccid, 0, true, true)
 	require.NoError(t, err)
 
-	err = dc.Start(ccid, nil, nil, nil, nil)
+	err = dc.Start(ctxt, ccid, nil, nil, nil, nil)
 	require.NoError(t, err)
 
 	// Stop, killing, but not deleting
-	_ = dc.Stop(ccid, 0, false, true)
+	_ = dc.Stop(ctxt, ccid, 0, false, true)
 }
 
 func TestHostConfig(t *testing.T) {
@@ -57,23 +60,25 @@ func TestHostConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Load docker HostConfig wrong, error: %s", err.Error())
 	}
-	assert.NotNil(t, hostConfig.LogConfig)
-	assert.Equal(t, "json-file", hostConfig.LogConfig.Type)
-	assert.Equal(t, "50m", hostConfig.LogConfig.Config["max-size"])
-	assert.Equal(t, "5", hostConfig.LogConfig.Config["max-file"])
+	testutil.AssertNotEquals(t, hostConfig.LogConfig, nil)
+	testutil.AssertEquals(t, hostConfig.LogConfig.Type, "json-file")
+	testutil.AssertEquals(t, hostConfig.LogConfig.Config["max-size"], "50m")
+	testutil.AssertEquals(t, hostConfig.LogConfig.Config["max-file"], "5")
 }
 
 func TestGetDockerHostConfig(t *testing.T) {
+	os.Setenv("CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE", "overlay")
+	os.Setenv("CORE_VM_DOCKER_HOSTCONFIG_CPUSHARES", fmt.Sprint(1024*1024*1024*2))
 	coreutil.SetupTestConfig()
 	hostConfig = nil // There is a cached global singleton for docker host config, the other tests can collide with
 	hostConfig := getDockerHostConfig()
-	assert.NotNil(t, hostConfig)
-	assert.Equal(t, "host", hostConfig.NetworkMode)
-	assert.Equal(t, "json-file", hostConfig.LogConfig.Type)
-	assert.Equal(t, "50m", hostConfig.LogConfig.Config["max-size"])
-	assert.Equal(t, "5", hostConfig.LogConfig.Config["max-file"])
-	assert.Equal(t, int64(1024*1024*1024*2), hostConfig.Memory)
-	assert.Equal(t, int64(0), hostConfig.CPUShares)
+	testutil.AssertNotNil(t, hostConfig)
+	testutil.AssertEquals(t, hostConfig.NetworkMode, "overlay")
+	testutil.AssertEquals(t, hostConfig.LogConfig.Type, "json-file")
+	testutil.AssertEquals(t, hostConfig.LogConfig.Config["max-size"], "50m")
+	testutil.AssertEquals(t, hostConfig.LogConfig.Config["max-file"], "5")
+	testutil.AssertEquals(t, hostConfig.Memory, int64(1024*1024*1024*2))
+	testutil.AssertEquals(t, hostConfig.CPUShares, int64(1024*1024*1024*2))
 }
 
 func Test_Start(t *testing.T) {
@@ -84,103 +89,95 @@ func Test_Start(t *testing.T) {
 	files := map[string][]byte{
 		"hello": []byte("world"),
 	}
+	ctx := context.Background()
 
 	// Failure cases
 	// case 1: getMockClient returns error
 	dvm.getClientFnc = getMockClient
 	getClientErr = true
-	err := dvm.Start(ccid, args, env, files, nil)
+	err := dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, false)
 	getClientErr = false
 
 	// case 2: dockerClient.CreateContainer returns error
 	createErr = true
-	err = dvm.Start(ccid, args, env, files, nil)
+	err = dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, false)
 	createErr = false
 
 	// case 3: dockerClient.UploadToContainer returns error
 	uploadErr = true
-	err = dvm.Start(ccid, args, env, files, nil)
+	err = dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, false)
 	uploadErr = false
 
 	// case 4: dockerClient.StartContainer returns docker.noSuchImgErr
 	noSuchImgErr = true
-	err = dvm.Start(ccid, args, env, files, nil)
+	err = dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, false)
 
 	chaincodePath := "justledger/examples/chaincode/go/example01/cmd"
-	spec := &pb.ChaincodeSpec{
-		Type:        pb.ChaincodeSpec_GOLANG,
+	spec := &pb.ChaincodeSpec{Type: pb.ChaincodeSpec_GOLANG,
 		ChaincodeId: &pb.ChaincodeID{Name: "ex01", Path: chaincodePath},
-		Input:       &pb.ChaincodeInput{Args: util.ToChaincodeArgs("f")},
-	}
-	codePackage, err := platforms.NewRegistry(&golang.Platform{}).GetDeploymentPayload(spec.CCType(), spec.Path())
+		Input:       &pb.ChaincodeInput{Args: util.ToChaincodeArgs("f")}}
+	codePackage, err := platforms.GetDeploymentPayload(spec)
 	if err != nil {
 		t.Fatal()
 	}
 	cds := &pb.ChaincodeDeploymentSpec{ChaincodeSpec: spec, CodePackage: codePackage}
 	bldr := &mockBuilder{
-		buildFunc: func() (io.Reader, error) {
-			return platforms.NewRegistry(&golang.Platform{}).GenerateDockerBuild(
-				cds.CCType(),
-				cds.Path(),
-				cds.Name(),
-				cds.Version(),
-				cds.Bytes(),
-			)
-		},
+		buildFunc: func() (io.Reader, error) { return platforms.GenerateDockerBuild(cds) },
 	}
 
 	// case 4: start called with builder and dockerClient.CreateContainer returns
 	// docker.noSuchImgErr and dockerClient.Start returns error
 	viper.Set("vm.docker.attachStdout", true)
 	startErr = true
-	err = dvm.Start(ccid, args, env, files, bldr)
+	err = dvm.Start(ctx, ccid, args, env, files, bldr)
 	testerr(t, err, false)
 	startErr = false
 
 	// Success cases
-	err = dvm.Start(ccid, args, env, files, bldr)
+	err = dvm.Start(ctx, ccid, args, env, files, bldr)
 	testerr(t, err, true)
 	noSuchImgErr = false
 
 	// dockerClient.StopContainer returns error
 	stopErr = true
-	err = dvm.Start(ccid, args, env, files, nil)
+	err = dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, true)
 	stopErr = false
 
 	// dockerClient.KillContainer returns error
 	killErr = true
-	err = dvm.Start(ccid, args, env, files, nil)
+	err = dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, true)
 	killErr = false
 
 	// dockerClient.RemoveContainer returns error
 	removeErr = true
-	err = dvm.Start(ccid, args, env, files, nil)
+	err = dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, true)
 	removeErr = false
 
-	err = dvm.Start(ccid, args, env, files, nil)
+	err = dvm.Start(ctx, ccid, args, env, files, nil)
 	testerr(t, err, true)
 }
 
 func Test_Stop(t *testing.T) {
 	dvm := DockerVM{}
 	ccid := ccintf.CCID{Name: "simple"}
+	ctx := context.Background()
 
 	// Failure case: getMockClient returns error
 	getClientErr = true
 	dvm.getClientFnc = getMockClient
-	err := dvm.Stop(ccid, 10, true, true)
+	err := dvm.Stop(ctx, ccid, 10, true, true)
 	testerr(t, err, false)
 	getClientErr = false
 
 	// Success case
-	err = dvm.Stop(ccid, 10, true, true)
+	err = dvm.Stop(ctx, ccid, 10, true, true)
 	testerr(t, err, true)
 }
 
@@ -264,22 +261,16 @@ func TestGetVMName(t *testing.T) {
 type InMemBuilder struct{}
 
 func (imb InMemBuilder) Build() (io.Reader, error) {
-	buf := &bytes.Buffer{}
-	fmt.Fprintln(buf, "FROM busybox:latest")
-	fmt.Fprintln(buf, `CMD ["tail", "-f", "/dev/null"]`)
-
 	startTime := time.Now()
 	inputbuf := bytes.NewBuffer(nil)
 	gw := gzip.NewWriter(inputbuf)
 	tr := tar.NewWriter(gw)
-	tr.WriteHeader(&tar.Header{
-		Name:       "Dockerfile",
-		Size:       int64(buf.Len()),
-		ModTime:    startTime,
-		AccessTime: startTime,
-		ChangeTime: startTime,
-	})
-	tr.Write(buf.Bytes())
+	dockerFileContents := []byte("FROM busybox:latest\n\nCMD echo hello")
+	dockerFileSize := int64(len([]byte(dockerFileContents)))
+
+	tr.WriteHeader(&tar.Header{Name: "Dockerfile", Size: dockerFileSize,
+		ModTime: startTime, AccessTime: startTime, ChangeTime: startTime})
+	tr.Write([]byte(dockerFileContents))
 	tr.Close()
 	gw.Close()
 	return inputbuf, nil
@@ -318,8 +309,7 @@ var getClientErr, createErr, uploadErr, noSuchImgErr, buildErr, removeImgErr,
 func (c *mockClient) CreateContainer(options docker.CreateContainerOptions) (*docker.Container, error) {
 	if createErr {
 		return nil, errors.New("Error creating the container")
-	}
-	if noSuchImgErr && !c.noSuchImgErrReturned {
+	} else if noSuchImgErr && !c.noSuchImgErrReturned {
 		c.noSuchImgErrReturned = true
 		return nil, docker.ErrNoSuchImage
 	}

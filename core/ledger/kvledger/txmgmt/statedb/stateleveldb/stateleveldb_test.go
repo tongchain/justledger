@@ -20,11 +20,11 @@ import (
 	"os"
 	"testing"
 
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/txmgmt/statedb"
 	"justledger/core/ledger/kvledger/txmgmt/statedb/commontests"
 	"justledger/core/ledger/kvledger/txmgmt/version"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -56,6 +56,18 @@ func TestIterator(t *testing.T) {
 	commontests.TestIterator(t, env.DBProvider)
 }
 
+func TestEncodeDecodeValueAndVersion(t *testing.T) {
+	testValueAndVersionEncoding(t, []byte("value1"), version.NewHeight(1, 2))
+	testValueAndVersionEncoding(t, []byte{}, version.NewHeight(50, 50))
+}
+
+func testValueAndVersionEncoding(t *testing.T, value []byte, version *version.Height) {
+	encodedValue := EncodeValue(value, version)
+	val, ver := DecodeValue(encodedValue)
+	testutil.AssertEquals(t, val, value)
+	testutil.AssertEquals(t, ver, version)
+}
+
 func TestCompositeKey(t *testing.T) {
 	testCompositeKey(t, "ledger1", "ns", "key")
 	testCompositeKey(t, "ledger2", "ns", "")
@@ -65,8 +77,8 @@ func testCompositeKey(t *testing.T, dbName string, ns string, key string) {
 	compositeKey := constructCompositeKey(ns, key)
 	t.Logf("compositeKey=%#v", compositeKey)
 	ns1, key1 := splitCompositeKey(compositeKey)
-	assert.Equal(t, ns, ns1)
-	assert.Equal(t, key, key1)
+	testutil.AssertEquals(t, ns1, ns)
+	testutil.AssertEquals(t, key1, key)
 }
 
 // TestQueryOnLevelDB tests queries on levelDB.
@@ -74,11 +86,11 @@ func TestQueryOnLevelDB(t *testing.T) {
 	env := NewTestVDBEnv(t)
 	defer env.Cleanup()
 	db, err := env.DBProvider.GetDBHandle("testquery")
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	db.Open()
 	defer db.Close()
 	batch := statedb.NewUpdateBatch()
-	jsonValue1 := `{"asset_name": "marble1","color": "blue","size": 1,"owner": "tom"}`
+	jsonValue1 := "{\"asset_name\": \"marble1\",\"color\": \"blue\",\"size\": 1,\"owner\": \"tom\"}"
 	batch.Put("ns1", "key1", []byte(jsonValue1), version.NewHeight(1, 1))
 
 	savePoint := version.NewHeight(2, 22)
@@ -87,9 +99,9 @@ func TestQueryOnLevelDB(t *testing.T) {
 	// query for owner=jerry, use namespace "ns1"
 	// As queries are not supported in levelDB, call to ExecuteQuery()
 	// should return a error message
-	itr, err := db.ExecuteQuery("ns1", `{"selector":{"owner":"jerry"}}`)
-	assert.Error(t, err, "ExecuteQuery not supported for leveldb")
-	assert.Nil(t, itr)
+	itr, err := db.ExecuteQuery("ns1", "{\"selector\":{\"owner\":\"jerry\"}}")
+	testutil.AssertError(t, err, "ExecuteQuery not supported for leveldb")
+	testutil.AssertNil(t, itr)
 }
 
 func TestGetStateMultipleKeys(t *testing.T) {
@@ -109,24 +121,12 @@ func TestUtilityFunctions(t *testing.T) {
 	defer env.Cleanup()
 
 	db, err := env.DBProvider.GetDBHandle("testutilityfunctions")
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 
 	// BytesKeySuppoted should be true for goleveldb
 	byteKeySupported := db.BytesKeySuppoted()
-	assert.True(t, byteKeySupported)
+	testutil.AssertEquals(t, byteKeySupported, true)
 
 	// ValidateKeyValue should return nil for a valid key and value
-	assert.NoError(t, db.ValidateKeyValue("testKey", []byte("testValue")), "leveldb should accept all key-values")
-}
-
-func TestValueAndMetadataWrites(t *testing.T) {
-	env := NewTestVDBEnv(t)
-	defer env.Cleanup()
-	commontests.TestValueAndMetadataWrites(t, env.DBProvider)
-}
-
-func TestPaginatedRangeQuery(t *testing.T) {
-	env := NewTestVDBEnv(t)
-	defer env.Cleanup()
-	commontests.TestPaginatedRangeQuery(t, env.DBProvider)
+	testutil.AssertNoError(t, db.ValidateKeyValue("testKey", []byte("testValue")), "leveldb should accept all key-values")
 }

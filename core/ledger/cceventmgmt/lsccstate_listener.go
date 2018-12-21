@@ -7,12 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package cceventmgmt
 
 import (
+	"fmt"
+
 	"github.com/golang/protobuf/proto"
 	"justledger/core/common/ccprovider"
 	"justledger/core/common/privdata"
 	"justledger/core/ledger"
 	"justledger/protos/ledger/rwset/kvrwset"
-	"github.com/pkg/errors"
 )
 
 const (
@@ -26,20 +27,15 @@ type KVLedgerLSCCStateListener struct {
 // HandleStateUpdates iterates over key-values being written in the 'lscc' namespace (which indicates deployment of a chaincode)
 // and invokes `HandleChaincodeDeploy` function on chaincode event manager (which in turn is responsible for creation of statedb
 // artifacts for the chaincode statedata)
-func (listener *KVLedgerLSCCStateListener) HandleStateUpdates(trigger *ledger.StateUpdateTrigger) error {
-	channelName, stateUpdates := trigger.LedgerID, trigger.StateUpdates
+func (listener *KVLedgerLSCCStateListener) HandleStateUpdates(channelName string, stateUpdates ledger.StateUpdates, committingBlockNum uint64) error {
 	kvWrites := stateUpdates[lsccNamespace].([]*kvrwset.KVWrite)
 	logger.Debugf("Channel [%s]: Handling state updates in LSCC namespace - stateUpdates=%#v", channelName, kvWrites)
 	chaincodeDefs := []*ChaincodeDefinition{}
-	chaincodesCollConfigs := make(map[string][]byte)
-
 	for _, kvWrite := range kvWrites {
 		// There are LSCC entries for the chaincode and for the chaincode collections.
-		// We can detect collections based on the presence of a CollectionSeparator,
-		// which never exists in chaincode names.
+		// We need to ignore changes to chaincode collections, and handle changes to chaincode
+		// We can detect collections based on the presence of a CollectionSeparator, which never exists in chaincode names
 		if privdata.IsCollectionConfigKey(kvWrite.Key) {
-			ccname := privdata.GetCCNameFromCollectionConfigKey(kvWrite.Key)
-			chaincodesCollConfigs[ccname] = kvWrite.Value
 			continue
 		}
 		// Ignore delete events
@@ -50,18 +46,10 @@ func (listener *KVLedgerLSCCStateListener) HandleStateUpdates(trigger *ledger.St
 		logger.Infof("Channel [%s]: Handling LSCC state update for chaincode [%s]", channelName, kvWrite.Key)
 		chaincodeData := &ccprovider.ChaincodeData{}
 		if err := proto.Unmarshal(kvWrite.Value, chaincodeData); err != nil {
-			return errors.Wrap(err, "error unmarshalling chaincode state data")
+			return fmt.Errorf("Unmarshalling ChaincodeQueryResponse failed, error %s", err)
 		}
 		chaincodeDefs = append(chaincodeDefs, &ChaincodeDefinition{Name: chaincodeData.CCName(), Version: chaincodeData.CCVersion(), Hash: chaincodeData.Hash()})
 	}
-
-	for _, chaincodeDef := range chaincodeDefs {
-		chaincodeCollConfigs, ok := chaincodesCollConfigs[chaincodeDef.Name]
-		if ok {
-			chaincodeDef.CollectionConfigs = chaincodeCollConfigs
-		}
-	}
-
 	return GetMgr().HandleChaincodeDeploy(channelName, chaincodeDefs)
 }
 

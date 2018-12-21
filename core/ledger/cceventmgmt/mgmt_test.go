@@ -109,13 +109,11 @@ func TestLSCCListener(t *testing.T) {
 		sampleChaincodeData1 := &ccprovider.ChaincodeData{Name: cc1Def.Name, Version: cc1Def.Version, Id: cc1Def.Hash}
 		sampleChaincodeDataBytes1, err := proto.Marshal(sampleChaincodeData1)
 		assert.NoError(t, err, "")
-		lsccStateListener.HandleStateUpdates(&ledger.StateUpdateTrigger{
-			LedgerID: channelName,
-			StateUpdates: ledger.StateUpdates{
+		lsccStateListener.HandleStateUpdates(channelName,
+			ledger.StateUpdates{
 				lsccNamespace: []*kvrwset.KVWrite{{Key: cc1Def.Name, Value: sampleChaincodeDataBytes1}},
 			},
-			CommittingBlockNum: 50},
-		)
+			50)
 		assert.Contains(t, handler1.eventsRecieved, &mockEvent{cc1Def, ccDBArtifactsTar})
 	})
 
@@ -124,13 +122,11 @@ func TestLSCCListener(t *testing.T) {
 		sampleChaincodeData2 := &ccprovider.ChaincodeData{Name: cc2Def.Name, Version: cc2Def.Version, Id: cc2Def.Hash}
 		sampleChaincodeDataBytes2, err := proto.Marshal(sampleChaincodeData2)
 		assert.NoError(t, err, "")
-		lsccStateListener.HandleStateUpdates(&ledger.StateUpdateTrigger{
-			LedgerID: channelName,
-			StateUpdates: ledger.StateUpdates{
+		lsccStateListener.HandleStateUpdates(channelName,
+			ledger.StateUpdates{
 				lsccNamespace: []*kvrwset.KVWrite{{Key: cc2Def.Name, Value: sampleChaincodeDataBytes2, IsDelete: true}},
 			},
-			CommittingBlockNum: 50},
-		)
+			50)
 		assert.NotContains(t, handler1.eventsRecieved, &mockEvent{cc2Def, ccDBArtifactsTar})
 	})
 
@@ -139,13 +135,11 @@ func TestLSCCListener(t *testing.T) {
 		sampleChaincodeData3 := &ccprovider.ChaincodeData{Name: cc3Def.Name, Version: cc3Def.Version, Id: cc3Def.Hash}
 		sampleChaincodeDataBytes3, err := proto.Marshal(sampleChaincodeData3)
 		assert.NoError(t, err, "")
-		lsccStateListener.HandleStateUpdates(&ledger.StateUpdateTrigger{
-			LedgerID: channelName,
-			StateUpdates: ledger.StateUpdates{
+		lsccStateListener.HandleStateUpdates(channelName,
+			ledger.StateUpdates{
 				lsccNamespace: []*kvrwset.KVWrite{{Key: cc3Def.Name, Value: sampleChaincodeDataBytes3}},
 			},
-			CommittingBlockNum: 50},
-		)
+			50)
 		assert.NotContains(t, handler1.eventsRecieved, &mockEvent{cc3Def, ccDBArtifactsTar})
 	})
 }

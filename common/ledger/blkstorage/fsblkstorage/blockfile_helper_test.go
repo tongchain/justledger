@@ -13,7 +13,6 @@ import (
 	"github.com/golang/protobuf/proto"
 	"justledger/common/ledger/testutil"
 	"justledger/common/ledger/util"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestConstructCheckpointInfoFromBlockFiles(t *testing.T) {
@@ -27,8 +26,8 @@ func TestConstructCheckpointInfoFromBlockFiles(t *testing.T) {
 
 	// checkpoint constructed on an empty block folder should return CPInfo with isChainEmpty: true
 	cpInfo, err := constructCheckpointInfoFromBlockFiles(blkStoreDir)
-	assert.NoError(t, err)
-	assert.Equal(t, &checkpointInfo{isChainEmpty: true, lastBlockNumber: 0, latestFileChunksize: 0, latestFileChunkSuffixNum: 0}, cpInfo)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, cpInfo, &checkpointInfo{isChainEmpty: true, lastBlockNumber: 0, latestFileChunksize: 0, latestFileChunkSuffixNum: 0})
 
 	w := newTestBlockfileWrapper(env, ledgerid)
 	defer w.close()
@@ -55,7 +54,7 @@ func TestConstructCheckpointInfoFromBlockFiles(t *testing.T) {
 	// Write a partial block (to simulate a crash) and verify that cpinfo derived from filesystem should be same as from the blockfile manager
 	lastTestBlk := bg.NextTestBlocks(1)[0]
 	blockBytes, _, err := serializeBlock(lastTestBlk)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	partialByte := append(proto.EncodeVarint(uint64(len(blockBytes))), blockBytes[len(blockBytes)/2:]...)
 	blockfileMgr.currentFileWriter.append(partialByte, true)
 	checkCPInfoFromFile(t, blkStoreDir, blockfileMgr.cpInfo)
@@ -65,24 +64,24 @@ func TestConstructCheckpointInfoFromBlockFiles(t *testing.T) {
 	w.close()
 	env.provider.Close()
 	indexFolder := conf.getIndexDir()
-	assert.NoError(t, os.RemoveAll(indexFolder))
+	testutil.AssertNoError(t, os.RemoveAll(indexFolder), "")
 
 	env = newTestEnv(t, conf)
 	w = newTestBlockfileWrapper(env, ledgerid)
 	blockfileMgr = w.blockfileMgr
-	assert.Equal(t, cpInfoBeforeClose, blockfileMgr.cpInfo)
+	testutil.AssertEquals(t, blockfileMgr.cpInfo, cpInfoBeforeClose)
 
 	lastBlkIndexed, err := blockfileMgr.index.getLastBlockIndexed()
-	assert.NoError(t, err)
-	assert.Equal(t, uint64(6), lastBlkIndexed)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, lastBlkIndexed, uint64(6))
 
 	// Add the last block again after start and check cpinfo again
-	assert.NoError(t, blockfileMgr.addBlock(lastTestBlk))
+	testutil.AssertNoError(t, blockfileMgr.addBlock(lastTestBlk), "")
 	checkCPInfoFromFile(t, blkStoreDir, blockfileMgr.cpInfo)
 }
 
 func checkCPInfoFromFile(t *testing.T, blkStoreDir string, expectedCPInfo *checkpointInfo) {
 	cpInfo, err := constructCheckpointInfoFromBlockFiles(blkStoreDir)
-	assert.NoError(t, err)
-	assert.Equal(t, expectedCPInfo, cpInfo)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, cpInfo, expectedCPInfo)
 }

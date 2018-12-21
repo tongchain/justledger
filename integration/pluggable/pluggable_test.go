@@ -21,6 +21,7 @@ import (
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/tedsuo/ifrit"
+	yaml "gopkg.in/yaml.v2"
 
 	"justledger/integration/nwo"
 	"justledger/integration/nwo/commands"
@@ -138,14 +139,24 @@ func compilePlugin(pluginType string) string {
 
 func configurePlugins(network *nwo.Network, endorsement, validation string) {
 	for _, p := range network.Peers {
-		core := network.ReadPeerConfig(p)
+		var core fabricconfig.Core
+		coreBytes, err := ioutil.ReadFile(network.PeerConfigPath(p))
+		Expect(err).NotTo(HaveOccurred())
+
+		err = yaml.Unmarshal(coreBytes, &core)
+		Expect(err).NotTo(HaveOccurred())
 		core.Peer.Handlers.Endorsers = fabricconfig.HandlerMap{
 			"escc": fabricconfig.Handler{Name: "plugin-escc", Library: endorsement},
 		}
 		core.Peer.Handlers.Validators = fabricconfig.HandlerMap{
 			"vscc": fabricconfig.Handler{Name: "plugin-vscc", Library: validation},
 		}
-		network.WritePeerConfig(p, core)
+
+		coreBytes, err = yaml.Marshal(core)
+		Expect(err).NotTo(HaveOccurred())
+
+		err = ioutil.WriteFile(network.PeerConfigPath(p), coreBytes, 0644)
+		Expect(err).NotTo(HaveOccurred())
 	}
 }
 

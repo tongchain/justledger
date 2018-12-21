@@ -31,12 +31,12 @@ type ecdsaPrivateKey struct {
 
 // Bytes converts this key to its byte representation,
 // if this operation is allowed.
-func (k *ecdsaPrivateKey) Bytes() ([]byte, error) {
+func (k *ecdsaPrivateKey) Bytes() (raw []byte, err error) {
 	return nil, errors.New("Not supported.")
 }
 
 // SKI returns the subject key identifier of this key.
-func (k *ecdsaPrivateKey) SKI() []byte {
+func (k *ecdsaPrivateKey) SKI() (ski []byte) {
 	return k.ski
 }
 
@@ -74,7 +74,7 @@ func (k *ecdsaPublicKey) Bytes() (raw []byte, err error) {
 }
 
 // SKI returns the subject key identifier of this key.
-func (k *ecdsaPublicKey) SKI() []byte {
+func (k *ecdsaPublicKey) SKI() (ski []byte) {
 	return k.ski
 }
 

@@ -58,7 +58,7 @@ func (mp *MockPeerCCSupport) GetCCMirror(name string) *MockCCComm {
 		return nil
 	}
 
-	return &MockCCComm{name: name, recvStream: s.sendStream, sendStream: s.recvStream, skipClose: true}
+	return &MockCCComm{name: name, recvStream: s.sendStream, sendStream: s.recvStream}
 }
 
 //RemoveCC removes a cc

@@ -16,8 +16,8 @@ import (
 	"justledger/gossip/gossip/algo"
 	"justledger/gossip/util"
 	proto "justledger/protos/gossip"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
-	"go.uber.org/zap/zapcore"
 )
 
 // Constants go here.
@@ -113,7 +113,7 @@ type pullMediatorImpl struct {
 	*PullAdapter
 	msgType2Hook map[MsgType][]MessageHook
 	config       Config
-	logger       util.Logger
+	logger       *logging.Logger
 	itemID2Msg   map[string]*proto.SignedGossipMessage
 	engine       *algo.PullEngine
 }
@@ -174,14 +174,14 @@ func (p *pullMediatorImpl) HandleMessage(m proto.ReceivedMessage) {
 	}
 	if digest := msg.GetDataDig(); digest != nil {
 		d := p.PullAdapter.IngressDigFilter(digest)
-		itemIDs = util.BytesToStrings(d.Digests)
+		itemIDs = d.Digests
 		pullMsgType = DigestMsgType
-		p.engine.OnDigest(itemIDs, d.Nonce, m)
+		p.engine.OnDigest(d.Digests, d.Nonce, m)
 	}
 	if req := msg.GetDataReq(); req != nil {
-		itemIDs = util.BytesToStrings(req.Digests)
+		itemIDs = req.Digests
 		pullMsgType = RequestMsgType
-		p.engine.OnReq(itemIDs, req.Nonce, m)
+		p.engine.OnReq(req.Digests, req.Nonce, m)
 	}
 	if res := msg.GetDataUpdate(); res != nil {
 		itemIDs = make([]string, len(res.Data))
@@ -285,12 +285,12 @@ func (p *pullMediatorImpl) SendDigest(digest []string, nonce uint64, context int
 			DataDig: &proto.DataDigest{
 				MsgType: p.config.MsgType,
 				Nonce:   nonce,
-				Digests: util.StringsToBytes(digest),
+				Digests: digest,
 			},
 		},
 	}
 	remotePeer := context.(proto.ReceivedMessage).GetConnectionInfo()
-	if p.logger.IsEnabledFor(zapcore.DebugLevel) {
+	if p.logger.IsEnabledFor(logging.DEBUG) {
 		p.logger.Debug("Sending", p.config.MsgType, "digest:", digMsg.GetDataDig().FormattedDigests(), "to", remotePeer)
 	}
 
@@ -308,11 +308,11 @@ func (p *pullMediatorImpl) SendReq(dest string, items []string, nonce uint64) {
 			DataReq: &proto.DataRequest{
 				MsgType: p.config.MsgType,
 				Nonce:   nonce,
-				Digests: util.StringsToBytes(items),
+				Digests: items,
 			},
 		},
 	}
-	if p.logger.IsEnabledFor(zapcore.DebugLevel) {
+	if p.logger.IsEnabledFor(logging.DEBUG) {
 		p.logger.Debug("Sending", req.GetDataReq().FormattedDigests(), "to", dest)
 	}
 	sMsg, err := req.NoopSign()

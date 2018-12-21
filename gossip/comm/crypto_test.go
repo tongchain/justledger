@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"net"
@@ -18,6 +17,7 @@ import (
 	"justledger/gossip/util"
 	proto "justledger/protos/gossip"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -83,8 +83,8 @@ func TestCertificateExtraction(t *testing.T) {
 		Certificates:       []tls.Certificate{clientCert},
 		InsecureSkipVerify: true,
 	})
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-	defer cancel()
+	ctx := context.Background()
+	ctx, _ = context.WithTimeout(ctx, time.Second)
 	conn, err := grpc.DialContext(ctx, "localhost:5611", grpc.WithTransportCredentials(ta), grpc.WithBlock())
 	assert.NoError(t, err, "%v", err)
 

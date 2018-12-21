@@ -322,6 +322,6 @@ func TestTransientStore(t *testing.T) {
 	txrws := &rwset.TxPvtReadWriteSet{}
 	err = proto.Unmarshal(resp.Payload, txrws)
 	assert.NoError(t, err)
-	assert.True(t, proto.Equal(rws, txrws))
+	assert.Equal(t, rws, txrws)
 	scanner.AssertCalled(t, "Close")
 }

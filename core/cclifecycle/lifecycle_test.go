@@ -7,26 +7,30 @@ SPDX-License-Identifier: Apache-2.0
 package cc_test
 
 import (
-	"regexp"
+	"fmt"
 	"sort"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"justledger/common/chaincode"
-	"justledger/common/flogging/floggingtest"
+	"justledger/common/flogging"
 	"justledger/core/cclifecycle"
 	"justledger/core/cclifecycle/mocks"
 	"justledger/core/common/ccprovider"
 	"justledger/core/common/privdata"
 	"justledger/core/ledger/cceventmgmt"
 	"justledger/protos/utils"
-	. "github.com/onsi/gomega"
-	"github.com/onsi/gomega/gbytes"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
+
+func init() {
+	logging.SetLevel(logging.DEBUG, "discovery/lifecycle")
+}
 
 func TestNewQuery(t *testing.T) {
 	// This tests that the QueryCreatorFunc can cast the below function to the interface type
@@ -66,7 +70,7 @@ func TestLifecycleInitFailure(t *testing.T) {
 }
 
 func TestHandleChaincodeDeployGreenPath(t *testing.T) {
-	recorder, restoreLogger := newLogRecorder(t)
+	logger, restoreLogger := newLogAsserter(t)
 	defer restoreLogger()
 
 	cc1Bytes := utils.MarshalOrPanic(&ccprovider.ChaincodeData{
@@ -129,7 +133,7 @@ func TestHandleChaincodeDeployGreenPath(t *testing.T) {
 	assert.NotNil(t, sub)
 
 	// Ensure that the listener was updated
-	assertLogged(t, recorder, "Listeners for channel mychannel invoked")
+	logger.AssertLogged("Listeners for channel mychannel invoked")
 	lsnr.AssertCalled(t, "LifeCycleChangeListener", "mychannel", chaincode.MetadataSet{chaincode.Metadata{
 		Name:    "cc1",
 		Version: "1.0",
@@ -147,7 +151,7 @@ func TestHandleChaincodeDeployGreenPath(t *testing.T) {
 	sub.HandleChaincodeDeploy(&cceventmgmt.ChaincodeDefinition{Name: "cc3", Version: "1.0", Hash: []byte{50}}, nil)
 	sub.ChaincodeDeployDone(true)
 	// Ensure that the listener is called with the new chaincode and the old chaincode metadata
-	assertLogged(t, recorder, "Listeners for channel mychannel invoked")
+	logger.AssertLogged("Listeners for channel mychannel invoked")
 	assert.Len(t, lsnr.Calls, 2)
 	sortedMetadata := sortedMetadataSet(lsnr.Calls[1].Arguments.Get(1).(chaincode.MetadataSet)).sort()
 	assert.Equal(t, sortedMetadata, chaincode.MetadataSet{{
@@ -172,7 +176,7 @@ func TestHandleChaincodeDeployGreenPath(t *testing.T) {
 	sub.HandleChaincodeDeploy(&cceventmgmt.ChaincodeDefinition{Name: "cc3", Version: "1.1", Hash: []byte{50}}, nil)
 	sub.ChaincodeDeployDone(true)
 	// Ensure that the listener is called with the new chaincode and the old chaincode metadata
-	assertLogged(t, recorder, "Listeners for channel mychannel invoked")
+	logger.AssertLogged("Listeners for channel mychannel invoked")
 	assert.Len(t, lsnr.Calls, 3)
 	sortedMetadata = sortedMetadataSet(lsnr.Calls[2].Arguments.Get(1).(chaincode.MetadataSet)).sort()
 	assert.Equal(t, sortedMetadata, chaincode.MetadataSet{{
@@ -185,10 +189,11 @@ func TestHandleChaincodeDeployGreenPath(t *testing.T) {
 		Version: "1.1",
 		Id:      []byte{50},
 	}})
+
 }
 
 func TestHandleChaincodeDeployFailures(t *testing.T) {
-	recorder, restoreLogger := newLogRecorder(t)
+	logger, restoreLogger := newLogAsserter(t)
 	defer restoreLogger()
 
 	cc1Bytes := utils.MarshalOrPanic(&ccprovider.ChaincodeData{
@@ -235,7 +240,7 @@ func TestHandleChaincodeDeployFailures(t *testing.T) {
 	lsnr.AssertNumberOfCalls(t, "LifeCycleChangeListener", 1)
 	sub.HandleChaincodeDeploy(&cceventmgmt.ChaincodeDefinition{Name: "cc1", Version: "1.0", Hash: []byte{42}}, nil)
 	sub.ChaincodeDeployDone(true)
-	assertLogged(t, recorder, "Failed creating a new query for channel mychannel: failed accessing DB")
+	logger.AssertLogged("Failed creating a new query for channel mychannel: failed accessing DB")
 	lsnr.AssertNumberOfCalls(t, "LifeCycleChangeListener", 1)
 
 	// Scenario III: A channel subscription is made and obtaining a new query succeeds both at subscription initialization
@@ -249,7 +254,7 @@ func TestHandleChaincodeDeployFailures(t *testing.T) {
 	lsnr.AssertNumberOfCalls(t, "LifeCycleChangeListener", 2)
 	sub.HandleChaincodeDeploy(&cceventmgmt.ChaincodeDefinition{Name: "cc1", Version: "1.0", Hash: []byte{42}}, nil)
 	sub.ChaincodeDeployDone(true)
-	assertLogged(t, recorder, "Query for channel mychannel for Name=cc1, Version=1.0, Hash=[]byte{0x2a} failed with error failed accessing DB")
+	logger.AssertLogged("Query for channel mychannel for Name=cc1, Version=1.0, Hash=[]byte{0x2a} failed with error failed accessing DB")
 	lsnr.AssertNumberOfCalls(t, "LifeCycleChangeListener", 2)
 
 	// Scenario IV: A channel subscription is made successfully, and obtaining a new query succeeds at subscription initialization,
@@ -262,11 +267,11 @@ func TestHandleChaincodeDeployFailures(t *testing.T) {
 	sub.HandleChaincodeDeploy(&cceventmgmt.ChaincodeDefinition{Name: "cc1", Version: "1.1", Hash: []byte{42}}, nil)
 	sub.ChaincodeDeployDone(false)
 	lsnr.AssertNumberOfCalls(t, "LifeCycleChangeListener", 3)
-	assertLogged(t, recorder, "Chaincode deploy for cc1 failed")
+	logger.AssertLogged("Chaincode deploy for cc1 failed")
 }
 
 func TestMetadata(t *testing.T) {
-	recorder, restoreLogger := newLogRecorder(t)
+	logger, restoreLogger := newLogAsserter(t)
 	defer restoreLogger()
 
 	cc1Bytes := utils.MarshalOrPanic(&ccprovider.ChaincodeData{
@@ -302,7 +307,7 @@ func TestMetadata(t *testing.T) {
 	// Scenario I: No subscription was invoked on the lifecycle
 	md := lc.Metadata("mychannel", "cc1", false)
 	assert.Nil(t, md)
-	assertLogged(t, recorder, "Requested Metadata for non-existent channel mychannel")
+	logger.AssertLogged("Requested Metadata for non-existent channel mychannel")
 
 	// Scenario II: A subscription was made on the lifecycle, and the metadata for the chaincode exists
 	// because the chaincode is installed prior to the subscription, hence it was loaded during the subscription.
@@ -319,14 +324,14 @@ func TestMetadata(t *testing.T) {
 		Id:      []byte{42},
 		Policy:  []byte{1, 2, 3, 4, 5},
 	}, md)
-	assertLogged(t, recorder, "Returning metadata for channel mychannel , chaincode cc1")
+	logger.AssertLogged("Returning metadata for channel mychannel , chaincode cc1")
 
 	// Scenario III: A metadata retrieval is made and the chaincode is not in memory yet,
 	// and when the query is attempted to be made - it fails.
 	queryCreator.On("NewQuery").Return(nil, errors.New("failed obtaining query executor")).Once()
 	md = lc.Metadata("mychannel", "cc2", false)
 	assert.Nil(t, md)
-	assertLogged(t, recorder, "Failed obtaining new query for channel mychannel : failed obtaining query executor")
+	logger.AssertLogged("Failed obtaining new query for channel mychannel : failed obtaining query executor")
 
 	// Scenario IV:  A metadata retrieval is made and the chaincode is not in memory yet,
 	// and when the query is attempted to be made - it succeeds, but GetState fails.
@@ -334,7 +339,7 @@ func TestMetadata(t *testing.T) {
 	query.On("GetState", "lscc", "cc2").Return(nil, errors.New("GetState failed")).Once()
 	md = lc.Metadata("mychannel", "cc2", false)
 	assert.Nil(t, md)
-	assertLogged(t, recorder, "Failed querying LSCC for channel mychannel : GetState failed")
+	logger.AssertLogged("Failed querying LSCC for channel mychannel : GetState failed")
 
 	// Scenario V: A metadata retrieval is made and the chaincode is not in memory yet,
 	// and both the query and the GetState succeed, however - GetState returns nil
@@ -342,7 +347,7 @@ func TestMetadata(t *testing.T) {
 	query.On("GetState", "lscc", "cc2").Return(nil, nil).Once()
 	md = lc.Metadata("mychannel", "cc2", false)
 	assert.Nil(t, md)
-	assertLogged(t, recorder, "Chaincode cc2 isn't defined in channel mychannel")
+	logger.AssertLogged("Chaincode cc2 isn't defined in channel mychannel")
 
 	// Scenario VI: A metadata retrieval is made and the chaincode is not in memory yet,
 	// and both the query and the GetState succeed, however - GetState returns a valid metadata
@@ -369,7 +374,7 @@ func TestMetadata(t *testing.T) {
 		Policy:            []byte{1, 2, 3, 4, 5},
 		CollectionsConfig: []byte{10, 10, 10},
 	}, md)
-	assertLogged(t, recorder, "Retrieved collection config for cc1 from cc1~collection")
+	logger.AssertLogged("Retrieved collection config for cc1 from cc1~collection")
 
 	// Scenario VIII: A metadata retrieval is made and the chaincode is in the memory,
 	// but a collection is also specified, thus - the retrieval should bypass the memory cache
@@ -379,21 +384,62 @@ func TestMetadata(t *testing.T) {
 	query.On("GetState", "lscc", privdata.BuildCollectionKVSKey("cc1")).Return(nil, errors.New("foo")).Once()
 	md = lc.Metadata("mychannel", "cc1", true)
 	assert.Nil(t, md)
-	assertLogged(t, recorder, "Failed querying lscc namespace for cc1~collection: foo")
+	logger.AssertLogged("Failed querying lscc namespace for cc1~collection: foo")
 }
 
-func newLogRecorder(t *testing.T) (*floggingtest.Recorder, func()) {
-	oldLogger := cc.Logger
-
-	logger, recorder := floggingtest.NewTestLogger(t)
-	cc.Logger = logger
-
-	return recorder, func() { cc.Logger = oldLogger }
+type logAsserter struct {
+	logEntries chan string
+	t          *testing.T
 }
 
-func assertLogged(t *testing.T, r *floggingtest.Recorder, msg string) {
-	gt := NewGomegaWithT(t)
-	gt.Eventually(r).Should(gbytes.Say(regexp.QuoteMeta(msg)))
+func newLogAsserter(t *testing.T) (*logAsserter, func()) {
+	logAsserter := &logAsserter{
+		t:          t,
+		logEntries: make(chan string, 100),
+	}
+
+	cc.Logger.SetBackend(logAsserter)
+	return logAsserter, func() {
+		cc.Logger = flogging.MustGetLogger("discovery/lifecycle")
+	}
+}
+
+func (l *logAsserter) AssertLogged(s string) {
+	defer l.clearLogsQueue()
+	for {
+		select {
+		case lastLogMsg := <-l.logEntries:
+			l.t.Log(lastLogMsg)
+			if strings.Contains(lastLogMsg, s) {
+				return
+			}
+		case <-time.After(time.Second):
+			l.t.Fatalf("Log entries didn't contain '%s'", s)
+		}
+	}
+}
+
+func (l *logAsserter) clearLogsQueue() {
+	for len(l.logEntries) > 0 {
+		<-l.logEntries
+	}
+}
+
+func (l *logAsserter) Log(lvl logging.Level, n int, r *logging.Record) error {
+	l.logEntries <- fmt.Sprint(r.Message())
+	return nil
+}
+
+func (*logAsserter) GetLevel(string) logging.Level {
+	return logging.DEBUG
+}
+
+func (*logAsserter) SetLevel(logging.Level, string) {
+	panic("implement me")
+}
+
+func (*logAsserter) IsEnabledFor(logging.Level, string) bool {
+	return true
 }
 
 type sortedMetadataSet chaincode.MetadataSet

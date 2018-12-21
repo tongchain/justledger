@@ -1,29 +1,41 @@
 /*
-Copyright IBM Corp. All Rights Reserved.
+Copyright IBM Corp. 2016 All Rights Reserved.
 
-SPDX-License-Identifier: Apache-2.0
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+		 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package ledgermgmt
 
 import (
+	"errors"
 	"sync"
 
-	"justledger/common/flogging"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/ledger"
 	"justledger/core/ledger/cceventmgmt"
+
+	"fmt"
+
+	"justledger/common/flogging"
+	"justledger/core/ledger"
 	"justledger/core/ledger/customtx"
 	"justledger/core/ledger/kvledger"
 	"justledger/protos/common"
 	"justledger/protos/utils"
-	"github.com/pkg/errors"
 )
 
 var logger = flogging.MustGetLogger("ledgermgmt")
 
 // ErrLedgerAlreadyOpened is thrown by a CreateLedger call if a ledger with the given id is already opened
-var ErrLedgerAlreadyOpened = errors.New("ledger already opened")
+var ErrLedgerAlreadyOpened = errors.New("Ledger already opened")
 
 // ErrLedgerMgmtNotInitialized is thrown when ledger mgmt is used before initializing this
 var ErrLedgerMgmtNotInitialized = errors.New("ledger mgmt should be initialized before using")
@@ -34,40 +46,27 @@ var lock sync.Mutex
 var initialized bool
 var once sync.Once
 
-// Initializer encapsulates all the external dependencies for the ledger module
-type Initializer struct {
-	CustomTxProcessors            customtx.Processors
-	PlatformRegistry              *platforms.Registry
-	DeployedChaincodeInfoProvider ledger.DeployedChaincodeInfoProvider
-	MembershipInfoProvider        ledger.MembershipInfoProvider
-}
-
 // Initialize initializes ledgermgmt
-func Initialize(initializer *Initializer) {
+func Initialize(customTxProcessors customtx.Processors) {
 	once.Do(func() {
-		initialize(initializer)
+		initialize(customTxProcessors, nil)
 	})
 }
 
-func initialize(initializer *Initializer) {
+func initialize(customTxProcessors customtx.Processors, statelisteners []ledger.StateListener) {
 	logger.Info("Initializing ledger mgmt")
 	lock.Lock()
 	defer lock.Unlock()
 	initialized = true
 	openedLedgers = make(map[string]ledger.PeerLedger)
-	customtx.Initialize(initializer.CustomTxProcessors)
-	cceventmgmt.Initialize(initializer.PlatformRegistry)
-	finalStateListeners := addListenerForCCEventsHandler([]ledger.StateListener{})
+	customtx.Initialize(customTxProcessors)
+	cceventmgmt.Initialize()
+	finalStateListeners := addListenerForCCEventsHandler(statelisteners)
 	provider, err := kvledger.NewProvider()
 	if err != nil {
-		panic(errors.WithMessage(err, "Error in instantiating ledger provider"))
+		panic(fmt.Errorf("Error in instantiating ledger provider: %s", err))
 	}
-	provider.Initialize(&ledger.Initializer{
-		StateListeners:                finalStateListeners,
-		DeployedChaincodeInfoProvider: initializer.DeployedChaincodeInfoProvider,
-		MembershipInfoProvider:        initializer.MembershipInfoProvider,
-	})
-
+	provider.Initialize(finalStateListeners)
 	ledgerProvider = provider
 	logger.Info("ledger mgmt initialized")
 }

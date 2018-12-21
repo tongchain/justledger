@@ -7,12 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package common
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 
@@ -29,17 +27,14 @@ import (
 	pcommon "justledger/protos/common"
 	pb "justledger/protos/peer"
 	putils "justledger/protos/utils"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"golang.org/x/net/context"
 )
 
 // UndefinedParamValue defines what undefined parameters in the command line will initialise to
 const UndefinedParamValue = ""
-const CmdRoot = "core"
-
-var mainLogger = flogging.MustGetLogger("main")
-var logOutput = os.Stderr
 
 var (
 	defaultConnTimeout = 3 * time.Second
@@ -96,7 +91,6 @@ func init() {
 
 // InitConfig initializes viper config
 func InitConfig(cmdRoot string) error {
-
 	err := config.InitViper(nil, cmdRoot)
 	if err != nil {
 		return err
@@ -104,15 +98,7 @@ func InitConfig(cmdRoot string) error {
 
 	err = viper.ReadInConfig() // Find and read the config file
 	if err != nil {            // Handle errors reading the config file
-		// The version of Viper we use claims the config type isn't supported when in fact the file hasn't been found
-		// Display a more helpful message to avoid confusing the user.
-		if strings.Contains(fmt.Sprint(err), "Unsupported Config Type") {
-			return errors.New(fmt.Sprintf("Could not find config file. "+
-				"Please make sure that FABRIC_CFG_PATH or --configPath is set to a path "+
-				"which contains %s.yaml", cmdRoot))
-		} else {
-			return errors.WithMessage(err, fmt.Sprintf("error when reading %s config file", cmdRoot))
-		}
+		return errors.WithMessage(err, fmt.Sprintf("error when reading %s config file", cmdRoot))
 	}
 
 	return nil
@@ -125,7 +111,7 @@ func InitCrypto(mspMgrConfigDir, localMSPID, localMSPType string) error {
 	fi, err := os.Stat(mspMgrConfigDir)
 	if os.IsNotExist(err) || !fi.IsDir() {
 		// No need to try to load MSP from folder which is not available
-		return errors.Errorf("cannot init crypto, folder \"%s\" does not exist", mspMgrConfigDir)
+		return errors.Errorf("cannot init crypto, missing %s folder", mspMgrConfigDir)
 	}
 	// Check whether localMSPID exists
 	if localMSPID == "" {
@@ -238,16 +224,17 @@ func SetLogLevelFromViper(module string) error {
 	// of logging submodules
 	module = strings.Replace(module, ".", "/", -1)
 	// only set logging modules that begin with the supplied module name here
-	err = flogging.SetModuleLevels("^"+module, logLevelFromViper)
+	_, err = flogging.SetModuleLevel("^"+module, logLevelFromViper)
 	return err
 }
 
 // CheckLogLevel checks that a given log level string is valid
 func CheckLogLevel(level string) error {
-	if !flogging.IsValidLevel(level) {
-		return errors.Errorf("invalid log level provided - %s", level)
+	_, err := logging.LogLevel(level)
+	if err != nil {
+		err = errors.Errorf("invalid log level provided - %s", level)
 	}
-	return nil
+	return err
 }
 
 func configFromEnv(prefix string) (address, override string, clientConfig comm.ClientConfig, err error) {
@@ -289,43 +276,4 @@ func configFromEnv(prefix string) (address, override string, clientConfig comm.C
 	}
 	clientConfig.SecOpts = secOpts
 	return
-}
-
-func InitCmd(cmd *cobra.Command, args []string) {
-	err := InitConfig(CmdRoot)
-	if err != nil { // Handle errors reading the config file
-		mainLogger.Errorf("Fatal error when initializing %s config : %s", CmdRoot, err)
-		os.Exit(1)
-	}
-
-	// check for --logging-level pflag first, which should override all other
-	// log settings. if --logging-level is not set, use CORE_LOGGING_LEVEL
-	// (environment variable takes priority; otherwise, the value set in
-	// core.yaml)
-	var loggingSpec string
-	if viper.GetString("logging_level") != "" {
-		loggingSpec = viper.GetString("logging_level")
-	} else {
-		loggingSpec = viper.GetString("logging.level")
-	}
-	flogging.Init(flogging.Config{
-		Format:  viper.GetString("logging.format"),
-		Writer:  logOutput,
-		LogSpec: loggingSpec,
-	})
-
-	// Init the MSP
-	var mspMgrConfigDir = config.GetPath("peer.mspConfigPath")
-	var mspID = viper.GetString("peer.localMspId")
-	var mspType = viper.GetString("peer.localMspType")
-	if mspType == "" {
-		mspType = msp.ProviderTypeToString(msp.FABRIC)
-	}
-	err = InitCrypto(mspMgrConfigDir, mspID, mspType)
-	if err != nil { // Handle errors reading the config file
-		mainLogger.Errorf("Cannot run peer because %s", err.Error())
-		os.Exit(1)
-	}
-
-	runtime.GOMAXPROCS(viper.GetInt("peer.gomaxprocs"))
 }

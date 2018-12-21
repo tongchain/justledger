@@ -21,16 +21,17 @@ import (
 	"os"
 	"testing"
 
+	"justledger/core/ledger/kvledger/bookkeeping"
+
 	"justledger/common/ledger/blkstorage"
 	"justledger/common/ledger/blkstorage/fsblkstorage"
-	"justledger/core/ledger/kvledger/bookkeeping"
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/history/historydb"
 	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
 	"justledger/core/ledger/kvledger/txmgmt/txmgr"
 	"justledger/core/ledger/kvledger/txmgmt/txmgr/lockbasedtxmgr"
 	"justledger/core/ledger/ledgerconfig"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/assert"
 )
 
 /////// levelDBLockBasedHistoryEnv //////
@@ -60,11 +61,11 @@ func newTestHistoryEnv(t *testing.T) *levelDBLockBasedHistoryEnv {
 	testBookkeepingEnv := bookkeeping.NewTestEnv(t)
 
 	txMgr, err := lockbasedtxmgr.NewLockBasedTxMgr(testLedgerID, testDB, nil, nil, testBookkeepingEnv.TestProvider)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 
 	testHistoryDBProvider := NewHistoryDBProvider()
 	testHistoryDB, err := testHistoryDBProvider.GetDBHandle("TestHistoryDB")
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 
 	return &levelDBLockBasedHistoryEnv{t,
 		blockStorageTestEnv, testDBEnv, testBookkeepingEnv,

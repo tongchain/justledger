@@ -27,13 +27,18 @@ import (
 	"justledger/protos/common"
 	"justledger/protos/peer"
 	"justledger/protos/utils"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
 const pkgLogID = "common/deliverevents"
 
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger *logging.Logger
+
+func init() {
+	logger = flogging.MustGetLogger(pkgLogID)
+}
 
 // PolicyCheckerProvider provides the corresponding policy checker for a
 // given resource name

@@ -11,11 +11,6 @@ import (
 	"time"
 
 	"justledger/common/flogging"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/car"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/chaincode/platforms/java"
-	"justledger/core/chaincode/platforms/node"
 	"justledger/peer/common"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -27,17 +22,6 @@ const (
 )
 
 var logger = flogging.MustGetLogger("chaincodeCmd")
-
-// XXX This is a terrible singleton hack, however
-// it simply making a latent dependency explicit.
-// It should be removed along with the other package
-// scoped variables
-var platformRegistry = platforms.NewRegistry(
-	&golang.Platform{},
-	&car.Platform{},
-	&java.Platform{},
-	&node.Platform{},
-)
 
 func addFlags(cmd *cobra.Command) {
 	common.AddOrdererFlags(cmd)
@@ -87,13 +71,10 @@ var (
 )
 
 var chaincodeCmd = &cobra.Command{
-	Use:   chainFuncName,
-	Short: fmt.Sprint(chainCmdDes),
-	Long:  fmt.Sprint(chainCmdDes),
-	PersistentPreRun: func(cmd *cobra.Command, args []string) {
-		common.InitCmd(cmd, args)
-		common.SetOrdererEnv(cmd, args)
-	},
+	Use:              chainFuncName,
+	Short:            fmt.Sprint(chainCmdDes),
+	Long:             fmt.Sprint(chainCmdDes),
+	PersistentPreRun: common.SetOrdererEnv,
 }
 
 var flags *pflag.FlagSet

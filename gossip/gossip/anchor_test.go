@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package gossip
 
 import (
-	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -23,6 +22,7 @@ import (
 	"justledger/gossip/common"
 	proto "justledger/protos/gossip"
 	"github.com/stretchr/testify/assert"
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

@@ -10,30 +10,20 @@ func newExpiryData() *ExpiryData {
 	return &ExpiryData{Map: make(map[string]*Collections)}
 }
 
-func (e *ExpiryData) getOrCreateCollections(ns string) *Collections {
-	collections, ok := e.Map[ns]
-	if !ok {
-		collections = &Collections{
-			Map:            make(map[string]*TxNums),
-			MissingDataMap: make(map[string]bool)}
-		e.Map[ns] = collections
-	}
-
-	return collections
+func newCollections() *Collections {
+	return &Collections{Map: make(map[string]*TxNums)}
 }
 
-func (e *ExpiryData) addPresentData(ns, coll string, txNum uint64) {
-	collections := e.getOrCreateCollections(ns)
-
+func (e *ExpiryData) add(ns, coll string, txNum uint64) {
+	collections, ok := e.Map[ns]
+	if !ok {
+		collections = newCollections()
+		e.Map[ns] = collections
+	}
 	txNums, ok := collections.Map[coll]
 	if !ok {
 		txNums = &TxNums{}
 		collections.Map[coll] = txNums
 	}
 	txNums.List = append(txNums.List, txNum)
-}
-
-func (e *ExpiryData) addMissingData(ns, coll string) {
-	collections := e.getOrCreateCollections(ns)
-	collections.MissingDataMap[coll] = true
 }

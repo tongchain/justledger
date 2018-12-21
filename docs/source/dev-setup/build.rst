@@ -26,7 +26,7 @@ Specify a list of packages (separated by space), for example:
 
 ::
 
-    export TEST_PKGS="github.com/hyperledger/fabric/core/ledger/..."
+    export TEST_PKGS="justledger/core/ledger/..."
     make unit-test
 
 To run a specific test use the ``-run RE`` flag where RE is a regular
@@ -126,7 +126,7 @@ supporting artifacts.
 
    export GOPATH={directory of your choice}
    mkdir -p $GOPATH/src/github.com/hyperledger
-   FABRIC=$GOPATH/src/github.com/hyperledger/fabric
+   FABRIC=$GOPATH/src/github.hyperledger/fabric
    git clone https://github.com/hyperledger/fabric $FABRIC
    cd $FABRIC
    git checkout master # <-- only if you want the master branch

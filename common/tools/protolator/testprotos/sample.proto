@@ -16,7 +16,7 @@ limitations under the License.
 
 syntax = "proto3";
 
-option go_package = "github.com/hyperledger/fabric/common/tools/protolator/testprotos";
+option go_package = "justledger/common/tools/protolator/testprotos";
 
 package testprotos;
 
@@ -67,12 +67,4 @@ message DynamicMsg {
 // type must be dynamically added at runtime
 message ContextlessMsg {
 	bytes opaque_field = 1;
-}
-
-// UnmarshalableDeepFields contains fields which are defined to be opaque, but will
-// return an error if they are asked to be deserialized.
-message UnmarshalableDeepFields {
-	bytes plain_opaque_field = 1;
-	map<string,bytes> map_opaque_field = 2;
-	repeated bytes slice_opaque_field = 3;
 }

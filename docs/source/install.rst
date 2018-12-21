@@ -33,7 +33,7 @@ command that follows will perform the following steps:
 #. If needed, clone the `hyperledger/fabric-samples` repository
 #. Checkout the appropriate version tag
 #. Install the Hyperledger Fabric platform-specific binaries and config files
-   for the version specified into the /bin and /config directories of fabric-samples
+   for the version specified into the root of the fabric-samples repository
 #. Download the Hyperledger Fabric docker images for the version specified
 
 Once you are ready, and in the directory into which you will install the
@@ -41,15 +41,15 @@ Fabric Samples and binaries, go ahead and execute the following command:
 
 .. code:: bash
 
-  curl -sSL http://bit.ly/2ysbOFE | bash -s 1.3.0
+  curl -sSL http://bit.ly/2ysbOFE | bash -s 1.2.0
 
-.. note:: If you want to download different versions for Fabric, Fabric-ca and thirdparty
-          Docker images, you must pass the version identifier for each.
+.. note:: If you want to download Fabric, Fabric-ca and thirdparty Docker images
+          you must pass the version identifier to the script.
 
 .. code:: bash
 
   curl -sSL http://bit.ly/2ysbOFE | bash -s <fabric> <fabric-ca> <thirdparty>
-  curl -sSL http://bit.ly/2ysbOFE | bash -s 1.3.0 1.3.0 0.4.13
+  curl -sSL http://bit.ly/2ysbOFE | bash -s 1.2.0 1.2.0 0.4.10
 
 .. note:: If you get an error running the above curl command, you may
           have too old a version of curl that does not handle
@@ -59,10 +59,10 @@ Fabric Samples and binaries, go ahead and execute the following command:
 	  information on where to find the latest version of curl and
 	  get the right environment. Alternately, you can substitute
 	  the un-shortened URL:
-	  https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh
+	  https://github.com/hyperledger/fabric/blob/master/scripts/bootstrap.sh
 
 .. note:: You can use the command above for any published version of Hyperledger
-          Fabric. Simply replace `1.3.0` with the version identifier
+          Fabric. Simply replace `1.2.0` with the version identifier
           of the version you wish to install.
 
 The command above downloads and executes a bash script
@@ -70,13 +70,12 @@ that will download and extract all of the platform-specific binaries you
 will need to set up your network and place them into the cloned repo you
 created above. It retrieves the following platform-specific binaries:
 
+  * ``cryptogen``,
   * ``configtxgen``,
   * ``configtxlator``,
-  * ``cryptogen``,
-  * ``discover``,
-  * ``idemixgen``
+  * ``peer``,
   * ``orderer``,
-  * ``peer``, and
+  * ``idemixgen``, and
   * ``fabric-ca-client``
 
 and places them in the ``bin`` sub-directory of the current working

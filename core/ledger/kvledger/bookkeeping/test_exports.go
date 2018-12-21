@@ -28,7 +28,7 @@ type TestEnv struct {
 }
 
 // NewTestEnv construct a TestEnv for testing
-func NewTestEnv(t testing.TB) *TestEnv {
+func NewTestEnv(t *testing.T) *TestEnv {
 	removePath(t)
 	provider := NewProvider()
 	return &TestEnv{t, provider}

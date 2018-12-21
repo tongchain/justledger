@@ -20,7 +20,6 @@ import (
 	"fmt"
 
 	"justledger/common/flogging"
-	"justledger/peer/common"
 
 	"github.com/spf13/cobra"
 )
@@ -42,8 +41,7 @@ func Cmd(cf *LoggingCmdFactory) *cobra.Command {
 }
 
 var loggingCmd = &cobra.Command{
-	Use:              loggingFuncName,
-	Short:            fmt.Sprint(loggingCmdDes),
-	Long:             fmt.Sprint(loggingCmdDes),
-	PersistentPreRun: common.InitCmd,
+	Use:   loggingFuncName,
+	Short: fmt.Sprint(loggingCmdDes),
+	Long:  fmt.Sprint(loggingCmdDes),
 }

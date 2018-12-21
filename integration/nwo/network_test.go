@@ -64,7 +64,7 @@ var _ = Describe("Network", func() {
 			// Start all of the fabric processes
 			networkRunner := network.NetworkGroupRunner()
 			process = ifrit.Invoke(networkRunner)
-			Eventually(process.Ready(), network.EventuallyTimeout).Should(BeClosed())
+			Eventually(process.Ready()).Should(BeClosed())
 		})
 
 		AfterEach(func() {
@@ -128,7 +128,7 @@ var _ = Describe("Network", func() {
 		It("deploys and executes chaincode (the hard way)", func() {
 			// This demonstrates how to control the processes that make up a network.
 			// If you don't care about a collection of processes (like the brokers or
-			// the orderers) use the group runner to manage those processes.
+			// the orderers) use the group runner to manage thos processes.
 			zookeepers := []string{}
 			for i := 0; i < network.Consensus.ZooKeepers; i++ {
 				zk := network.ZooKeeperRunner(i)
@@ -136,28 +136,28 @@ var _ = Describe("Network", func() {
 
 				p := ifrit.Invoke(zk)
 				processes[zk.Name] = p
-				Eventually(p.Ready(), network.EventuallyTimeout).Should(BeClosed())
+				Eventually(p.Ready()).Should(BeClosed())
 			}
 
 			for i := 0; i < network.Consensus.Brokers; i++ {
 				b := network.BrokerRunner(i, zookeepers)
 				p := ifrit.Invoke(b)
 				processes[b.Name] = p
-				Eventually(p.Ready(), network.EventuallyTimeout).Should(BeClosed())
+				Eventually(p.Ready()).Should(BeClosed())
 			}
 
 			for _, o := range network.Orderers {
 				or := network.OrdererRunner(o)
 				p := ifrit.Invoke(or)
 				processes[o.ID()] = p
-				Eventually(p.Ready(), network.EventuallyTimeout).Should(BeClosed())
+				Eventually(p.Ready()).Should(BeClosed())
 			}
 
 			for _, peer := range network.Peers {
 				pr := network.PeerRunner(peer)
 				p := ifrit.Invoke(pr)
 				processes[peer.ID()] = p
-				Eventually(p.Ready(), network.EventuallyTimeout).Should(BeClosed())
+				Eventually(p.Ready()).Should(BeClosed())
 			}
 
 			orderer := network.Orderer("orderer0")
@@ -165,16 +165,26 @@ var _ = Describe("Network", func() {
 			network.CreateChannel("testchannel", orderer, testPeers[0])
 			network.JoinChannel("testchannel", orderer, testPeers...)
 
-			chaincode := nwo.Chaincode{
-				Name:    "mycc",
-				Version: "0.0",
-				Path:    "justledger/integration/chaincode/simple/cmd",
-				Ctor:    `{"Args":["init","a","100","b","200"]}`,
-				Policy:  `AND ('Org1ExampleCom.member','Org2ExampleCom.member')`,
-			}
-			nwo.InstallChaincode(network, chaincode, testPeers...)
-			nwo.InstantiateChaincode(network, "testchannel", orderer, chaincode, testPeers[0])
-			nwo.EnsureInstantiated(network, "testchannel", "mycc", "0.0", testPeers...)
+			network.InstallChaincode(
+				testPeers,
+				commands.ChaincodeInstall{
+					Name:    "mycc",
+					Version: "0.0",
+					Path:    "justledger/integration/chaincode/simple/cmd",
+				},
+			)
+
+			network.InstantiateChaincode(
+				testPeers[0],
+				commands.ChaincodeInstantiate{
+					ChannelID: "testchannel",
+					Orderer:   network.OrdererAddress(orderer, nwo.ListenPort),
+					Name:      "mycc",
+					Version:   "0.0",
+					Ctor:      `{"Args":["init","a","100","b","200"]}`,
+					Policy:    `AND ('Org1ExampleCom.member','Org2ExampleCom.member')`,
+				},
+			)
 
 			RunQueryInvokeQuery(network, orderer, testPeers[0])
 		})
@@ -189,7 +199,7 @@ func RunQueryInvokeQuery(n *nwo.Network, orderer *nwo.Orderer, peer *nwo.Peer) {
 		Ctor:      `{"Args":["query","a"]}`,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
+	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("100"))
 
 	sess, err = n.PeerUserSession(peer, "User1", commands.ChaincodeInvoke{
@@ -204,7 +214,7 @@ func RunQueryInvokeQuery(n *nwo.Network, orderer *nwo.Orderer, peer *nwo.Peer) {
 		WaitForEvent: true,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
+	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 	Expect(sess.Err).To(gbytes.Say("Chaincode invoke successful. result: status:200"))
 
 	sess, err = n.PeerUserSession(peer, "User1", commands.ChaincodeQuery{
@@ -213,6 +223,6 @@ func RunQueryInvokeQuery(n *nwo.Network, orderer *nwo.Orderer, peer *nwo.Peer) {
 		Ctor:      `{"Args":["query","a"]}`,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
+	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("90"))
 }

@@ -22,11 +22,7 @@ import (
 
 // SetRawReads sets the 'readsInfo' field to raw KVReads performed by the query
 func (rqi *RangeQueryInfo) SetRawReads(kvReads []*KVRead) {
-	rqi.ReadsInfo = &RangeQueryInfo_RawReads{
-		RawReads: &QueryReads{
-			KvReads: kvReads,
-		},
-	}
+	rqi.ReadsInfo = &RangeQueryInfo_RawReads{&QueryReads{kvReads}}
 }
 
 // SetMerkelSummary sets the 'readsInfo' field to merkle summary of the raw KVReads of query results

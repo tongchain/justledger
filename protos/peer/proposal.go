@@ -10,7 +10,6 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/ledger/rwset"
 )
 
 func (cpp *ChaincodeProposalPayload) StaticallyOpaqueFields() []string {
@@ -22,19 +21,4 @@ func (cpp *ChaincodeProposalPayload) StaticallyOpaqueFieldProto(name string) (pr
 		return nil, fmt.Errorf("not a marshaled field: %s", name)
 	}
 	return &ChaincodeInvocationSpec{}, nil
-}
-
-func (ca *ChaincodeAction) StaticallyOpaqueFields() []string {
-	return []string{"results", "events"}
-}
-
-func (ca *ChaincodeAction) StaticallyOpaqueFieldProto(name string) (proto.Message, error) {
-	switch name {
-	case "results":
-		return &rwset.TxReadWriteSet{}, nil
-	case "events":
-		return &ChaincodeEvent{}, nil
-	default:
-		return nil, fmt.Errorf("not a marshaled field: %s", name)
-	}
 }

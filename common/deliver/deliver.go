@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package deliver
 
 import (
-	"context"
 	"io"
 	"math"
 	"time"
@@ -23,6 +22,7 @@ import (
 	ab "justledger/protos/orderer"
 	"justledger/protos/utils"
 	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 )
 
 var logger = flogging.MustGetLogger("common/deliver")

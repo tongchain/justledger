@@ -25,20 +25,10 @@ import (
 	"github.com/golang/protobuf/proto"
 
 	"justledger/msp"
-	msptesttools "justledger/msp/mgmt/testtools"
 	"justledger/peer/common"
 	pcommon "justledger/protos/common"
 	pb "justledger/protos/peer"
 )
-
-func TestMain(m *testing.M) {
-	err := msptesttools.LoadMSPSetupForTesting()
-	if err != nil {
-		panic(fmt.Sprintf("Fatal error when reading MSP config: %s", err))
-	}
-
-	os.Exit(m.Run())
-}
 
 func newTempDir() string {
 	tempDir, err := ioutil.TempDir("/tmp", "packagetest-")
@@ -98,6 +88,7 @@ func TestCDSPackage(t *testing.T) {
 
 //helper to create a SignedChaincodeDeploymentSpec
 func createSignedCDSPackage(args []string, sign bool) error {
+	InitMSP()
 	var signer msp.SigningIdentity
 	var err error
 	if sign {

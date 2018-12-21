@@ -1,19 +1,29 @@
 /*
-Copyright IBM Corp. All Rights Reserved.
+Copyright IBM Corp. 2016 All Rights Reserved.
 
-SPDX-License-Identifier: Apache-2.0
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+		 http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 package fsblkstorage
 
 import (
-	"bytes"
 	"fmt"
 	"math"
 	"sync"
 	"sync/atomic"
 
 	"github.com/davecgh/go-spew/spew"
+
 	"github.com/golang/protobuf/proto"
 	"justledger/common/flogging"
 	"justledger/common/ledger/blkstorage"
@@ -22,7 +32,6 @@ import (
 	"justledger/protos/common"
 	"justledger/protos/peer"
 	putil "justledger/protos/utils"
-	"github.com/pkg/errors"
 )
 
 var logger = flogging.MustGetLogger("fsblkstorage")
@@ -93,7 +102,7 @@ func newBlockfileMgr(id string, conf *Conf, indexConfig *blkstorage.IndexConfig,
 	rootDir := conf.getLedgerBlockDir(id)
 	_, err := util.CreateDirIfMissing(rootDir)
 	if err != nil {
-		panic(fmt.Sprintf("Error creating block storage root dir [%s]: %s", rootDir, err))
+		panic(fmt.Sprintf("Error: %s", err))
 	}
 	// Instantiate the manager, i.e. blockFileMgr structure
 	mgr := &blockfileMgr{rootDir: rootDir, conf: conf, db: indexStore}
@@ -238,33 +247,20 @@ func (mgr *blockfileMgr) moveToNextFile() {
 }
 
 func (mgr *blockfileMgr) addBlock(block *common.Block) error {
-	bcInfo := mgr.getBlockchainInfo()
-	if block.Header.Number != bcInfo.Height {
-		return errors.Errorf(
-			"block number should have been %d but was %d",
-			mgr.getBlockchainInfo().Height, block.Header.Number,
-		)
-	}
-
-	// Add the previous hash check - Though, not essential but may not be a bad idea to
-	// verify the field `block.Header.PreviousHash` present in the block.
-	// This check is a simple bytes comparison and hence does not cause any observable performance penalty
-	// and may help in detecting a rare scenario if there is any bug in the ordering service.
-	if !bytes.Equal(block.Header.PreviousHash, bcInfo.CurrentBlockHash) {
-		return errors.Errorf(
-			"unexpected Previous block hash. Expected PreviousHash = [%x], PreviousHash referred in the latest block= [%x]",
-			bcInfo.CurrentBlockHash, block.Header.PreviousHash,
-		)
+	if block.Header.Number != mgr.getBlockchainInfo().Height {
+		return fmt.Errorf("Block number should have been %d but was %d", mgr.getBlockchainInfo().Height, block.Header.Number)
 	}
 	blockBytes, info, err := serializeBlock(block)
 	if err != nil {
-		return errors.WithMessage(err, "error serializing block")
+		return fmt.Errorf("Error while serializing block: %s", err)
 	}
 	blockHash := block.Header.Hash()
 	//Get the location / offset where each transaction starts in the block and where the block ends
 	txOffsets := info.txOffsets
 	currentOffset := mgr.cpInfo.latestFileChunksize
-
+	if err != nil {
+		return fmt.Errorf("Error while serializing block: %s", err)
+	}
 	blockBytesLen := len(blockBytes)
 	blockBytesEncodedLen := proto.EncodeVarint(uint64(blockBytesLen))
 	totalBytesToAppend := blockBytesLen + len(blockBytesEncodedLen)
@@ -286,7 +282,7 @@ func (mgr *blockfileMgr) addBlock(block *common.Block) error {
 		if truncateErr != nil {
 			panic(fmt.Sprintf("Could not truncate current file to known size after an error during block append: %s", err))
 		}
-		return errors.WithMessage(err, "error appending block to file")
+		return fmt.Errorf("Error while appending block to file: %s", err)
 	}
 
 	//Update the checkpoint info with the results of adding the new block
@@ -302,7 +298,7 @@ func (mgr *blockfileMgr) addBlock(block *common.Block) error {
 		if truncateErr != nil {
 			panic(fmt.Sprintf("Error in truncating current file to known size after an error in saving checkpoint info: %s", err))
 		}
-		return errors.WithMessage(err, "error saving current file info to db")
+		return fmt.Errorf("Error while saving current file info to db: %s", err)
 	}
 
 	//Index block file location pointer updated with file suffex and offset for the new block
@@ -379,7 +375,7 @@ func (mgr *blockfileMgr) syncIndex() error {
 			return err
 		}
 		if blockBytes == nil {
-			return errors.Errorf("block bytes for block num = [%d] should not be nil here. The indexes for the block are already present",
+			return fmt.Errorf("block bytes for block num = [%d] should not be nil here. The indexes for the block are already present",
 				lastBlockIndexed)
 		}
 	}

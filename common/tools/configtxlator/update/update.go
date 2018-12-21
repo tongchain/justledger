@@ -17,10 +17,9 @@ limitations under the License.
 package update
 
 import (
-	"bytes"
 	"fmt"
+	"reflect"
 
-	"github.com/golang/protobuf/proto"
 	cb "justledger/protos/common"
 )
 
@@ -39,7 +38,7 @@ func computePoliciesMapUpdate(original, updated map[string]*cb.ConfigPolicy) (re
 			continue
 		}
 
-		if originalPolicy.ModPolicy == updatedPolicy.ModPolicy && proto.Equal(originalPolicy.Policy, updatedPolicy.Policy) {
+		if originalPolicy.ModPolicy == updatedPolicy.ModPolicy && reflect.DeepEqual(originalPolicy.Policy, updatedPolicy.Policy) {
 			sameSet[policyName] = &cb.ConfigPolicy{
 				Version: originalPolicy.Version,
 			}
@@ -84,7 +83,7 @@ func computeValuesMapUpdate(original, updated map[string]*cb.ConfigValue) (readS
 			continue
 		}
 
-		if originalValue.ModPolicy == updatedValue.ModPolicy && bytes.Equal(originalValue.Value, updatedValue.Value) {
+		if originalValue.ModPolicy == updatedValue.ModPolicy && reflect.DeepEqual(originalValue.Value, updatedValue.Value) {
 			sameSet[valueName] = &cb.ConfigValue{
 				Version: originalValue.Version,
 			}

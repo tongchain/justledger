@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 syntax = "proto3";
 
-option go_package = "github.com/hyperledger/fabric/protos/msp";
+option go_package = "justledger/protos/msp";
 option java_package = "org.hyperledger.fabric.protos.msp";
 option java_outer_classname = "MspConfigPackage";
 
@@ -135,8 +135,8 @@ message IdemixMSPSignerConfig {
     // organizational_unit_identifier defines the organizational unit the default signer is in
     string organizational_unit_identifier = 3;
 
-    // role defines whether the default signer is admin, peer, member or client
-    int32 role = 4;
+    // is_admin defines whether the default signer is admin or not
+    bool is_admin = 4;
 
     // enrollment_id contains the enrollment id of this signer
     string enrollment_id = 5;

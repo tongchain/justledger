@@ -23,7 +23,6 @@ import (
 	"sync"
 	"unicode/utf8"
 
-	"github.com/pkg/errors"
 	"justledger/common/flogging"
 	"justledger/common/ledger/util/mongodbhelper"
 	"justledger/core/common/ccprovider"
@@ -181,14 +180,7 @@ func (vdb *VersionedDB) GetStateMultipleKeys(namespace string, keys []string) ([
 }
 
 // GetStateRangeScanIterator implements method in VersionedDB interface
-// startKey is inclusive
-// endKey is exclusive
 func (vdb *VersionedDB) GetStateRangeScanIterator(namespace string, startKey string, endKey string) (statedb.ResultsIterator, error) {
-	return vdb.GetStateRangeScanIteratorWithMetadata(namespace, startKey, endKey, nil)
-}
-
-// TODO GetStateRangeScanIteratorWithMetadata implements method in VersionedDB interface
-func (vdb *VersionedDB) GetStateRangeScanIteratorWithMetadata(namespace string, startKey string, endKey string, metadata map[string]interface{}) (statedb.QueryResultsIterator, error) {
 	querylimit := vdb.mongoDB.Conf.QueryLimit
 	dbItr := vdb.mongoDB.GetIterator(namespace, startKey, endKey, querylimit, queryskip)
 	return newKVScanner(dbItr, namespace), nil
@@ -199,8 +191,7 @@ func (vdb *VersionedDB) ExecuteQuery(namespace, queryOrPaingStr string) (statedb
 
 	queryByte := []byte(queryOrPaingStr)
 	if !isJson(queryByte) {
-		return nil, fmt.Errorf("the queryOrPaingStr is no" +
-			"t a json : %s", queryOrPaingStr)
+		return nil, fmt.Errorf("the queryOrPaingStr is not a json : %s", queryOrPaingStr)
 	}
 
 	paingOrQuery := &mongodbhelper.PagingOrQuery{}
@@ -222,11 +213,6 @@ func (vdb *VersionedDB) ExecuteQuery(namespace, queryOrPaingStr string) (statedb
 	} else {
 		return vdb.PagingQuery(namespace, paingOrQuery)
 	}
-}
-
-// TODO ExecuteQueryWithMetadata implements method in VersionedDB interface
-func (vdb *VersionedDB) ExecuteQueryWithMetadata(namespace, query string, metadata map[string]interface{}) (statedb.QueryResultsIterator, error) {
-	return nil, errors.New("ExecuteQueryWithMetadata not supported for leveldb")
 }
 
 // ApplyUpdates implements method in VersionedDB interface
@@ -412,12 +398,6 @@ func (scanner *kvScanner) Close() {
 	if err != nil {
 		logger.Errorf("Error during close the iterator of scanner error : %s", err.Error())
 	}
-}
-
-func (scanner *kvScanner) GetBookmarkAndClose() string {
-	retval := ""
-	scanner.Close()
-	return retval
 }
 
 func newKVScanner(iter *mgo.Iter, namespace string) *kvScanner {

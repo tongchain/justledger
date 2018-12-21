@@ -20,6 +20,7 @@ import (
 	"justledger/gossip/gossip/msgstore"
 	"justledger/gossip/util"
 	proto "justledger/protos/gossip"
+	"github.com/op/go-logging"
 	"github.com/pkg/errors"
 )
 
@@ -85,14 +86,9 @@ type gossipDiscoveryImpl struct {
 	toDieChan        chan struct{}
 	toDieFlag        int32
 	port             int
-	logger           util.Logger
+	logger           *logging.Logger
 	disclosurePolicy DisclosurePolicy
 	pubsub           *util.PubSub
-
-	aliveTimeInterval            time.Duration
-	aliveExpirationTimeout       time.Duration
-	aliveExpirationCheckInterval time.Duration
-	reconnectInterval            time.Duration
 }
 
 // NewDiscoveryService returns a new discovery service with the comm module passed and the crypto service passed
@@ -114,11 +110,6 @@ func NewDiscoveryService(self NetworkMember, comm CommService, crypt CryptoServi
 		logger:           util.GetLogger(util.LoggingDiscoveryModule, self.InternalEndpoint),
 		disclosurePolicy: disPol,
 		pubsub:           util.NewPubSub(),
-
-		aliveTimeInterval:            getAliveTimeInterval(),
-		aliveExpirationTimeout:       getAliveExpirationTimeout(),
-		aliveExpirationCheckInterval: getAliveExpirationCheckInterval(),
-		reconnectInterval:            getReconnectInterval(),
 	}
 
 	d.validateSelfConfig()
@@ -162,7 +153,7 @@ func (d *gossipDiscoveryImpl) Connect(member NetworkMember, id identifier) {
 					return
 				}
 				d.logger.Warningf("Could not connect to %v : %v", member, err)
-				time.Sleep(d.reconnectInterval)
+				time.Sleep(getReconnectInterval())
 				continue
 			}
 			peer := &NetworkMember{
@@ -228,7 +219,7 @@ func (d *gossipDiscoveryImpl) sendUntilAcked(peer *NetworkMember, message *proto
 		if _, timeoutErr := sub.Listen(); timeoutErr == nil {
 			return
 		}
-		time.Sleep(d.reconnectInterval)
+		time.Sleep(getReconnectInterval())
 	}
 }
 
@@ -558,8 +549,8 @@ func (d *gossipDiscoveryImpl) handleAliveMessage(m *proto.SignedGossipMessage) {
 }
 
 func (d *gossipDiscoveryImpl) resurrectMember(am *proto.SignedGossipMessage, t proto.PeerTime) {
-	d.logger.Debug("Entering, AliveMessage:", am, "t:", t)
-	defer d.logger.Debug("Exiting")
+	d.logger.Info("Entering, AliveMessage:", am, "t:", t)
+	defer d.logger.Info("Exiting")
 	d.lock.Lock()
 	defer d.lock.Unlock()
 
@@ -611,8 +602,8 @@ func (d *gossipDiscoveryImpl) periodicalReconnectToDead() {
 		}
 
 		wg.Wait()
-		d.logger.Debug("Sleeping", d.reconnectInterval)
-		time.Sleep(d.reconnectInterval)
+		d.logger.Debug("Sleeping", getReconnectInterval())
+		time.Sleep(getReconnectInterval())
 	}
 }
 
@@ -666,7 +657,7 @@ func (d *gossipDiscoveryImpl) periodicalCheckAlive() {
 	defer d.logger.Debug("Stopped")
 
 	for !d.toDie() {
-		time.Sleep(d.aliveExpirationCheckInterval)
+		time.Sleep(getAliveExpirationCheckInterval())
 		dead := d.getDeadMembers()
 		if len(dead) > 0 {
 			d.logger.Debugf("Got %v dead members: %v", len(dead), dead)
@@ -716,7 +707,7 @@ func (d *gossipDiscoveryImpl) getDeadMembers() []common.PKIidType {
 	dead := []common.PKIidType{}
 	for id, last := range d.aliveLastTS {
 		elapsedNonAliveTime := time.Since(last.lastSeen)
-		if elapsedNonAliveTime > d.aliveExpirationTimeout {
+		if elapsedNonAliveTime.Nanoseconds() > getAliveExpirationTimeout().Nanoseconds() {
 			d.logger.Warning("Haven't heard from", []byte(id), "for", elapsedNonAliveTime)
 			dead = append(dead, common.PKIidType(id))
 		}
@@ -728,8 +719,8 @@ func (d *gossipDiscoveryImpl) periodicalSendAlive() {
 	defer d.logger.Debug("Stopped")
 
 	for !d.toDie() {
-		d.logger.Debug("Sleeping", d.aliveTimeInterval)
-		time.Sleep(d.aliveTimeInterval)
+		d.logger.Debug("Sleeping", getAliveTimeInterval())
+		time.Sleep(getAliveTimeInterval())
 		msg, err := d.createSignedAliveMessage(true)
 		if err != nil {
 			d.logger.Warningf("Failed creating alive message: %+v", errors.WithStack(err))
@@ -794,7 +785,7 @@ func (d *gossipDiscoveryImpl) learnExistingMembers(aliveArr []*proto.SignedGossi
 
 	for _, m := range aliveArr {
 		am := m.GetAliveMsg()
-		if am == nil {
+		if m == nil {
 			d.logger.Warning("Expected alive message, got instead:", m)
 			return
 		}
@@ -1016,7 +1007,7 @@ type aliveMsgStore struct {
 func newAliveMsgStore(d *gossipDiscoveryImpl) *aliveMsgStore {
 	policy := proto.NewGossipMessageComparator(0)
 	trigger := func(m interface{}) {}
-	aliveMsgTTL := d.aliveExpirationTimeout * msgExpirationFactor
+	aliveMsgTTL := getAliveExpirationTimeout() * msgExpirationFactor
 	externalLock := func() { d.lock.Lock() }
 	externalUnlock := func() { d.lock.Unlock() }
 	callback := func(m interface{}) {

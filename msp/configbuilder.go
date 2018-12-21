@@ -291,7 +291,7 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 
 		// Prepare NodeOUs
 		if configuration.NodeOUs != nil && configuration.NodeOUs.Enable {
-			mspLogger.Debug("Loading NodeOUs")
+			mspLogger.Info("Loading NodeOUs")
 			if configuration.NodeOUs.ClientOUIdentifier == nil || len(configuration.NodeOUs.ClientOUIdentifier.OrganizationalUnitIdentifier) == 0 {
 				return nil, errors.New("Failed loading NodeOUs. ClientOU must be different from nil.")
 			}

@@ -19,10 +19,10 @@ package statebasedval
 import (
 	"testing"
 
+	"justledger/common/ledger/testutil"
 	"justledger/core/ledger/kvledger/txmgmt/statedb"
 	"justledger/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
 	"justledger/core/ledger/kvledger/txmgmt/version"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestCombinedIterator(t *testing.T) {
@@ -30,7 +30,7 @@ func TestCombinedIterator(t *testing.T) {
 	defer testDBEnv.Cleanup()
 
 	db, err := testDBEnv.DBProvider.GetDBHandle("TestDB")
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 
 	// populate db with initial data
 	batch := statedb.NewUpdateBatch()
@@ -108,11 +108,11 @@ func checkItrResults(t *testing.T, testName string, itr statedb.ResultsIterator,
 	t.Run(testName, func(t *testing.T) {
 		for i := 0; i < len(expectedResults); i++ {
 			res, _ := itr.Next()
-			assert.Equal(t, expectedResults[i], res)
+			testutil.AssertEquals(t, res, expectedResults[i])
 		}
 		lastRes, err := itr.Next()
-		assert.NoError(t, err)
-		assert.Nil(t, lastRes)
+		testutil.AssertNoError(t, err, "")
+		testutil.AssertNil(t, lastRes)
 	})
 }
 

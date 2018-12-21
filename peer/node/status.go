@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package node
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
@@ -18,6 +17,7 @@ import (
 	"justledger/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"golang.org/x/net/context"
 )
 
 func statusCmd() *cobra.Command {

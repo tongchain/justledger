@@ -39,20 +39,13 @@ var (
 		Data: &cb.BlockData{
 			Data: [][]byte{
 				utils.MarshalOrPanic(&cb.Envelope{
-					Payload: utils.MarshalOrPanic(&cb.Payload{
-						Header: &cb.Header{
-							ChannelHeader: utils.MarshalOrPanic(&cb.ChannelHeader{
-								Type: int32(cb.HeaderType_CONFIG),
-							}),
-						},
-					}),
 					Signature: []byte("bar"),
 				}),
 			},
 		},
 	}
 
-	testOutput = `{"data":{"data":[{"payload":{"data":null,"header":{"channel_header":{"channel_id":"","epoch":"0","extension":null,"timestamp":null,"tls_cert_hash":null,"tx_id":"","type":1,"version":0},"signature_header":null}},"signature":"YmFy"}]},"header":{"data_hash":null,"number":"0","previous_hash":"Zm9v"},"metadata":null}`
+	testOutput = `{"data":{"data":[{"signature":"YmFy"}]},"header":{"number":"0","previous_hash":"Zm9v"}}`
 )
 
 func TestProtolatorDecode(t *testing.T) {
@@ -89,7 +82,7 @@ func TestProtolatorEncode(t *testing.T) {
 
 	err := proto.Unmarshal(rec.Body.Bytes(), outputMsg)
 	assert.NoError(t, err)
-	assert.True(t, proto.Equal(testProto, outputMsg))
+	assert.Equal(t, testProto, outputMsg)
 }
 
 func TestProtolatorDecodeNonExistantProto(t *testing.T) {

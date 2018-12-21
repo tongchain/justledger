@@ -7,8 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package util
 
 import (
-	"context"
-
+	"golang.org/x/net/context"
 	"google.golang.org/grpc/peer"
 )
 

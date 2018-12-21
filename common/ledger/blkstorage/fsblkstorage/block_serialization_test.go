@@ -22,46 +22,45 @@ import (
 	"github.com/golang/protobuf/proto"
 	"justledger/common/ledger/testutil"
 	putils "justledger/protos/utils"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestBlockSerialization(t *testing.T) {
 	block := testutil.ConstructTestBlock(t, 1, 10, 100)
 	bb, _, err := serializeBlock(block)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	deserializedBlock, err := deserializeBlock(bb)
-	assert.NoError(t, err)
-	assert.Equal(t, block, deserializedBlock)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, deserializedBlock, block)
 }
 
 func TestExtractTxid(t *testing.T) {
 	txEnv, txid, _ := testutil.ConstructTransaction(t, testutil.ConstructRandomBytes(t, 50), "", false)
 	txEnvBytes, _ := putils.GetBytesEnvelope(txEnv)
 	extractedTxid, err := extractTxID(txEnvBytes)
-	assert.NoError(t, err)
-	assert.Equal(t, txid, extractedTxid)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, extractedTxid, txid)
 }
 
 func TestSerializedBlockInfo(t *testing.T) {
 	block := testutil.ConstructTestBlock(t, 1, 10, 100)
 	bb, info, err := serializeBlock(block)
-	assert.NoError(t, err)
+	testutil.AssertNoError(t, err, "")
 	infoFromBB, err := extractSerializedBlockInfo(bb)
-	assert.NoError(t, err)
-	assert.Equal(t, info, infoFromBB)
-	assert.Equal(t, len(block.Data.Data), len(info.txOffsets))
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, infoFromBB, info)
+	testutil.AssertEquals(t, len(info.txOffsets), len(block.Data.Data))
 	for txIndex, txEnvBytes := range block.Data.Data {
 		txid, err := extractTxID(txEnvBytes)
-		assert.NoError(t, err)
+		testutil.AssertNoError(t, err, "")
 
 		indexInfo := info.txOffsets[txIndex]
 		indexTxID := indexInfo.txID
 		indexOffset := indexInfo.loc
 
-		assert.Equal(t, indexTxID, txid)
+		testutil.AssertEquals(t, txid, indexTxID)
 		b := bb[indexOffset.offset:]
 		length, num := proto.DecodeVarint(b)
 		txEnvBytesFromBB := b[num : num+int(length)]
-		assert.Equal(t, txEnvBytes, txEnvBytesFromBB)
+		testutil.AssertEquals(t, txEnvBytesFromBB, txEnvBytes)
 	}
 }

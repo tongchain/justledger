@@ -2,11 +2,11 @@
 package mock
 
 import (
-	"context"
 	"sync"
 
 	"github.com/golang/protobuf/proto"
 	"justledger/common/deliver"
+	"golang.org/x/net/context"
 )
 
 type Inspector struct {

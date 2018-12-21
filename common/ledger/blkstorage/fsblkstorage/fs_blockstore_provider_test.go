@@ -27,7 +27,6 @@ import (
 	"justledger/protos/common"
 	"justledger/protos/peer"
 	"justledger/protos/utils"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMultipleBlockStores(t *testing.T) {
@@ -58,66 +57,66 @@ func TestMultipleBlockStores(t *testing.T) {
 
 func checkBlocks(t *testing.T, expectedBlocks []*common.Block, store blkstorage.BlockStore) {
 	bcInfo, _ := store.GetBlockchainInfo()
-	assert.Equal(t, uint64(len(expectedBlocks)), bcInfo.Height)
-	assert.Equal(t, expectedBlocks[len(expectedBlocks)-1].GetHeader().Hash(), bcInfo.CurrentBlockHash)
+	testutil.AssertEquals(t, bcInfo.Height, uint64(len(expectedBlocks)))
+	testutil.AssertEquals(t, bcInfo.CurrentBlockHash, expectedBlocks[len(expectedBlocks)-1].GetHeader().Hash())
 
 	itr, _ := store.RetrieveBlocks(0)
 	for i := 0; i < len(expectedBlocks); i++ {
 		block, _ := itr.Next()
-		assert.Equal(t, expectedBlocks[i], block)
+		testutil.AssertEquals(t, block, expectedBlocks[i])
 	}
 
 	for blockNum := 0; blockNum < len(expectedBlocks); blockNum++ {
 		block := expectedBlocks[blockNum]
 		flags := util.TxValidationFlags(block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER])
 		retrievedBlock, _ := store.RetrieveBlockByNumber(uint64(blockNum))
-		assert.Equal(t, block, retrievedBlock)
+		testutil.AssertEquals(t, retrievedBlock, block)
 
 		retrievedBlock, _ = store.RetrieveBlockByHash(block.Header.Hash())
-		assert.Equal(t, block, retrievedBlock)
+		testutil.AssertEquals(t, retrievedBlock, block)
 
 		for txNum := 0; txNum < len(block.Data.Data); txNum++ {
 			txEnvBytes := block.Data.Data[txNum]
 			txEnv, _ := utils.GetEnvelopeFromBlock(txEnvBytes)
 			txid, err := extractTxID(txEnvBytes)
-			assert.NoError(t, err)
+			testutil.AssertNoError(t, err, "")
 
 			retrievedBlock, _ := store.RetrieveBlockByTxID(txid)
-			assert.Equal(t, block, retrievedBlock)
+			testutil.AssertEquals(t, retrievedBlock, block)
 
 			retrievedTxEnv, _ := store.RetrieveTxByID(txid)
-			assert.Equal(t, txEnv, retrievedTxEnv)
+			testutil.AssertEquals(t, retrievedTxEnv, txEnv)
 
 			retrievedTxEnv, _ = store.RetrieveTxByBlockNumTranNum(uint64(blockNum), uint64(txNum))
-			assert.Equal(t, txEnv, retrievedTxEnv)
+			testutil.AssertEquals(t, retrievedTxEnv, txEnv)
 
 			retrievedTxValCode, err := store.RetrieveTxValidationCodeByTxID(txid)
-			assert.NoError(t, err)
-			assert.Equal(t, flags.Flag(txNum), retrievedTxValCode)
+			testutil.AssertNoError(t, err, "")
+			testutil.AssertEquals(t, retrievedTxValCode, flags.Flag(txNum))
 		}
 	}
 }
 
 func checkWithWrongInputs(t *testing.T, store blkstorage.BlockStore, numBlocks int) {
 	block, err := store.RetrieveBlockByHash([]byte("non-existent-hash"))
-	assert.Nil(t, block)
-	assert.Equal(t, blkstorage.ErrNotFoundInIndex, err)
+	testutil.AssertNil(t, block)
+	testutil.AssertEquals(t, err, blkstorage.ErrNotFoundInIndex)
 
 	block, err = store.RetrieveBlockByTxID("non-existent-txid")
-	assert.Nil(t, block)
-	assert.Equal(t, blkstorage.ErrNotFoundInIndex, err)
+	testutil.AssertNil(t, block)
+	testutil.AssertEquals(t, err, blkstorage.ErrNotFoundInIndex)
 
 	tx, err := store.RetrieveTxByID("non-existent-txid")
-	assert.Nil(t, tx)
-	assert.Equal(t, blkstorage.ErrNotFoundInIndex, err)
+	testutil.AssertNil(t, tx)
+	testutil.AssertEquals(t, err, blkstorage.ErrNotFoundInIndex)
 
 	tx, err = store.RetrieveTxByBlockNumTranNum(uint64(numBlocks+1), uint64(0))
-	assert.Nil(t, tx)
-	assert.Equal(t, blkstorage.ErrNotFoundInIndex, err)
+	testutil.AssertNil(t, tx)
+	testutil.AssertEquals(t, err, blkstorage.ErrNotFoundInIndex)
 
 	txCode, err := store.RetrieveTxValidationCodeByTxID("non-existent-txid")
-	assert.Equal(t, peer.TxValidationCode(-1), txCode)
-	assert.Equal(t, blkstorage.ErrNotFoundInIndex, err)
+	testutil.AssertEquals(t, txCode, peer.TxValidationCode(-1))
+	testutil.AssertEquals(t, err, blkstorage.ErrNotFoundInIndex)
 }
 
 func TestBlockStoreProvider(t *testing.T) {
@@ -134,17 +133,17 @@ func TestBlockStoreProvider(t *testing.T) {
 	}
 
 	storeNames, _ := provider.List()
-	assert.Equal(t, numStores, len(storeNames))
+	testutil.AssertEquals(t, len(storeNames), numStores)
 
 	for i := 0; i < numStores; i++ {
 		exists, err := provider.Exists(constructLedgerid(i))
-		assert.NoError(t, err)
-		assert.Equal(t, true, exists)
+		testutil.AssertNoError(t, err, "")
+		testutil.AssertEquals(t, exists, true)
 	}
 
 	exists, err := provider.Exists(constructLedgerid(numStores + 1))
-	assert.NoError(t, err)
-	assert.Equal(t, false, exists)
+	testutil.AssertNoError(t, err, "")
+	testutil.AssertEquals(t, exists, false)
 
 }
 

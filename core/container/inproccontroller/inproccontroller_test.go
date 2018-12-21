@@ -10,6 +10,9 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
+
+	"golang.org/x/net/context"
 
 	"justledger/core/chaincode/shim"
 	"justledger/core/container/ccintf"
@@ -36,7 +39,6 @@ func TestError(t *testing.T) {
 
 func TestRegisterSuccess(t *testing.T) {
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	shim := MockShim{}
 	err := r.Register(&ccintf.CCID{Name: "name"}, shim)
 
@@ -46,7 +48,6 @@ func TestRegisterSuccess(t *testing.T) {
 
 func TestRegisterError(t *testing.T) {
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	r.typeRegistry["name"] = &inprocContainer{}
 	shim := MockShim{}
 	err := r.Register(&ccintf.CCID{Name: "name"}, shim)
@@ -63,17 +64,37 @@ type AInterface interface {
 
 func (as AStruct) test() {}
 
+type MockContext struct {
+}
+
+func (c MockContext) Deadline() (deadline time.Time, ok bool) {
+	return time.Time{}, true
+}
+
+func (c MockContext) Done() <-chan struct{} {
+	ch := make(<-chan struct{}, 1)
+	return ch
+}
+
+func (c MockContext) Err() error {
+	return nil
+}
+
+func (c MockContext) Value(key interface{}) interface{} {
+	return MockCCSupport{}
+}
+
 func TestGetInstanceChaincodeDoesntExist(t *testing.T) {
+	mockContext := MockContext{}
 	mockInprocContainer := &inprocContainer{
 		chaincode: MockShim{},
 	}
 
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	vm := NewInprocVM(r)
 	args := []string{"a", "b"}
 	env := []string{"a", "b"}
-	container, err := vm.getInstance(mockInprocContainer, "instName", args, env)
+	container, err := vm.getInstance(mockContext, mockInprocContainer, "instName", args, env)
 	assert.NotNil(t, container, "container should not be nil")
 	assert.Nil(t, err, "err should be nil")
 
@@ -83,12 +104,12 @@ func TestGetInstanceChaincodeDoesntExist(t *testing.T) {
 }
 
 func TestGetInstaceChaincodeExists(t *testing.T) {
+	mockContext := MockContext{}
 	mockInprocContainer := &inprocContainer{
 		chaincode: MockShim{},
 	}
 
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	vm := NewInprocVM(r)
 	args := []string{"a", "b"}
 	env := []string{"a", "b"}
@@ -97,7 +118,7 @@ func TestGetInstaceChaincodeExists(t *testing.T) {
 
 	r.instRegistry["instName"] = ipc
 
-	container, err := vm.getInstance(mockInprocContainer, "instName", args, env)
+	container, err := vm.getInstance(mockContext, mockInprocContainer, "instName", args, env)
 	assert.NotNil(t, container, "container should not be nil")
 	assert.Nil(t, err, "err should be nil")
 
@@ -114,7 +135,7 @@ func (r MockReader) Read(p []byte) (n int, err error) {
 type MockCCSupport struct {
 }
 
-func (ccs MockCCSupport) HandleChaincodeStream(stream ccintf.ChaincodeStream) error {
+func (ccs MockCCSupport) HandleChaincodeStream(ctx context.Context, stream ccintf.ChaincodeStream) error {
 	return nil
 }
 func TestLaunchInprocCCSupportChan(t *testing.T) {
@@ -127,10 +148,10 @@ func TestLaunchInprocCCSupportChan(t *testing.T) {
 		send <- &pb.ChaincodeMessage{}
 		return nil
 	}
+	mockContext := MockContext{}
 
 	mockInprocContainer := &inprocContainer{
-		chaincode:        MockShim{},
-		ChaincodeSupport: MockCCSupport{},
+		chaincode: MockShim{},
 	}
 
 	args := []string{"a", "b"}
@@ -138,7 +159,7 @@ func TestLaunchInprocCCSupportChan(t *testing.T) {
 
 	_ = &inprocContainer{args: args, env: env, chaincode: mockInprocContainer.chaincode, stopChan: make(chan struct{})}
 
-	err := mockInprocContainer.launchInProc("ID", args, env)
+	err := mockInprocContainer.launchInProc(mockContext, "ID", args, env, MockCCSupport{})
 	assert.Nil(t, err, "err should be nil")
 }
 
@@ -159,20 +180,19 @@ func TestLaunchprocNoArgs(t *testing.T) {
 
 		return nil
 	}
+	mockContext := MockContext{}
 
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	mockInprocContainer := &inprocContainer{
-		chaincode:        MockShim{},
-		args:             ipcArgs,
-		ChaincodeSupport: MockCCSupport{},
+		chaincode: MockShim{},
+		args:      ipcArgs,
 	}
 
 	ipc := &inprocContainer{args: args, env: env, chaincode: mockInprocContainer.chaincode, stopChan: make(chan struct{})}
 
 	r.typeRegistry["path"] = ipc
 
-	err := mockInprocContainer.launchInProc("ID", args, env)
+	err := mockInprocContainer.launchInProc(mockContext, "ID", args, env, MockCCSupport{})
 	assert.Nil(t, err, "err should be nil")
 }
 
@@ -193,26 +213,19 @@ func TestLaunchprocNoEnv(t *testing.T) {
 
 		return nil
 	}
+	mockContext := MockContext{}
 
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	mockInprocContainer := &inprocContainer{
-		ChaincodeSupport: MockCCSupport{},
-		chaincode:        MockShim{},
-		env:              ipcEnv,
+		chaincode: MockShim{},
+		env:       ipcEnv,
 	}
 
-	ipc := &inprocContainer{
-		ChaincodeSupport: MockCCSupport{},
-		args:             args,
-		env:              env,
-		chaincode:        mockInprocContainer.chaincode,
-		stopChan:         make(chan struct{}),
-	}
+	ipc := &inprocContainer{args: args, env: env, chaincode: mockInprocContainer.chaincode, stopChan: make(chan struct{})}
 
 	r.typeRegistry["path"] = ipc
 
-	err := mockInprocContainer.launchInProc("ID", args, env)
+	err := mockInprocContainer.launchInProc(mockContext, "ID", args, env, MockCCSupport{})
 	assert.Nil(t, err, "err should be nil")
 }
 
@@ -241,25 +254,18 @@ func TestLaunchprocShimStartInProcErr(t *testing.T) {
 			close(done)
 		}
 	}
+	mockContext := MockContext{}
 
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	mockInprocContainer := &inprocContainer{
-		ChaincodeSupport: MockCCSupport{},
-		chaincode:        MockShim{},
+		chaincode: MockShim{},
 	}
 
-	ipc := &inprocContainer{
-		ChaincodeSupport: MockCCSupport{},
-		args:             args,
-		env:              env,
-		chaincode:        mockInprocContainer.chaincode,
-		stopChan:         make(chan struct{}),
-	}
+	ipc := &inprocContainer{args: args, env: env, chaincode: mockInprocContainer.chaincode, stopChan: make(chan struct{})}
 
 	r.typeRegistry["path"] = ipc
 
-	err := mockInprocContainer.launchInProc("ID", args, env)
+	err := mockInprocContainer.launchInProc(mockContext, "ID", args, env, MockCCSupport{})
 	assert.Nil(t, err, "err should be nil")
 	<-done
 }
@@ -267,7 +273,7 @@ func TestLaunchprocShimStartInProcErr(t *testing.T) {
 type MockCCSupportErr struct {
 }
 
-func (ccs MockCCSupportErr) HandleChaincodeStream(stream ccintf.ChaincodeStream) error {
+func (ccs MockCCSupportErr) HandleChaincodeStream(ctx context.Context, stream ccintf.ChaincodeStream) error {
 	return errors.New("errors")
 }
 func TestLaunchprocCCSupportHandleChaincodeStreamError(t *testing.T) {
@@ -287,31 +293,24 @@ func TestLaunchprocCCSupportHandleChaincodeStreamError(t *testing.T) {
 
 	_inprocLoggerErrorf = func(format string, args ...interface{}) {
 	}
+	mockContext := MockContext{}
 
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	mockInprocContainer := &inprocContainer{
-		ChaincodeSupport: MockCCSupportErr{},
-		chaincode:        MockShim{},
+		chaincode: MockShim{},
 	}
 
-	ipc := &inprocContainer{
-		ChaincodeSupport: MockCCSupportErr{},
-		args:             args,
-		env:              env,
-		chaincode:        mockInprocContainer.chaincode,
-		stopChan:         make(chan struct{}),
-	}
+	ipc := &inprocContainer{args: args, env: env, chaincode: mockInprocContainer.chaincode, stopChan: make(chan struct{})}
 
 	r.typeRegistry["path"] = ipc
 
-	err := mockInprocContainer.launchInProc("ID", args, env)
+	err := mockInprocContainer.launchInProc(mockContext, "ID", args, env, MockCCSupportErr{})
 	assert.Nil(t, err, "err should be nil")
 }
 
 func TestStart(t *testing.T) {
+	mockContext := MockContext{}
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	vm := NewInprocVM(r)
 
 	ccid := ccintf.CCID{Name: "name"}
@@ -323,23 +322,17 @@ func TestStart(t *testing.T) {
 		"hello": []byte("world"),
 	}
 
-	ipc := &inprocContainer{
-		ChaincodeSupport: MockCCSupport{},
-		args:             args,
-		env:              env,
-		chaincode:        mockInprocContainer.chaincode,
-		stopChan:         make(chan struct{}),
-	}
+	ipc := &inprocContainer{args: args, env: env, chaincode: mockInprocContainer.chaincode, stopChan: make(chan struct{})}
 
 	r.typeRegistry["name"] = ipc
 
-	err := vm.Start(ccid, args, env, files, nil)
+	err := vm.Start(mockContext, ccid, args, env, files, nil)
 	assert.Nil(t, err, "err should be nil")
 }
 
 func TestStop(t *testing.T) {
+	mockContext := MockContext{}
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	vm := NewInprocVM(r)
 
 	ccid := ccintf.CCID{
@@ -362,7 +355,7 @@ func TestStop(t *testing.T) {
 	r.instRegistry["name-1"] = ipc
 
 	go func() {
-		err := vm.Stop(ccid, 1000, true, true)
+		err := vm.Stop(mockContext, ccid, 1000, true, true)
 		assert.Nil(t, err, "err should be nil")
 	}()
 
@@ -371,8 +364,8 @@ func TestStop(t *testing.T) {
 }
 
 func TestStopNoIPCTemplate(t *testing.T) {
+	mockContext := MockContext{}
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	vm := NewInprocVM(r)
 
 	ccid := ccintf.CCID{
@@ -380,14 +373,14 @@ func TestStopNoIPCTemplate(t *testing.T) {
 		Version: "1",
 	}
 
-	err := vm.Stop(ccid, 1000, true, true)
+	err := vm.Stop(mockContext, ccid, 1000, true, true)
 	assert.NotNil(t, err, "err should not be nil")
 	assert.Equal(t, err.Error(), "name-1 not registered", "error should be correct")
 }
 
 func TestStopNoIPC(t *testing.T) {
+	mockContext := MockContext{}
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	vm := NewInprocVM(r)
 
 	ccid := ccintf.CCID{
@@ -407,14 +400,14 @@ func TestStopNoIPC(t *testing.T) {
 
 	r.typeRegistry["name-1"] = ipc
 
-	err := vm.Stop(ccid, 1000, true, true)
+	err := vm.Stop(mockContext, ccid, 1000, true, true)
 	assert.NotNil(t, err, "err should not be nil")
 	assert.Equal(t, err.Error(), "name-1 not found", "error should be correct")
 }
 
 func TestStopIPCNotRunning(t *testing.T) {
+	mockContext := MockContext{}
 	r := NewRegistry()
-	r.ChaincodeSupport = MockCCSupport{}
 	vm := NewInprocVM(r)
 
 	ccid := ccintf.CCID{
@@ -435,7 +428,7 @@ func TestStopIPCNotRunning(t *testing.T) {
 	r.typeRegistry["name-1"] = ipc
 	r.instRegistry["name-1"] = ipc
 
-	err := vm.Stop(ccid, 1000, true, true)
+	err := vm.Stop(mockContext, ccid, 1000, true, true)
 	assert.NotNil(t, err, "err should not be nil")
 	assert.Equal(t, err.Error(), "name-1 not running", "error should be correct")
 }

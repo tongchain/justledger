@@ -11,6 +11,7 @@ import (
 	"os"
 	"testing"
 
+	aclmocks "justledger/core/aclmgmt/mocks"
 	"justledger/core/container/inproccontroller"
 	"justledger/core/ledger/ledgermgmt"
 	ccprovider2 "justledger/core/mocks/ccprovider"
@@ -20,36 +21,15 @@ import (
 )
 
 func init() {
-	viper.Set("chaincode.system", map[string]string{"invokableExternalButNotCC2CC": "enable", "invokableCC2CCButNotExternal": "enable", "disabled": "enable"})
+	viper.Set("chaincode.system", map[string]string{"lscc": "enable", "a": "enable"})
 	viper.Set("peer.fileSystemPath", os.TempDir())
 }
 
 func newTestProvider() *Provider {
+	ccp := &ccprovider2.MockCcProviderImpl{}
+	mockAclProvider := &aclmocks.MockACLProvider{}
 	p := NewProvider(peer.Default, peer.DefaultSupport, inproccontroller.NewRegistry())
-	for _, cc := range []SelfDescribingSysCC{
-		&SysCCWrapper{
-			SCC: &SystemChaincode{
-				Name:              "invokableExternalButNotCC2CC",
-				InvokableExternal: true,
-				InvokableCC2CC:    false,
-				Enabled:           true,
-			},
-		},
-		&SysCCWrapper{
-			SCC: &SystemChaincode{
-				Name:              "invokableCC2CCButNotExternal",
-				InvokableExternal: false,
-				InvokableCC2CC:    true,
-				Enabled:           true,
-			},
-		},
-		&SysCCWrapper{
-			SCC: &SystemChaincode{
-				Name:    "disabled",
-				Enabled: false,
-			},
-		},
-	} {
+	for _, cc := range CreateSysCCs(ccp, p, mockAclProvider) {
 		p.RegisterSysCC(cc)
 	}
 	return p
@@ -67,10 +47,10 @@ func TestDeploy(t *testing.T) {
 	defer ledgermgmt.CleanupTestEnv()
 	err := peer.MockCreateChain("a")
 	fmt.Println(err)
-	deploySysCC("a", ccp, &SysCCWrapper{SCC: &SystemChaincode{
+	(&SystemChaincode{
 		Enabled: true,
-		Name:    "invokableCC2CCButNotExternal",
-	}})
+		Name:    "lscc",
+	}).deploySysCC("a", ccp)
 }
 
 func TestDeDeploySysCC(t *testing.T) {
@@ -84,54 +64,53 @@ func TestDeDeploySysCC(t *testing.T) {
 }
 
 func TestIsSysCC(t *testing.T) {
-	assert.True(t, (newTestProvider()).IsSysCC("invokableExternalButNotCC2CC"))
+	assert.True(t, (newTestProvider()).IsSysCC("lscc"))
 	assert.False(t, (newTestProvider()).IsSysCC("noSCC"))
-	assert.True(t, (newTestProvider()).IsSysCC("invokableCC2CCButNotExternal"))
-	assert.True(t, (newTestProvider()).IsSysCC("disabled"))
+	assert.True(t, (newTestProvider()).IsSysCC("cscc"))
+	assert.True(t, (newTestProvider()).IsSysCC("escc"))
+	assert.True(t, (newTestProvider()).IsSysCC("vscc"))
 }
 
 func TestIsSysCCAndNotInvokableCC2CC(t *testing.T) {
-	assert.False(t, (newTestProvider()).IsSysCCAndNotInvokableExternal("invokableExternalButNotCC2CC"))
-	assert.True(t, (newTestProvider()).IsSysCCAndNotInvokableExternal("invokableCC2CCButNotExternal"))
+	assert.False(t, (newTestProvider()).IsSysCCAndNotInvokableCC2CC("lscc"))
+	assert.True(t, (newTestProvider()).IsSysCCAndNotInvokableCC2CC("escc"))
+	assert.True(t, (newTestProvider()).IsSysCCAndNotInvokableCC2CC("vscc"))
+	assert.True(t, (newTestProvider()).IsSysCCAndNotInvokableCC2CC("cscc"))
 }
 
 func TestIsSysCCAndNotInvokableExternal(t *testing.T) {
-	assert.False(t, (newTestProvider()).IsSysCCAndNotInvokableCC2CC("invokableCC2CCButNotExternal"))
-	assert.True(t, (newTestProvider()).IsSysCCAndNotInvokableCC2CC("invokableExternalButNotCC2CC"))
+	assert.False(t, (newTestProvider()).IsSysCCAndNotInvokableExternal("cscc"))
+	assert.True(t, (newTestProvider()).IsSysCCAndNotInvokableExternal("escc"))
+	assert.True(t, (newTestProvider()).IsSysCCAndNotInvokableExternal("vscc"))
 }
 
 func TestSccProviderImpl_GetQueryExecutorForLedger(t *testing.T) {
-	p := NewProvider(peer.Default, peer.DefaultSupport, inproccontroller.NewRegistry())
-	qe, err := p.GetQueryExecutorForLedger("")
+	qe, err := (newTestProvider()).GetQueryExecutorForLedger("")
 	assert.Nil(t, qe)
 	assert.Error(t, err)
 }
 
-func TestCreatePluginSysCCs(t *testing.T) {
-	assert.NotPanics(t, func() { CreatePluginSysCCs(nil) }, "expected successful init")
-}
-
 func TestRegisterSysCC(t *testing.T) {
+	ccp := &ccprovider2.MockCcProviderImpl{}
+	mockAclProvider := &aclmocks.MockACLProvider{}
+	assert.NotPanics(t, func() { CreateSysCCs(ccp, newTestProvider(), mockAclProvider) }, "expected successful init")
+
 	p := &Provider{
 		Registrar: inproccontroller.NewRegistry(),
 	}
-	_, err := p.registerSysCC(&SysCCWrapper{
-		SCC: &SystemChaincode{
-			Name:      "invokableExternalButNotCC2CC",
-			Path:      "path",
-			Enabled:   true,
-			Chaincode: nil,
-		},
+	_, err := p.registerSysCC(&SystemChaincode{
+		Name:      "lscc",
+		Path:      "path",
+		Enabled:   true,
+		Chaincode: nil,
 	})
 	assert.NoError(t, err)
-	_, err = p.registerSysCC(&SysCCWrapper{
-		SCC: &SystemChaincode{
-			Name:      "invokableExternalButNotCC2CC",
-			Path:      "path",
-			Enabled:   true,
-			Chaincode: nil,
-		},
+	_, err = p.registerSysCC(&SystemChaincode{
+		Name:      "lscc",
+		Path:      "path",
+		Enabled:   true,
+		Chaincode: nil,
 	})
 	assert.Error(t, err)
-	assert.Contains(t, "invokableExternalButNotCC2CC-latest already registered", err)
+	assert.Contains(t, "lscc-latest already registered", err)
 }
