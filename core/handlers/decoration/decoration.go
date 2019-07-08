@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package decoration
 
 import (
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 // Decorator decorates a chaincode input

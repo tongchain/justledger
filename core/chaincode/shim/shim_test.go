@@ -1,17 +1,7 @@
 /*
-Copyright IBM Corp. 2016 All Rights Reserved.
+Copyright IBM Corp. All Rights Reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+SPDX-License-Identifier: Apache-2.0
 */
 
 package shim
@@ -23,12 +13,12 @@ import (
 	"strings"
 	"testing"
 
-	"justledger/common/flogging"
-	mockpeer "justledger/common/mocks/peer"
-	"justledger/common/util"
-	lproto "justledger/protos/ledger/queryresult"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/flogging"
+	mockpeer "github.com/justledger/fabric/common/mocks/peer"
+	"github.com/justledger/fabric/common/util"
+	lproto "github.com/justledger/fabric/protos/ledger/queryresult"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/op/go-logging"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -545,7 +535,7 @@ func mockChaincodeStreamGetter(name string) (PeerChaincodeStream, error) {
 	return mockPeerCCSupport.GetCC(name)
 }
 
-func setupcc(name string, cc Chaincode) *mockpeer.MockCCComm {
+func setupcc(name string) *mockpeer.MockCCComm {
 	viper.Set("chaincode.id.name", name)
 	send := make(chan *pb.ChaincodeMessage)
 	recv := make(chan *pb.ChaincodeMessage)
@@ -577,7 +567,7 @@ func TestInvoke(t *testing.T) {
 	cc := &shimTestCC{}
 	//viper.Set("chaincode.logging.shim", "debug")
 	ccname := "shimTestCC"
-	peerSide := setupcc(ccname, cc)
+	peerSide := setupcc(ccname)
 	defer mockPeerCCSupport.RemoveCC(ccname)
 	//start the shim+chaincode
 	go Start(cc)
@@ -941,7 +931,7 @@ func TestSetKeyEP(t *testing.T) {
 	streamGetter = mockChaincodeStreamGetter
 	cc := &shimTestCC{}
 	ccname := "shimTestCC"
-	peerSide := setupcc(ccname, cc)
+	peerSide := setupcc(ccname)
 	defer mockPeerCCSupport.RemoveCC(ccname)
 	//start the shim+chaincode
 	go Start(cc)
@@ -1039,7 +1029,7 @@ func TestStartInProc(t *testing.T) {
 	streamGetter = mockChaincodeStreamGetter
 	cc := &shimTestCC{}
 	ccname := "shimTestCC"
-	peerSide := setupcc(ccname, cc)
+	peerSide := setupcc(ccname)
 	defer mockPeerCCSupport.RemoveCC(ccname)
 
 	done := setuperror()
@@ -1081,7 +1071,7 @@ func TestCC2CC(t *testing.T) {
 	cc := &shimTestCC{}
 	//viper.Set("chaincode.logging.shim", "debug")
 	ccname := "shimTestCC"
-	peerSide := setupcc(ccname, cc)
+	peerSide := setupcc(ccname)
 	defer mockPeerCCSupport.RemoveCC(ccname)
 	//start the shim+chaincode
 	go Start(cc)

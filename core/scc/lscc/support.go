@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package lscc
 
 import (
-	"justledger/common/cauthdsl"
-	"justledger/core/common/ccprovider"
-	"justledger/core/peer"
-	"justledger/msp/mgmt"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 

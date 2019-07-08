@@ -16,7 +16,11 @@ limitations under the License.
 
 package version
 
-import "justledger/common/ledger/util"
+import (
+	"fmt"
+
+	"github.com/justledger/fabric/common/ledger/util"
+)
 
 // Height represents the height of a transaction in blockchain
 type Height struct {
@@ -31,8 +35,8 @@ func NewHeight(blockNum, txNum uint64) *Height {
 
 // NewHeightFromBytes constructs a new instance of Height from serialized bytes
 func NewHeightFromBytes(b []byte) (*Height, int) {
-	blockNum, n1 := util.DecodeOrderPreservingVarUint64(b)
-	txNum, n2 := util.DecodeOrderPreservingVarUint64(b[n1:])
+	blockNum, n1, _ := util.DecodeOrderPreservingVarUint64(b)
+	txNum, n2, _ := util.DecodeOrderPreservingVarUint64(b[n1:])
 	return NewHeight(blockNum, txNum), n1 + n2
 }
 
@@ -61,6 +65,11 @@ func (h *Height) Compare(h1 *Height) int {
 		return 1
 	}
 	return -1
+}
+
+// String returns string for printing
+func (h *Height) String() string {
+	return fmt.Sprintf("{BlockNum: %d, TxNum: %d}", h.BlockNum, h.TxNum)
 }
 
 // AreSame returns true if both the heights are either nil or equal

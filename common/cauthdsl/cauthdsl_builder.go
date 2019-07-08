@@ -17,13 +17,12 @@ limitations under the License.
 package cauthdsl
 
 import (
-	cb "justledger/protos/common"
-	"justledger/protos/msp"
-
 	"sort"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/utils"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 // AcceptAllPolicy always evaluates to true

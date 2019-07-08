@@ -16,7 +16,7 @@ limitations under the License.
 
 // +build ignore
 
-//go:generate -command gencerts go run $GOPATH/src/github.com/hyperledger/fabric/core/comm/testdata/certs/generate.go
+//go:generate -command gencerts go run $GOPATH/src/github.com/justledger/fabric/core/comm/testdata/certs/generate.go
 //go:generate gencerts -orgs 2 -child-orgs 2 -servers 2 -clients 2
 
 package main
@@ -31,6 +31,7 @@ import (
 	"flag"
 	"fmt"
 	"math/big"
+	"net"
 	"os"
 	"time"
 )
@@ -134,10 +135,11 @@ func genServerCertificateECDSA(name string, signKey *ecdsa.PrivateKey, signCert 
 	//set the organization for the subject
 	subject := subjectTemplate()
 	subject.Organization = []string{name}
-	//hardcode to localhost for hostname verification
 	subject.CommonName = "localhost"
 
 	template.Subject = subject
+	template.DNSNames = []string{"localhost"}
+	template.IPAddresses = []net.IP{net.ParseIP("127.0.0.1")}
 
 	_, err = genCertificateECDSA(name, &template, signCert, &key.PublicKey, signKey)
 

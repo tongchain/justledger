@@ -7,17 +7,16 @@ SPDX-License-Identifier: Apache-2.0
 package utils
 
 import (
+	"bytes"
 	"fmt"
 
-	"bytes"
-
 	"github.com/golang/protobuf/proto"
-	"justledger/bccsp"
-	"justledger/bccsp/factory"
-	"justledger/common/crypto"
-	"justledger/msp"
-	"justledger/protos/common"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/common/crypto"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 

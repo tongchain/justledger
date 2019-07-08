@@ -12,9 +12,9 @@ import (
 	"crypto/x509"
 	"os"
 
-	"justledger/bccsp"
-	"justledger/bccsp/sw"
-	"justledger/common/flogging"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/sw"
+	"github.com/justledger/fabric/common/flogging"
 	"github.com/miekg/pkcs11"
 	"github.com/pkg/errors"
 )

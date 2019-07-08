@@ -17,12 +17,13 @@ limitations under the License.
 package fsblkstorage
 
 import (
-	"justledger/common/ledger"
-	"justledger/common/ledger/blkstorage"
-	"justledger/common/ledger/util/leveldbhelper"
+	"time"
 
-	"justledger/protos/common"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/common/ledger/blkstorage"
+	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 // fsBlockStore - filesystem based implementation for `BlockStore`
@@ -30,17 +31,32 @@ type fsBlockStore struct {
 	id      string
 	conf    *Conf
 	fileMgr *blockfileMgr
+	stats   *ledgerStats
 }
 
 // NewFsBlockStore constructs a `FsBlockStore`
 func newFsBlockStore(id string, conf *Conf, indexConfig *blkstorage.IndexConfig,
-	dbHandle *leveldbhelper.DBHandle) *fsBlockStore {
-	return &fsBlockStore{id, conf, newBlockfileMgr(id, conf, indexConfig, dbHandle)}
+	dbHandle *leveldbhelper.DBHandle, stats *stats) *fsBlockStore {
+	fileMgr := newBlockfileMgr(id, conf, indexConfig, dbHandle)
+
+	// create ledgerStats and initialize blockchain_height stat
+	ledgerStats := stats.ledgerStats(id)
+	info := fileMgr.getBlockchainInfo()
+	ledgerStats.updateBlockchainHeight(info.Height)
+
+	return &fsBlockStore{id, conf, fileMgr, ledgerStats}
 }
 
 // AddBlock adds a new block
 func (store *fsBlockStore) AddBlock(block *common.Block) error {
-	return store.fileMgr.addBlock(block)
+	// track elapsed time to collect block commit time
+	startBlockCommit := time.Now()
+	result := store.fileMgr.addBlock(block)
+	elapsedBlockCommit := time.Since(startBlockCommit)
+
+	store.updateBlockStats(block.Header.Number, elapsedBlockCommit)
+
+	return result
 }
 
 // GetBlockchainInfo returns the current info about blockchain
@@ -90,4 +106,9 @@ func (store *fsBlockStore) RetrieveTxValidationCodeByTxID(txID string) (peer.TxV
 func (store *fsBlockStore) Shutdown() {
 	logger.Debugf("closing fs blockStore:%s", store.id)
 	store.fileMgr.close()
+}
+
+func (store *fsBlockStore) updateBlockStats(blockNum uint64, blockstorageCommitTime time.Duration) {
+	store.stats.updateBlockchainHeight(blockNum + 1)
+	store.stats.updateBlockstorageCommitTime(blockstorageCommitTime)
 }

@@ -16,11 +16,11 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/java"
-	"justledger/core/config/configtest"
-	"justledger/core/container/util"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/java"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/core/container/util"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

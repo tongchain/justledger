@@ -22,8 +22,8 @@ import (
 	"reflect"
 	"testing"
 
-	mocks2 "justledger/bccsp/mocks"
-	"justledger/bccsp/sw/mocks"
+	mocks2 "github.com/justledger/fabric/bccsp/mocks"
+	"github.com/justledger/fabric/bccsp/sw/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -40,7 +40,7 @@ func TestKeyGen(t *testing.T) {
 		Value:   expectetValue,
 		Err:     expectedErr,
 	}
-	csp := CSP{keyGenerators: keyGenerators}
+	csp := CSP{KeyGenerators: keyGenerators}
 	value, err := csp.KeyGen(expectedOpts)
 	assert.Nil(t, value)
 	assert.Contains(t, err.Error(), expectedErr.Error())
@@ -51,7 +51,7 @@ func TestKeyGen(t *testing.T) {
 		Value:   expectetValue,
 		Err:     nil,
 	}
-	csp = CSP{keyGenerators: keyGenerators}
+	csp = CSP{KeyGenerators: keyGenerators}
 	value, err = csp.KeyGen(expectedOpts)
 	assert.Equal(t, expectetValue, value)
 	assert.Nil(t, err)

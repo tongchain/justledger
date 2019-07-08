@@ -17,14 +17,13 @@ limitations under the License.
 package mocks
 
 import (
+	"bytes"
 	"crypto"
 	"errors"
 	"hash"
 	"reflect"
 
-	"bytes"
-
-	"justledger/bccsp"
+	"github.com/justledger/fabric/bccsp"
 )
 
 type MockBCCSP struct {

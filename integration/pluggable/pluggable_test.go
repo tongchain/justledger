@@ -16,15 +16,14 @@ import (
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/justledger/fabric/integration/nwo"
+	"github.com/justledger/fabric/integration/nwo/commands"
+	"github.com/justledger/fabric/integration/nwo/fabricconfig"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/tedsuo/ifrit"
-
-	"justledger/integration/nwo"
-	"justledger/integration/nwo/commands"
-	"justledger/integration/nwo/fabricconfig"
 )
 
 var _ = Describe("EndToEnd", func() {
@@ -85,7 +84,7 @@ var _ = Describe("EndToEnd", func() {
 		chaincode = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "justledger/integration/chaincode/simple/cmd",
+			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member')`,
 		}
@@ -126,7 +125,7 @@ func compilePlugin(pluginType string) string {
 	cmd := exec.Command(
 		"go", "build", "-buildmode=plugin",
 		"-o", pluginFilePath,
-		fmt.Sprintf("justledger/integration/pluggable/testdata/plugins/%s", pluginType),
+		fmt.Sprintf("github.com/justledger/fabric/integration/pluggable/testdata/plugins/%s", pluginType),
 	)
 	sess, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())
@@ -157,7 +156,7 @@ func RunQueryInvokeQuery(n *nwo.Network, orderer *nwo.Orderer, peer *nwo.Peer) {
 		Ctor:      `{"Args":["query","a"]}`,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, time.Minute).Should(gexec.Exit(0))
+	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("100"))
 
 	sess, err = n.PeerUserSession(peer, "User1", commands.ChaincodeInvoke{
@@ -172,7 +171,7 @@ func RunQueryInvokeQuery(n *nwo.Network, orderer *nwo.Orderer, peer *nwo.Peer) {
 		WaitForEvent: true,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, time.Minute).Should(gexec.Exit(0))
+	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
 	Expect(sess.Err).To(gbytes.Say("Chaincode invoke successful. result: status:200"))
 
 	sess, err = n.PeerUserSession(peer, "User1", commands.ChaincodeQuery{
@@ -181,6 +180,6 @@ func RunQueryInvokeQuery(n *nwo.Network, orderer *nwo.Orderer, peer *nwo.Peer) {
 		Ctor:      `{"Args":["query","a"]}`,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, time.Minute).Should(gexec.Exit(0))
+	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("90"))
 }

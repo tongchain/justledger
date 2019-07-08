@@ -12,7 +12,7 @@ import (
 	"crypto/x509"
 	"testing"
 
-	"justledger/bccsp"
+	"github.com/justledger/fabric/bccsp"
 	"github.com/stretchr/testify/assert"
 )
 

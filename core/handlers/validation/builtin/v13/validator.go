@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package v13
 
 import (
-	commonerrors "justledger/common/errors"
-	"justledger/protos/common"
-	"justledger/protos/peer"
+	commonerrors "github.com/justledger/fabric/common/errors"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 // StateBasedValidator is used to validate a transaction that performs changes to

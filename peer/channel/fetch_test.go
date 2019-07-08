@@ -14,12 +14,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/config/configtest"
-	"justledger/peer/common"
-	"justledger/peer/common/mock"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	putils "justledger/protos/utils"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/peer/common"
+	"github.com/justledger/fabric/peer/common/mock"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	putils "github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -55,18 +55,23 @@ func TestFetch(t *testing.T) {
 
 	// success cases - block and outputBlockPath
 	blocksToFetch := []string{"oldest", "newest", "config", "1"}
-	for _, block := range blocksToFetch {
-		outputBlockPath := filepath.Join(tempDir, block+".block")
-		args := []string{"-c", mockchain, block, outputBlockPath}
-		cmd.SetArgs(args)
+	for _, bestEffort := range []bool{false, true} {
+		for _, block := range blocksToFetch {
+			outputBlockPath := filepath.Join(tempDir, block+".block")
+			args := []string{"-c", mockchain, block, outputBlockPath}
+			if bestEffort {
+				args = append(args, "--bestEffort")
+			}
+			cmd.SetArgs(args)
 
-		err = cmd.Execute()
-		assert.NoError(t, err, "fetch command expected to succeed")
+			err = cmd.Execute()
+			assert.NoError(t, err, "fetch command expected to succeed")
 
-		if _, err := os.Stat(outputBlockPath); os.IsNotExist(err) {
-			// path/to/whatever does not exist
-			t.Error("expected configuration block to be fetched")
-			t.Fail()
+			if _, err := os.Stat(outputBlockPath); os.IsNotExist(err) {
+				// path/to/whatever does not exist
+				t.Error("expected configuration block to be fetched")
+				t.Fail()
+			}
 		}
 	}
 

@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package mocks
 
 import (
-	"justledger/gossip/api"
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/filter"
-	"justledger/gossip/gossip"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/comm"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/gossip/filter"
+	"github.com/justledger/fabric/gossip/gossip"
+	proto "github.com/justledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/mock"
 )
 

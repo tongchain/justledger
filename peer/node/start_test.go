@@ -11,10 +11,13 @@ import (
 	"io/ioutil"
 	"os"
 	"testing"
+	"time"
 
-	"justledger/common/viperutil"
-	"justledger/core/handlers/library"
-	"justledger/msp/mgmt/testtools"
+	"github.com/justledger/fabric/common/viperutil"
+	"github.com/justledger/fabric/core/handlers/library"
+	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
+	"github.com/justledger/fabric/peer/node/mock"
+	"github.com/justledger/fabric/protos/common"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -35,10 +38,6 @@ func TestStartCmd(t *testing.T) {
 	viper.Set("peer.fileSystemPath", tempDir)
 	viper.Set("chaincode.executetimeout", "30s")
 	viper.Set("chaincode.mode", "dev")
-	overrideLogModules := []string{"msp", "gossip", "ledger", "cauthdsl", "policies", "grpc"}
-	for _, module := range overrideLogModules {
-		viper.Set("logging."+module, "INFO")
-	}
 
 	msptesttools.LoadMSPSetupForTesting()
 
@@ -47,6 +46,14 @@ func TestStartCmd(t *testing.T) {
 		assert.NoError(t, cmd.Execute(), "expected to successfully start command")
 	}()
 
+	grpcProbe := func(addr string) bool {
+		c, err := grpc.Dial(addr, grpc.WithBlock(), grpc.WithInsecure())
+		if err == nil {
+			c.Close()
+			return true
+		}
+		return false
+	}
 	g.Eventually(grpcProbe("localhost:6051")).Should(BeTrue())
 }
 
@@ -170,11 +177,50 @@ func TestComputeChaincodeEndpoint(t *testing.T) {
 	// This scenario will be the same to scenarios 3: set up chaincodeAddress only.
 }
 
-func grpcProbe(addr string) bool {
-	c, err := grpc.Dial(addr, grpc.WithBlock(), grpc.WithInsecure())
-	if err == nil {
-		c.Close()
-		return true
+func TestResetLoop(t *testing.T) {
+	peerLedger := &mock.PeerLedger{}
+	peerLedger.GetBlockchainInfoReturnsOnCall(
+		0,
+		&common.BlockchainInfo{
+			Height: uint64(1),
+		},
+		nil,
+	)
+	peerLedger.GetBlockchainInfoReturnsOnCall(
+		1,
+		&common.BlockchainInfo{
+			Height: uint64(5),
+		},
+		nil,
+	)
+	peerLedger.GetBlockchainInfoReturnsOnCall(
+		2,
+		&common.BlockchainInfo{
+			Height: uint64(11),
+		},
+		nil,
+	)
+	peerLedger.GetBlockchainInfoReturnsOnCall(
+		3,
+		&common.BlockchainInfo{
+			Height: uint64(11),
+		},
+		nil,
+	)
+
+	getLedger := &mock.GetLedger{}
+	getLedger.Returns(peerLedger)
+
+	resetFilter := &reset{
+		reject: true,
 	}
-	return false
+
+	heights := map[string]uint64{
+		"testchannel":  uint64(10),
+		"testchannel2": uint64(10),
+	}
+
+	resetLoop(resetFilter, heights, getLedger.Spy, 1*time.Second)
+	assert.False(t, resetFilter.reject)
+	assert.Equal(t, 4, peerLedger.GetBlockchainInfoCallCount())
 }

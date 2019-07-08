@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package channelconfig
 
 import (
-	"justledger/common/policies"
+	"github.com/justledger/fabric/common/policies"
 )
 
 func LogSanityChecks(res Resources) {
@@ -35,7 +35,11 @@ func LogSanityChecks(res Resources) {
 		}
 	}
 	if _, ok := pm.Manager([]string{policies.OrdererPrefix}); ok {
-		for _, policyName := range []string{policies.BlockValidation} {
+		for _, policyName := range []string{
+			policies.BlockValidation,
+			policies.ChannelOrdererAdmins,
+			policies.ChannelOrdererWriters,
+			policies.ChannelOrdererReaders} {
 			_, ok := pm.GetPolicy(policyName)
 			if !ok {
 				logger.Warningf("Current configuration has no policy '%s', this will likely cause problems in production systems", policyName)

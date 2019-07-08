@@ -27,7 +27,7 @@ import (
 	"math/big"
 	"time"
 
-	"justledger/bccsp/utils"
+	"github.com/justledger/fabric/bccsp/utils"
 	"github.com/pkg/errors"
 )
 

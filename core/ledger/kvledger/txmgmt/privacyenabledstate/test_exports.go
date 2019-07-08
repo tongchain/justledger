@@ -12,13 +12,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/core/ledger/kvledger/bookkeeping"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"github.com/justledger/fabric/core/ledger/mock"
+	"github.com/justledger/fabric/integration/runner"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-
-	"justledger/core/ledger/kvledger/bookkeeping"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
-	"justledger/core/ledger/ledgerconfig"
-	"justledger/integration/runner"
 )
 
 // TestEnv - an interface that a test environment implements
@@ -48,7 +49,7 @@ func (env *LevelDBCommonStorageTestEnv) Init(t testing.TB) {
 	viper.Set("ledger.state.stateDatabase", "")
 	removeDBPath(t)
 	env.bookkeeperTestEnv = bookkeeping.NewTestEnv(t)
-	dbProvider, err := NewCommonStorageDBProvider(env.bookkeeperTestEnv.TestProvider)
+	dbProvider, err := NewCommonStorageDBProvider(env.bookkeeperTestEnv.TestProvider, &disabled.Provider{}, &mock.HealthCheckRegistry{})
 	assert.NoError(t, err)
 	env.t = t
 	env.provider = dbProvider
@@ -113,7 +114,7 @@ func (env *CouchDBCommonStorageTestEnv) Init(t testing.TB) {
 	viper.Set("ledger.state.couchDBConfig.requestTimeout", time.Second*35)
 
 	env.bookkeeperTestEnv = bookkeeping.NewTestEnv(t)
-	dbProvider, err := NewCommonStorageDBProvider(env.bookkeeperTestEnv.TestProvider)
+	dbProvider, err := NewCommonStorageDBProvider(env.bookkeeperTestEnv.TestProvider, &disabled.Provider{}, &mock.HealthCheckRegistry{})
 	assert.NoError(t, err)
 	env.t = t
 	env.provider = dbProvider

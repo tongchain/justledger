@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
+	"github.com/justledger/fabric-amcl/amcl/FP256BN"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -81,7 +81,7 @@ func TestIdemix(t *testing.T) {
 	// Test issuance
 	sk := RandModOrder(rng)
 	ni := RandModOrder(rng)
-	m := NewCredRequest(sk, ni, key.Ipk, rng)
+	m := NewCredRequest(sk, BigToBytes(ni), key.Ipk, rng)
 
 	cred, err := NewCredential(key, m, attrs, rng)
 	assert.NoError(t, err, "Failed to issue a credential: \"%s\"", err)

@@ -13,9 +13,9 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/peer/common"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/peer/common"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -30,6 +30,7 @@ func fetchCmd(cf *ChannelCmdFactory) *cobra.Command {
 	}
 	flagList := []string{
 		"channelID",
+		"bestEffort",
 	}
 	attachFlags(fetchCmd, flagList)
 

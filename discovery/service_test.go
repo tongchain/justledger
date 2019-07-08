@@ -14,12 +14,12 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/gossip/api"
-	gcommon "justledger/gossip/common"
-	gdisc "justledger/gossip/discovery"
-	"justledger/protos/common"
-	"justledger/protos/discovery"
-	"justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/api"
+	gcommon "github.com/justledger/fabric/gossip/common"
+	gdisc "github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/discovery"
+	"github.com/justledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

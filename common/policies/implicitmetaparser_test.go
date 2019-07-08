@@ -10,9 +10,8 @@ import (
 	"fmt"
 	"testing"
 
-	cb "justledger/protos/common"
-
 	"github.com/golang/protobuf/proto"
+	cb "github.com/justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -19,7 +19,7 @@ package fsblkstorage
 import (
 	"sync"
 
-	"justledger/common/ledger"
+	"github.com/justledger/fabric/common/ledger"
 )
 
 // blocksItr - an iterator for iterating over a sequence of blocks
@@ -33,6 +33,8 @@ type blocksItr struct {
 }
 
 func newBlockItr(mgr *blockfileMgr, startBlockNum uint64) *blocksItr {
+	mgr.cpInfoCond.L.Lock()
+	defer mgr.cpInfoCond.L.Unlock()
 	return &blocksItr{mgr, mgr.cpInfo.lastBlockNumber, startBlockNum, nil, false, &sync.Mutex{}}
 }
 

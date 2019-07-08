@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package discovery
 
 import (
-	"justledger/protos/discovery"
-	"justledger/protos/gossip"
+	"github.com/justledger/fabric/protos/discovery"
+	"github.com/justledger/fabric/protos/gossip"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )

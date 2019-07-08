@@ -9,8 +9,8 @@ package main
 import (
 	"encoding/json"
 
-	"justledger/core/chaincode/shim"
-	"justledger/core/chaincode/shim/ext/entities"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/chaincode/shim/ext/entities"
 	"github.com/pkg/errors"
 )
 

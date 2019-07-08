@@ -21,8 +21,8 @@ import (
 	"reflect"
 	"testing"
 
-	mocks2 "justledger/bccsp/mocks"
-	"justledger/bccsp/sw/mocks"
+	mocks2 "github.com/justledger/fabric/bccsp/mocks"
+	"github.com/justledger/fabric/bccsp/sw/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -44,7 +44,7 @@ func TestEncrypt(t *testing.T) {
 		EncErr:       expectedErr,
 	}
 
-	csp := CSP{encryptors: encryptors}
+	csp := CSP{Encryptors: encryptors}
 
 	ct, err := csp.Encrypt(expectedKey, expectedPlaintext, expectedOpts)
 	assert.Equal(t, expectedCiphertext, ct)

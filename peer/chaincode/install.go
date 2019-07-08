@@ -11,15 +11,15 @@ import (
 	"fmt"
 	"io/ioutil"
 
+	"github.com/pkg/errors"
+
 	"github.com/golang/protobuf/proto"
-
-	"justledger/core/common/ccpackage"
-	"justledger/core/common/ccprovider"
-	"justledger/peer/common"
-	pcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
-
+	"github.com/justledger/fabric/core/common/ccpackage"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/peer/common"
+	pcommon "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -84,7 +84,12 @@ func install(msg proto.Message, cf *ChaincodeCmdFactory) error {
 	}
 
 	if proposalResponse != nil {
+		if proposalResponse.Response.Status != int32(pcommon.Status_SUCCESS) {
+			return errors.Errorf("Bad response: %d - %s", proposalResponse.Response.Status, proposalResponse.Response.Message)
+		}
 		logger.Infof("Installed remotely %v", proposalResponse)
+	} else {
+		return errors.New("Error during install: received nil proposal response")
 	}
 
 	return nil

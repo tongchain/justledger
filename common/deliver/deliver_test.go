@@ -13,17 +13,18 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"justledger/common/deliver"
-	"justledger/common/deliver/mock"
-	"justledger/common/ledger/blockledger"
-	"justledger/common/util"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	"justledger/protos/utils"
-	"github.com/pkg/errors"
-
+	"github.com/justledger/fabric/common/deliver"
+	"github.com/justledger/fabric/common/deliver/mock"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/common/metrics/metricsfakes"
+	"github.com/justledger/fabric/common/util"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 )
 
 var (
@@ -45,7 +46,12 @@ var _ = Describe("Deliver", func() {
 		})
 
 		It("returns a new handler", func() {
-			handler := deliver.NewHandler(fakeChainManager, time.Second, false)
+			handler := deliver.NewHandler(
+				fakeChainManager,
+				time.Second,
+				false,
+				deliver.NewMetrics(&disabled.Provider{}),
+			)
 			Expect(handler).NotTo(BeNil())
 
 			Expect(handler.ChainManager).To(Equal(fakeChainManager))
@@ -81,15 +87,20 @@ var _ = Describe("Deliver", func() {
 
 	Describe("Handle", func() {
 		var (
-			errCh              chan struct{}
-			fakeChain          *mock.Chain
-			fakeBlockReader    *mock.BlockReader
-			fakeBlockIterator  *mock.BlockIterator
-			fakeChainManager   *mock.ChainManager
-			fakePolicyChecker  *mock.PolicyChecker
-			fakeReceiver       *mock.Receiver
-			fakeResponseSender *mock.ResponseSender
-			fakeInspector      *mock.Inspector
+			errCh                 chan struct{}
+			fakeChain             *mock.Chain
+			fakeBlockReader       *mock.BlockReader
+			fakeBlockIterator     *mock.BlockIterator
+			fakeChainManager      *mock.ChainManager
+			fakePolicyChecker     *mock.PolicyChecker
+			fakeReceiver          *mock.Receiver
+			fakeResponseSender    *mock.ResponseSender
+			fakeInspector         *mock.Inspector
+			fakeStreamsOpened     *metricsfakes.Counter
+			fakeStreamsClosed     *metricsfakes.Counter
+			fakeRequestsReceived  *metricsfakes.Counter
+			fakeRequestsCompleted *metricsfakes.Counter
+			fakeBlocksSent        *metricsfakes.Counter
 
 			handler *deliver.Handler
 			server  *deliver.Server
@@ -120,7 +131,7 @@ var _ = Describe("Deliver", func() {
 			fakeChain.ReaderReturns(fakeBlockReader)
 
 			fakeChainManager = &mock.ChainManager{}
-			fakeChainManager.GetChainReturns(fakeChain, true)
+			fakeChainManager.GetChainReturns(fakeChain)
 
 			fakePolicyChecker = &mock.PolicyChecker{}
 			fakeReceiver = &mock.Receiver{}
@@ -128,10 +139,30 @@ var _ = Describe("Deliver", func() {
 
 			fakeInspector = &mock.Inspector{}
 
+			fakeStreamsOpened = &metricsfakes.Counter{}
+			fakeStreamsOpened.WithReturns(fakeStreamsOpened)
+			fakeStreamsClosed = &metricsfakes.Counter{}
+			fakeStreamsClosed.WithReturns(fakeStreamsClosed)
+			fakeRequestsReceived = &metricsfakes.Counter{}
+			fakeRequestsReceived.WithReturns(fakeRequestsReceived)
+			fakeRequestsCompleted = &metricsfakes.Counter{}
+			fakeRequestsCompleted.WithReturns(fakeRequestsCompleted)
+			fakeBlocksSent = &metricsfakes.Counter{}
+			fakeBlocksSent.WithReturns(fakeBlocksSent)
+
+			deliverMetrics := &deliver.Metrics{
+				StreamsOpened:     fakeStreamsOpened,
+				StreamsClosed:     fakeStreamsClosed,
+				RequestsReceived:  fakeRequestsReceived,
+				RequestsCompleted: fakeRequestsCompleted,
+				BlocksSent:        fakeBlocksSent,
+			}
+
 			handler = &deliver.Handler{
 				ChainManager:     fakeChainManager,
 				TimeWindow:       time.Second,
 				BindingInspector: fakeInspector,
+				Metrics:          deliverMetrics,
 			}
 			server = &deliver.Server{
 				Receiver:       fakeReceiver,
@@ -182,6 +213,32 @@ var _ = Describe("Deliver", func() {
 				}
 				envelope.Payload = utils.MarshalOrPanic(payload)
 			}
+		})
+
+		It("records streams opened before streams closed", func() {
+			fakeStreamsOpened.AddStub = func(delta float64) {
+				defer GinkgoRecover()
+				Expect(fakeStreamsClosed.AddCallCount()).To(Equal(0))
+			}
+
+			err := handler.Handle(context.Background(), server)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(fakeStreamsOpened.AddCallCount()).To(Equal(1))
+			Expect(fakeStreamsOpened.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+		})
+
+		It("records streams closed after streams opened", func() {
+			fakeStreamsClosed.AddStub = func(delta float64) {
+				defer GinkgoRecover()
+				Expect(fakeStreamsOpened.AddCallCount()).To(Equal(1))
+			}
+
+			err := handler.Handle(context.Background(), server)
+			Expect(err).NotTo(HaveOccurred())
+
+			Expect(fakeStreamsClosed.AddCallCount()).To(Equal(1))
+			Expect(fakeStreamsClosed.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
 		})
 
 		It("validates the channel header with the binding inspector", func() {
@@ -272,6 +329,41 @@ var _ = Describe("Deliver", func() {
 					}))
 				}
 			})
+
+			It("records requests received, blocks sent, and requests completed", func() {
+				err := handler.Handle(context.Background(), server)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(fakeRequestsReceived.AddCallCount()).To(Equal(1))
+				Expect(fakeRequestsReceived.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+				Expect(fakeRequestsReceived.WithCallCount()).To(Equal(1))
+				labelValues := fakeRequestsReceived.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"channel", "chain-id",
+					"filtered", "false",
+				}))
+
+				Expect(fakeBlocksSent.AddCallCount()).To(Equal(5))
+				Expect(fakeBlocksSent.WithCallCount()).To(Equal(5))
+				for i := 0; i < 5; i++ {
+					Expect(fakeBlocksSent.AddArgsForCall(i)).To(BeNumerically("~", 1.0))
+					labelValues := fakeBlocksSent.WithArgsForCall(i)
+					Expect(labelValues).To(Equal([]string{
+						"channel", "chain-id",
+						"filtered", "false",
+					}))
+				}
+
+				Expect(fakeRequestsCompleted.AddCallCount()).To(Equal(1))
+				Expect(fakeRequestsCompleted.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+				Expect(fakeRequestsCompleted.WithCallCount()).To(Equal(1))
+				labelValues = fakeRequestsCompleted.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"channel", "chain-id",
+					"filtered", "false",
+					"success", "true",
+				}))
+			})
 		})
 
 		Context("when seek info is configured to stop at the oldest block", func() {
@@ -325,6 +417,74 @@ var _ = Describe("Deliver", func() {
 						Header: &cb.BlockHeader{Number: uint64(i + 1)},
 					}))
 				}
+			})
+		})
+
+		Context("when filtered blocks are requested", func() {
+			var fakeResponseSender *mock.FilteredResponseSender
+
+			BeforeEach(func() {
+				fakeResponseSender = &mock.FilteredResponseSender{}
+				fakeResponseSender.IsFilteredReturns(true)
+				server.ResponseSender = fakeResponseSender
+			})
+
+			It("checks if the response sender is filtered", func() {
+				err := handler.Handle(context.Background(), server)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(fakeResponseSender.IsFilteredCallCount()).To(Equal(1))
+			})
+
+			Context("when the response sender indicates it is not filtered", func() {
+				BeforeEach(func() {
+					fakeResponseSender.IsFilteredReturns(false)
+				})
+
+				It("labels the metric with filtered=false", func() {
+					err := handler.Handle(context.Background(), server)
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(fakeRequestsReceived.WithCallCount()).To(Equal(1))
+					labelValues := fakeRequestsReceived.WithArgsForCall(0)
+					Expect(labelValues).To(Equal([]string{
+						"channel", "chain-id",
+						"filtered", "false",
+					}))
+				})
+			})
+
+			It("records requests received, blocks sent, and requests completed with the filtered label set to true", func() {
+				err := handler.Handle(context.Background(), server)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(fakeRequestsReceived.AddCallCount()).To(Equal(1))
+				Expect(fakeRequestsReceived.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+				Expect(fakeRequestsReceived.WithCallCount()).To(Equal(1))
+				labelValues := fakeRequestsReceived.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"channel", "chain-id",
+					"filtered", "true",
+				}))
+
+				Expect(fakeBlocksSent.AddCallCount()).To(Equal(1))
+				Expect(fakeBlocksSent.WithCallCount()).To(Equal(1))
+				Expect(fakeBlocksSent.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+				labelValues = fakeBlocksSent.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"channel", "chain-id",
+					"filtered", "true",
+				}))
+
+				Expect(fakeRequestsCompleted.AddCallCount()).To(Equal(1))
+				Expect(fakeRequestsCompleted.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+				Expect(fakeRequestsCompleted.WithCallCount()).To(Equal(1))
+				labelValues = fakeRequestsCompleted.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"channel", "chain-id",
+					"filtered", "true",
+					"success", "true",
+				}))
 			})
 		})
 
@@ -453,7 +613,7 @@ var _ = Describe("Deliver", func() {
 
 		Context("when the channel is not found", func() {
 			BeforeEach(func() {
-				fakeChainManager.GetChainReturns(nil, false)
+				fakeChainManager.GetChainReturns(nil)
 			})
 
 			It("sends status not found", func() {
@@ -507,14 +667,41 @@ var _ = Describe("Deliver", func() {
 				resp := fakeResponseSender.SendStatusResponseArgsForCall(0)
 				Expect(resp).To(Equal(cb.Status_SERVICE_UNAVAILABLE))
 			})
+
+			Context("when the seek info requests a best effort error response", func() {
+				BeforeEach(func() {
+					seekInfo.ErrorResponse = ab.SeekInfo_BEST_EFFORT
+				})
+
+				It("replies with the desired blocks", func() {
+					err := handler.Handle(context.Background(), server)
+					Expect(err).NotTo(HaveOccurred())
+
+					Expect(fakeResponseSender.SendBlockResponseCallCount()).To(Equal(1))
+					Expect(fakeResponseSender.SendStatusResponseCallCount()).To(Equal(1))
+					resp := fakeResponseSender.SendStatusResponseArgsForCall(0)
+					Expect(resp).To(Equal(cb.Status_SUCCESS))
+				})
+			})
 		})
 
 		Context("when the chain errors while reading from the chain", func() {
+			var doneCh chan struct{}
+
 			BeforeEach(func() {
+				doneCh = make(chan struct{})
+				fakeBlockIterator.NextStub = func() (*cb.Block, cb.Status) {
+					<-doneCh
+					return &cb.Block{}, cb.Status_INTERNAL_SERVER_ERROR
+				}
 				fakeChain.ReaderStub = func() blockledger.Reader {
 					close(errCh)
 					return fakeBlockReader
 				}
+			})
+
+			AfterEach(func() {
+				close(doneCh)
 			})
 
 			It("sends status service unavailable", func() {
@@ -540,6 +727,33 @@ var _ = Describe("Deliver", func() {
 				Expect(fakeResponseSender.SendStatusResponseCallCount()).To(Equal(1))
 				resp := fakeResponseSender.SendStatusResponseArgsForCall(0)
 				Expect(resp).To(Equal(cb.Status_FORBIDDEN))
+			})
+
+			It("records requests received, (unsuccessful) requests completed, and (zero) blocks sent", func() {
+				err := handler.Handle(context.Background(), server)
+				Expect(err).NotTo(HaveOccurred())
+
+				Expect(fakeRequestsReceived.AddCallCount()).To(Equal(1))
+				Expect(fakeRequestsReceived.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+				Expect(fakeRequestsReceived.WithCallCount()).To(Equal(1))
+				labelValues := fakeRequestsReceived.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"channel", "chain-id",
+					"filtered", "false",
+				}))
+
+				Expect(fakeBlocksSent.AddCallCount()).To(Equal(0))
+				Expect(fakeBlocksSent.WithCallCount()).To(Equal(0))
+
+				Expect(fakeRequestsCompleted.AddCallCount()).To(Equal(1))
+				Expect(fakeRequestsCompleted.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+				Expect(fakeRequestsCompleted.WithCallCount()).To(Equal(1))
+				labelValues = fakeRequestsCompleted.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"channel", "chain-id",
+					"filtered", "false",
+					"success", "false",
+				}))
 			})
 		})
 

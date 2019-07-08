@@ -12,12 +12,12 @@ import (
 	"sort"
 	"strings"
 
-	"justledger/core/chaincode/accesscontrol"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/common/ccprovider"
-	"justledger/core/container"
-	"justledger/core/container/ccintf"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode/accesscontrol"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/container"
+	"github.com/justledger/fabric/core/container/ccintf"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 
@@ -99,11 +99,38 @@ func (c *ContainerRuntime) Stop(ccci *ccprovider.ChaincodeContainerInfo) error {
 	return nil
 }
 
+// Wait waits for the container runtime to terminate.
+func (c *ContainerRuntime) Wait(ccci *ccprovider.ChaincodeContainerInfo) (int, error) {
+	type result struct {
+		exitCode int
+		err      error
+	}
+
+	resultCh := make(chan result, 1)
+	wcr := container.WaitContainerReq{
+		CCID: ccintf.CCID{
+			Name:    ccci.Name,
+			Version: ccci.Version,
+		},
+		Exited: func(exitCode int, err error) {
+			resultCh <- result{exitCode: exitCode, err: err}
+			close(resultCh)
+		},
+	}
+
+	if err := c.Processor.Process(ccci.ContainerType, wcr); err != nil {
+		return -1, err
+	}
+	r := <-resultCh
+
+	return r.exitCode, r.err
+}
+
 const (
 	// Mutual TLS auth client key and cert paths in the chaincode container
-	TLSClientKeyPath      string = "/etc/hyperledger/fabric/client.key"
-	TLSClientCertPath     string = "/etc/hyperledger/fabric/client.crt"
-	TLSClientRootCertPath string = "/etc/hyperledger/fabric/peer.crt"
+	TLSClientKeyPath      string = "/etc/justledger/fabric/client.key"
+	TLSClientCertPath     string = "/etc/justledger/fabric/client.crt"
+	TLSClientRootCertPath string = "/etc/justledger/fabric/peer.crt"
 )
 
 func (c *ContainerRuntime) getTLSFiles(keyPair *accesscontrol.CertAndPrivKeyPair) map[string][]byte {

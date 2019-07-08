@@ -10,9 +10,9 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/bccsp"
-	bccspfactory "justledger/bccsp/factory"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/bccsp"
+	bccspfactory "github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/pkg/errors"
 )
 

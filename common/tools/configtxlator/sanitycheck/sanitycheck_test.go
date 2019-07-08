@@ -19,17 +19,16 @@ package sanitycheck
 import (
 	"testing"
 
-	"justledger/bccsp/factory"
-	"justledger/common/cauthdsl"
-	"justledger/common/channelconfig"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	cb "justledger/protos/common"
-	mspprotos "justledger/protos/msp"
-	"justledger/protos/utils"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	mspprotos "github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

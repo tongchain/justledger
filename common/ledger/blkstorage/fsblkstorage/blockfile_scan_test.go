@@ -20,11 +20,10 @@ import (
 	"os"
 	"testing"
 
-	"justledger/common/ledger/testutil"
-	"justledger/common/ledger/util"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/common/ledger/util"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
-
-	"justledger/protos/common"
 )
 
 func TestBlockFileScanSmallTxOnly(t *testing.T) {

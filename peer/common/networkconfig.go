@@ -13,7 +13,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// NetworkConfig provides a static definition of a Hyperledger Fabric network
+// NetworkConfig provides a static definition of a justledger Fabric network
 type NetworkConfig struct {
 	Name                   string                          `yaml:"name"`
 	Xtype                  string                          `yaml:"x-type"`

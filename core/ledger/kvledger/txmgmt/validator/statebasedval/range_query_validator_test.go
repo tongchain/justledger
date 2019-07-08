@@ -19,11 +19,11 @@ package statebasedval
 import (
 	"testing"
 
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -9,9 +9,9 @@ package main
 import (
 	"os"
 
-	"justledger/bccsp/factory"
-	"justledger/cmd/common"
-	"justledger/discovery/cmd"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/cmd/common"
+	"github.com/justledger/fabric/discovery/cmd"
 )
 
 func main() {

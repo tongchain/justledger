@@ -10,12 +10,12 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/handlers/validation/api"
-	. "justledger/core/handlers/validation/api/capabilities"
-	. "justledger/core/handlers/validation/api/identities"
-	. "justledger/core/handlers/validation/api/policies"
-	. "justledger/core/handlers/validation/api/state"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/core/handlers/validation/api"
+	. "github.com/justledger/fabric/core/handlers/validation/api/capabilities"
+	. "github.com/justledger/fabric/core/handlers/validation/api/identities"
+	. "github.com/justledger/fabric/core/handlers/validation/api/policies"
+	. "github.com/justledger/fabric/core/handlers/validation/api/state"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,6 +28,12 @@ type SampleValidationPlugin struct {
 	c  Capabilities
 	sf StateFetcher
 	pe PolicyEvaluator
+}
+
+// NewSampleValidationPlugin returns an instance of a validation plugin setup
+// for assertions.
+func NewSampleValidationPlugin(t *testing.T) *SampleValidationPlugin {
+	return &SampleValidationPlugin{t: t}
 }
 
 type MarshaledSignedData struct {

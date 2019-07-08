@@ -27,10 +27,10 @@ import (
 	"testing"
 	"time"
 
-	"justledger/bccsp"
-	"justledger/bccsp/signer"
-	"justledger/bccsp/sw"
-	"justledger/bccsp/utils"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/signer"
+	"github.com/justledger/fabric/bccsp/sw"
+	"github.com/justledger/fabric/bccsp/utils"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/sha3"
 )
@@ -847,7 +847,7 @@ func TestKeyImportFromX509ECDSAPublicKey(t *testing.T) {
 		UnknownExtKeyUsage: testUnknownExtKeyUsage,
 
 		BasicConstraintsValid: true,
-		IsCA: true,
+		IsCA:                  true,
 
 		OCSPServer:            []string{"http://ocurrentBCCSP.example.com"},
 		IssuingCertificateURL: []string{"http://crt.example.com/ca1.crt"},
@@ -1693,7 +1693,7 @@ func TestKeyImportFromX509RSAPublicKey(t *testing.T) {
 		UnknownExtKeyUsage: testUnknownExtKeyUsage,
 
 		BasicConstraintsValid: true,
-		IsCA: true,
+		IsCA:                  true,
 
 		OCSPServer:            []string{"http://ocurrentBCCSP.example.com"},
 		IssuingCertificateURL: []string{"http://crt.example.com/ca1.crt"},

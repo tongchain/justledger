@@ -11,12 +11,13 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"justledger/gossip/api"
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/gossip/channel"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/comm"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/gossip/gossip/channel"
+	"github.com/justledger/fabric/gossip/metrics"
+	proto "github.com/justledger/fabric/protos/gossip"
 )
 
 type channelState struct {
@@ -93,7 +94,8 @@ func (cs *channelState) getGossipChannelByChainID(chainID common.ChainID) channe
 	return cs.channels[string(chainID)]
 }
 
-func (cs *channelState) joinChannel(joinMsg api.JoinChannelMessage, chainID common.ChainID) {
+func (cs *channelState) joinChannel(joinMsg api.JoinChannelMessage, chainID common.ChainID,
+	metrics *metrics.MembershipMetrics) {
 	if cs.isStopping() {
 		return
 	}
@@ -102,7 +104,7 @@ func (cs *channelState) joinChannel(joinMsg api.JoinChannelMessage, chainID comm
 	if gc, exists := cs.channels[string(chainID)]; !exists {
 		pkiID := cs.g.comm.GetPKIid()
 		ga := &gossipAdapterImpl{gossipServiceImpl: cs.g, Discovery: cs.g.disc}
-		gc := channel.NewGossipChannel(pkiID, cs.g.selfOrg, cs.g.mcs, chainID, ga, joinMsg)
+		gc := channel.NewGossipChannel(pkiID, cs.g.selfOrg, cs.g.mcs, chainID, ga, joinMsg, metrics)
 		cs.channels[string(chainID)] = gc
 	} else {
 		gc.ConfigureChannel(joinMsg)
@@ -124,6 +126,11 @@ func (ga *gossipAdapterImpl) GetConf() channel.Config {
 		RequestStateInfoInterval:    ga.conf.RequestStateInfoInterval,
 		BlockExpirationInterval:     ga.conf.PullInterval * 100,
 		StateInfoCacheSweepInterval: ga.conf.PullInterval * 5,
+		TimeForMembershipTracker:    ga.conf.TimeForMembershipTracker,
+		DigestWaitTime:              ga.conf.DigestWaitTime,
+		RequestWaitTime:             ga.conf.RequestWaitTime,
+		ResponseWaitTime:            ga.conf.ResponseWaitTime,
+		MsgExpirationTimeout:        ga.conf.MsgExpirationTimeout,
 	}
 }
 

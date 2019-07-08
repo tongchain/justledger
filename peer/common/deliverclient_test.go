@@ -12,11 +12,12 @@ import (
 	"sync"
 	"testing"
 
-	"justledger/core/config/configtest"
-	"justledger/msp/mgmt/testtools"
-	"justledger/peer/common/mock"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/msp/mgmt/testtools"
+	"github.com/justledger/fabric/peer/common/mock"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -88,6 +89,27 @@ func TestDeliverClientErrors(t *testing.T) {
 	assert.Contains(t, err.Error(), "error getting newest block: gorilla")
 }
 
+func TestSeekHelper(t *testing.T) {
+	t.Run("Standard", func(t *testing.T) {
+		env := seekHelper("channel-id", &ab.SeekPosition{}, nil, false)
+		assert.NotNil(t, env)
+		seekInfo := &ab.SeekInfo{}
+		_, err := utils.UnmarshalEnvelopeOfType(env, cb.HeaderType_DELIVER_SEEK_INFO, seekInfo)
+		assert.NoError(t, err)
+		assert.Equal(t, seekInfo.Behavior, ab.SeekInfo_BLOCK_UNTIL_READY)
+		assert.Equal(t, seekInfo.ErrorResponse, ab.SeekInfo_STRICT)
+	})
+
+	t.Run("BestEffort", func(t *testing.T) {
+		env := seekHelper("channel-id", &ab.SeekPosition{}, nil, true)
+		assert.NotNil(t, env)
+		seekInfo := &ab.SeekInfo{}
+		_, err := utils.UnmarshalEnvelopeOfType(env, cb.HeaderType_DELIVER_SEEK_INFO, seekInfo)
+		assert.NoError(t, err)
+		assert.Equal(t, seekInfo.ErrorResponse, ab.SeekInfo_BEST_EFFORT)
+	})
+}
+
 func TestNewOrdererDeliverClient(t *testing.T) {
 	defer viper.Reset()
 	cleanup := configtest.SetDevFabricConfigPath(t)
@@ -97,7 +119,7 @@ func TestNewOrdererDeliverClient(t *testing.T) {
 	// failure - rootcert file doesn't exist
 	viper.Set("orderer.tls.enabled", true)
 	viper.Set("orderer.tls.rootcert.file", "ukelele.crt")
-	oc, err := NewDeliverClientForOrderer("ukelele")
+	oc, err := NewDeliverClientForOrderer("ukelele", false)
 	assert.Nil(t, oc)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to create deliver client: failed to load config for OrdererClient")
@@ -112,7 +134,7 @@ func TestNewDeliverClientForPeer(t *testing.T) {
 	// failure - rootcert file doesn't exist
 	viper.Set("peer.tls.enabled", true)
 	viper.Set("peer.tls.rootcert.file", "ukelele.crt")
-	pc, err := NewDeliverClientForPeer("ukelele")
+	pc, err := NewDeliverClientForPeer("ukelele", false)
 	assert.Nil(t, pc)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to create deliver client: failed to load config for PeerClient")

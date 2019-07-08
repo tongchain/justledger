@@ -36,7 +36,7 @@
 #   - clean-all - superset of 'clean' that also removes persistent state
 #   - dist-clean - clean release packages for all target platforms
 #   - unit-test-clean - cleans unit test state (particularly from docker)
-#   - basic-checks - performs basic checks like license, spelling and linter
+#   - basic-checks - performs basic checks like license, spelling, trailing spaces and linter
 #   - enable_ci_only_tests - triggers unit-tests in downstream jobs. Applicable only for CI not to
 #     use in the local machine.
 #   - docker-thirdparty - pulls thirdparty images (kafka,zookeeper,couchdb)
@@ -44,10 +44,10 @@
 #   - docker-tag-stable - re-tags the images made by 'make docker' with the :stable tag
 #   - help-docs - generate the command reference docs
 
-BASE_VERSION = 1.3.1
-PREV_VERSION = 1.3.0
+BASE_VERSION = 1.4.2
+PREV_VERSION = 1.4.1
 CHAINTOOL_RELEASE=1.1.3
-BASEIMAGE_RELEASE=0.4.13
+BASEIMAGE_RELEASE=0.4.15
 
 # Allow to build as a submodule setting the main project to
 # the PROJECT_NAME env variable, for example,
@@ -57,19 +57,14 @@ PROJECT_NAME = justledger
 else
 PROJECT_NAME = justledger
 endif
-EXPERIMENTAL ?= false
 
 BUILD_DIR ?= .build
 NEXUS_REPO = nexus3.hyperledger.org:10001/hyperledger
 
-ifeq ($(EXPERIMENTAL),true)
-GO_TAGS += experimental
-endif
-
 EXTRA_VERSION ?= $(shell git rev-parse --short HEAD)
-PROJECT_VERSION=$(BASE_VERSION)
+PROJECT_VERSION=$(BASE_VERSION)-snapshot-$(EXTRA_VERSION)
 
-PKGNAME = $(PROJECT_NAME)
+PKGNAME = github.com/$(PROJECT_NAME)
 CGO_FLAGS = CGO_CFLAGS=" "
 ARCH=$(shell go env GOARCH)
 MARCH=$(shell go env GOOS)-$(shell go env GOARCH)
@@ -81,7 +76,6 @@ METADATA_VAR += BaseVersion=$(BASEIMAGE_RELEASE)
 METADATA_VAR += BaseDockerLabel=$(BASE_DOCKER_LABEL)
 METADATA_VAR += DockerNamespace=$(DOCKER_NS)
 METADATA_VAR += BaseDockerNamespace=$(BASE_DOCKER_NS)
-METADATA_VAR += Experimental=$(EXPERIMENTAL)
 
 GO_LDFLAGS = $(patsubst %,-X $(PKGNAME)/common/metadata.%,$(METADATA_VAR))
 
@@ -96,15 +90,14 @@ K := $(foreach exec,$(EXECUTABLES),\
 	$(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH: Check dependencies")))
 
 GOSHIM_DEPS = $(shell ./scripts/goListFiles.sh $(PKGNAME)/core/chaincode/shim)
-JAVASHIM_DEPS =  $(shell git ls-files core/chaincode/shim/java)
-PROTOS = $(shell git ls-files *.proto | grep -v vendor)
+PROTOS = $(shell git ls-files *.proto | grep -Ev 'vendor/|testdata/')
 # No sense rebuilding when non production code is changed
 PROJECT_FILES = $(shell git ls-files  | grep -v ^test | grep -v ^unit-test | \
 	grep -v ^.git | grep -v ^examples | grep -v ^devenv | grep -v .png$ | \
 	grep -v ^LICENSE | grep -v ^vendor )
 RELEASE_TEMPLATES = $(shell git ls-files | grep "release/templates")
-IMAGES = peer orderer ccenv buildenv testenv tools
-RELEASE_PLATFORMS = windows-amd64 darwin-amd64 linux-amd64 linux-s390x
+IMAGES = peer orderer ccenv buildenv tools
+RELEASE_PLATFORMS = windows-amd64 darwin-amd64 linux-amd64 linux-s390x linux-ppc64le
 RELEASE_PKGS = configtxgen cryptogen idemixgen discover configtxlator peer orderer
 
 pkgmap.cryptogen      := $(PKGNAME)/common/tools/cryptogen
@@ -122,7 +115,7 @@ all: native docker checks
 
 checks: basic-checks unit-test integration-test
 
-basic-checks: license spelling linter
+basic-checks: license spelling trailing-spaces linter check-metrics-doc
 
 desk-check: checks verify
 
@@ -146,6 +139,10 @@ spelling:
 .PHONY: license
 license:
 	@scripts/check_license.sh
+
+.PHONY: trailing-spaces
+trailing-spaces:
+	@scripts/check_trailingspaces.sh
 
 include gotools.mk
 
@@ -180,27 +177,24 @@ tools-docker: $(BUILD_DIR)/image/tools/$(DUMMY)
 
 buildenv: $(BUILD_DIR)/image/buildenv/$(DUMMY)
 
-$(BUILD_DIR)/image/testenv/$(DUMMY): $(BUILD_DIR)/image/buildenv/$(DUMMY)
-testenv: $(BUILD_DIR)/image/testenv/$(DUMMY)
 ccenv: $(BUILD_DIR)/image/ccenv/$(DUMMY)
 
 .PHONY: integration-test
 integration-test: gotool.ginkgo ccenv docker-thirdparty
 	./scripts/run-integration-tests.sh
 
-unit-test: unit-test-clean peer-docker testenv ccenv
-	cd unit-test && docker-compose up --abort-on-container-exit --force-recreate && docker-compose down
+unit-test: unit-test-clean peer-docker docker-thirdparty ccenv
+	unit-test/run.sh
 
 unit-tests: unit-test
 
-enable_ci_only_tests: testenv
-	cd unit-test && docker-compose up --abort-on-container-exit --force-recreate && docker-compose down
+enable_ci_only_tests: unit-test
 
-verify: unit-test-clean peer-docker testenv
-	cd unit-test && JOB_TYPE=VERIFY docker-compose up --abort-on-container-exit --force-recreate && docker-compose down
+verify: export JOB_TYPE=VERIFY
+verify: unit-test
 
-profile: unit-test-clean peer-docker testenv
-	cd unit-test && JOB_TYPE=PROFILE docker-compose up --abort-on-container-exit --force-recreate && docker-compose down
+profile: export JOB_TYPE=PROFILE
+profile: unit-test
 
 # Generates a string to the terminal suitable for manual augmentation / re-issue, useful for running tests by hand
 test-cmd:
@@ -217,6 +211,14 @@ linter: check-deps buildenv
 check-deps: buildenv
 	@echo "DEP: Checking for dependency issues.."
 	@$(DRUN) $(DOCKER_NS)/fabric-buildenv:$(DOCKER_TAG) ./scripts/check_deps.sh
+
+check-metrics-doc: buildenv
+	@echo "METRICS: Checking for outdated reference documentation.."
+	@$(DRUN) $(DOCKER_NS)/fabric-buildenv:$(DOCKER_TAG) ./scripts/metrics_doc.sh check
+
+generate-metrics-doc: buildenv
+	@echo "Generating metrics reference documentation..."
+	@$(DRUN) $(DOCKER_NS)/fabric-buildenv:$(DOCKER_TAG) ./scripts/metrics_doc.sh generate
 
 $(BUILD_DIR)/%/chaintool: Makefile
 	@echo "Installing chaintool"
@@ -271,10 +273,6 @@ $(BUILD_DIR)/image/orderer/payload:    $(BUILD_DIR)/docker/bin/orderer \
 				$(BUILD_DIR)/sampleconfig.tar.bz2
 $(BUILD_DIR)/image/buildenv/payload:   $(BUILD_DIR)/gotools.tar.bz2 \
 				$(BUILD_DIR)/docker/gotools/bin/protoc-gen-go
-$(BUILD_DIR)/image/testenv/payload:    $(BUILD_DIR)/docker/bin/orderer \
-				$(BUILD_DIR)/docker/bin/peer \
-				$(BUILD_DIR)/sampleconfig.tar.bz2 \
-				images/testenv/install-softhsm2.sh
 
 $(BUILD_DIR)/image/%/payload:
 	mkdir -p $@
@@ -296,15 +294,17 @@ $(BUILD_DIR)/image/%/Dockerfile: images/%/Dockerfile.in
 $(BUILD_DIR)/image/tools/$(DUMMY): $(BUILD_DIR)/image/tools/Dockerfile
 	$(eval TARGET = ${patsubst $(BUILD_DIR)/image/%/$(DUMMY),%,${@}})
 	@echo "Building docker $(TARGET)-image"
-	$(DBUILD) -t justledger/$(TARGET) -f $(@D)/Dockerfile .
-	docker tag justledger/$(TARGET) justledger/$(TARGET):$(DOCKER_TAG)
+	$(DBUILD) -t $(DOCKER_NS)/fabric-$(TARGET) -f $(@D)/Dockerfile .
+	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG)
+	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(ARCH)-latest
 	@touch $@
 
 $(BUILD_DIR)/image/%/$(DUMMY): Makefile $(BUILD_DIR)/image/%/payload $(BUILD_DIR)/image/%/Dockerfile
 	$(eval TARGET = ${patsubst $(BUILD_DIR)/image/%/$(DUMMY),%,${@}})
 	@echo "Building docker $(TARGET)-image"
-	$(DBUILD) -t justledger/$(TARGET) $(@D)
-	docker tag justledger/$(TARGET) justledger/$(TARGET):$(DOCKER_TAG)
+	$(DBUILD) -t $(DOCKER_NS)/fabric-$(TARGET) $(@D)
+	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG)
+	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(ARCH)-latest
 	@touch $@
 
 $(BUILD_DIR)/gotools.tar.bz2: $(BUILD_DIR)/docker/gotools
@@ -317,7 +317,6 @@ $(BUILD_DIR)/goshim.tar.bz2: $(GOSHIM_DEPS)
 $(BUILD_DIR)/sampleconfig.tar.bz2: $(shell find sampleconfig -type f)
 	(cd sampleconfig && tar -jc *) > $@
 
-$(BUILD_DIR)/javashim.tar.bz2: $(JAVASHIM_DEPS)
 $(BUILD_DIR)/protos.tar.bz2: $(PROTOS)
 
 $(BUILD_DIR)/%.tar.bz2:
@@ -333,19 +332,22 @@ release-all: $(patsubst %,release/%, $(RELEASE_PLATFORMS))
 release/%: GO_LDFLAGS=-X $(pkgmap.$(@F))/metadata.CommitSHA=$(EXTRA_VERSION)
 
 release/windows-amd64: GOOS=windows
-release/windows-amd64: $(patsubst %,release/windows-amd64/bin/%, $(RELEASE_PKGS)) release/windows-amd64/install
+release/windows-amd64: $(patsubst %,release/windows-amd64/bin/%, $(RELEASE_PKGS))
 
 release/darwin-amd64: GOOS=darwin
-release/darwin-amd64: $(patsubst %,release/darwin-amd64/bin/%, $(RELEASE_PKGS)) release/darwin-amd64/install
+release/darwin-amd64: $(patsubst %,release/darwin-amd64/bin/%, $(RELEASE_PKGS))
 
 release/linux-amd64: GOOS=linux
-release/linux-amd64: $(patsubst %,release/linux-amd64/bin/%, $(RELEASE_PKGS)) release/linux-amd64/install
+release/linux-amd64: $(patsubst %,release/linux-amd64/bin/%, $(RELEASE_PKGS))
 
 release/%-amd64: GOARCH=amd64
 release/linux-%: GOOS=linux
 
 release/linux-s390x: GOARCH=s390x
-release/linux-s390x: $(patsubst %,release/linux-s390x/bin/%, $(RELEASE_PKGS)) release/linux-s390x/install
+release/linux-s390x: $(patsubst %,release/linux-s390x/bin/%, $(RELEASE_PKGS))
+
+release/linux-ppc64le: GOARCH=ppc64le
+release/linux-ppc64le: $(patsubst %,release/linux-ppc64le/bin/%, $(RELEASE_PKGS))
 
 release/%/bin/configtxlator: $(PROJECT_FILES)
 	@echo "Building $@ for $(GOOS)-$(GOARCH)"
@@ -385,16 +387,6 @@ release/%/bin/peer: $(PROJECT_FILES)
 	@echo "Building $@ for $(GOOS)-$(GOARCH)"
 	mkdir -p $(@D)
 	$(CGO_FLAGS) GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(abspath $@) -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" $(pkgmap.$(@F))
-
-release/%/install: $(PROJECT_FILES)
-	mkdir -p $(@D)/bin
-	@cat $(@D)/../templates/get-docker-images.in \
-		| sed -e 's|_NS_|$(DOCKER_NS)|g' \
-		| sed -e 's|_ARCH_|$(GOARCH)|g' \
-		| sed -e 's|_VERSION_|$(PROJECT_VERSION)|g' \
-		| sed -e 's|_BASE_DOCKER_TAG_|$(BASE_DOCKER_TAG)|g' \
-		> $(@D)/bin/get-docker-images.sh
-		@chmod +x $(@D)/bin/get-docker-images.sh
 
 .PHONY: dist
 dist: dist-clean dist/$(MARCH)
@@ -450,6 +442,7 @@ dist-clean:
 	-@rm -rf release/darwin-amd64/hyperledger-fabric-darwin-amd64.$(PROJECT_VERSION).tar.gz
 	-@rm -rf release/linux-amd64/hyperledger-fabric-linux-amd64.$(PROJECT_VERSION).tar.gz
 	-@rm -rf release/linux-s390x/hyperledger-fabric-linux-s390x.$(PROJECT_VERSION).tar.gz
+	-@rm -rf release/linux-ppc64le/hyperledger-fabric-linux-ppc64le.$(PROJECT_VERSION).tar.gz
 
 %-release-clean:
 	$(eval TARGET = ${patsubst %-release-clean,%,${@}})

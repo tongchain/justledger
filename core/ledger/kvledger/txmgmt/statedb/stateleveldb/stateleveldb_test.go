@@ -20,9 +20,9 @@ import (
 	"os"
 	"testing"
 
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/commontests"
-	"justledger/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/commontests"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -111,8 +111,8 @@ func TestUtilityFunctions(t *testing.T) {
 	db, err := env.DBProvider.GetDBHandle("testutilityfunctions")
 	assert.NoError(t, err)
 
-	// BytesKeySuppoted should be true for goleveldb
-	byteKeySupported := db.BytesKeySuppoted()
+	// BytesKeySupported should be true for goleveldb
+	byteKeySupported := db.BytesKeySupported()
 	assert.True(t, byteKeySupported)
 
 	// ValidateKeyValue should return nil for a valid key and value
@@ -129,4 +129,10 @@ func TestPaginatedRangeQuery(t *testing.T) {
 	env := NewTestVDBEnv(t)
 	defer env.Cleanup()
 	commontests.TestPaginatedRangeQuery(t, env.DBProvider)
+}
+
+func TestApplyUpdatesWithNilHeight(t *testing.T) {
+	env := NewTestVDBEnv(t)
+	defer env.Cleanup()
+	commontests.TestApplyUpdatesWithNilHeight(t, env.DBProvider)
 }

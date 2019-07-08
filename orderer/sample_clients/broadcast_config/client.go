@@ -9,13 +9,12 @@ import (
 	"fmt"
 	"os"
 
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/orderer/common/localconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
 	"google.golang.org/grpc"
-
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/orderer/common/localconfig"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
 )
 
 type broadcastClient struct {

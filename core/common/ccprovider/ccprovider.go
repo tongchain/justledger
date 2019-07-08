@@ -13,12 +13,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/chaincode"
-	"justledger/common/flogging"
-	"justledger/core/ledger"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/chaincode"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/core/ledger"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 
@@ -81,6 +83,16 @@ func SetChaincodesPath(path string) {
 
 func GetChaincodePackage(ccname string, ccversion string) ([]byte, error) {
 	return GetChaincodePackageFromPath(ccname, ccversion, chaincodeInstallPath)
+}
+
+// isPrintable is used by CDSPackage and SignedCDSPackage validation to
+// detect garbage strings in unmarshaled proto fields where printable
+// characters are expected.
+func isPrintable(name string) bool {
+	notASCII := func(r rune) bool {
+		return !unicode.IsPrint(r)
+	}
+	return strings.IndexFunc(name, notASCII) == -1
 }
 
 // GetChaincodePackage returns the chaincode package from the file system
@@ -256,7 +268,7 @@ func CheckInstantiationPolicy(name, version string, cdLedger *ChaincodeData) err
 	// policy. This check is there to ensure that this will not
 	// happen, i.e. that the peer will refuse to invoke the
 	// chaincode under these conditions. More info on
-	// https://jira.hyperledger.org/browse/FAB-3156
+	// https://jira.justledger.org/browse/FAB-3156
 	if ccdata.InstantiationPolicy != nil {
 		if !bytes.Equal(ccdata.InstantiationPolicy, cdLedger.InstantiationPolicy) {
 			return fmt.Errorf("Instantiation policy mismatch for cc %s/%s", name, version)
@@ -306,7 +318,7 @@ func GetCCPackage(buf []byte) (CCPackage, error) {
 		return scds, nil
 	}
 
-	return nil, errors.New("could not unmarshaled chaincode package to CDS or SignedCDS")
+	return nil, errors.New("could not unmarshal chaincode package to CDS or SignedCDS")
 }
 
 // GetInstalledChaincodes returns a map whose key is the chaincode id and
@@ -498,6 +510,8 @@ type TransactionParams struct {
 	Proposal             *pb.Proposal
 	TXSimulator          ledger.TxSimulator
 	HistoryQueryExecutor ledger.HistoryQueryExecutor
+	CollectionStore      privdata.CollectionStore
+	IsInitTransaction    bool
 
 	// this is additional data passed to the chaincode
 	ProposalDecorations map[string][]byte

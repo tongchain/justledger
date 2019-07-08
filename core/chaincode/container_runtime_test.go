@@ -9,13 +9,13 @@ package chaincode_test
 import (
 	"testing"
 
-	"justledger/core/chaincode"
-	"justledger/core/chaincode/accesscontrol"
-	"justledger/core/chaincode/mock"
-	"justledger/core/common/ccprovider"
-	"justledger/core/container"
-	"justledger/core/container/ccintf"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/core/chaincode/accesscontrol"
+	"github.com/justledger/fabric/core/chaincode/mock"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/container"
+	"github.com/justledger/fabric/core/container/ccintf"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -82,9 +82,9 @@ func TestContainerRuntimeLaunchConfigEnv(t *testing.T) {
 	}
 	enabledTLSEnv := []string{
 		"CORE_PEER_TLS_ENABLED=true",
-		"CORE_TLS_CLIENT_KEY_PATH=/etc/hyperledger/fabric/client.key",
-		"CORE_TLS_CLIENT_CERT_PATH=/etc/hyperledger/fabric/client.crt",
-		"CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer.crt",
+		"CORE_TLS_CLIENT_KEY_PATH=/etc/justledger/fabric/client.key",
+		"CORE_TLS_CLIENT_CERT_PATH=/etc/justledger/fabric/client.crt",
+		"CORE_PEER_TLS_ROOTCERT_FILE=/etc/justledger/fabric/peer.crt",
 	}
 
 	certGenerator := &mock.CertGenerator{}
@@ -130,9 +130,9 @@ func TestContainerRuntimeLaunchConfigFiles(t *testing.T) {
 	lc, err := cr.LaunchConfig("chaincode-name", pb.ChaincodeSpec_GOLANG.String())
 	assert.NoError(t, err)
 	assert.Equal(t, map[string][]byte{
-		"/etc/hyperledger/fabric/client.crt": []byte("certificate"),
-		"/etc/hyperledger/fabric/client.key": []byte("key"),
-		"/etc/hyperledger/fabric/peer.crt":   []byte("peer-ca-cert"),
+		"/etc/justledger/fabric/client.crt": []byte("certificate"),
+		"/etc/justledger/fabric/client.key": []byte("key"),
+		"/etc/justledger/fabric/peer.crt":   []byte("peer-ca-cert"),
 	}, lc.Files)
 }
 
@@ -279,4 +279,38 @@ func TestContainerRuntimeStopErrors(t *testing.T) {
 		}
 		assert.NoError(t, err)
 	}
+}
+
+func TestContainerRuntimeWait(t *testing.T) {
+	fakeProcessor := &mock.Processor{}
+	fakeProcessor.ProcessStub = func(containerType string, req container.VMCReq) error {
+		waitReq := req.(container.WaitContainerReq)
+		waitReq.Exited(0, nil)
+		return nil
+	}
+	cr := &chaincode.ContainerRuntime{
+		Processor: fakeProcessor,
+	}
+
+	ccci := &ccprovider.ChaincodeContainerInfo{
+		Type:          pb.ChaincodeSpec_GOLANG.String(),
+		Name:          "chaincode-id-name",
+		Version:       "chaincode-version",
+		ContainerType: "container-type",
+	}
+
+	exitCode, err := cr.Wait(ccci)
+	assert.NoError(t, err)
+	assert.Equal(t, 0, exitCode)
+
+	assert.Equal(t, 1, fakeProcessor.ProcessCallCount())
+	vmType, req := fakeProcessor.ProcessArgsForCall(0)
+	assert.Equal(t, vmType, "container-type")
+	waitReq, ok := req.(container.WaitContainerReq)
+	assert.True(t, ok)
+	assert.Equal(t, ccintf.CCID{Name: "chaincode-id-name", Version: "chaincode-version"}, waitReq.CCID)
+
+	fakeProcessor.ProcessReturns(errors.New("moles-and-trolls"))
+	_, err = cr.Wait(ccci)
+	assert.EqualError(t, err, "moles-and-trolls")
 }

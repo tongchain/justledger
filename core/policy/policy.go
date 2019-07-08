@@ -17,16 +17,15 @@ limitations under the License.
 package policy
 
 import (
+	"errors"
 	"fmt"
 
-	"errors"
-
-	"justledger/common/policies"
-	"justledger/msp"
-	"justledger/msp/mgmt"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 // PolicyChecker offers methods to check a signed proposal against a specific policy

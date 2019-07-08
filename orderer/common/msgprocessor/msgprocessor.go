@@ -11,19 +11,17 @@ package msgprocessor
 import (
 	"errors"
 
-	"justledger/common/flogging"
-	cb "justledger/protos/common"
+	"github.com/justledger/fabric/common/flogging"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 const (
-	pkgLogID = "orderer/common/msgprocessor"
-
 	// These should eventually be derived from the channel support once enabled
 	msgVersion = int32(0)
 	epoch      = 0
 )
 
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger = flogging.MustGetLogger("orderer.common.msgprocessor")
 
 // ErrChannelDoesNotExist is returned by the system channel for transactions which
 // are not for the system channel ID and are not attempting to create a new channel
@@ -32,6 +30,10 @@ var ErrChannelDoesNotExist = errors.New("channel does not exist")
 // ErrPermissionDenied is returned by errors which are caused by transactions
 // which are not permitted due to an authorization failure.
 var ErrPermissionDenied = errors.New("permission denied")
+
+// ErrMaintenanceMode is returned when transactions are rejected because the orderer is in "maintenance mode",
+// as defined by ConsensusType.State != NORMAL. This typically happens during consensus-type migration.
+var ErrMaintenanceMode = errors.New("maintenance mode")
 
 // Classification represents the possible message types for the system.
 type Classification int

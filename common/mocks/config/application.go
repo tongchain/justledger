@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package config
 
 import (
-	"justledger/common/channelconfig"
+	"github.com/justledger/fabric/common/channelconfig"
 )
 
 type MockApplication struct {
@@ -46,6 +46,9 @@ type MockApplicationCapabilities struct {
 	MetadataLifecycleRv          bool
 	KeyLevelEndorsementRv        bool
 	V1_3ValidationRv             bool
+	FabTokenRv                   bool
+	RollbackRv                   bool
+	StorePvtDataOfInvalidTxRv    bool
 }
 
 func (mac *MockApplicationCapabilities) Supported() error {
@@ -86,4 +89,16 @@ func (mac *MockApplicationCapabilities) KeyLevelEndorsement() bool {
 
 func (mac *MockApplicationCapabilities) V1_3Validation() bool {
 	return mac.V1_3ValidationRv
+}
+
+func (mac *MockApplicationCapabilities) FabToken() bool {
+	return mac.FabTokenRv
+}
+
+func (mac *MockApplicationCapabilities) Rollback() bool {
+	return mac.RollbackRv
+}
+
+func (mac *MockApplicationCapabilities) StorePvtDataOfInvalidTx() bool {
+	return mac.StorePvtDataOfInvalidTxRv
 }

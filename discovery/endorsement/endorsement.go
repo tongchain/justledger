@@ -9,21 +9,21 @@ package endorsement
 import (
 	"fmt"
 
-	"justledger/common/chaincode"
-	"justledger/common/flogging"
-	"justledger/common/graph"
-	"justledger/common/policies"
-	"justledger/common/policies/inquire"
-	"justledger/gossip/api"
-	"justledger/gossip/common"
-	. "justledger/gossip/discovery"
-	"justledger/protos/discovery"
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/common/chaincode"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/graph"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/common/policies/inquire"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/common"
+	. "github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/protos/discovery"
+	"github.com/justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 )
 
 var (
-	logger = flogging.MustGetLogger("discovery/endorsement")
+	logger = flogging.MustGetLogger("discovery.endorsement")
 )
 
 type principalEvaluator interface {

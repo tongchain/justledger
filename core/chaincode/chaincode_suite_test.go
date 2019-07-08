@@ -7,14 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode_test
 
 import (
-	commonledger "justledger/common/ledger"
-	"justledger/core/chaincode"
-	"justledger/core/container/ccintf"
-	"justledger/core/ledger"
+	"testing"
+
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/core/container/ccintf"
+	"github.com/justledger/fabric/core/ledger"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"testing"
 )
 
 func TestChaincode(t *testing.T) {
@@ -139,4 +140,9 @@ type registry interface {
 //go:generate counterfeiter -o fake/application_config_retriever.go --fake-name ApplicationConfigRetriever . applicationConfigRetriever
 type applicationConfigRetriever interface {
 	chaincode.ApplicationConfigRetriever
+}
+
+//go:generate counterfeiter -o mock/collection_store.go --fake-name CollectionStore . collectionStore
+type collectionStore interface {
+	privdata.CollectionStore
 }

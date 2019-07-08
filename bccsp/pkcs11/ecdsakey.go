@@ -21,7 +21,7 @@ import (
 	"errors"
 	"fmt"
 
-	"justledger/bccsp"
+	"github.com/justledger/fabric/bccsp"
 )
 
 type ecdsaPrivateKey struct {

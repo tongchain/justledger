@@ -11,8 +11,8 @@ import (
 	"os"
 	"runtime"
 
-	"justledger/integration/helpers"
-	"justledger/integration/runner"
+	"github.com/justledger/fabric/integration/helpers"
+	"github.com/justledger/fabric/integration/runner"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )
@@ -22,8 +22,7 @@ type Components struct {
 }
 
 var RequiredImages = []string{
-	fmt.Sprintf("hyperledger/fabric-ccenv:%s-latest", runtime.GOARCH),
-	fmt.Sprintf("hyperledger/fabric-javaenv:%s-latest", runtime.GOARCH),
+	fmt.Sprintf("justledger/fabric-ccenv:%s-latest", runtime.GOARCH),
 	runner.CouchDBDefaultImage,
 	runner.KafkaDefaultImage,
 	runner.ZooKeeperDefaultImage,
@@ -35,27 +34,27 @@ func (c *Components) Build(args ...string) {
 	if c.Paths == nil {
 		c.Paths = map[string]string{}
 	}
-	cryptogen, err := gexec.Build("justledger/common/tools/cryptogen", args...)
+	cryptogen, err := gexec.Build("github.com/justledger/fabric/common/tools/cryptogen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["cryptogen"] = cryptogen
 
-	idemixgen, err := gexec.Build("justledger/common/tools/idemixgen", args...)
+	idemixgen, err := gexec.Build("github.com/justledger/fabric/common/tools/idemixgen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["idemixgen"] = idemixgen
 
-	configtxgen, err := gexec.Build("justledger/common/tools/configtxgen", args...)
+	configtxgen, err := gexec.Build("github.com/justledger/fabric/common/tools/configtxgen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["configtxgen"] = configtxgen
 
-	orderer, err := gexec.Build("justledger/orderer", args...)
+	orderer, err := gexec.Build("github.com/justledger/fabric/orderer", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["orderer"] = orderer
 
-	peer, err := gexec.Build("justledger/peer", args...)
+	peer, err := gexec.Build("github.com/justledger/fabric/peer", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["peer"] = peer
 
-	discover, err := gexec.Build("justledger/cmd/discover", args...)
+	discover, err := gexec.Build("github.com/justledger/fabric/cmd/discover", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["discover"] = discover
 }

@@ -8,14 +8,14 @@ package chaincode
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/common/chaincode"
-	"justledger/common/flogging"
-	"justledger/common/policies"
-	"justledger/common/policies/inquire"
-	common2 "justledger/protos/common"
+	"github.com/justledger/fabric/common/chaincode"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/common/policies/inquire"
+	common2 "github.com/justledger/fabric/protos/common"
 )
 
-var logger = flogging.MustGetLogger("discovery/DiscoverySupport")
+var logger = flogging.MustGetLogger("discovery.DiscoverySupport")
 
 type MetadataRetriever interface {
 	Metadata(channel string, cc string, loadCollections bool) *chaincode.Metadata

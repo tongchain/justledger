@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package common
 
 import (
-	"justledger/protos/common"
-	"justledger/protos/gossip"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/gossip"
 )
 
 // privdata_common holds types that are used both in privdata and mocks packages.

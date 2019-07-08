@@ -11,13 +11,13 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/crypto/tlsgen"
-	"justledger/common/flogging"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/crypto/tlsgen"
+	"github.com/justledger/fabric/common/flogging"
+	pb "github.com/justledger/fabric/protos/peer"
 	"google.golang.org/grpc"
 )
 
-var logger = flogging.MustGetLogger("accessControl")
+var logger = flogging.MustGetLogger("chaincode.accesscontrol")
 
 // CertAndPrivKeyPair contains a certificate
 // and its corresponding private key in base64 format

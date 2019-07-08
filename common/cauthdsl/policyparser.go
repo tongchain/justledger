@@ -24,9 +24,9 @@ import (
 	"strings"
 
 	"github.com/Knetic/govaluate"
-	"justledger/protos/common"
-	"justledger/protos/msp"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 // Gate values
@@ -147,10 +147,10 @@ func secondPass(args ...interface{}) (interface{}, error) {
 	}
 
 	/* get the n in the t out of n */
-	var n int = len(args) - 1
+	var n int = len(args) - 2
 
-	/* sanity check - t better be <= n */
-	if t > n {
+	/* sanity check - t should be positive, permit equal to n+1, but disallow over n+1 */
+	if t < 0 || t > n+1 {
 		return nil, fmt.Errorf("Invalid t-out-of-n predicate, t %d, n %d", t, n)
 	}
 
@@ -245,9 +245,9 @@ func FromString(policy string) (*common.SignaturePolicyEnvelope, error) {
 	// first we translate the and/or business into outof gates
 	intermediate, err := govaluate.NewEvaluableExpressionWithFunctions(
 		policy, map[string]govaluate.ExpressionFunction{
-			GateAnd:                  and,
-			strings.ToLower(GateAnd): and,
-			strings.ToUpper(GateAnd): and,
+			GateAnd:                    and,
+			strings.ToLower(GateAnd):   and,
+			strings.ToUpper(GateAnd):   and,
 			GateOr:                     or,
 			strings.ToLower(GateOr):    or,
 			strings.ToUpper(GateOr):    or,

@@ -10,10 +10,10 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	configtxtest "justledger/common/configtx/test"
-	"justledger/protos/common"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	configtxtest "github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/protos/common"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -143,7 +143,7 @@ func TestInitBlockMeta(t *testing.T) {
 	block := &cb.Block{}
 	utils.InitBlockMetadata(block)
 	// should have 3 entries
-	assert.Equal(t, 3, len(block.Metadata.Metadata), "Expected block to have 3 metadata entries")
+	assert.Equal(t, 5, len(block.Metadata.Metadata), "Expected block to have 5 metadata entries")
 
 	// block with a single entry
 	block = &cb.Block{
@@ -152,7 +152,7 @@ func TestInitBlockMeta(t *testing.T) {
 	block.Metadata.Metadata = append(block.Metadata.Metadata, []byte{})
 	utils.InitBlockMetadata(block)
 	// should have 3 entries
-	assert.Equal(t, 3, len(block.Metadata.Metadata), "Expected block to have 3 metadata entries")
+	assert.Equal(t, 5, len(block.Metadata.Metadata), "Expected block to have 5 metadata entries")
 }
 
 func TestCopyBlockMetadata(t *testing.T) {

@@ -22,11 +22,11 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"justledger/core/scc/cscc"
-	"justledger/peer/common"
-	pcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
-	putils "justledger/protos/utils"
+	"github.com/justledger/fabric/core/scc/cscc"
+	"github.com/justledger/fabric/peer/common"
+	pcommon "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	putils "github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/cobra"
 )
 

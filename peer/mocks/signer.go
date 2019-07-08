@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"justledger/msp"
-	mspprotos "justledger/protos/msp"
+	"github.com/justledger/fabric/msp"
+	mspprotos "github.com/justledger/fabric/protos/msp"
 )
 
 type Signer struct {

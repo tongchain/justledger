@@ -7,23 +7,33 @@ SPDX-License-Identifier: Apache-2.0
 package historyleveldb
 
 import (
-	"justledger/common/flogging"
-	"justledger/common/ledger/blkstorage"
-	"justledger/common/ledger/util/leveldbhelper"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/history/historydb"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/ledgerconfig"
-	"justledger/core/ledger/util"
-	"justledger/protos/common"
-	putils "justledger/protos/utils"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger/blkstorage"
+	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/history/historydb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/common"
+	putils "github.com/justledger/fabric/protos/utils"
 )
 
-var logger = flogging.MustGetLogger("historyleveldb")
+var logger historydbLogger = flogging.MustGetLogger("historyleveldb")
 
 var savePointKey = []byte{0x00}
 var emptyValue = []byte{}
+
+//go:generate counterfeiter -o fakes/historydb_logger.go -fake-name HistorydbLogger . historydbLogger
+
+// historydbLogger defines the interface for historyleveldb logging. The purpose is to allow unit tests to use a fake logger.
+type historydbLogger interface {
+	Debugf(template string, args ...interface{})
+	Errorf(template string, args ...interface{})
+	Infof(template string, args ...interface{})
+	Warnf(template string, args ...interface{})
+}
 
 // HistoryDBProvider implements interface HistoryDBProvider
 type HistoryDBProvider struct {

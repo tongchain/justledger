@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package blockledger
 
 import (
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
 )
 
 // Factory retrieves or creates new ledgers by chainID
@@ -47,6 +47,8 @@ type Writer interface {
 	// Append a new block to the ledger
 	Append(block *cb.Block) error
 }
+
+//go:generate mockery -dir . -name ReadWriter -case underscore  -output mocks/
 
 // ReadWriter encapsulates the read/write functions of the ledger
 type ReadWriter interface {

@@ -50,7 +50,7 @@ func GetDevConfigDir() (string, error) {
 	}
 
 	for _, p := range filepath.SplitList(gopath) {
-		devPath := filepath.Join(p, "src/github.com/hyperledger/fabric/sampleconfig")
+		devPath := filepath.Join(p, "src/github.com/justledger/fabric/sampleconfig")
 		if !dirExists(devPath) {
 			continue
 		}
@@ -61,7 +61,7 @@ func GetDevConfigDir() (string, error) {
 	return "", fmt.Errorf("DevConfigDir not found in %s", gopath)
 }
 
-// GetDevMspDir gets the path to the sampleconfig/msp treethat is maintained
+// GetDevMspDir gets the path to the sampleconfig/msp tree that is maintained
 // with the source tree.  This should only be used in a test/development
 // context.
 func GetDevMspDir() (string, error) {

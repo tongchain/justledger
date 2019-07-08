@@ -21,7 +21,7 @@ import (
 	"hash"
 	"reflect"
 
-	"justledger/bccsp"
+	"github.com/justledger/fabric/bccsp"
 )
 
 type Encryptor struct {

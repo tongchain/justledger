@@ -20,8 +20,7 @@ import (
 	"bytes"
 	"testing"
 
-	"justledger/common/tools/protolator/testprotos"
-
+	"github.com/justledger/fabric/common/tools/protolator/testprotos"
 	"github.com/stretchr/testify/assert"
 )
 

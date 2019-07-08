@@ -16,13 +16,17 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/channelconfig"
-	"justledger/common/configtx/test"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/discovery/support/config"
-	"justledger/discovery/support/mocks"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/configtx"
+	"github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/discovery/support/config"
+	"github.com/justledger/fabric/discovery/support/mocks"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/discovery"
+	"github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/onsi/gomega/gexec"
 	"github.com/stretchr/testify/assert"
 )
@@ -66,11 +70,11 @@ func TestMSPIDMapping(t *testing.T) {
 	os.Mkdir(dir, 0700)
 	defer os.RemoveAll(dir)
 
-	cryptogen, err := gexec.Build(filepath.Join("github.com", "hyperledger", "fabric", "common", "tools", "cryptogen"))
+	cryptogen, err := gexec.Build(filepath.Join("github.com", "justledger", "fabric", "common", "tools", "cryptogen"))
 	assert.NoError(t, err)
 	defer os.Remove(cryptogen)
 
-	idemixgen, err := gexec.Build(filepath.Join("github.com", "hyperledger", "fabric", "common", "tools", "idemixgen"))
+	idemixgen, err := gexec.Build(filepath.Join("github.com", "justledger", "fabric", "common", "tools", "idemixgen"))
 	assert.NoError(t, err)
 	defer os.Remove(idemixgen)
 
@@ -82,8 +86,8 @@ func TestMSPIDMapping(t *testing.T) {
 	b, err = exec.Command(idemixgen, "ca-keygen", fmt.Sprintf("--output=%s", idemixConfigDir)).CombinedOutput()
 	assert.NoError(t, err, string(b))
 
-	profileConfig := genesisconfig.Load("TwoOrgsChannel", "../../../examples/e2e_cli/")
-	ordererConfig := genesisconfig.Load("TwoOrgsOrdererGenesis", "../../../examples/e2e_cli/")
+	profileConfig := genesisconfig.Load("TwoOrgsChannel", "testdata/")
+	ordererConfig := genesisconfig.Load("TwoOrgsOrdererGenesis", "testdata/")
 	profileConfig.Orderer = ordererConfig.Orderer
 
 	// Override the MSP directory with our randomly generated and populated path
@@ -316,4 +320,118 @@ func TestValidateConfigEnvelope(t *testing.T) {
 		})
 	}
 
+}
+
+func TestOrdererEndpoints(t *testing.T) {
+	t.Run("Global endpoints", func(t *testing.T) {
+		block, err := test.MakeGenesisBlock("mychannel")
+		assert.NoError(t, err)
+
+		fakeBlockGetter := &mocks.ConfigBlockGetter{}
+		cs := config.NewDiscoverySupport(fakeBlockGetter)
+
+		fakeBlockGetter.GetCurrConfigBlockReturnsOnCall(0, block)
+
+		injectGlobalOrdererEndpoint(t, block, "globalEndpoint:7050")
+
+		res, err := cs.Config("test")
+		assert.NoError(t, err)
+		assert.Equal(t, map[string]*discovery.Endpoints{
+			"SampleOrg": {Endpoint: []*discovery.Endpoint{{Host: "globalEndpoint", Port: 7050}}},
+		}, res.Orderers)
+	})
+
+	t.Run("Per org endpoints", func(t *testing.T) {
+		block, err := test.MakeGenesisBlock("mychannel")
+		assert.NoError(t, err)
+
+		fakeBlockGetter := &mocks.ConfigBlockGetter{}
+		cs := config.NewDiscoverySupport(fakeBlockGetter)
+
+		fakeBlockGetter.GetCurrConfigBlockReturnsOnCall(0, block)
+
+		injectAdditionalEndpointPair(t, block, "perOrgEndpoint:7050", "anotherOrg")
+		injectAdditionalEndpointPair(t, block, "endpointWithoutAPortName", "aBadOrg")
+
+		res, err := cs.Config("test")
+		assert.NoError(t, err)
+		assert.Equal(t, map[string]*discovery.Endpoints{
+			"SampleOrg":  {Endpoint: []*discovery.Endpoint{{Host: "127.0.0.1", Port: 7050}}},
+			"anotherOrg": {Endpoint: []*discovery.Endpoint{{Host: "perOrgEndpoint", Port: 7050}}},
+			"aBadOrg":    {},
+		}, res.Orderers)
+	})
+}
+
+func injectGlobalOrdererEndpoint(t *testing.T, block *common.Block, endpoint string) {
+	ordererAddresses := channelconfig.OrdererAddressesValue([]string{endpoint})
+	// Unwrap the layers until we reach the orderer addresses
+	env, err := utils.ExtractEnvelope(block, 0)
+	assert.NoError(t, err)
+	payload, err := utils.ExtractPayload(env)
+	assert.NoError(t, err)
+	confEnv, err := configtx.UnmarshalConfigEnvelope(payload.Data)
+	assert.NoError(t, err)
+	// Replace the orderer addresses
+	confEnv.Config.ChannelGroup.Values[ordererAddresses.Key()].Value = utils.MarshalOrPanic(ordererAddresses.Value())
+	// Remove the per org addresses, if applicable
+	ordererGrps := confEnv.Config.ChannelGroup.Groups[channelconfig.OrdererGroupKey].Groups
+	for _, grp := range ordererGrps {
+		if grp.Values["Endpoints"] == nil {
+			continue
+		}
+		grp.Values["Endpoints"].Value = nil
+	}
+	// And put it back into the block
+	payload.Data = utils.MarshalOrPanic(confEnv)
+	env.Payload = utils.MarshalOrPanic(payload)
+	block.Data.Data[0] = utils.MarshalOrPanic(env)
+}
+
+func injectAdditionalEndpointPair(t *testing.T, block *common.Block, endpoint string, orgName string) {
+	// Unwrap the layers until we reach the orderer addresses
+	env, err := utils.ExtractEnvelope(block, 0)
+	assert.NoError(t, err)
+	payload, err := utils.ExtractPayload(env)
+	assert.NoError(t, err)
+	confEnv, err := configtx.UnmarshalConfigEnvelope(payload.Data)
+	assert.NoError(t, err)
+	ordererGrp := confEnv.Config.ChannelGroup.Groups[channelconfig.OrdererGroupKey].Groups
+	// Get the first orderer org config
+	var firstOrdererConfig *common.ConfigGroup
+	for _, grp := range ordererGrp {
+		firstOrdererConfig = grp
+		break
+	}
+	// Duplicate it.
+	secondOrdererConfig := proto.Clone(firstOrdererConfig).(*common.ConfigGroup)
+	ordererGrp[orgName] = secondOrdererConfig
+	// Reach the FabricMSPConfig buried in it.
+	mspConfig := &msp.MSPConfig{}
+	err = proto.Unmarshal(secondOrdererConfig.Values[channelconfig.MSPKey].Value, mspConfig)
+	assert.NoError(t, err)
+
+	fabricConfig := &msp.FabricMSPConfig{}
+	err = proto.Unmarshal(mspConfig.Config, fabricConfig)
+	assert.NoError(t, err)
+
+	// Rename it.
+	fabricConfig.Name = orgName
+
+	// Pack the MSP config back into the config
+	secondOrdererConfig.Values[channelconfig.MSPKey].Value = utils.MarshalOrPanic(&msp.MSPConfig{
+		Config: utils.MarshalOrPanic(fabricConfig),
+		Type:   mspConfig.Type,
+	})
+
+	// Inject the endpoint
+	ordererOrgProtos := &common.OrdererAddresses{
+		Addresses: []string{endpoint},
+	}
+	secondOrdererConfig.Values["Endpoints"].Value = utils.MarshalOrPanic(ordererOrgProtos)
+
+	// Fold everything back into the block
+	payload.Data = utils.MarshalOrPanic(confEnv)
+	env.Payload = utils.MarshalOrPanic(payload)
+	block.Data.Data[0] = utils.MarshalOrPanic(env)
 }

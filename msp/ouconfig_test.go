@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/bccsp/sw"
+	"github.com/justledger/fabric/bccsp/sw"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,7 +58,7 @@ func TestBadConfigOUCert(t *testing.T) {
 func TestValidateIntermediateConfigOU(t *testing.T) {
 	// testdata/external:
 	// the configuration is such that only identities with
-	// OU=Hyperledger Testing and signed by the intermediate ca should be validated
+	// OU=justledger Testing and signed by the intermediate ca should be validated
 	thisMSP := getLocalMSP(t, "testdata/external")
 
 	id, err := thisMSP.GetDefaultSigningIdentity()

@@ -8,14 +8,13 @@ package msgstore
 
 import (
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
-	"sync"
-
-	"justledger/gossip/common"
-	"justledger/gossip/util"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/util"
 	"github.com/stretchr/testify/assert"
 )
 

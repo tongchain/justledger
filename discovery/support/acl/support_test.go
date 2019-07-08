@@ -9,12 +9,12 @@ package acl_test
 import (
 	"testing"
 
-	"justledger/common/channelconfig"
-	"justledger/common/policies"
-	"justledger/discovery/support/acl"
-	"justledger/discovery/support/mocks"
-	gmocks "justledger/peer/gossip/mocks"
-	cb "justledger/protos/common"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/discovery/support/acl"
+	"github.com/justledger/fabric/discovery/support/mocks"
+	gmocks "github.com/justledger/fabric/peer/gossip/mocks"
+	cb "github.com/justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -189,7 +189,7 @@ func TestChannelVerifier(t *testing.T) {
 	}
 
 	verifier := &acl.ChannelVerifier{
-		Policy: "some policy string",
+		Policy:                     "some policy string",
 		ChannelPolicyManagerGetter: polMgr,
 	}
 

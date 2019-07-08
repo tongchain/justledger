@@ -8,25 +8,27 @@ package lockbasedtxmgr
 import (
 	"testing"
 
-	commonledger "justledger/common/ledger"
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/pvtdatapolicy"
-	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/queryresult"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	btltestutil "github.com/justledger/fabric/core/ledger/pvtdatapolicy/testutil"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestPvtdataResultsItr(t *testing.T) {
 	testEnv := testEnvs[0]
-	cs := btltestutil.NewMockCollectionStore()
-	cs.SetBTL("ns1", "coll1", 0)
-	cs.SetBTL("ns2", "coll1", 0)
-	cs.SetBTL("ns3", "coll1", 0)
-	testEnv.init(t, "test-pvtdata-range-queries", pvtdatapolicy.ConstructBTLPolicy(cs))
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns1", "coll1"}: 0,
+			{"ns2", "coll1"}: 0,
+			{"ns3", "coll1"}: 0,
+		},
+	)
+	testEnv.init(t, "test-pvtdata-range-queries", btlPolicy)
 	defer testEnv.cleanup()
 
 	txMgr := testEnv.getTxMgr().(*LockBasedTxMgr)
@@ -79,9 +81,11 @@ func TestPrivateDataMetadataRetrievalByHash(t *testing.T) {
 
 func testPrivateDataMetadataRetrievalByHash(t *testing.T, env testEnv) {
 	ledgerid := "test-privatedata-metadata-retrieval-byhash"
-	cs := btltestutil.NewMockCollectionStore()
-	cs.SetBTL("ns", "coll", 0)
-	btlPolicy := pvtdatapolicy.ConstructBTLPolicy(cs)
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns", "coll"}: 0,
+		},
+	)
 	env.init(t, ledgerid, btlPolicy)
 	defer env.cleanup()
 
@@ -95,7 +99,8 @@ func testPrivateDataMetadataRetrievalByHash(t *testing.T, env testEnv) {
 	s1.SetPrivateDataMetadata("ns", "coll", key1, metadata1)
 	s1.Done()
 	blkAndPvtdata1 := prepareNextBlockForTestFromSimulator(t, bg, s1)
-	assert.NoError(t, txMgr.ValidateAndPrepare(blkAndPvtdata1, true))
+	_, _, err := txMgr.ValidateAndPrepare(blkAndPvtdata1, true)
+	assert.NoError(t, err)
 	assert.NoError(t, txMgr.Commit())
 
 	t.Run("query-helper-for-queryexecutor", func(t *testing.T) {

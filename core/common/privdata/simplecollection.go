@@ -10,11 +10,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/common/policies"
-	"justledger/msp"
-	"justledger/protos/common"
-	m "justledger/protos/msp"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/common"
+	m "github.com/justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 )
 
@@ -60,6 +59,10 @@ func (sc *SimpleCollection) AccessFilter() Filter {
 		}
 		return true
 	}
+}
+
+func (sc *SimpleCollection) IsMemberOnlyRead() bool {
+	return sc.conf.MemberOnlyRead
 }
 
 // Setup configures a simple collection object based on a given
@@ -118,24 +121,11 @@ func (sc *SimpleCollection) Setup(collectionConfig *common.StaticCollectionConfi
 	return nil
 }
 
-// Setup configures a simple collection object based on a given
+// setupAccessPolicy configures a simple collection object based on a given
 // StaticCollectionConfig proto that has all the necessary information
 func (sc *SimpleCollection) setupAccessPolicy(collectionPolicyConfig *common.CollectionPolicyConfig, deserializer msp.IdentityDeserializer) error {
-	if collectionPolicyConfig == nil {
-		return errors.New("Collection config policy is nil")
-	}
-	accessPolicyEnvelope := collectionPolicyConfig.GetSignaturePolicy()
-	if accessPolicyEnvelope == nil {
-		return errors.New("Collection config access policy is nil")
-	}
-
-	// create access policy from the envelope
-	npp := cauthdsl.NewPolicyProvider(deserializer)
-	polBytes, err := proto.Marshal(accessPolicyEnvelope)
-	if err != nil {
-		return err
-	}
-	sc.accessPolicy, _, err = npp.NewPolicy(polBytes)
+	var err error
+	sc.accessPolicy, err = getPolicy(collectionPolicyConfig, deserializer)
 	return err
 }
 

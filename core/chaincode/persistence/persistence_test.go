@@ -12,13 +12,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"justledger/common/util"
-	"justledger/core/chaincode/persistence"
-	"justledger/core/chaincode/persistence/mock"
-	"github.com/pkg/errors"
-
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/chaincode/persistence"
+	"github.com/justledger/fabric/core/chaincode/persistence/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 )
 
 var _ = Describe("Persistence", func() {

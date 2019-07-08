@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode
 
 import (
-	"justledger/core/common/ccprovider"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 // ccProviderImpl is an implementation of the ccprovider.ChaincodeProvider interface

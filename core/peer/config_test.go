@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/comm"
+	"github.com/justledger/fabric/core/comm"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -176,6 +176,74 @@ func TestGetServerConfig(t *testing.T) {
 	viper.Set("peer.tls.enabled", false)
 	viper.Set("peer.tls.clientAuthRequired", false)
 
+}
+
+func TestGetServerRootCAs(t *testing.T) {
+	var tests = []struct {
+		name          string
+		rootCert      string
+		serverRootCAs []string
+		count         int
+		shouldFail    bool
+	}{
+		{
+			name:          "no roots",
+			rootCert:      "",
+			serverRootCAs: []string{},
+			count:         0,
+		},
+		{
+			name:          "rootCert only",
+			rootCert:      filepath.Join("testdata", "Org1-cert.pem"),
+			serverRootCAs: []string{},
+			count:         1,
+		},
+		{
+			name:     "serverRootCAs only",
+			rootCert: "",
+			serverRootCAs: []string{
+				filepath.Join("testdata", "Org2-cert.pem"),
+				filepath.Join("testdata", "Org3-cert.pem"),
+			},
+			count: 2,
+		},
+		{
+			name:     "rootCert and serverRootCAs",
+			rootCert: filepath.Join("testdata", "Org1-cert.pem"),
+			serverRootCAs: []string{
+				filepath.Join("testdata", "Org2-cert.pem"),
+				filepath.Join("testdata", "Org3-cert.pem"),
+			},
+			count: 3,
+		},
+		{
+			name:          "bad rootCert",
+			rootCert:      filepath.Join("testdata", "Org11-cert.pem"),
+			serverRootCAs: []string{},
+			shouldFail:    true,
+		},
+		{
+			name:          "bad serverRootCAs",
+			rootCert:      "",
+			serverRootCAs: []string{filepath.Join("testdata", "Org11-cert.pem")},
+			shouldFail:    true,
+		},
+	}
+
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			viper.Set("peer.tls.rootcert.file", test.rootCert)
+			viper.Set("peer.tls.serverRootCAs.files", test.serverRootCAs)
+			roots, err := GetServerRootCAs()
+			if test.shouldFail {
+				assert.Error(t, err, "Expected an error")
+			} else {
+				assert.NoError(t, err, "Error should not have occurred")
+				assert.Equal(t, test.count, len(roots))
+			}
+		})
+	}
 }
 
 func TestGetClientCertificate(t *testing.T) {

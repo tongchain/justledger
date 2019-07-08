@@ -7,14 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode_test
 
 import (
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/core/chaincode/mock"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	pb "github.com/justledger/fabric/protos/peer"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
-
-	"justledger/core/chaincode"
-	"justledger/core/chaincode/mock"
-	"justledger/core/common/ccprovider"
-	pb "justledger/protos/peer"
 )
 
 var _ = Describe("HandlerRegistry", func() {

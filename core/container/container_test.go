@@ -7,13 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package container_test
 
 import (
-	"justledger/core/container"
-	"justledger/core/container/ccintf"
-	"justledger/core/container/mock"
-	"github.com/pkg/errors"
-
+	"github.com/justledger/fabric/core/container"
+	"github.com/justledger/fabric/core/container/ccintf"
+	"github.com/justledger/fabric/core/container/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 )
 
 var _ = Describe("Container", func() {

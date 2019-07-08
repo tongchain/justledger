@@ -25,14 +25,13 @@ const AllowedCharsCollectionName = "[A-Za-z0-9_-]+"
 var fileValidators = map[*regexp.Regexp]fileValidator{
 	regexp.MustCompile("^META-INF/statedb/couchdb/indexes/.*[.]json"):                                                couchdbIndexFileValidator,
 	regexp.MustCompile("^META-INF/statedb/couchdb/collections/" + AllowedCharsCollectionName + "/indexes/.*[.]json"): couchdbIndexFileValidator,
-	regexp.MustCompile("^META-INF/statedb/mongodb/indexes/.*[.]json"):                                                mongodbIndexFileValidator,
 }
 
 var collectionNameValid = regexp.MustCompile("^" + AllowedCharsCollectionName)
 
 var fileNameValid = regexp.MustCompile("^.*[.]json")
 
-var validDatabases = []string{"couchdb", "mongodb"}
+var validDatabases = []string{"couchdb"}
 
 // UnhandledDirectoryError is returned for metadata files in unhandled directories
 type UnhandledDirectoryError struct {
@@ -148,25 +147,6 @@ func couchdbIndexFileValidator(fileName string, fileBytes []byte) error {
 	if err != nil {
 		return &InvalidIndexContentError{fmt.Sprintf("Index metadata file [%s] is not a valid index definition: %s", fileName, err)}
 	}
-
-	return nil
-
-}
-
-// mongodbIndexFileValidator implements fileValidator
-func mongodbIndexFileValidator(fileName string, fileBytes []byte) error {
-
-	// if the content does not validate as JSON, return err to invalidate the file
-	boolIsJSON, _ := isJSON(fileBytes)
-	if !boolIsJSON {
-		return &InvalidIndexContentError{fmt.Sprintf("Index metadata file [%s] is not a valid JSON", fileName)}
-	}
-
-	// TODO validate the index definition
-	//err := validateIndexJSON(indexDefinition)
-	//if err != nil {
-	//	return &InvalidIndexContentError{fmt.Sprintf("Index metadata file [%s] is not a valid index definition: %s", fileName, err)}
-	//}
 
 	return nil
 

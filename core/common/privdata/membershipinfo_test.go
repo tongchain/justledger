@@ -9,23 +9,25 @@ package privdata
 import (
 	"testing"
 
-	"justledger/common/cauthdsl"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMembershipInfoProvider(t *testing.T) {
-	// define identity of self peer as peer0
 	peerSelfSignedData := common.SignedData{
 		Identity:  []byte("peer0"),
 		Signature: []byte{1, 2, 3},
 		Data:      []byte{4, 5, 6},
 	}
 
-	collectionStore := NewSimpleCollectionStore(&mockStoreSupport{})
+	identityDeserializer := func(chainID string) msp.IdentityDeserializer {
+		return &mockDeserializer{}
+	}
 
 	// verify membership provider returns true
-	membershipProvider := NewMembershipInfoProvider(peerSelfSignedData, collectionStore)
+	membershipProvider := NewMembershipInfoProvider(peerSelfSignedData, identityDeserializer)
 	res, err := membershipProvider.AmMemberOf("test1", getAccessPolicy([]string{"peer0", "peer1"}))
 	assert.True(t, res)
 	assert.Nil(t, err)
@@ -35,11 +37,15 @@ func TestMembershipInfoProvider(t *testing.T) {
 	assert.False(t, res)
 	assert.Nil(t, err)
 
-	// verify membership provider returns nil and error
+	// verify membership provider returns false and nil when collection policy config is nil
 	res, err = membershipProvider.AmMemberOf("test1", nil)
 	assert.False(t, res)
-	assert.Error(t, err)
-	assert.Equal(t, "Collection config policy is nil", err.Error())
+	assert.Nil(t, err)
+
+	// verify membership provider returns false and nil when collection policy config is invalid
+	res, err = membershipProvider.AmMemberOf("test1", getBadAccessPolicy([]string{"signer0"}, 1))
+	assert.False(t, res)
+	assert.Nil(t, err)
 }
 
 func getAccessPolicy(signers []string) *common.CollectionPolicyConfig {
@@ -48,5 +54,15 @@ func getAccessPolicy(signers []string) *common.CollectionPolicyConfig {
 		data = append(data, []byte(signer))
 	}
 	policyEnvelope := cauthdsl.Envelope(cauthdsl.Or(cauthdsl.SignedBy(0), cauthdsl.SignedBy(1)), data)
+	return createCollectionPolicyConfig(policyEnvelope)
+}
+
+func getBadAccessPolicy(signers []string, badIndex int32) *common.CollectionPolicyConfig {
+	var data [][]byte
+	for _, signer := range signers {
+		data = append(data, []byte(signer))
+	}
+	// use a out of range index to trigger error
+	policyEnvelope := cauthdsl.Envelope(cauthdsl.Or(cauthdsl.SignedBy(0), cauthdsl.SignedBy(badIndex)), data)
 	return createCollectionPolicyConfig(policyEnvelope)
 }

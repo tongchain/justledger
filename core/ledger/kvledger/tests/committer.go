@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/ledger"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,19 +31,19 @@ func newCommitter(lgr ledger.PeerLedger, t *testing.T) *committer {
 // A copy is returned instead of the actual one because, ledger makes some changes to the submitted block before commit
 // (such as setting the metadata) and the test code would want to have the exact copy of the block that was submitted to
 // the ledger
-func (c *committer) cutBlockAndCommitWithPvtdata(trans ...*txAndPvtdata) *ledger.BlockAndPvtData {
-	blk := c.blkgen.nextBlockAndPvtdata(trans...)
+func (c *committer) cutBlockAndCommitWithPvtdata(trans []*txAndPvtdata, missingPvtData ledger.TxMissingPvtDataMap) *ledger.BlockAndPvtData {
+	blk := c.blkgen.nextBlockAndPvtdata(trans, missingPvtData)
 	blkCopy := c.copyOfBlockAndPvtdata(blk)
 	c.assert.NoError(
-		c.lgr.CommitWithPvtData(blk),
+		c.lgr.CommitWithPvtData(blk, &ledger.CommitOptions{}),
 	)
 	return blkCopy
 }
 
-func (c *committer) cutBlockAndCommitExpectError(trans ...*txAndPvtdata) (*ledger.BlockAndPvtData, error) {
-	blk := c.blkgen.nextBlockAndPvtdata(trans...)
+func (c *committer) cutBlockAndCommitExpectError(trans []*txAndPvtdata, missingPvtData ledger.TxMissingPvtDataMap) (*ledger.BlockAndPvtData, error) {
+	blk := c.blkgen.nextBlockAndPvtdata(trans, missingPvtData)
 	blkCopy := c.copyOfBlockAndPvtdata(blk)
-	err := c.lgr.CommitWithPvtData(blk)
+	err := c.lgr.CommitWithPvtData(blk, &ledger.CommitOptions{})
 	c.assert.Error(err)
 	return blkCopy, err
 }
@@ -53,7 +53,8 @@ func (c *committer) copyOfBlockAndPvtdata(blk *ledger.BlockAndPvtData) *ledger.B
 	c.assert.NoError(err)
 	blkCopy := &common.Block{}
 	c.assert.NoError(proto.Unmarshal(blkBytes, blkCopy))
-	return &ledger.BlockAndPvtData{Block: blkCopy, BlockPvtData: blk.BlockPvtData}
+	return &ledger.BlockAndPvtData{Block: blkCopy, PvtData: blk.PvtData,
+		MissingPvtData: blk.MissingPvtData}
 }
 
 /////////////////   block generation code  ///////////////////////////////////////////
@@ -75,7 +76,7 @@ func newBlockGenerator(lgr ledger.PeerLedger, t *testing.T) *blkGenerator {
 }
 
 // nextBlockAndPvtdata cuts the next block
-func (g *blkGenerator) nextBlockAndPvtdata(trans ...*txAndPvtdata) *ledger.BlockAndPvtData {
+func (g *blkGenerator) nextBlockAndPvtdata(trans []*txAndPvtdata, missingPvtData ledger.TxMissingPvtDataMap) *ledger.BlockAndPvtData {
 	block := common.NewBlock(g.lastNum+1, g.lastHash)
 	blockPvtdata := make(map[uint64]*ledger.TxPvtData)
 	for i, tran := range trans {
@@ -90,5 +91,6 @@ func (g *blkGenerator) nextBlockAndPvtdata(trans ...*txAndPvtdata) *ledger.Block
 	g.lastNum++
 	g.lastHash = block.Header.Hash()
 	setBlockFlagsToValid(block)
-	return &ledger.BlockAndPvtData{Block: block, BlockPvtData: blockPvtdata}
+	return &ledger.BlockAndPvtData{Block: block, PvtData: blockPvtdata,
+		MissingPvtData: missingPvtData}
 }

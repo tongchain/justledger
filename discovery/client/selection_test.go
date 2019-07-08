@@ -10,12 +10,12 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/gossip"
+	"github.com/justledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestShuffle(t *testing.T) {
-	endorsers := make(Endorsers, 1000000)
+	endorsers := make(Endorsers, 1000)
 	for i := 0; i < len(endorsers); i++ {
 		endorsers[i] = &Peer{
 			StateInfoMessage: stateInfoWithHeight(uint64(i)),

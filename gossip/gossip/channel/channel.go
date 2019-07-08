@@ -9,24 +9,29 @@ package channel
 import (
 	"bytes"
 	"fmt"
+	"reflect"
 	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	common_utils "justledger/common/util"
-	"justledger/gossip/api"
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/election"
-	"justledger/gossip/filter"
-	"justledger/gossip/gossip/msgstore"
-	"justledger/gossip/gossip/pull"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	common_utils "github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/comm"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/gossip/election"
+	"github.com/justledger/fabric/gossip/filter"
+	"github.com/justledger/fabric/gossip/gossip/algo"
+	"github.com/justledger/fabric/gossip/gossip/msgstore"
+	"github.com/justledger/fabric/gossip/gossip/pull"
+	"github.com/justledger/fabric/gossip/metrics"
+	"github.com/justledger/fabric/gossip/util"
+	proto "github.com/justledger/fabric/protos/gossip"
 	"github.com/pkg/errors"
 )
+
+const DefMsgExpirationTimeout = election.DefLeaderAliveThreshold * 10
 
 // Config is a configuration item
 // of the channel store
@@ -39,11 +44,15 @@ type Config struct {
 	RequestStateInfoInterval    time.Duration
 	BlockExpirationInterval     time.Duration
 	StateInfoCacheSweepInterval time.Duration
+	TimeForMembershipTracker    time.Duration
+	DigestWaitTime              time.Duration
+	RequestWaitTime             time.Duration
+	ResponseWaitTime            time.Duration
+	MsgExpirationTimeout        time.Duration
 }
 
 // GossipChannel defines an object that deals with all channel-related messages
 type GossipChannel interface {
-
 	// Self returns a StateInfoMessage about the peer
 	Self() *proto.SignedGossipMessage
 
@@ -150,6 +159,7 @@ type gossipChannel struct {
 	ledgerHeight              uint64
 	incTime                   uint64
 	leftChannel               int32
+	membershipTracker         *membershipTracker
 }
 
 type membershipFilter struct {
@@ -162,6 +172,7 @@ func (mf *membershipFilter) GetMembership() []discovery.NetworkMember {
 	if mf.hasLeftChannel() {
 		return nil
 	}
+
 	var members []discovery.NetworkMember
 	for _, mem := range mf.adapter.GetMembership() {
 		if mf.eligibleForChannelAndSameOrg(mem) {
@@ -173,20 +184,21 @@ func (mf *membershipFilter) GetMembership() []discovery.NetworkMember {
 
 // NewGossipChannel creates a new GossipChannel
 func NewGossipChannel(pkiID common.PKIidType, org api.OrgIdentityType, mcs api.MessageCryptoService,
-	chainID common.ChainID, adapter Adapter, joinMsg api.JoinChannelMessage) GossipChannel {
+	chainID common.ChainID, adapter Adapter, joinMsg api.JoinChannelMessage,
+	metrics *metrics.MembershipMetrics) GossipChannel {
 	gc := &gossipChannel{
 		incTime:                   uint64(time.Now().UnixNano()),
 		selfOrg:                   org,
 		pkiID:                     pkiID,
 		mcs:                       mcs,
 		Adapter:                   adapter,
-		logger:                    util.GetLogger(util.LoggingChannelModule, adapter.GetConf().ID),
+		logger:                    util.GetLogger(util.ChannelLogger, adapter.GetConf().ID),
 		stopChan:                  make(chan struct{}, 1),
 		shouldGossipStateInfo:     int32(0),
 		stateInfoPublishScheduler: time.NewTicker(adapter.GetConf().PublishStateInfoInterval),
 		stateInfoRequestScheduler: time.NewTicker(adapter.GetConf().RequestStateInfoInterval),
-		orgs:    []api.OrgIdentityType{},
-		chainID: chainID,
+		orgs:                      []api.OrgIdentityType{},
+		chainID:                   chainID,
 	}
 
 	gc.memFilter = &membershipFilter{adapter: gc.Adapter, gossipChannel: gc}
@@ -199,8 +211,10 @@ func NewGossipChannel(pkiID common.PKIidType, org api.OrgIdentityType, mcs api.M
 		return fmt.Sprintf("%d", m.(*proto.SignedGossipMessage).GetDataMsg().Payload.SeqNum)
 	}
 	gc.blockMsgStore = msgstore.NewMessageStoreExpirable(comparator, func(m interface{}) {
+		gc.logger.Debugf("Removing %s from the message store", seqNumFromMsg(m))
 		gc.blocksPuller.Remove(seqNumFromMsg(m))
 	}, gc.GetConf().BlockExpirationInterval, nil, nil, func(m interface{}) {
+		gc.logger.Debugf("Removing %s from the message store", seqNumFromMsg(m))
 		gc.blocksPuller.Remove(seqNumFromMsg(m))
 	})
 
@@ -252,7 +266,7 @@ func NewGossipChannel(pkiID common.PKIidType, org api.OrgIdentityType, mcs api.M
 	}
 	gc.stateInfoMsgStore = newStateInfoCache(gc.GetConf().StateInfoCacheSweepInterval, hashPeerExpiredInMembership, verifyStateInfoMsg)
 
-	ttl := election.GetMsgExpirationTimeout()
+	ttl := adapter.GetConf().MsgExpirationTimeout
 	pol := proto.NewGossipMessageComparator(0)
 
 	gc.leaderMsgStore = msgstore.NewMessageStoreExpirable(pol, msgstore.Noop, ttl, nil, nil, nil)
@@ -263,12 +277,29 @@ func NewGossipChannel(pkiID common.PKIidType, org api.OrgIdentityType, mcs api.M
 	go gc.periodicalInvocation(gc.publishStateInfo, gc.stateInfoPublishScheduler.C)
 	// Periodically request state info
 	go gc.periodicalInvocation(gc.requestStateInfo, gc.stateInfoRequestScheduler.C)
+
+	ticker := time.NewTicker(gc.GetConf().TimeForMembershipTracker)
+	gc.membershipTracker = &membershipTracker{
+		getPeersToTrack: gc.GetPeers,
+		report:          gc.reportMembershipChanges,
+		stopChan:        make(chan struct{}, 1),
+		tickerChannel:   ticker.C,
+		metrics:         metrics,
+		chainID:         chainID,
+	}
+
+	go gc.membershipTracker.trackMembershipChanges()
 	return gc
+}
+
+func (gc *gossipChannel) reportMembershipChanges(input ...interface{}) {
+	gc.logger.Info(input...)
 }
 
 // Stop stop the channel operations
 func (gc *gossipChannel) Stop() {
 	gc.stopChan <- struct{}{}
+	gc.membershipTracker.stopChan <- struct{}{}
 	gc.blocksPuller.Stop()
 	gc.stateInfoPublishScheduler.Stop()
 	gc.stateInfoRequestScheduler.Stop()
@@ -380,6 +411,11 @@ func (gc *gossipChannel) createBlockPuller() pull.Mediator {
 		PeerCountToSelect: gc.GetConf().PullPeerNum,
 		PullInterval:      gc.GetConf().PullInterval,
 		Tag:               proto.GossipMessage_CHAN_AND_ORG,
+		PullEngineConfig: algo.PullEngineConfig{
+			DigestWaitTime:   gc.GetConf().DigestWaitTime,
+			RequestWaitTime:  gc.GetConf().RequestWaitTime,
+			ResponseWaitTime: gc.GetConf().ResponseWaitTime,
+		},
 	}
 	seqNumFromMsg := func(msg *proto.SignedGossipMessage) string {
 		dataMsg := msg.GetDataMsg()
@@ -482,8 +518,13 @@ func (gc *gossipChannel) EligibleForChannel(member discovery.NetworkMember) bool
 // AddToMsgStore adds a given GossipMessage to the message store
 func (gc *gossipChannel) AddToMsgStore(msg *proto.SignedGossipMessage) {
 	if msg.IsDataMsg() {
-		gc.blockMsgStore.Add(msg)
-		gc.blocksPuller.Add(msg)
+		gc.Lock()
+		defer gc.Unlock()
+		added := gc.blockMsgStore.Add(msg)
+		if added {
+			gc.logger.Debugf("Adding %v to the block puller", msg)
+			gc.blocksPuller.Add(msg)
+		}
 	}
 
 	if msg.IsStateInfoMsg() {
@@ -564,7 +605,13 @@ func (gc *gossipChannel) HandleMessage(msg proto.ReceivedMessage) {
 				gc.logger.Warning("Failed verifying block", m.GetDataMsg().Payload.SeqNum)
 				return
 			}
+			gc.Lock()
 			added = gc.blockMsgStore.Add(msg.GetGossipMessage())
+			if added {
+				gc.logger.Debugf("Adding %v to the block puller", msg.GetGossipMessage())
+				gc.blocksPuller.Add(msg.GetGossipMessage())
+			}
+			gc.Unlock()
 		} else { // StateInfoMsg verification should be handled in a layer above
 			//  since we don't have access to the id mapper here
 			added = gc.stateInfoMsgStore.Add(msg.GetGossipMessage())
@@ -575,10 +622,6 @@ func (gc *gossipChannel) HandleMessage(msg proto.ReceivedMessage) {
 			gc.Forward(msg)
 			// DeMultiplex to local subscribers
 			gc.DeMultiplex(m)
-
-			if m.IsDataMsg() {
-				gc.blocksPuller.Add(msg.GetGossipMessage())
-			}
 		}
 		return
 	}
@@ -602,6 +645,8 @@ func (gc *gossipChannel) HandleMessage(msg proto.ReceivedMessage) {
 			// Iterate over the envelopes, and filter out blocks
 			// that we already have in the blockMsgStore, or blocks that
 			// are too far in the past.
+			var msgs []*proto.SignedGossipMessage
+			var items []*proto.Envelope
 			filteredEnvelopes := []*proto.Envelope{}
 			for _, item := range m.GetDataUpdate().Data {
 				gMsg, err := item.ToGossipMessage()
@@ -614,12 +659,21 @@ func (gc *gossipChannel) HandleMessage(msg proto.ReceivedMessage) {
 					return
 				}
 				// Would this block go into the message store if it was verified?
-				if !gc.blockMsgStore.CheckValid(msg.GetGossipMessage()) {
-					return
+				if !gc.blockMsgStore.CheckValid(gMsg) {
+					continue
 				}
 				if !gc.verifyBlock(gMsg.GossipMessage, msg.GetConnectionInfo().ID) {
 					return
 				}
+				msgs = append(msgs, gMsg)
+				items = append(items, item)
+			}
+
+			gc.Lock()
+			defer gc.Unlock()
+
+			for i, gMsg := range msgs {
+				item := items[i]
 				added := gc.blockMsgStore.Add(gMsg)
 				if !added {
 					// If this block doesn't need to be added, it means it either already
@@ -628,6 +682,7 @@ func (gc *gossipChannel) HandleMessage(msg proto.ReceivedMessage) {
 				}
 				filteredEnvelopes = append(filteredEnvelopes, item)
 			}
+
 			// Replace the update message with just the blocks that should be processed
 			m.GetDataUpdate().Data = filteredEnvelopes
 		}
@@ -635,6 +690,18 @@ func (gc *gossipChannel) HandleMessage(msg proto.ReceivedMessage) {
 	}
 
 	if m.IsLeadershipMsg() {
+		connInfo := msg.GetConnectionInfo()
+		senderOrg := gc.GetOrgOfPeer(connInfo.ID)
+		if !bytes.Equal(gc.selfOrg, senderOrg) {
+			gc.logger.Warningf("Received leadership message from %s that belongs to a foreign organization %s",
+				connInfo.Endpoint, string(senderOrg))
+			return
+		}
+		msgCreatorOrg := gc.GetOrgOfPeer(m.GetLeadershipMsg().PkiId)
+		if !bytes.Equal(gc.selfOrg, msgCreatorOrg) {
+			gc.logger.Warningf("Received leadership message created by a foreign organization %s", string(msgCreatorOrg))
+			return
+		}
 		// Handling leadership message
 		added := gc.leaderMsgStore.Add(m)
 		if added {
@@ -955,6 +1022,93 @@ func (cache *stateInfoCache) Stop() {
 // and a channel name
 func GenerateMAC(pkiID common.PKIidType, channelID common.ChainID) []byte {
 	// Hash is computed on (PKI-ID || channel ID)
-	preImage := append([]byte(pkiID), []byte(channelID)...)
+	var preImage []byte
+	preImage = append(preImage, []byte(pkiID)...)
+	preImage = append(preImage, []byte(channelID)...)
 	return common_utils.ComputeSHA256(preImage)
+}
+
+//membershipTracker is a struct for tracking changes in peers of the channel
+type membershipTracker struct {
+	getPeersToTrack func() []discovery.NetworkMember
+	report          func(...interface{})
+	stopChan        chan struct{}
+	tickerChannel   <-chan time.Time
+	metrics         *metrics.MembershipMetrics
+	chainID         common.ChainID
+}
+
+//endpoints return all peers by their endpoints
+func endpoints(members discovery.Members) [][]string {
+	var currView [][]string
+	for _, member := range members {
+		ep := member.Endpoint
+		epi := member.InternalEndpoint
+		var endPoints []string
+		if ep != epi {
+			endPoints = append(endPoints, ep, epi)
+		} else {
+			endPoints = append(endPoints, ep)
+		}
+		currView = append(currView, endPoints)
+	}
+	return currView
+}
+
+//checkIfPeersChanged checks which peers are offline and which are online for channel
+func (mt *membershipTracker) checkIfPeersChanged(prevPeers discovery.Members, currPeers discovery.Members,
+	prevSetPeers map[string]struct{}, currSetPeers map[string]struct{}) {
+	var currView [][]string
+
+	wereInPrev := endpoints(prevPeers.Filter(func(member discovery.NetworkMember) bool {
+		_, exists := currSetPeers[string(member.PKIid)]
+		return !exists
+	}))
+	newInCurr := endpoints(currPeers.Filter(func(member discovery.NetworkMember) bool {
+		_, exists := prevSetPeers[string(member.PKIid)]
+		return !exists
+	}))
+	currView = endpoints(currPeers)
+
+	if !reflect.DeepEqual(wereInPrev, newInCurr) {
+		if len(wereInPrev) == 0 {
+			mt.report("Membership view has changed. peers went online: ", newInCurr, ", current view: ", currView)
+		} else if len(newInCurr) == 0 {
+			mt.report("Membership view has changed. peers went offline: ", wereInPrev, ", current view: ", currView)
+		} else {
+			mt.report("Membership view has changed. peers went offline: ", wereInPrev, ", peers went online: ", newInCurr, ", current view: ", currView)
+		}
+	}
+}
+
+func (mt *membershipTracker) createSetOfPeers(peersToMakeSet []discovery.NetworkMember) map[string]struct{} {
+	setPeers := make(map[string]struct{})
+	for _, prevPeer := range peersToMakeSet {
+		prevPeerID := string(prevPeer.PKIid)
+		setPeers[prevPeerID] = struct{}{}
+	}
+	return setPeers
+}
+
+func (mt *membershipTracker) trackMembershipChanges() {
+	prevSetPeers := make(map[string]struct{})
+	prev := mt.getPeersToTrack()
+	prevSetPeers = mt.createSetOfPeers(prev)
+	for {
+		currSetPeers := make(map[string]struct{})
+		//timeout to check changes in peers
+		select {
+		case <-mt.stopChan:
+			return
+		case <-mt.tickerChannel:
+			//get current peers
+			currPeers := mt.getPeersToTrack()
+			mt.metrics.Total.With("channel", string(mt.chainID)).Set(float64(len(currPeers)))
+			currSetPeers = mt.createSetOfPeers(currPeers)
+			mt.checkIfPeersChanged(prev, currPeers, prevSetPeers, currSetPeers)
+			prev = currPeers
+			prevSetPeers = map[string]struct{}{}
+			prevSetPeers = mt.createSetOfPeers(prev)
+		}
+	}
 }

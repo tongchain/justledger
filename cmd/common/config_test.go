@@ -14,8 +14,8 @@ import (
 	"testing"
 	"time"
 
-	"justledger/cmd/common/comm"
-	"justledger/cmd/common/signer"
+	"github.com/justledger/fabric/cmd/common/comm"
+	"github.com/justledger/fabric/cmd/common/signer"
 	"github.com/stretchr/testify/assert"
 )
 

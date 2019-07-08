@@ -9,13 +9,12 @@ package common
 import (
 	"bytes"
 	"fmt"
+	"math/rand"
+	"os"
 	"path/filepath"
 	"testing"
 
-	"math/rand"
-	"os"
-
-	"justledger/cmd/common/signer"
+	"github.com/justledger/fabric/cmd/common/signer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

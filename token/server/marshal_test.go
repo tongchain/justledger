@@ -10,14 +10,13 @@ import (
 	"crypto/sha256"
 	"time"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
-
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"justledger/protos/token"
-	"justledger/token/server"
-	"justledger/token/server/mock"
+	"github.com/justledger/fabric/protos/token"
+	"github.com/justledger/fabric/token/server"
+	"github.com/justledger/fabric/token/server/mock"
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 )
 

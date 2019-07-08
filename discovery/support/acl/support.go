@@ -7,16 +7,16 @@ SPDX-License-Identifier: Apache-2.0
 package acl
 
 import (
-	"justledger/common/channelconfig"
-	"justledger/common/flogging"
-	"justledger/common/policies"
-	cb "justledger/protos/common"
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/policies"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 )
 
 var (
-	logger = flogging.MustGetLogger("discovery/acl")
+	logger = flogging.MustGetLogger("discovery.acl")
 )
 
 // ChannelConfigGetter enables to retrieve the channel config resources
@@ -117,7 +117,7 @@ type ChannelPolicyManagerGetter interface {
 // NewChannelVerifier returns a new channel verifier from the given policy and policy manager getter
 func NewChannelVerifier(policy string, polMgr policies.ChannelPolicyManagerGetter) *ChannelVerifier {
 	return &ChannelVerifier{
-		Policy: policy,
+		Policy:                     policy,
 		ChannelPolicyManagerGetter: polMgr,
 	}
 }

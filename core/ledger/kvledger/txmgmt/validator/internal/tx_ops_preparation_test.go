@@ -12,13 +12,13 @@ import (
 	"os"
 	"testing"
 
-	"justledger/common/flogging"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/storageutil"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/storageutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,7 +30,7 @@ func TestMain(m *testing.M) {
 		os.Exit(-1)
 		return
 	}
-	flogging.SetModuleLevel("valinternal", "debug")
+	flogging.ActivateSpec("valinternal=debug")
 	viper.Set("peer.fileSystemPath", tempDir)
 	os.Exit(m.Run())
 }

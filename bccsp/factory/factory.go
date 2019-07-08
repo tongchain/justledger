@@ -18,8 +18,8 @@ package factory
 import (
 	"sync"
 
-	"justledger/bccsp"
-	"justledger/common/flogging"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/common/flogging"
 	"github.com/pkg/errors"
 )
 
@@ -58,7 +58,7 @@ type BCCSPFactory interface {
 // GetDefault returns a non-ephemeral (long-term) BCCSP
 func GetDefault() bccsp.BCCSP {
 	if defaultBCCSP == nil {
-		logger.Warning("Before using BCCSP, please call InitFactories(). Falling back to bootBCCSP.")
+		logger.Debug("Before using BCCSP, please call InitFactories(). Falling back to bootBCCSP.")
 		bootBCCSPInitOnce.Do(func() {
 			var err error
 			f := &SWFactory{}

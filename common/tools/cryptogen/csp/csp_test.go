@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/bccsp"
-	"justledger/common/tools/cryptogen/csp"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/common/tools/cryptogen/csp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -55,6 +55,27 @@ func TestLoadPrivateKey(t *testing.T) {
 	loadedPriv, _, _ := csp.LoadPrivateKey(testDir)
 	assert.NotNil(t, loadedPriv, "Should have returned a bccsp.Key")
 	assert.Equal(t, priv.SKI(), loadedPriv.SKI(), "Should have same subject identifier")
+	cleanup(testDir)
+}
+
+func TestLoadPrivateKey_wrongEncoding(t *testing.T) {
+	if err := os.Mkdir(testDir, 0755); err != nil {
+		panic("failed to create dir " + testDir + ":" + err.Error())
+	}
+	filename := testDir + "/wrong_encoding_sk"
+	file, err := os.Create(filename)
+	if err != nil {
+		panic("failed to create tmpfile " + filename + ":" + err.Error())
+	}
+	defer file.Close()
+	_, err = file.Write([]byte("wrong_encoding"))
+	if err != nil {
+		panic("failed to write to " + filename + ":" + err.Error())
+	}
+	file.Close() // To flush test file content
+	_, _, err = csp.LoadPrivateKey(testDir)
+	assert.NotNil(t, err)
+	assert.EqualError(t, err, testDir+"/wrong_encoding_sk: wrong PEM encoding")
 	cleanup(testDir)
 }
 

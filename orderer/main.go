@@ -9,7 +9,7 @@ SPDX-License-Identifier: Apache-2.0
 // function should be included in this package.
 package main
 
-import "justledger/orderer/common/server"
+import "github.com/justledger/fabric/orderer/common/server"
 
 func main() {
 	server.Main()

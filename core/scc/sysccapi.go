@@ -10,17 +10,15 @@ import (
 	"errors"
 	"fmt"
 
-	"justledger/common/flogging"
-	"justledger/common/util"
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	"justledger/core/container/ccintf"
-	"justledger/core/container/inproccontroller"
-	"justledger/core/peer"
-
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/container/ccintf"
+	"github.com/justledger/fabric/core/container/inproccontroller"
+	"github.com/justledger/fabric/core/peer"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
-
-	pb "justledger/protos/peer"
 )
 
 var sysccLogger = flogging.MustGetLogger("sccapi")

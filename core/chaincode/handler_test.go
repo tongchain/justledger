@@ -11,15 +11,16 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/mocks/config"
-	"justledger/common/util"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/chaincode"
-	"justledger/core/chaincode/fake"
-	"justledger/core/chaincode/mock"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/sysccprovider"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/metrics/metricsfakes"
+	"github.com/justledger/fabric/common/mocks/config"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/core/chaincode/fake"
+	"github.com/justledger/fabric/core/chaincode/mock"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/common/sysccprovider"
+	pb "github.com/justledger/fabric/protos/peer"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"
@@ -42,6 +43,11 @@ var _ = Describe("Handler", func() {
 		fakeLedgerGetter               *mock.LedgerGetter
 		fakeHandlerRegistry            *fake.Registry
 		fakeApplicationConfigRetriever *fake.ApplicationConfigRetriever
+		fakeCollectionStore            *mock.CollectionStore
+		fakeShimRequestsReceived       *metricsfakes.Counter
+		fakeShimRequestsCompleted      *metricsfakes.Counter
+		fakeShimRequestDuration        *metricsfakes.Histogram
+		fakeExecuteTimeouts            *metricsfakes.Counter
 
 		responseNotifier chan *pb.ChaincodeMessage
 		txContext        *chaincode.TransactionContext
@@ -58,12 +64,16 @@ var _ = Describe("Handler", func() {
 
 		fakeTxSimulator = &mock.TxSimulator{}
 		fakeHistoryQueryExecutor = &mock.HistoryQueryExecutor{}
+		fakeCollectionStore = &mock.CollectionStore{}
+
 		responseNotifier = make(chan *pb.ChaincodeMessage, 1)
 		txContext = &chaincode.TransactionContext{
-			ChainID:              "channel-id",
-			TXSimulator:          fakeTxSimulator,
-			HistoryQueryExecutor: fakeHistoryQueryExecutor,
-			ResponseNotifier:     responseNotifier,
+			ChainID:                 "channel-id",
+			TXSimulator:             fakeTxSimulator,
+			HistoryQueryExecutor:    fakeHistoryQueryExecutor,
+			ResponseNotifier:        responseNotifier,
+			CollectionStore:         fakeCollectionStore,
+			AllowedCollectionAccess: make(map[string]bool),
 		}
 
 		fakeACLProvider = &mock.ACLProvider{}
@@ -84,6 +94,22 @@ var _ = Describe("Handler", func() {
 		}
 		fakeApplicationConfigRetriever.GetApplicationConfigReturns(applicationCapability, true)
 
+		fakeShimRequestsReceived = &metricsfakes.Counter{}
+		fakeShimRequestsReceived.WithReturns(fakeShimRequestsReceived)
+		fakeShimRequestsCompleted = &metricsfakes.Counter{}
+		fakeShimRequestsCompleted.WithReturns(fakeShimRequestsCompleted)
+		fakeShimRequestDuration = &metricsfakes.Histogram{}
+		fakeShimRequestDuration.WithReturns(fakeShimRequestDuration)
+		fakeExecuteTimeouts = &metricsfakes.Counter{}
+		fakeExecuteTimeouts.WithReturns(fakeExecuteTimeouts)
+
+		chaincodeMetrics := &chaincode.HandlerMetrics{
+			ShimRequestsReceived:  fakeShimRequestsReceived,
+			ShimRequestsCompleted: fakeShimRequestsCompleted,
+			ShimRequestDuration:   fakeShimRequestDuration,
+			ExecuteTimeouts:       fakeExecuteTimeouts,
+		}
+
 		handler = &chaincode.Handler{
 			ACLProvider:                fakeACLProvider,
 			ActiveTransactions:         fakeTransactionRegistry,
@@ -100,9 +126,10 @@ var _ = Describe("Handler", func() {
 				return "generated-query-id"
 			}),
 			AppConfig: fakeApplicationConfigRetriever,
+			Metrics:   chaincodeMetrics,
 		}
 		chaincode.SetHandlerChatStream(handler, fakeChatStream)
-		chaincode.SetHandlerChaincodeID(handler, &pb.ChaincodeID{Name: "test-handler-name"})
+		chaincode.SetHandlerChaincodeID(handler, &pb.ChaincodeID{Name: "test-handler-name", Version: "1.0"})
 		chaincode.SetHandlerCCInstance(handler, &sysccprovider.ChaincodeInstance{ChaincodeName: "cc-instance-name"})
 	})
 
@@ -178,7 +205,99 @@ var _ = Describe("Handler", func() {
 			Expect(transactionID).To(Equal("tx-id"))
 		})
 
-		Context("wwhen the transaction ID has already been regustered", func() {
+		It("records shim requests received before requests completed", func() {
+			fakeShimRequestsReceived.AddStub = func(delta float64) {
+				defer GinkgoRecover()
+				Expect(fakeShimRequestsCompleted.AddCallCount()).To(Equal(0))
+			}
+
+			handler.HandleTransaction(incomingMessage, fakeMessageHandler.Handle)
+			Eventually(fakeChatStream.SendCallCount).Should(Equal(1))
+			msg := fakeChatStream.SendArgsForCall(0)
+			Expect(msg).To(Equal(expectedResponse))
+
+			Expect(fakeShimRequestsReceived.WithCallCount()).To(Equal(1))
+			labelValues := fakeShimRequestsReceived.WithArgsForCall(0)
+			Expect(labelValues).To(Equal([]string{
+				"type", "GET_STATE",
+				"channel", "channel-id",
+				"chaincode", "test-handler-name:1.0",
+			}))
+			Expect(fakeShimRequestsReceived.AddCallCount()).To(Equal(1))
+			Expect(fakeShimRequestsReceived.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+		})
+
+		It("records transactions completed after transactions received", func() {
+			fakeShimRequestsCompleted.AddStub = func(delta float64) {
+				defer GinkgoRecover()
+				Expect(fakeShimRequestsReceived.AddCallCount()).To(Equal(1))
+			}
+
+			handler.HandleTransaction(incomingMessage, fakeMessageHandler.Handle)
+			Eventually(fakeChatStream.SendCallCount).Should(Equal(1))
+
+			Expect(fakeShimRequestsCompleted.WithCallCount()).To(Equal(1))
+			labelValues := fakeShimRequestsCompleted.WithArgsForCall(0)
+			Expect(labelValues).To(Equal([]string{
+				"type", "GET_STATE",
+				"channel", "channel-id",
+				"chaincode", "test-handler-name:1.0",
+				"success", "true",
+			}))
+			Expect(fakeShimRequestsCompleted.AddCallCount()).To(Equal(1))
+			Expect(fakeShimRequestsCompleted.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+		})
+
+		It("records transactions duration", func() {
+			handler.HandleTransaction(incomingMessage, fakeMessageHandler.Handle)
+			Eventually(fakeChatStream.SendCallCount).Should(Equal(1))
+
+			Expect(fakeShimRequestDuration.WithCallCount()).To(Equal(1))
+			labelValues := fakeShimRequestDuration.WithArgsForCall(0)
+			Expect(labelValues).To(Equal([]string{
+				"type", "GET_STATE",
+				"channel", "channel-id",
+				"chaincode", "test-handler-name:1.0",
+				"success", "true",
+			}))
+			Expect(fakeShimRequestDuration.ObserveArgsForCall(0)).NotTo(BeZero())
+			Expect(fakeShimRequestDuration.ObserveArgsForCall(0)).To(BeNumerically("<", 1.0))
+		})
+
+		Context("when the transaction returns an error", func() {
+			BeforeEach(func() {
+				fakeMessageHandler.HandleReturns(nil, errors.New("I am a total failure"))
+			})
+
+			It("records metrics with success=false", func() {
+				handler.HandleTransaction(incomingMessage, fakeMessageHandler.Handle)
+				Eventually(fakeChatStream.SendCallCount).Should(Equal(1))
+
+				Expect(fakeShimRequestsCompleted.WithCallCount()).To(Equal(1))
+				labelValues := fakeShimRequestsCompleted.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"type", "GET_STATE",
+					"channel", "channel-id",
+					"chaincode", "test-handler-name:1.0",
+					"success", "false",
+				}))
+				Expect(fakeShimRequestsCompleted.AddCallCount()).To(Equal(1))
+				Expect(fakeShimRequestsCompleted.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+
+				Expect(fakeShimRequestDuration.WithCallCount()).To(Equal(1))
+				labelValues = fakeShimRequestDuration.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"type", "GET_STATE",
+					"channel", "channel-id",
+					"chaincode", "test-handler-name:1.0",
+					"success", "false",
+				}))
+				Expect(fakeShimRequestDuration.ObserveArgsForCall(0)).NotTo(BeZero())
+				Expect(fakeShimRequestDuration.ObserveArgsForCall(0)).To(BeNumerically("<", 1.0))
+			})
+		})
+
+		Context("when the transaction ID has already been registered", func() {
 			BeforeEach(func() {
 				fakeTransactionRegistry.AddReturns(false)
 			})
@@ -476,7 +595,7 @@ var _ = Describe("Handler", func() {
 				Expect(value).To(Equal([]byte("put-state-value")))
 			})
 
-			Context("when SetPrivateData fails", func() {
+			Context("when SetPrivateData fails due to ledger error", func() {
 				BeforeEach(func() {
 					fakeTxSimulator.SetPrivateDataReturns(errors.New("godzilla"))
 				})
@@ -484,6 +603,17 @@ var _ = Describe("Handler", func() {
 				It("returns an error", func() {
 					_, err := handler.HandlePutState(incomingMessage, txContext)
 					Expect(err).To(MatchError("godzilla"))
+				})
+			})
+
+			Context("when SetPrivateData fails due to Init transaction", func() {
+				BeforeEach(func() {
+					txContext.IsInitTransaction = true
+				})
+
+				It("returns the error from errorIfInitTransaction", func() {
+					_, err := handler.HandlePutState(incomingMessage, txContext)
+					Expect(err).To(MatchError("private data APIs are not allowed in chaincode Init()"))
 				})
 			})
 		})
@@ -552,7 +682,7 @@ var _ = Describe("Handler", func() {
 
 			It("returns an error", func() {
 				_, err := handler.HandlePutStateMetadata(incomingMessage, txContext)
-				Expect(err).To(MatchError("key level endorsement is not enabled"))
+				Expect(err).To(MatchError("key level endorsement is not enabled, channel application capability of V1_3 or later is required"))
 			})
 		})
 
@@ -710,7 +840,7 @@ var _ = Describe("Handler", func() {
 				Expect(key).To(Equal("del-state-key"))
 			})
 
-			Context("when DeletePrivateData returns an error", func() {
+			Context("when DeletePrivateData fails due to ledger error", func() {
 				BeforeEach(func() {
 					fakeTxSimulator.DeletePrivateDataReturns(errors.New("mango"))
 				})
@@ -718,6 +848,17 @@ var _ = Describe("Handler", func() {
 				It("returns an error", func() {
 					_, err := handler.HandleDelState(incomingMessage, txContext)
 					Expect(err).To(MatchError("mango"))
+				})
+			})
+
+			Context("when DeletePrivateData fails due to Init transaction", func() {
+				BeforeEach(func() {
+					txContext.IsInitTransaction = true
+				})
+
+				It("returns the error from errorIfInitTransaction", func() {
+					_, err := handler.HandleDelState(incomingMessage, txContext)
+					Expect(err).To(MatchError("private data APIs are not allowed in chaincode Init()"))
 				})
 			})
 		})
@@ -769,6 +910,7 @@ var _ = Describe("Handler", func() {
 				Expect(err).NotTo(HaveOccurred())
 				incomingMessage.Payload = payload
 
+				fakeCollectionStore.HasReadAccessReturns(true, nil)
 				fakeTxSimulator.GetPrivateDataReturns([]byte("get-private-data-response"), nil)
 				expectedResponse.Payload = []byte("get-private-data-response")
 			})
@@ -784,7 +926,7 @@ var _ = Describe("Handler", func() {
 				Expect(key).To(Equal("get-state-key"))
 			})
 
-			Context("and GetPrivateData fails", func() {
+			Context("and GetPrivateData fails due to ledger error", func() {
 				BeforeEach(func() {
 					fakeTxSimulator.GetPrivateDataReturns(nil, errors.New("french fries"))
 				})
@@ -792,6 +934,60 @@ var _ = Describe("Handler", func() {
 				It("returns the error from GetPrivateData", func() {
 					_, err := handler.HandleGetState(incomingMessage, txContext)
 					Expect(err).To(MatchError("french fries"))
+				})
+			})
+
+			Context("and GetPrivateData fails due to no read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, nil)
+				})
+
+				It("returns the error from errorIfCreatorHasNoReadAccess", func() {
+					_, err := handler.HandleGetState(incomingMessage, txContext)
+					Expect(err).To(MatchError("tx creator does not have read access" +
+						" permission on privatedata in chaincodeName:cc-instance-name" +
+						" collectionName: collection-name"))
+				})
+			})
+
+			Context("and GetPrivateData fails due to error in checking the read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, errors.New("no collection config"))
+				})
+
+				It("returns the error from errorIfCreatorHasNoReadAccess", func() {
+					_, err := handler.HandleGetState(incomingMessage, txContext)
+					Expect(err).To(MatchError("no collection config"))
+				})
+			})
+
+			Context("and GetPrivateData fails due to Init transaction", func() {
+				BeforeEach(func() {
+					txContext.IsInitTransaction = true
+				})
+
+				It("returns the error from errorIfInitTransaction", func() {
+					_, err := handler.HandleGetState(incomingMessage, txContext)
+					Expect(err).To(MatchError("private data APIs are not allowed in chaincode Init()"))
+				})
+			})
+
+			Context("and GetPrivateData returns the response message", func() {
+				BeforeEach(func() {
+					txContext.AllowedCollectionAccess["collection-name"] = true
+					fakeCollectionStore.HasReadAccessReturns(false, nil) // to
+					// ensure that the access cache is used
+				})
+
+				It("returns the the response message from GetPrivateData", func() {
+					resp, err := handler.HandleGetState(incomingMessage, txContext)
+					Expect(err).NotTo(HaveOccurred())
+					Expect(resp).To(Equal(&pb.ChaincodeMessage{
+						Type:      pb.ChaincodeMessage_RESPONSE,
+						Payload:   []byte("get-private-data-response"),
+						Txid:      "tx-id",
+						ChannelId: "channel-id",
+					}))
 				})
 			})
 
@@ -905,7 +1101,7 @@ var _ = Describe("Handler", func() {
 
 			It("returns an error", func() {
 				_, err := handler.HandleGetStateMetadata(incomingMessage, txContext)
-				Expect(err).To(MatchError("key level endorsement is not enabled"))
+				Expect(err).To(MatchError("key level endorsement is not enabled, channel application capability of V1_3 or later is required"))
 			})
 		})
 
@@ -930,6 +1126,7 @@ var _ = Describe("Handler", func() {
 				metadata := map[string][]byte{
 					"get-state-metakey": []byte("get-private-metadata-response"),
 				}
+				fakeCollectionStore.HasReadAccessReturns(true, nil)
 				fakeTxSimulator.GetPrivateDataMetadataReturns(metadata, nil)
 				responsePayload, err := proto.Marshal(&pb.StateMetadataResult{
 					Entries: []*pb.StateMetadata{{
@@ -958,7 +1155,7 @@ var _ = Describe("Handler", func() {
 				Expect(resp).To(Equal(expectedResponse))
 			})
 
-			Context("and GetPrivateDataMetadata fails", func() {
+			Context("and GetPrivateDataMetadata fails due to ledger error", func() {
 				BeforeEach(func() {
 					fakeTxSimulator.GetPrivateDataMetadataReturns(nil, errors.New("french fries"))
 				})
@@ -966,6 +1163,41 @@ var _ = Describe("Handler", func() {
 				It("returns the error from GetPrivateDataMetadata", func() {
 					_, err := handler.HandleGetStateMetadata(incomingMessage, txContext)
 					Expect(err).To(MatchError("french fries"))
+				})
+			})
+
+			Context("and GetPrivateDataMetadata fails due to no read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, nil)
+				})
+
+				It("returns the error from GetPrivateDataMetadata", func() {
+					_, err := handler.HandleGetStateMetadata(incomingMessage, txContext)
+					Expect(err).To(MatchError("tx creator does not have read access" +
+						" permission on privatedata in chaincodeName:cc-instance-name" +
+						" collectionName: collection-name"))
+				})
+			})
+
+			Context("and GetPrivateDataMetadata fails due to error in checking the read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, errors.New("no collection config"))
+				})
+
+				It("returns the error from GetPrivateDataMetadata", func() {
+					_, err := handler.HandleGetStateMetadata(incomingMessage, txContext)
+					Expect(err).To(MatchError("no collection config"))
+				})
+			})
+
+			Context("and GetPrivateDataMetadata fails due to Init transaction", func() {
+				BeforeEach(func() {
+					txContext.IsInitTransaction = true
+				})
+
+				It("returns the error from errorIfInitTransaction", func() {
+					_, err := handler.HandleGetStateMetadata(incomingMessage, txContext)
+					Expect(err).To(MatchError("private data APIs are not allowed in chaincode Init()"))
 				})
 			})
 		})
@@ -1116,6 +1348,7 @@ var _ = Describe("Handler", func() {
 				Expect(err).NotTo(HaveOccurred())
 				incomingMessage.Payload = payload
 
+				fakeCollectionStore.HasReadAccessReturns(true, nil)
 				fakeTxSimulator.GetPrivateDataRangeScanIteratorReturns(fakeIterator, nil)
 			})
 
@@ -1131,7 +1364,7 @@ var _ = Describe("Handler", func() {
 				Expect(endKey).To(Equal("get-state-end-key"))
 			})
 
-			Context("and GetPrivateDataRangeScanIterator fails", func() {
+			Context("and GetPrivateDataRangeScanIterator fails due to ledger error", func() {
 				BeforeEach(func() {
 					fakeTxSimulator.GetPrivateDataRangeScanIteratorReturns(nil, errors.New("french fries"))
 				})
@@ -1139,6 +1372,41 @@ var _ = Describe("Handler", func() {
 				It("returns the error from GetPrivateDataRangeScanIterator", func() {
 					_, err := handler.HandleGetStateByRange(incomingMessage, txContext)
 					Expect(err).To(MatchError("french fries"))
+				})
+			})
+
+			Context("and GetPrivateDataRangeScanIterator fails due to no read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, nil)
+				})
+
+				It("returns the error from GetPrivateDataRangeScanIterator", func() {
+					_, err := handler.HandleGetStateByRange(incomingMessage, txContext)
+					Expect(err).To(MatchError("tx creator does not have read access" +
+						" permission on privatedata in chaincodeName:cc-instance-name" +
+						" collectionName: collection-name"))
+				})
+			})
+
+			Context("and GetPrivateDataRangeScanIterator fails due to error in checking the read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, errors.New("no collection config"))
+				})
+
+				It("returns the error from GetPrivateDataRangeScanIterator", func() {
+					_, err := handler.HandleGetStateByRange(incomingMessage, txContext)
+					Expect(err).To(MatchError("no collection config"))
+				})
+			})
+
+			Context("and GetPrivateDataRangeScanIterator fails due to Init transaction", func() {
+				BeforeEach(func() {
+					txContext.IsInitTransaction = true
+				})
+
+				It("returns the error from errorIfInitTransaction", func() {
+					_, err := handler.HandleGetStateByRange(incomingMessage, txContext)
+					Expect(err).To(MatchError("private data APIs are not allowed in chaincode Init()"))
 				})
 			})
 		})
@@ -1450,6 +1718,7 @@ var _ = Describe("Handler", func() {
 				Expect(err).NotTo(HaveOccurred())
 				incomingMessage.Payload = payload
 
+				fakeCollectionStore.HasReadAccessReturns(true, nil)
 				fakeTxSimulator.ExecuteQueryOnPrivateDataReturns(fakeIterator, nil)
 			})
 
@@ -1476,7 +1745,7 @@ var _ = Describe("Handler", func() {
 				Expect(*retCount).To(Equal(int32(0)))
 			})
 
-			Context("and ExecuteQueryOnPrivateData fails", func() {
+			Context("and ExecuteQueryOnPrivateData fails due to ledger error", func() {
 				BeforeEach(func() {
 					fakeTxSimulator.ExecuteQueryOnPrivateDataReturns(nil, errors.New("pizza"))
 				})
@@ -1484,6 +1753,41 @@ var _ = Describe("Handler", func() {
 				It("returns the error", func() {
 					_, err := handler.HandleGetQueryResult(incomingMessage, txContext)
 					Expect(err).To(MatchError("pizza"))
+				})
+			})
+
+			Context("and ExecuteQueryOnPrivateData fails due to no read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, nil)
+				})
+
+				It("returns the error", func() {
+					_, err := handler.HandleGetQueryResult(incomingMessage, txContext)
+					Expect(err).To(MatchError("tx creator does not have read access" +
+						" permission on privatedata in chaincodeName:cc-instance-name" +
+						" collectionName: collection-name"))
+				})
+			})
+
+			Context("and ExecuteQueryOnPrivateData fails due to error in checking the read access", func() {
+				BeforeEach(func() {
+					fakeCollectionStore.HasReadAccessReturns(false, errors.New("no collection config"))
+				})
+
+				It("returns the error", func() {
+					_, err := handler.HandleGetQueryResult(incomingMessage, txContext)
+					Expect(err).To(MatchError("no collection config"))
+				})
+			})
+
+			Context("and ExecuteQueryOnPrivateData fails due to Init transaction", func() {
+				BeforeEach(func() {
+					txContext.IsInitTransaction = true
+				})
+
+				It("returns the error from errorIfInitTransaction", func() {
+					_, err := handler.HandleGetQueryResult(incomingMessage, txContext)
+					Expect(err).To(MatchError("private data APIs are not allowed in chaincode Init()"))
 				})
 			})
 		})
@@ -2210,6 +2514,22 @@ var _ = Describe("Handler", func() {
 					errCh <- err
 				}()
 				Eventually(errCh).Should(Receive(MatchError("timeout expired while executing transaction")))
+			})
+
+			It("records execute timeouts", func() {
+				errCh := make(chan error, 1)
+				go func() {
+					_, err := handler.Execute(txParams, cccid, incomingMessage, time.Millisecond)
+					errCh <- err
+				}()
+				Eventually(errCh).Should(Receive(MatchError("timeout expired while executing transaction")))
+				Expect(fakeExecuteTimeouts.WithCallCount()).To(Equal(1))
+				labelValues := fakeExecuteTimeouts.WithArgsForCall(0)
+				Expect(labelValues).To(Equal([]string{
+					"chaincode", "chaincode-name:chaincode-version",
+				}))
+				Expect(fakeExecuteTimeouts.AddCallCount()).To(Equal(1))
+				Expect(fakeExecuteTimeouts.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
 			})
 
 			It("deletes the transaction context", func() {

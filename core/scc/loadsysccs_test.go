@@ -18,14 +18,14 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/core/chaincode/shim"
+	"github.com/justledger/fabric/core/chaincode/shim"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	examplePluginPackage = "justledger/examples/plugins/scc"
+	examplePluginPackage = "github.com/justledger/fabric/examples/plugins/scc"
 	pluginName           = "testscc"
 )
 
@@ -59,8 +59,16 @@ func TestLoadSCCPluginInvalid(t *testing.T) {
 	assert.Panics(t, func() { loadPlugin("missing.so") }, "expected panic with invalid path")
 }
 
+// raceEnabled is set to true when the race build tag is enabled.
+// see race_test.go
+var raceEnabled bool
+
 func buildExamplePlugin(t *testing.T, path, pluginPackage string) {
-	cmd := exec.Command("go", "build", "-tags", goBuildTags, "-o", path, "-buildmode=plugin", pluginPackage)
+	cmd := exec.Command("go", "build", "-o", path, "-buildmode=plugin")
+	if raceEnabled {
+		cmd.Args = append(cmd.Args, "-race")
+	}
+	cmd.Args = append(cmd.Args, pluginPackage)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Error: %s, Could not build plugin: %s", err, output)

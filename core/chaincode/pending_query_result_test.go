@@ -9,12 +9,11 @@ package chaincode_test
 import (
 	"fmt"
 
+	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/golang/protobuf/proto"
-	"justledger/core/chaincode"
-	"justledger/protos/ledger/queryresult"
 	"github.com/pkg/errors"
 )
 

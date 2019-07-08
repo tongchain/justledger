@@ -8,14 +8,14 @@ package lockbasedtxmgr
 import (
 	"testing"
 
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/mock"
-	"justledger/protos/common"
-	"justledger/protos/ledger/queryresult"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/mock"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -127,7 +127,7 @@ func TestStateListenerQueryExecutor(t *testing.T) {
 	block := testutil.ConstructBlock(t, 1, nil, [][]byte{simResBytes}, false)
 
 	// invoke ValidateAndPrepare function
-	err = txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block}, false)
+	_, _, err = txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block}, false)
 	assert.NoError(t, err)
 
 	// validate that the query executors passed to the state listener

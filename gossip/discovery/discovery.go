@@ -9,8 +9,8 @@ package discovery
 import (
 	"fmt"
 
-	"justledger/gossip/common"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/common"
+	proto "github.com/justledger/fabric/protos/gossip"
 )
 
 // CryptoService is an interface that the discovery expects to be implemented and passed on creation
@@ -79,8 +79,8 @@ type NetworkMember struct {
 }
 
 // String returns a string representation of the NetworkMember
-func (n *NetworkMember) String() string {
-	return fmt.Sprintf("Endpoint: %s, InternalEndpoint: %s, PKI-ID: %v, Metadata: %v", n.Endpoint, n.InternalEndpoint, n.PKIid, n.Metadata)
+func (n NetworkMember) String() string {
+	return fmt.Sprintf("Endpoint: %s, InternalEndpoint: %s, PKI-ID: %s, Metadata: %x", n.Endpoint, n.InternalEndpoint, n.PKIid, n.Metadata)
 }
 
 // PreferredEndpoint computes the endpoint to connect to,
@@ -105,7 +105,6 @@ type identifier func() (*PeerIdentification, error)
 
 // Discovery is the interface that represents a discovery module
 type Discovery interface {
-
 	// Lookup returns a network member, or nil if not found
 	Lookup(PKIID common.PKIidType) *NetworkMember
 

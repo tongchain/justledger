@@ -22,10 +22,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/msp"
-	"justledger/protos/common"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 // ExtractSignedCCDepSpec extracts the messages from the envelope

@@ -9,9 +9,10 @@ package chaincode
 import (
 	"sync"
 
-	commonledger "justledger/common/ledger"
-	"justledger/core/ledger"
-	pb "justledger/protos/peer"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/core/ledger"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 type TransactionContext struct {
@@ -21,12 +22,21 @@ type TransactionContext struct {
 	ResponseNotifier     chan *pb.ChaincodeMessage
 	TXSimulator          ledger.TxSimulator
 	HistoryQueryExecutor ledger.HistoryQueryExecutor
+	CollectionStore      privdata.CollectionStore
+	IsInitTransaction    bool
 
 	// tracks open iterators used for range queries
 	queryMutex          sync.Mutex
 	queryIteratorMap    map[string]commonledger.ResultsIterator
 	pendingQueryResults map[string]*PendingQueryResult
 	totalReturnCount    map[string]*int32
+
+	// cache used to save the result of collection acl
+	// as a transactionContext is created for every chaincode
+	// invoke (even in case of chaincode-calling-chaincode,
+	// we do not need to store the namespace in the map and
+	// collection alone is sufficient.
+	AllowedCollectionAccess map[string]bool
 }
 
 func (t *TransactionContext) InitializeQueryContext(queryID string, iter commonledger.ResultsIterator) {

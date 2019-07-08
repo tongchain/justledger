@@ -21,8 +21,8 @@ import (
 	"reflect"
 	"testing"
 
-	mocks2 "justledger/bccsp/mocks"
-	"justledger/bccsp/sw/mocks"
+	mocks2 "github.com/justledger/fabric/bccsp/mocks"
+	"github.com/justledger/fabric/bccsp/sw/mocks"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -41,7 +41,7 @@ func TestKeyDeriv(t *testing.T) {
 		Value:   expectetValue,
 		Err:     expectedErr,
 	}
-	csp := CSP{keyDerivers: keyDerivers}
+	csp := CSP{KeyDerivers: keyDerivers}
 	value, err := csp.KeyDeriv(expectedKey, expectedOpts)
 	assert.Nil(t, value)
 	assert.Contains(t, err.Error(), expectedErr.Error())
@@ -53,7 +53,7 @@ func TestKeyDeriv(t *testing.T) {
 		Value:   expectetValue,
 		Err:     nil,
 	}
-	csp = CSP{keyDerivers: keyDerivers}
+	csp = CSP{KeyDerivers: keyDerivers}
 	value, err = csp.KeyDeriv(expectedKey, expectedOpts)
 	assert.Equal(t, expectetValue, value)
 	assert.Nil(t, err)

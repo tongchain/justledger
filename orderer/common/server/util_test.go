@@ -11,8 +11,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/core/config/configtest"
-	config "justledger/orderer/common/localconfig"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/core/config/configtest"
+	config "github.com/justledger/fabric/orderer/common/localconfig"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -53,7 +54,7 @@ func TestCreateLedgerFactory(t *testing.T) {
 			conf.General.LedgerType = tc.ledgerType
 			conf.FileLedger.Location = tc.ledgerDir
 			conf.FileLedger.Prefix = tc.ledgerDirPrefix
-			lf, ld := createLedgerFactory(conf)
+			lf, ld := createLedgerFactory(conf, &disabled.Provider{})
 
 			defer func() {
 				if ld != "" {

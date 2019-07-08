@@ -7,17 +7,21 @@ SPDX-License-Identifier: Apache-2.0
 package peer
 
 import (
-	configtxtest "justledger/common/configtx/test"
-	mockchannelconfig "justledger/common/mocks/config"
-	mockconfigtx "justledger/common/mocks/configtx"
-	mockpolicies "justledger/common/mocks/policies"
-	"justledger/core/ledger"
-	"justledger/core/ledger/ledgermgmt"
+	configtxtest "github.com/justledger/fabric/common/configtx/test"
+	mockchannelconfig "github.com/justledger/fabric/common/mocks/config"
+	mockconfigtx "github.com/justledger/fabric/common/mocks/configtx"
+	mockpolicies "github.com/justledger/fabric/common/mocks/policies"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
 )
 
 //MockInitialize resets chains for test env
 func MockInitialize() {
-	ledgermgmt.InitializeTestEnvWithCustomProcessors(ConfigTxProcessors)
+	ledgermgmt.InitializeTestEnvWithInitializer(
+		&ledgermgmt.Initializer{
+			CustomTxProcessors: ConfigTxProcessors,
+		},
+	)
 	chains.list = make(map[string]*chain)
 	chainInitializer = func(string) { return }
 }

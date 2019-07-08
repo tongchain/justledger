@@ -9,24 +9,23 @@ package pvtstatepurgemgmt
 import (
 	"testing"
 
-	"justledger/core/ledger/pvtdatapolicy"
-	"github.com/stretchr/testify/assert"
-
 	"github.com/davecgh/go-spew/spew"
-
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
-	"justledger/core/ledger/util"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	btltestutil "github.com/justledger/fabric/core/ledger/pvtdatapolicy/testutil"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuildExpirySchedule(t *testing.T) {
-	cs := btltestutil.NewMockCollectionStore()
-	cs.SetBTL("ns1", "coll1", 1)
-	cs.SetBTL("ns1", "coll2", 2)
-	cs.SetBTL("ns2", "coll3", 3)
-	cs.SetBTL("ns3", "coll4", 0)
-	btlPolicy := pvtdatapolicy.ConstructBTLPolicy(cs)
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns1", "coll1"}: 1,
+			{"ns1", "coll2"}: 2,
+			{"ns2", "coll3"}: 3,
+			{"ns3", "coll4"}: 0,
+		},
+	)
 	updates := privacyenabledstate.NewUpdateBatch()
 	updates.PubUpdates.Put("ns1", "pubkey1", []byte("pubvalue1"), version.NewHeight(1, 1))
 	putPvtAndHashUpdates(t, updates, "ns1", "coll1", "pvtkey1", []byte("pvtvalue1"), version.NewHeight(1, 1))
@@ -58,13 +57,16 @@ func TestBuildExpirySchedule(t *testing.T) {
 }
 
 func TestBuildExpiryScheduleWithMissingPvtdata(t *testing.T) {
-	cs := btltestutil.NewMockCollectionStore()
-	cs.SetBTL("ns1", "coll1", 1)
-	cs.SetBTL("ns1", "coll2", 2)
-	cs.SetBTL("ns2", "coll3", 3)
-	cs.SetBTL("ns3", "coll4", 0)
-	cs.SetBTL("ns3", "coll5", 20)
-	btlPolicy := pvtdatapolicy.ConstructBTLPolicy(cs)
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns1", "coll1"}: 1,
+			{"ns1", "coll2"}: 2,
+			{"ns2", "coll3"}: 3,
+			{"ns3", "coll4"}: 0,
+			{"ns3", "coll5"}: 20,
+		},
+	)
+
 	updates := privacyenabledstate.NewUpdateBatch()
 
 	// This update should appear in the expiry schedule with both the key and the hash
@@ -105,7 +107,7 @@ func TestBuildExpiryScheduleWithMissingPvtdata(t *testing.T) {
 }
 
 func putPvtAndHashUpdates(t *testing.T, updates *privacyenabledstate.UpdateBatch, ns, coll, key string, value []byte, ver *version.Height) {
-	updates.PvtUpdates.Put(ns, coll, key, value, ver)
+	putPvtUpdates(updates, ns, coll, key, value, ver)
 	putHashUpdates(updates, ns, coll, key, value, ver)
 }
 
@@ -116,6 +118,10 @@ func deletePvtAndHashUpdates(t *testing.T, updates *privacyenabledstate.UpdateBa
 
 func putHashUpdates(updates *privacyenabledstate.UpdateBatch, ns, coll, key string, value []byte, ver *version.Height) {
 	updates.HashUpdates.Put(ns, coll, util.ComputeStringHash(key), util.ComputeHash(value), ver)
+}
+
+func putPvtUpdates(updates *privacyenabledstate.UpdateBatch, ns, coll, key string, value []byte, ver *version.Height) {
+	updates.PvtUpdates.Put(ns, coll, key, value, ver)
 }
 
 func deleteHashUpdates(updates *privacyenabledstate.UpdateBatch, ns, coll, key string, ver *version.Height) {

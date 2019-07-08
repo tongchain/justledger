@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"sync"
 
-	commonerrors "justledger/common/errors"
-	"justledger/core/handlers/validation/api/policies"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/protos/common"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	commonerrors "github.com/justledger/fabric/common/errors"
+	"github.com/justledger/fabric/core/handlers/validation/api/policies"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 

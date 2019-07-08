@@ -12,11 +12,11 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"justledger/gossip/common"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/metrics"
+	"github.com/justledger/fabric/gossip/util"
+	proto "github.com/justledger/fabric/protos/gossip"
 	"github.com/pkg/errors"
-	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"
 )
 
@@ -34,6 +34,7 @@ type connFactory interface {
 }
 
 type connectionStore struct {
+	config           ConnConfig
 	logger           util.Logger            // logger
 	isClosing        bool                   // whether this connection store is shutting down
 	connFactory      connFactory            // creates a connection to remote peer
@@ -43,13 +44,14 @@ type connectionStore struct {
 	// used to prevent concurrent connection establishment to the same remote endpoint
 }
 
-func newConnStore(connFactory connFactory, logger util.Logger) *connectionStore {
+func newConnStore(connFactory connFactory, logger util.Logger, config ConnConfig) *connectionStore {
 	return &connectionStore{
 		connFactory:      connFactory,
 		isClosing:        false,
 		pki2Conn:         make(map[string]*connection),
 		destinationLocks: make(map[string]*sync.Mutex),
 		logger:           logger,
+		config:           config,
 	}
 }
 
@@ -161,7 +163,8 @@ func (cs *connectionStore) shutdown() {
 	wg.Wait()
 }
 
-func (cs *connectionStore) onConnected(serverStream proto.Gossip_GossipStreamServer, connInfo *proto.ConnectionInfo) *connection {
+func (cs *connectionStore) onConnected(serverStream proto.Gossip_GossipStreamServer,
+	connInfo *proto.ConnectionInfo, metrics *metrics.CommMetrics) *connection {
 	cs.Lock()
 	defer cs.Unlock()
 
@@ -169,11 +172,12 @@ func (cs *connectionStore) onConnected(serverStream proto.Gossip_GossipStreamSer
 		c.close()
 	}
 
-	return cs.registerConn(connInfo, serverStream)
+	return cs.registerConn(connInfo, serverStream, metrics)
 }
 
-func (cs *connectionStore) registerConn(connInfo *proto.ConnectionInfo, serverStream proto.Gossip_GossipStreamServer) *connection {
-	conn := newConnection(nil, nil, nil, serverStream)
+func (cs *connectionStore) registerConn(connInfo *proto.ConnectionInfo,
+	serverStream proto.Gossip_GossipStreamServer, metrics *metrics.CommMetrics) *connection {
+	conn := newConnection(nil, nil, nil, serverStream, metrics, cs.config)
 	conn.pkiID = connInfo.ID
 	conn.info = connInfo
 	conn.logger = cs.logger
@@ -190,20 +194,31 @@ func (cs *connectionStore) closeByPKIid(pkiID common.PKIidType) {
 	}
 }
 
-func newConnection(cl proto.GossipClient, c *grpc.ClientConn, cs proto.Gossip_GossipStreamClient, ss proto.Gossip_GossipStreamServer) *connection {
+func newConnection(cl proto.GossipClient, c *grpc.ClientConn, cs proto.Gossip_GossipStreamClient,
+	ss proto.Gossip_GossipStreamServer, metrics *metrics.CommMetrics, config ConnConfig) *connection {
 	connection := &connection{
-		outBuff:      make(chan *msgSending, util.GetIntOrDefault("peer.gossip.sendBuffSize", defSendBuffSize)),
+		metrics:      metrics,
+		outBuff:      make(chan *msgSending, config.SendBuffSize),
 		cl:           cl,
 		conn:         c,
 		clientStream: cs,
 		serverStream: ss,
 		stopFlag:     int32(0),
 		stopChan:     make(chan struct{}, 1),
+		recvBuffSize: config.RecvBuffSize,
 	}
 	return connection
 }
 
+// ConnConfig is the configuration required to initialize a new conn
+type ConnConfig struct {
+	RecvBuffSize int
+	SendBuffSize int
+}
+
 type connection struct {
+	recvBuffSize int
+	metrics      *metrics.CommMetrics
 	cancel       context.CancelFunc
 	info         *proto.ConnectionInfo
 	outBuff      chan *msgSending
@@ -253,7 +268,7 @@ func (conn *connection) toDie() bool {
 
 func (conn *connection) send(msg *proto.SignedGossipMessage, onErr func(error), shouldBlock blockingBehavior) {
 	if conn.toDie() {
-		conn.logger.Debug("Aborting send() to ", conn.info.Endpoint, "because connection is closing")
+		conn.logger.Debugf("Aborting send() to %s because connection is closing", conn.info.Endpoint)
 		return
 	}
 
@@ -262,21 +277,22 @@ func (conn *connection) send(msg *proto.SignedGossipMessage, onErr func(error), 
 		onErr:    onErr,
 	}
 
-	if len(conn.outBuff) == cap(conn.outBuff) {
-		if conn.logger.IsEnabledFor(zapcore.DebugLevel) {
-			conn.logger.Debug("Buffer to", conn.info.Endpoint, "overflowed, dropping message", msg.String())
-		}
-		if !shouldBlock {
-			return
+	select {
+	case conn.outBuff <- m:
+		// room in channel, successfully sent message, nothing to do
+	default: // did not send
+		if shouldBlock {
+			conn.outBuff <- m // try again, and wait to send
+		} else {
+			conn.metrics.BufferOverflow.Add(1)
+			conn.logger.Debugf("Buffer to %s overflowed, dropping message %s", conn.info.Endpoint, msg)
 		}
 	}
-
-	conn.outBuff <- m
 }
 
 func (conn *connection) serviceConnection() error {
 	errChan := make(chan error, 1)
-	msgChan := make(chan *proto.SignedGossipMessage, util.GetIntOrDefault("peer.gossip.recvBuffSize", defRecvBuffSize))
+	msgChan := make(chan *proto.SignedGossipMessage, conn.recvBuffSize)
 	quit := make(chan struct{})
 	// Call stream.Recv() asynchronously in readFromStream(),
 	// and wait for either the Recv() call to end,
@@ -316,6 +332,7 @@ func (conn *connection) writeToStream() {
 				go m.onErr(err)
 				return
 			}
+			conn.metrics.SentMessages.Add(1)
 		case stop := <-conn.stopChan:
 			conn.logger.Debug("Closing writing to stream")
 			conn.stopChan <- stop
@@ -325,9 +342,14 @@ func (conn *connection) writeToStream() {
 }
 
 func (conn *connection) drainOutputBuffer() {
-	// Drain the output buffer
-	for len(conn.outBuff) > 0 {
-		<-conn.outBuff
+	// Read from the buffer until it is empty.
+	// There may be multiple concurrent readers.
+	for {
+		select {
+		case <-conn.outBuff:
+		default:
+			return
+		}
 	}
 }
 
@@ -349,6 +371,7 @@ func (conn *connection) readFromStream(errChan chan error, quit chan struct{}, m
 			conn.logger.Debugf("Got error, aborting: %v", err)
 			return
 		}
+		conn.metrics.ReceivedMessages.Add(1)
 		msg, err := envelope.ToGossipMessage()
 		if err != nil {
 			errChan <- err

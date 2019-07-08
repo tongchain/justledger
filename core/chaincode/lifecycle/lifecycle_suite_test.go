@@ -9,11 +9,10 @@ package lifecycle_test
 import (
 	"testing"
 
+	"github.com/justledger/fabric/core/chaincode/lifecycle"
+	"github.com/justledger/fabric/core/chaincode/shim"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"justledger/core/chaincode/lifecycle"
-	"justledger/core/chaincode/shim"
 )
 
 //go:generate counterfeiter -o mock/chaincode_stub.go --fake-name ChaincodeStub . chaincodeStub
@@ -29,6 +28,11 @@ type chaincodeStore interface {
 //go:generate counterfeiter -o mock/package_parser.go --fake-name PackageParser . packageParser
 type packageParser interface {
 	lifecycle.PackageParser
+}
+
+//go:generate counterfeiter -o mock/scc_functions.go --fake-name SCCFunctions . sccFunctions
+type sccFunctions interface {
+	lifecycle.SCCFunctions
 }
 
 func TestLifecycle(t *testing.T) {

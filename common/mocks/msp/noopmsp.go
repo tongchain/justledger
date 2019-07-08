@@ -19,8 +19,8 @@ package msp
 import (
 	"time"
 
-	m "justledger/msp"
-	"justledger/protos/msp"
+	m "github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/msp"
 )
 
 type noopmsp struct {

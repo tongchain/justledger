@@ -9,10 +9,11 @@ package kvledger
 import (
 	"testing"
 
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger"
-	"justledger/core/ledger/mock"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/mock"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,6 +30,7 @@ func TestStateListener(t *testing.T) {
 	provider.Initialize(&ledger.Initializer{
 		DeployedChaincodeInfoProvider: &mock.DeployedChaincodeInfoProvider{},
 		StateListeners:                []ledger.StateListener{mockListener},
+		MetricsProvider:               &disabled.Provider{},
 	})
 
 	bg, gb := testutil.NewBlockGenerator(t, channelid, false)
@@ -62,7 +64,7 @@ func TestStateListener(t *testing.T) {
 	sim1ResBytes, _ := sim1Res.GetPubSimulationBytes()
 	assert.NoError(t, err)
 	blk1 := bg.NextBlock([][]byte{sim1ResBytes})
-	assert.NoError(t, lgr.CommitWithPvtData(&ledger.BlockAndPvtData{Block: blk1}))
+	assert.NoError(t, lgr.CommitWithPvtData(&ledger.BlockAndPvtData{Block: blk1}, &ledger.CommitOptions{}))
 	assert.Equal(t, channelid, mockListener.channelName)
 	assert.Contains(t, mockListener.kvWrites, &kvrwset.KVWrite{Key: "key1", Value: []byte("value1")})
 	assert.Contains(t, mockListener.kvWrites, &kvrwset.KVWrite{Key: "key2", Value: []byte("value2")})
@@ -73,7 +75,7 @@ func TestStateListener(t *testing.T) {
 	sim2ResBytes, _ := sim2Res.GetPubSimulationBytes()
 	assert.NoError(t, err)
 	blk2 := bg.NextBlock([][]byte{sim2ResBytes})
-	assert.NoError(t, lgr.CommitWithPvtData(&ledger.BlockAndPvtData{Block: blk2}))
+	assert.NoError(t, lgr.CommitWithPvtData(&ledger.BlockAndPvtData{Block: blk2}, &ledger.CommitOptions{}))
 	assert.Equal(t, "", mockListener.channelName)
 	assert.Nil(t, mockListener.kvWrites)
 
@@ -83,7 +85,7 @@ func TestStateListener(t *testing.T) {
 	sim3ResBytes, _ := sim3Res.GetPubSimulationBytes()
 	assert.NoError(t, err)
 	blk3 := bg.NextBlock([][]byte{sim3ResBytes})
-	assert.NoError(t, lgr.CommitWithPvtData(&ledger.BlockAndPvtData{Block: blk3}))
+	assert.NoError(t, lgr.CommitWithPvtData(&ledger.BlockAndPvtData{Block: blk3}, &ledger.CommitOptions{}))
 	assert.Equal(t, channelid, mockListener.channelName)
 	assert.Equal(t, []*kvrwset.KVWrite{
 		{Key: "key4", Value: []byte("value4")},

@@ -20,7 +20,7 @@ import (
 	"github.com/tedsuo/ifrit"
 )
 
-const ZooKeeperDefaultImage = "hyperledger/fabric-zookeeper:latest"
+const ZooKeeperDefaultImage = "justledger/fabric-zookeeper:latest"
 
 type ZooKeeper struct {
 	Client         *docker.Client

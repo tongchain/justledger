@@ -22,12 +22,12 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"justledger/bccsp/factory"
-	commonledger "justledger/common/ledger"
-	"justledger/core/comm"
-	"justledger/protos/ledger/queryresult"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/bccsp/factory"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/comm"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	logging "github.com/op/go-logging"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -195,7 +195,7 @@ func setupChaincodeLogging() {
 	backendFormatter := logging.NewBackendFormatter(backend, formatter)
 	logging.SetBackend(backendFormatter).SetLevel(defaultLevel, "")
 
-	// set default log level for all modules
+	// set default log level for all loggers
 	chaincodeLogLevelString := viper.GetString("chaincode.logging.level")
 	if chaincodeLogLevelString == "" {
 		chaincodeLogger.Infof("Chaincode log level not provided; defaulting to: %s", defaultLevel.String())
@@ -210,7 +210,7 @@ func setupChaincodeLogging() {
 
 	initFromSpec(chaincodeLogLevelString, defaultLevel)
 
-	// override the log level for the shim logging module - note: if this value is
+	// override the log level for the shim logger - note: if this value is
 	// blank or an invalid log level, then the above call to
 	// `initFromSpec` already set the default log level so no action
 	// is required here.
@@ -245,7 +245,7 @@ func initFromSpec(spec string, defaultLevel logging.Level) {
 				levelAll = defaultLevel // need to reset cause original value was overwritten
 			}
 		case 2:
-			// <module>[,<module>...]=<level>
+			// <logger,<logger>...]=<level>
 			levelSingle, err := logging.LogLevel(split[1])
 			if err != nil {
 				chaincodeLogger.Warningf("Invalid logging level in '%s' ignored", field)
@@ -253,12 +253,12 @@ func initFromSpec(spec string, defaultLevel logging.Level) {
 			}
 
 			if split[0] == "" {
-				chaincodeLogger.Warningf("Invalid logging override specification '%s' ignored - no module specified", field)
+				chaincodeLogger.Warningf("Invalid logging override specification '%s' ignored - no logger specified", field)
 			} else {
-				modules := strings.Split(split[0], ",")
-				for _, module := range modules {
-					chaincodeLogger.Debugf("Setting logging level for module '%s' to '%s'", module, levelSingle)
-					logging.SetLevel(levelSingle, module)
+				loggers := strings.Split(split[0], ",")
+				for _, logger := range loggers {
+					chaincodeLogger.Debugf("Setting logging level for logger '%s' to '%s'", logger, levelSingle)
+					logging.SetLevel(levelSingle, logger)
 				}
 			}
 		default:
@@ -266,7 +266,7 @@ func initFromSpec(spec string, defaultLevel logging.Level) {
 		}
 	}
 
-	logging.SetLevel(levelAll, "") // set the logging level for all modules
+	logging.SetLevel(levelAll, "") // set the logging level for all loggers
 }
 
 // StartInProc is an entry point for system chaincodes bootstrap. It is not an
@@ -1029,7 +1029,7 @@ func (stub *ChaincodeStub) SetEvent(name string, payload []byte) error {
 // As independent programs, Go language chaincodes can use any logging
 // methodology they choose, from simple fmt.Printf() to os.Stdout, to
 // decorated logs created by the author's favorite logging package. The
-// chaincode "shim" interface, however, is defined by the Hyperledger fabric
+// chaincode "shim" interface, however, is defined by the justledger fabric
 // and implements its own logging methodology. This methodology currently
 // includes severity-based logging control and a standard way of decorating
 // the logs.
@@ -1041,7 +1041,7 @@ func (stub *ChaincodeStub) SetEvent(name string, payload []byte) error {
 // other package requirements. The lack of package requirements is especially
 // important because even if the chaincode happened to explicitly use the same
 // logging package as the shim, unless the chaincode is physically included as
-// part of the hyperledger fabric source code tree it could actually end up
+// part of the justledger fabric source code tree it could actually end up
 // using a distinct binary instance of the logging package, with different
 // formats and severity levels than the binary package used by the shim.
 //

@@ -7,14 +7,14 @@ SPDX-License-Identifier: Apache-2.0
 package library
 
 import (
-	"justledger/core/handlers/auth"
-	"justledger/core/handlers/auth/filter"
-	"justledger/core/handlers/decoration"
-	"justledger/core/handlers/decoration/decorator"
-	"justledger/core/handlers/endorsement/api"
-	"justledger/core/handlers/endorsement/builtin"
-	"justledger/core/handlers/validation/api"
-	. "justledger/core/handlers/validation/builtin"
+	"github.com/justledger/fabric/core/handlers/auth"
+	"github.com/justledger/fabric/core/handlers/auth/filter"
+	"github.com/justledger/fabric/core/handlers/decoration"
+	"github.com/justledger/fabric/core/handlers/decoration/decorator"
+	"github.com/justledger/fabric/core/handlers/endorsement/api"
+	"github.com/justledger/fabric/core/handlers/endorsement/builtin"
+	"github.com/justledger/fabric/core/handlers/validation/api"
+	. "github.com/justledger/fabric/core/handlers/validation/builtin"
 )
 
 // HandlerLibrary is used to assert

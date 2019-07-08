@@ -1,5 +1,5 @@
 /*
-Copyright IBM Corp. 2017 All Rights Reserved.
+Copyright IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package plain
 
 import (
-	"justledger/protos/token"
+	"github.com/justledger/fabric/protos/token"
 )
 
 // An Issuer that can import new tokens
@@ -35,4 +35,10 @@ func (i *Issuer) RequestImport(tokensToIssue []*token.TokenToIssue) (*token.Toke
 			},
 		},
 	}, nil
+}
+
+// RequestExpectation allows indirect import based on the expectation.
+// It creates a token transaction with the outputs as specified in the expectation.
+func (i *Issuer) RequestExpectation(request *token.ExpectationRequest) (*token.TokenTransaction, error) {
+	panic("not implemented yet")
 }

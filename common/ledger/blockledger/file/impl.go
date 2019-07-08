@@ -7,16 +7,14 @@ SPDX-License-Identifier: Apache-2.0
 package fileledger
 
 import (
-	"justledger/common/flogging"
-	"justledger/common/ledger"
-	"justledger/common/ledger/blockledger"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
 )
 
-const pkgLogID = "common/ledger/blockledger/file"
-
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger = flogging.MustGetLogger("common.ledger.blockledger.file")
 
 // FileLedger is a struct used to interact with a node's ledger
 type FileLedger struct {

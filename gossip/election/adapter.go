@@ -11,10 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/gossip/metrics"
+	"github.com/justledger/fabric/gossip/util"
+	proto "github.com/justledger/fabric/protos/gossip"
 )
 
 type msgImpl struct {
@@ -68,10 +69,12 @@ type adapterImpl struct {
 
 	doneCh   chan struct{}
 	stopOnce *sync.Once
+	metrics  *metrics.ElectionMetrics
 }
 
 // NewAdapter creates new leader election adapter
-func NewAdapter(gossip gossip, pkiid common.PKIidType, channel common.ChainID) LeaderElectionAdapter {
+func NewAdapter(gossip gossip, pkiid common.PKIidType, channel common.ChainID,
+	metrics *metrics.ElectionMetrics) LeaderElectionAdapter {
 	return &adapterImpl{
 		gossip:    gossip,
 		selfPKIid: pkiid,
@@ -81,10 +84,11 @@ func NewAdapter(gossip gossip, pkiid common.PKIidType, channel common.ChainID) L
 
 		channel: channel,
 
-		logger: util.GetLogger(util.LoggingElectionModule, ""),
+		logger: util.GetLogger(util.ElectionLogger, ""),
 
 		doneCh:   make(chan struct{}),
 		stopOnce: &sync.Once{},
+		metrics:  metrics,
 	}
 }
 
@@ -150,6 +154,14 @@ func (ai *adapterImpl) Peers() []Peer {
 	}
 
 	return res
+}
+
+func (ai *adapterImpl) ReportMetrics(isLeader bool) {
+	var leadershipBit float64
+	if isLeader {
+		leadershipBit = 1
+	}
+	ai.metrics.Declaration.With("channel", string(ai.channel)).Set(leadershipBit)
 }
 
 func (ai *adapterImpl) Stop() {

@@ -22,10 +22,10 @@ import (
 	"fmt"
 	"time"
 
-	"justledger/common/policies"
-	"justledger/msp"
-	"justledger/protos/common"
-	mspproto "justledger/protos/msp"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/common"
+	mspproto "github.com/justledger/fabric/protos/msp"
 )
 
 type MockChannelPolicyManagerGetter struct {

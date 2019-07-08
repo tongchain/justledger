@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package endorsement
 
 import (
-	"justledger/core/handlers/endorsement/api"
-	"justledger/protos/ledger/rwset"
+	"github.com/justledger/fabric/core/handlers/endorsement/api"
+	"github.com/justledger/fabric/protos/ledger/rwset"
 )
 
 // State defines interaction with the world state

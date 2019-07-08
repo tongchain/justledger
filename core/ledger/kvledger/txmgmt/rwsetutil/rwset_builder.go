@@ -17,12 +17,12 @@ limitations under the License.
 package rwsetutil
 
 import (
-	"justledger/common/flogging"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/rwset"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/ledger/rwset"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 )
 
 var logger = flogging.MustGetLogger("rwsetutil")

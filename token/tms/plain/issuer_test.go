@@ -1,5 +1,5 @@
 /*
-Copyright IBM Corp. 2017 All Rights Reserved.
+Copyright IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: Apache-2.0
 */
@@ -7,9 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package plain_test
 
 import (
-	"justledger/protos/token"
-	"justledger/token/tms/plain"
-
+	"github.com/justledger/fabric/protos/token"
+	"github.com/justledger/fabric/token/tms/plain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

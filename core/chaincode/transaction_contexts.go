@@ -10,10 +10,10 @@ import (
 	"context"
 	"sync"
 
-	commonledger "justledger/common/ledger"
-	"justledger/core/common/ccprovider"
-	"justledger/core/ledger"
-	pb "justledger/protos/peer"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/ledger"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 
@@ -66,8 +66,13 @@ func (c *TransactionContexts) Create(txParams *ccprovider.TransactionParams) (*T
 		ResponseNotifier:     make(chan *pb.ChaincodeMessage, 1),
 		TXSimulator:          txParams.TXSimulator,
 		HistoryQueryExecutor: txParams.HistoryQueryExecutor,
-		queryIteratorMap:     map[string]commonledger.ResultsIterator{},
-		pendingQueryResults:  map[string]*PendingQueryResult{},
+		CollectionStore:      txParams.CollectionStore,
+		IsInitTransaction:    txParams.IsInitTransaction,
+
+		queryIteratorMap:    map[string]commonledger.ResultsIterator{},
+		pendingQueryResults: map[string]*PendingQueryResult{},
+
+		AllowedCollectionAccess: make(map[string]bool),
 	}
 	c.contexts[ctxID] = txctx
 

@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package committer
 
 import (
-	"justledger/common/flogging"
-	"justledger/core/ledger"
-	"justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 
@@ -28,11 +28,13 @@ type PeerLedgerSupport interface {
 
 	GetPvtDataByNum(blockNum uint64, filter ledger.PvtNsCollFilter) ([]*ledger.TxPvtData, error)
 
-	CommitWithPvtData(blockAndPvtdata *ledger.BlockAndPvtData) error
+	CommitWithPvtData(blockAndPvtdata *ledger.BlockAndPvtData, commitOpts *ledger.CommitOptions) error
 
-	CommitPvtData(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error)
+	CommitPvtDataOfOldBlocks(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error)
 
 	GetBlockchainInfo() (*common.BlockchainInfo, error)
+
+	DoesPvtDataInfoExist(blockNum uint64) (bool, error)
 
 	GetBlockByNumber(blockNumber uint64) (*common.Block, error)
 
@@ -82,7 +84,7 @@ func (lc *LedgerCommitter) preCommit(block *common.Block) error {
 }
 
 // CommitWithPvtData commits blocks atomically with private data
-func (lc *LedgerCommitter) CommitWithPvtData(blockAndPvtData *ledger.BlockAndPvtData) error {
+func (lc *LedgerCommitter) CommitWithPvtData(blockAndPvtData *ledger.BlockAndPvtData, commitOpts *ledger.CommitOptions) error {
 	// Do validation and whatever needed before
 	// committing new block
 	if err := lc.preCommit(blockAndPvtData.Block); err != nil {
@@ -90,7 +92,7 @@ func (lc *LedgerCommitter) CommitWithPvtData(blockAndPvtData *ledger.BlockAndPvt
 	}
 
 	// Committing new block
-	if err := lc.PeerLedgerSupport.CommitWithPvtData(blockAndPvtData); err != nil {
+	if err := lc.PeerLedgerSupport.CommitWithPvtData(blockAndPvtData, commitOpts); err != nil {
 		return err
 	}
 
@@ -112,6 +114,12 @@ func (lc *LedgerCommitter) LedgerHeight() (uint64, error) {
 	}
 
 	return info.Height, nil
+}
+
+// DoesPvtDataInfoExistInLedger returns true if the ledger has pvtdata info
+// about a given block number.
+func (lc *LedgerCommitter) DoesPvtDataInfoExistInLedger(blockNum uint64) (bool, error) {
+	return lc.DoesPvtDataInfoExist(blockNum)
 }
 
 // GetBlocks used to retrieve blocks with sequence numbers provided in the slice

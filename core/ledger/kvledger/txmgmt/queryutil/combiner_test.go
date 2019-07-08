@@ -11,19 +11,18 @@ import (
 	"os"
 	"testing"
 
-	"justledger/common/flogging"
-	commonledger "justledger/common/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/queryutil"
-	"justledger/core/ledger/kvledger/txmgmt/queryutil/mock"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	statedbmock "justledger/core/ledger/kvledger/txmgmt/statedb/mock"
-	"justledger/protos/ledger/queryresult"
+	"github.com/justledger/fabric/common/flogging"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/queryutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/queryutil/mock"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	statedbmock "github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/mock"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
-	flogging.SetModuleLevel("util", "debug")
-	flogging.SetModuleLevel("statedb", "debug")
+	flogging.ActivateSpec("util,statedb=debug")
 	os.Exit(m.Run())
 }
 

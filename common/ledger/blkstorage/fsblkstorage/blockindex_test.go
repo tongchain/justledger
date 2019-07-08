@@ -20,12 +20,13 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/common/ledger/blkstorage"
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger/util"
-	"justledger/protos/common"
-	"justledger/protos/peer"
-	putil "justledger/protos/utils"
+	"github.com/justledger/fabric/common/ledger/blkstorage"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
+	putil "github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,6 +58,10 @@ func (i *noopIndex) getBlockLocByTxID(txID string) (*fileLocPointer, error) {
 
 func (i *noopIndex) getTxValidationCodeByTxID(txID string) (peer.TxValidationCode, error) {
 	return peer.TxValidationCode(-1), nil
+}
+
+func (i *noopIndex) isAttributeIndexed(attribute blkstorage.IndexableAttr) bool {
+	return true
 }
 
 func TestBlockIndexSync(t *testing.T) {
@@ -133,7 +138,7 @@ func testBlockIndexSelectiveIndexingWrongConfig(t *testing.T, indexItems []blkst
 		testName = testName + string(s)
 	}
 	t.Run(testName, func(t *testing.T) {
-		env := newTestEnvSelectiveIndexing(t, NewConf(testPath(), 0), indexItems)
+		env := newTestEnvSelectiveIndexing(t, NewConf(testPath(), 0), indexItems, &disabled.Provider{})
 		defer env.Cleanup()
 
 		assert.Panics(t, func() {
@@ -160,7 +165,7 @@ func testBlockIndexSelectiveIndexing(t *testing.T, indexItems []blkstorage.Index
 		testName = testName + string(s)
 	}
 	t.Run(testName, func(t *testing.T) {
-		env := newTestEnvSelectiveIndexing(t, NewConf(testPath(), 0), indexItems)
+		env := newTestEnvSelectiveIndexing(t, NewConf(testPath(), 0), indexItems, &disabled.Provider{})
 		defer env.Cleanup()
 		blkfileMgrWrapper := newTestBlockfileWrapper(env, "testledger")
 		defer blkfileMgrWrapper.close()

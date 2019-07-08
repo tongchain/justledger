@@ -11,12 +11,12 @@ import (
 	"sync/atomic"
 
 	"github.com/golang/protobuf/proto"
-	gossip_common "justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/protos/common"
-	gossip_proto "justledger/protos/gossip"
-	"justledger/protos/orderer"
-	"justledger/protos/utils"
+	gossip_common "github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/protos/common"
+	gossip_proto "github.com/justledger/fabric/protos/gossip"
+	"github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"google.golang.org/grpc"
 )
 
@@ -24,7 +24,7 @@ import (
 // the blocks providers implementation and asserts the number
 // of function calls used.
 type MockGossipServiceAdapter struct {
-	AddPayloadsCnt int32
+	addPayloadCnt int32
 
 	GossipBlockDisseminations chan uint64
 }
@@ -47,8 +47,13 @@ func (*MockGossipServiceAdapter) PeersOfChannel(gossip_common.ChainID) []discove
 
 // AddPayload adds gossip payload to the local state transfer buffer
 func (mock *MockGossipServiceAdapter) AddPayload(chainID string, payload *gossip_proto.Payload) error {
-	atomic.AddInt32(&mock.AddPayloadsCnt, 1)
+	atomic.AddInt32(&mock.addPayloadCnt, 1)
 	return nil
+}
+
+// AddPayloadCount returns the number of times Recv has been called.
+func (mock *MockGossipServiceAdapter) AddPayloadCount() int32 {
+	return atomic.LoadInt32(&mock.addPayloadCnt)
 }
 
 // Gossip message to the all peers
@@ -59,20 +64,24 @@ func (mock *MockGossipServiceAdapter) Gossip(msg *gossip_proto.GossipMessage) {
 // MockBlocksDeliverer mocking structure of BlocksDeliverer interface to initialize
 // the blocks provider implementation
 type MockBlocksDeliverer struct {
-	DisconnectCalled           chan struct{}
-	DisconnectAndDisableCalled chan struct{}
-	CloseCalled                chan struct{}
-	Pos                        uint64
+	DisconnectCalled chan struct{}
+	CloseCalled      chan struct{}
+	Pos              uint64
 	grpc.ClientStream
-	RecvCnt  int32
+	recvCnt  int32
 	MockRecv func(mock *MockBlocksDeliverer) (*orderer.DeliverResponse, error)
 }
 
 // Recv gets responses from the ordering service, currently mocked to return
 // only one response with empty block.
 func (mock *MockBlocksDeliverer) Recv() (*orderer.DeliverResponse, error) {
-	atomic.AddInt32(&mock.RecvCnt, 1)
+	atomic.AddInt32(&mock.recvCnt, 1)
 	return mock.MockRecv(mock)
+}
+
+// RecvCount returns the number of times Recv has been called.
+func (mock *MockBlocksDeliverer) RecvCount() int32 {
+	return atomic.LoadInt32(&mock.recvCnt)
 }
 
 // MockRecv mock for the Recv function
@@ -114,12 +123,8 @@ func (mock *MockBlocksDeliverer) Send(env *common.Envelope) error {
 	return nil
 }
 
-func (mock *MockBlocksDeliverer) Disconnect(disableEndpoint bool) {
-	if disableEndpoint {
-		mock.DisconnectAndDisableCalled <- struct{}{}
-	} else {
-		mock.DisconnectCalled <- struct{}{}
-	}
+func (mock *MockBlocksDeliverer) Disconnect() {
+	mock.DisconnectCalled <- struct{}{}
 }
 
 func (mock *MockBlocksDeliverer) Close() {

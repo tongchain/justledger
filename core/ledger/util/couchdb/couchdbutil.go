@@ -15,7 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"justledger/common/util"
+	"github.com/justledger/fabric/common/metrics"
+	"github.com/justledger/fabric/common/util"
 	"github.com/pkg/errors"
 )
 
@@ -33,7 +34,7 @@ var collectionNameAllowedLength = 50
 
 //CreateCouchInstance creates a CouchDB instance
 func CreateCouchInstance(couchDBConnectURL, id, pw string, maxRetries,
-	maxRetriesOnStartup int, connectionTimeout time.Duration, createGlobalChangesDB bool) (*CouchInstance, error) {
+	maxRetriesOnStartup int, connectionTimeout time.Duration, createGlobalChangesDB bool, metricsProvider metrics.Provider) (*CouchInstance, error) {
 
 	couchConf, err := CreateConnectionDefinition(couchDBConnectURL,
 		id, pw, maxRetries, maxRetriesOnStartup, connectionTimeout, createGlobalChangesDB)
@@ -53,6 +54,7 @@ func CreateCouchInstance(couchDBConnectURL, id, pw string, maxRetries,
 
 	//Create the CouchDB instance
 	couchInstance := &CouchInstance{conf: *couchConf, client: client}
+	couchInstance.stats = newStats(metricsProvider)
 	connectInfo, retVal, verifyErr := couchInstance.VerifyCouchConfig()
 	if verifyErr != nil {
 		return nil, verifyErr
@@ -144,8 +146,10 @@ func CreateSystemDatabasesIfNotExist(couchInstance *CouchInstance) error {
 func constructCouchDBUrl(connectURL *url.URL, dbName string, pathElements ...string) *url.URL {
 	var buffer bytes.Buffer
 	buffer.WriteString(connectURL.String())
-	buffer.WriteString("/")
-	buffer.WriteString(encodePathElement(dbName))
+	if dbName != "" {
+		buffer.WriteString("/")
+		buffer.WriteString(encodePathElement(dbName))
+	}
 	for _, pathElement := range pathElements {
 		buffer.WriteString("/")
 		buffer.WriteString(encodePathElement(pathElement))

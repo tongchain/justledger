@@ -17,9 +17,9 @@ limitations under the License.
 package policyprovider
 
 import (
-	"justledger/core/peer"
-	"justledger/core/policy"
-	"justledger/msp/mgmt"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/core/policy"
+	"github.com/justledger/fabric/msp/mgmt"
 )
 
 // init is called when this package is loaded. This implementation registers the factory

@@ -10,19 +10,18 @@ import (
 	"os"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
-	"justledger/common/flogging"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/sysccprovider"
-	"justledger/core/ledger"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/mock"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
-	flogging.SetModuleLevel("eventmgmt", "debug")
+	flogging.ActivateSpec("eventmgmt=debug")
 	os.Exit(m.Run())
 }
+
 func TestCCEventMgmt(t *testing.T) {
 	cc1Def := &ChaincodeDefinition{Name: "cc1", Version: "v1", Hash: []byte("cc1")}
 	cc1DBArtifactsTar := []byte("cc1DBArtifacts")
@@ -73,7 +72,7 @@ func TestCCEventMgmt(t *testing.T) {
 	assert.Equal(t, 2, handler3.doneRecievedCount)
 
 	// Install CC2 - handler1 and handler 3 should receive event because cc2 is deployed only on chain1 and not on chain2
-	eventMgr.HandleChaincodeInstall(cc2Def, cc2DBArtifactsTar, nil)
+	eventMgr.HandleChaincodeInstall(cc2Def, cc2DBArtifactsTar)
 	eventMgr.ChaincodeInstallDone(true)
 	assert.Contains(t, handler1.eventsRecieved, cc2ExpectedEvent)
 	assert.NotContains(t, handler2.eventsRecieved, cc2ExpectedEvent)
@@ -102,18 +101,27 @@ func TestLSCCListener(t *testing.T) {
 	defer clearEventMgrForTest()
 	handler1 := &mockHandler{}
 	GetMgr().Register(channelName, handler1)
-	lsccStateListener := &KVLedgerLSCCStateListener{}
+
+	mockInfoProvider := &mock.DeployedChaincodeInfoProvider{}
+	mockInfoProvider.UpdatedChaincodesStub =
+		func(map[string][]*kvrwset.KVWrite) ([]*ledger.ChaincodeLifecycleInfo, error) {
+			return []*ledger.ChaincodeLifecycleInfo{
+				{Name: cc1Def.Name},
+			}, nil
+		}
+	mockInfoProvider.ChaincodeInfoStub = func(chaincodeName string, qe ledger.SimpleQueryExecutor) (*ledger.DeployedChaincodeInfo, error) {
+		return &ledger.DeployedChaincodeInfo{
+			Name:    chaincodeName,
+			Hash:    cc1Def.Hash,
+			Version: cc1Def.Version,
+		}, nil
+	}
+	lsccStateListener := &KVLedgerLSCCStateListener{mockInfoProvider}
 
 	// test1 regular deploy lscc event gets sent to handler
 	t.Run("DeployEvent", func(t *testing.T) {
-		sampleChaincodeData1 := &ccprovider.ChaincodeData{Name: cc1Def.Name, Version: cc1Def.Version, Id: cc1Def.Hash}
-		sampleChaincodeDataBytes1, err := proto.Marshal(sampleChaincodeData1)
-		assert.NoError(t, err, "")
 		lsccStateListener.HandleStateUpdates(&ledger.StateUpdateTrigger{
-			LedgerID: channelName,
-			StateUpdates: ledger.StateUpdates{
-				lsccNamespace: []*kvrwset.KVWrite{{Key: cc1Def.Name, Value: sampleChaincodeDataBytes1}},
-			},
+			LedgerID:           channelName,
 			CommittingBlockNum: 50},
 		)
 		assert.Contains(t, handler1.eventsRecieved, &mockEvent{cc1Def, ccDBArtifactsTar})
@@ -121,14 +129,8 @@ func TestLSCCListener(t *testing.T) {
 
 	// test2 delete lscc event NOT sent to handler
 	t.Run("DeleteEvent", func(t *testing.T) {
-		sampleChaincodeData2 := &ccprovider.ChaincodeData{Name: cc2Def.Name, Version: cc2Def.Version, Id: cc2Def.Hash}
-		sampleChaincodeDataBytes2, err := proto.Marshal(sampleChaincodeData2)
-		assert.NoError(t, err, "")
 		lsccStateListener.HandleStateUpdates(&ledger.StateUpdateTrigger{
-			LedgerID: channelName,
-			StateUpdates: ledger.StateUpdates{
-				lsccNamespace: []*kvrwset.KVWrite{{Key: cc2Def.Name, Value: sampleChaincodeDataBytes2, IsDelete: true}},
-			},
+			LedgerID:           channelName,
 			CommittingBlockNum: 50},
 		)
 		assert.NotContains(t, handler1.eventsRecieved, &mockEvent{cc2Def, ccDBArtifactsTar})
@@ -136,14 +138,8 @@ func TestLSCCListener(t *testing.T) {
 
 	// test3 collection lscc event (with tilda separator in chaincode key) NOT sent to handler
 	t.Run("CollectionEvent", func(t *testing.T) {
-		sampleChaincodeData3 := &ccprovider.ChaincodeData{Name: cc3Def.Name, Version: cc3Def.Version, Id: cc3Def.Hash}
-		sampleChaincodeDataBytes3, err := proto.Marshal(sampleChaincodeData3)
-		assert.NoError(t, err, "")
 		lsccStateListener.HandleStateUpdates(&ledger.StateUpdateTrigger{
-			LedgerID: channelName,
-			StateUpdates: ledger.StateUpdates{
-				lsccNamespace: []*kvrwset.KVWrite{{Key: cc3Def.Name, Value: sampleChaincodeDataBytes3}},
-			},
+			LedgerID:           channelName,
 			CommittingBlockNum: 50},
 		)
 		assert.NotContains(t, handler1.eventsRecieved, &mockEvent{cc3Def, ccDBArtifactsTar})
@@ -194,8 +190,14 @@ func (p *mockProvider) setChaincodeDeployAndInstalled(chainid string, chaincodeD
 	p.setChaincodeInstalled(chaincodeDefinition, dbArtifactsTar)
 }
 
-func (p *mockProvider) IsChaincodeDeployed(chainid string, chaincodeDefinition *ChaincodeDefinition, sccp sysccprovider.SystemChaincodeProvider) (bool, error) {
-	return p.chaincodesDeployed[[3]string{chainid, chaincodeDefinition.Name, chaincodeDefinition.Version}], nil
+func (p *mockProvider) GetDeployedChaincodeInfo(chainid string, chaincodeDefinition *ChaincodeDefinition) (*ledger.DeployedChaincodeInfo, error) {
+	if p.chaincodesDeployed[[3]string{chainid, chaincodeDefinition.Name, chaincodeDefinition.Version}] {
+		return &ledger.DeployedChaincodeInfo{
+			Name:    chaincodeDefinition.Name,
+			Version: chaincodeDefinition.Version,
+		}, nil
+	}
+	return nil, nil
 }
 
 func (p *mockProvider) RetrieveChaincodeArtifacts(chaincodeDefinition *ChaincodeDefinition) (installed bool, dbArtifactsTar []byte, err error) {

@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"sort"
 
-	"justledger/core/common/ccprovider"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util"
 )
 
 //go:generate counterfeiter -o mock/results_iterator.go -fake-name ResultsIterator . ResultsIterator
@@ -64,9 +64,9 @@ type VersionedDB interface {
 	// However, as of now, the both implementations of this function (leveldb and couchdb) are deterministic in returing an error
 	// i.e., an error is returned only if the key-value are found to be invalid for the underlying db
 	ValidateKeyValue(key string, value []byte) error
-	// BytesKeySuppoted returns true if the implementation (underlying db) supports the any bytes to be used as key.
+	// BytesKeySupported returns true if the implementation (underlying db) supports the any bytes to be used as key.
 	// For instance, leveldb supports any bytes for the key while the couchdb supports only valid utf-8 string
-	BytesKeySuppoted() bool
+	BytesKeySupported() bool
 	// Open opens the db
 	Open() error
 	// Close closes the db

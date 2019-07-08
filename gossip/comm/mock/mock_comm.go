@@ -9,11 +9,11 @@ package mock
 import (
 	"time"
 
-	"justledger/gossip/api"
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/comm"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/util"
+	proto "github.com/justledger/fabric/protos/gossip"
 )
 
 // Mock which aims to simulate socket
@@ -54,7 +54,7 @@ type commMock struct {
 	done chan struct{}
 }
 
-var logger = util.GetLogger(util.LoggingMockModule, "")
+var logger = util.GetLogger(util.CommMockLogger, "")
 
 // NewCommMock creates mocked communication object
 func NewCommMock(id string, members map[string]*socketMock) comm.Comm {

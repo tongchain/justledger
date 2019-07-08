@@ -7,62 +7,111 @@ SPDX-License-Identifier: Apache-2.0
 package server_test
 
 import (
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/token"
+	"github.com/justledger/fabric/token/server"
+	"github.com/justledger/fabric/token/server/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
-
-	"justledger/common/policies"
-	"justledger/protos/common"
-	"justledger/protos/token"
-	"justledger/token/server"
-	"justledger/token/server/mock"
 )
 
 var _ = Describe("AccessControl", func() {
 	var (
-		fakePolicyChecker *mock.SignedDataPolicyChecker
-		pbac              *server.PolicyBasedAccessControl
+		fakeACLProvider *mock.ACLProvider
+		aclResources    *server.ACLResources
+		pbac            *server.PolicyBasedAccessControl
 
-		importRequest    *token.ImportRequest
-		command          *token.Command
-		marshaledCommand []byte
-		signedCommand    *token.SignedCommand
+		header        *token.Header
+		command       *token.Command
+		signedCommand *token.SignedCommand
 	)
 
 	BeforeEach(func() {
-		fakePolicyChecker = &mock.SignedDataPolicyChecker{}
+		fakeACLProvider = &mock.ACLProvider{}
+		aclResources = &server.ACLResources{IssueTokens: "pineapple"}
 		pbac = &server.PolicyBasedAccessControl{
-			SignedDataPolicyChecker: fakePolicyChecker,
+			ACLProvider:  fakeACLProvider,
+			ACLResources: aclResources,
 		}
 
-		importRequest = &token.ImportRequest{}
+		header = &token.Header{
+			ChannelId: "channel-id",
+			Creator:   []byte("creator"),
+		}
 		command = &token.Command{
-			Header: &token.Header{
-				ChannelId: "channel-id",
-				Creator:   []byte("creator"),
-			},
+			Header: header,
 			Payload: &token.Command_ImportRequest{
-				ImportRequest: importRequest,
+				ImportRequest: &token.ImportRequest{},
 			},
 		}
 
-		marshaledCommand = ProtoMarshal(command)
 		signedCommand = &token.SignedCommand{
-			Command:   marshaledCommand,
+			Command:   ProtoMarshal(command),
 			Signature: []byte("signature"),
 		}
 	})
 
-	It("checks the policy", func() {
+	It("validates the policy for import command", func() {
 		err := pbac.Check(signedCommand, command)
 		Expect(err).NotTo(HaveOccurred())
 
-		Expect(fakePolicyChecker.CheckPolicyBySignedDataCallCount()).To(Equal(1))
-		channelID, policyName, signedData := fakePolicyChecker.CheckPolicyBySignedDataArgsForCall(0)
+		Expect(fakeACLProvider.CheckACLCallCount()).To(Equal(1))
+		resourceName, channelID, signedData := fakeACLProvider.CheckACLArgsForCall(0)
+		Expect(resourceName).To(Equal(aclResources.IssueTokens))
 		Expect(channelID).To(Equal("channel-id"))
-		Expect(policyName).To(Equal(policies.ChannelApplicationWriters))
 		Expect(signedData).To(ConsistOf(&common.SignedData{
-			Data:      marshaledCommand,
+			Data:      signedCommand.Command,
+			Identity:  []byte("creator"),
+			Signature: []byte("signature"),
+		}))
+	})
+
+	It("validates the policy for transfer command", func() {
+		transferCommand := &token.Command{
+			Header: header,
+			Payload: &token.Command_TransferRequest{
+				TransferRequest: &token.TransferRequest{},
+			},
+		}
+		signedTransferCommand := &token.SignedCommand{
+			Command:   ProtoMarshal(transferCommand),
+			Signature: []byte("signature"),
+		}
+		err := pbac.Check(signedTransferCommand, command)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(fakeACLProvider.CheckACLCallCount()).To(Equal(1))
+		resourceName, channelID, signedData := fakeACLProvider.CheckACLArgsForCall(0)
+		Expect(resourceName).To(Equal(aclResources.IssueTokens))
+		Expect(channelID).To(Equal("channel-id"))
+		Expect(signedData).To(ConsistOf(&common.SignedData{
+			Data:      signedTransferCommand.Command,
+			Identity:  []byte("creator"),
+			Signature: []byte("signature"),
+		}))
+	})
+
+	It("validates the policy for redeem command", func() {
+		redeemCommand := &token.Command{
+			Header: header,
+			Payload: &token.Command_RedeemRequest{
+				RedeemRequest: &token.RedeemRequest{},
+			},
+		}
+		signedRedeemCommand := &token.SignedCommand{
+			Command:   ProtoMarshal(redeemCommand),
+			Signature: []byte("signature"),
+		}
+		err := pbac.Check(signedRedeemCommand, command)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(fakeACLProvider.CheckACLCallCount()).To(Equal(1))
+		resourceName, channelID, signedData := fakeACLProvider.CheckACLArgsForCall(0)
+		Expect(resourceName).To(Equal(aclResources.IssueTokens))
+		Expect(channelID).To(Equal("channel-id"))
+		Expect(signedData).To(ConsistOf(&common.SignedData{
+			Data:      signedRedeemCommand.Command,
 			Identity:  []byte("creator"),
 			Signature: []byte("signature"),
 		}))
@@ -70,28 +119,147 @@ var _ = Describe("AccessControl", func() {
 
 	Context("when the policy checker returns an error", func() {
 		BeforeEach(func() {
-			fakePolicyChecker.CheckPolicyBySignedDataReturns(errors.New("no-can-do"))
+			fakeACLProvider.CheckACLReturns(errors.New("wild-banana"))
 		})
 
 		It("returns the error", func() {
 			err := pbac.Check(signedCommand, command)
-			Expect(err).To(MatchError("no-can-do"))
+			Expect(err).To(MatchError("wild-banana"))
 		})
 	})
 
-	Context("when the command payload type is not recognized", func() {
+	Context("when the command payload is nil", func() {
 		BeforeEach(func() {
 			command.Payload = nil
 		})
 
 		It("skips the access control check", func() {
 			pbac.Check(signedCommand, command)
-			Expect(fakePolicyChecker.CheckPolicyBySignedDataCallCount()).To(Equal(0))
+			Expect(fakeACLProvider.CheckACLCallCount()).To(Equal(0))
 		})
 
 		It("returns a error", func() {
 			err := pbac.Check(signedCommand, command)
 			Expect(err).To(MatchError("command type not recognized: <nil>"))
+		})
+	})
+
+	It("validates the policy for expectation import command", func() {
+		importExpectationRequest := &token.ExpectationRequest{
+			Expectation: &token.TokenExpectation{
+				Expectation: &token.TokenExpectation_PlainExpectation{
+					PlainExpectation: &token.PlainExpectation{
+						Payload: &token.PlainExpectation_ImportExpectation{
+							ImportExpectation: &token.PlainTokenExpectation{},
+						},
+					},
+				},
+			},
+		}
+		expectationCommand := &token.Command{
+			Header: header,
+			Payload: &token.Command_ExpectationRequest{
+				ExpectationRequest: importExpectationRequest,
+			},
+		}
+		signedExpectationCommand := &token.SignedCommand{
+			Command:   ProtoMarshal(expectationCommand),
+			Signature: []byte("signature"),
+		}
+		err := pbac.Check(signedExpectationCommand, command)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(fakeACLProvider.CheckACLCallCount()).To(Equal(1))
+		resourceName, channelID, signedData := fakeACLProvider.CheckACLArgsForCall(0)
+		Expect(resourceName).To(Equal(aclResources.IssueTokens))
+		Expect(channelID).To(Equal("channel-id"))
+		Expect(signedData).To(ConsistOf(&common.SignedData{
+			Data:      signedExpectationCommand.Command,
+			Identity:  []byte("creator"),
+			Signature: []byte("signature"),
+		}))
+	})
+
+	It("validates the policy for expectation transfer command", func() {
+		transferExpectationRequest := &token.ExpectationRequest{
+			Expectation: &token.TokenExpectation{
+				Expectation: &token.TokenExpectation_PlainExpectation{
+					PlainExpectation: &token.PlainExpectation{
+						Payload: &token.PlainExpectation_TransferExpectation{
+							TransferExpectation: &token.PlainTokenExpectation{},
+						},
+					},
+				},
+			},
+		}
+		expectationCommand := &token.Command{
+			Header: header,
+			Payload: &token.Command_ExpectationRequest{
+				ExpectationRequest: transferExpectationRequest,
+			},
+		}
+		signedExpectationCommand := &token.SignedCommand{
+			Command:   ProtoMarshal(expectationCommand),
+			Signature: []byte("signature"),
+		}
+		err := pbac.Check(signedExpectationCommand, command)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(fakeACLProvider.CheckACLCallCount()).To(Equal(1))
+		resourceName, channelID, signedData := fakeACLProvider.CheckACLArgsForCall(0)
+		Expect(resourceName).To(Equal(aclResources.IssueTokens))
+		Expect(channelID).To(Equal("channel-id"))
+		Expect(signedData).To(ConsistOf(&common.SignedData{
+			Data:      signedExpectationCommand.Command,
+			Identity:  []byte("creator"),
+			Signature: []byte("signature"),
+		}))
+	})
+
+	Context("when Expectationrequest has nil Expectation", func() {
+		BeforeEach(func() {
+			importExpectationRequest := &token.ExpectationRequest{
+				Credential: []byte("credential"),
+			}
+			command = &token.Command{
+				Header: header,
+				Payload: &token.Command_ExpectationRequest{
+					ExpectationRequest: importExpectationRequest,
+				},
+			}
+		})
+
+		It("returns the error", func() {
+			signedCommand := &token.SignedCommand{
+				Command:   ProtoMarshal(command),
+				Signature: []byte("signature"),
+			}
+			err := pbac.Check(signedCommand, command)
+			Expect(err).To(MatchError("ExpectationRequest has nil Expectation"))
+		})
+	})
+
+	Context("when Expectationrequest has nil PlainExpectation", func() {
+		BeforeEach(func() {
+			importExpectationRequest := &token.ExpectationRequest{
+				Credential:  []byte("credential"),
+				Expectation: &token.TokenExpectation{},
+			}
+			command = &token.Command{
+				Header: header,
+				Payload: &token.Command_ExpectationRequest{
+					ExpectationRequest: importExpectationRequest,
+				},
+			}
+		})
+
+		It("returns the error", func() {
+			signedCommand := &token.SignedCommand{
+				Command:   ProtoMarshal(command),
+				Signature: []byte("signature"),
+			}
+			err := pbac.Check(signedCommand, command)
+			Expect(err).To(MatchError("ExpectationRequest has nil PlainExpectation"))
 		})
 	})
 })

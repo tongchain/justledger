@@ -9,9 +9,9 @@ package queryutil
 import (
 	"fmt"
 
-	commonledger "justledger/common/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/protos/ledger/queryresult"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
 )
 
 type itrCombiner struct {

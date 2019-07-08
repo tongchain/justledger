@@ -13,14 +13,14 @@ import (
 	"reflect"
 	"sync"
 
-	"justledger/common/flogging"
-	"justledger/core/handlers/auth"
-	"justledger/core/handlers/decoration"
-	endorsement2 "justledger/core/handlers/endorsement/api"
-	"justledger/core/handlers/validation/api"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/handlers/auth"
+	"github.com/justledger/fabric/core/handlers/decoration"
+	endorsement2 "github.com/justledger/fabric/core/handlers/endorsement/api"
+	"github.com/justledger/fabric/core/handlers/validation/api"
 )
 
-var logger = flogging.MustGetLogger("core/handlers")
+var logger = flogging.MustGetLogger("core.handlers")
 
 // Registry defines an object that looks up
 // handlers by name

@@ -10,41 +10,42 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/capabilities"
-	"justledger/common/cauthdsl"
-	"justledger/common/channelconfig"
-	commonerrors "justledger/common/errors"
-	mc "justledger/common/mocks/config"
-	lm "justledger/common/mocks/ledger"
-	"justledger/common/mocks/scc"
-	"justledger/common/util"
-	aclmocks "justledger/core/aclmgmt/mocks"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/chaincode/shim"
-	"justledger/core/committer/txvalidator"
-	mocks2 "justledger/core/committer/txvalidator/mocks"
-	"justledger/core/common/ccpackage"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/privdata"
-	cutils "justledger/core/container/util"
-	"justledger/core/handlers/validation/api/capabilities"
-	"justledger/core/handlers/validation/builtin/v13/mocks"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	per "justledger/core/peer"
-	"justledger/core/policy"
-	"justledger/core/scc/lscc"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	"justledger/protos/common"
-	"justledger/protos/ledger/rwset/kvrwset"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/capabilities"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/channelconfig"
+	commonerrors "github.com/justledger/fabric/common/errors"
+	mc "github.com/justledger/fabric/common/mocks/config"
+	lm "github.com/justledger/fabric/common/mocks/ledger"
+	"github.com/justledger/fabric/common/mocks/scc"
+	"github.com/justledger/fabric/common/util"
+	aclmocks "github.com/justledger/fabric/core/aclmgmt/mocks"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/golang"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/committer/txvalidator"
+	mocks2 "github.com/justledger/fabric/core/committer/txvalidator/mocks"
+	"github.com/justledger/fabric/core/common/ccpackage"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/common/privdata"
+	cutils "github.com/justledger/fabric/core/container/util"
+	"github.com/justledger/fabric/core/handlers/validation/api/capabilities"
+	"github.com/justledger/fabric/core/handlers/validation/builtin/v13/mocks"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	corepeer "github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/core/policy"
+	"github.com/justledger/fabric/core/scc/lscc"
+	"github.com/justledger/fabric/msp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/msp/mgmt/testtools"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -437,7 +438,7 @@ func TestInvoke(t *testing.T) {
 func TestRWSetTooBig(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -498,7 +499,7 @@ func TestRWSetTooBig(t *testing.T) {
 func TestValidateDeployFail(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -765,7 +766,7 @@ func TestValidateDeployFail(t *testing.T) {
 func TestAlreadyDeployed(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -777,19 +778,15 @@ func TestAlreadyDeployed(t *testing.T) {
 	state["lscc"] = stublccc.State
 
 	ccname := "mycc"
-	ccver := "1"
-	path := "justledger/examples/chaincode/go/example02/cmd"
-
-	ppath := lccctestpath + "/" + ccname + "." + ccver
-
-	os.Remove(ppath)
+	ccver := "alreadydeployed"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		t.FailNow()
 	}
-	defer os.Remove(ppath)
+
 	var b []byte
 	if b, err = proto.Marshal(cds); err != nil || b == nil {
 		t.FailNow()
@@ -863,7 +860,7 @@ func TestValidateDeployNoLedger(t *testing.T) {
 func TestValidateDeployOK(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -907,7 +904,7 @@ func TestValidateDeployOK(t *testing.T) {
 func TestValidateDeployWithCollection(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv: &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{
 			PrivateChannelDataRv: true,
@@ -1004,7 +1001,7 @@ func TestValidateDeployWithCollection(t *testing.T) {
 	// Test 3: Once the V1_2Validation is enabled, validation should fail due to duplicate collection configs
 	state = make(map[string]map[string][]byte)
 	mp = (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv: &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{
 			PrivateChannelDataRv: true,
@@ -1031,7 +1028,7 @@ func TestValidateDeployWithCollection(t *testing.T) {
 func TestValidateDeployWithPolicies(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -1104,7 +1101,7 @@ func TestValidateDeployWithPolicies(t *testing.T) {
 func TestInvalidUpgrade(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -1146,7 +1143,7 @@ func TestInvalidUpgrade(t *testing.T) {
 func TestValidateUpgradeOK(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -1159,19 +1156,15 @@ func TestValidateUpgradeOK(t *testing.T) {
 	state["lscc"] = stublccc.State
 
 	ccname := "mycc"
-	ccver := "1"
-	path := "justledger/examples/chaincode/go/example02/cmd"
-
-	ppath := lccctestpath + "/" + ccname + "." + ccver
-
-	os.Remove(ppath)
+	ccver := "upgradeok"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		t.FailNow()
 	}
-	defer os.Remove(ppath)
+
 	var b []byte
 	if b, err = proto.Marshal(cds); err != nil || b == nil {
 		t.FailNow()
@@ -1213,7 +1206,7 @@ func TestValidateUpgradeOK(t *testing.T) {
 func TestInvalidateUpgradeBadVersion(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -1226,19 +1219,15 @@ func TestInvalidateUpgradeBadVersion(t *testing.T) {
 	state["lscc"] = stublccc.State
 
 	ccname := "mycc"
-	ccver := "1"
-	path := "justledger/examples/chaincode/go/example02/cmd"
-
-	ppath := lccctestpath + "/" + ccname + "." + ccver
-
-	os.Remove(ppath)
+	ccver := "upgradebadversion"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		t.FailNow()
 	}
-	defer os.Remove(ppath)
+
 	var b []byte
 	if b, err = proto.Marshal(cds); err != nil || b == nil {
 		t.FailNow()
@@ -1275,10 +1264,10 @@ func TestInvalidateUpgradeBadVersion(t *testing.T) {
 	assert.Error(t, err)
 }
 
-func validateUpgradeWithCollection(t *testing.T, V1_2Validation bool) {
+func validateUpgradeWithCollection(t *testing.T, ccver string, V1_2Validation bool) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv: &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{
 			PrivateChannelDataRv: true,
@@ -1305,19 +1294,14 @@ func validateUpgradeWithCollection(t *testing.T, V1_2Validation bool) {
 	}
 
 	ccname := "mycc"
-	ccver := "1"
-	path := "justledger/examples/chaincode/go/example02/cmd"
-
-	ppath := lccctestpath + "/" + ccname + "." + ccver
-
-	os.Remove(ppath)
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 		t.FailNow()
 	}
-	defer os.Remove(ppath)
+
 	var b []byte
 	if b, err = proto.Marshal(cds); err != nil || b == nil {
 		t.FailNow()
@@ -1470,15 +1454,15 @@ func validateUpgradeWithCollection(t *testing.T, V1_2Validation bool) {
 
 func TestValidateUpgradeWithCollection(t *testing.T) {
 	// with V1_2Validation enabled
-	validateUpgradeWithCollection(t, true)
+	validateUpgradeWithCollection(t, "v12-validation-enabled", true)
 	// with V1_2Validation disabled
-	validateUpgradeWithCollection(t, false)
+	validateUpgradeWithCollection(t, "v12-validation-disabled", false)
 }
 
 func TestValidateUpgradeWithPoliciesOK(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -1491,12 +1475,8 @@ func TestValidateUpgradeWithPoliciesOK(t *testing.T) {
 	state["lscc"] = stublccc.State
 
 	ccname := "mycc"
-	ccver := "1"
-	path := "justledger/examples/chaincode/go/example02/cmd"
-
-	ppath := lccctestpath + "/" + ccname + "." + ccver
-
-	os.Remove(ppath)
+	ccver := "upgradewithpoliciesok"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {
@@ -1505,7 +1485,7 @@ func TestValidateUpgradeWithPoliciesOK(t *testing.T) {
 	}
 	_, err = processSignedCDS(cds, cauthdsl.AcceptAllPolicy)
 	assert.NoError(t, err)
-	defer os.Remove(ppath)
+
 	var b []byte
 	if b, err = proto.Marshal(cds); err != nil || b == nil {
 		t.FailNow()
@@ -1555,14 +1535,14 @@ func TestValidateUpgradeWithNewFailAllIP(t *testing.T) {
 	// We run this test twice, once with the V11 capability (and expect
 	// a failure) and once without (and we expect success).
 
-	validateUpgradeWithNewFailAllIP(t, true, true)
-	validateUpgradeWithNewFailAllIP(t, false, false)
+	validateUpgradeWithNewFailAllIP(t, "v11-capabilityenabled", true, true)
+	validateUpgradeWithNewFailAllIP(t, "v11-capabilitydisabled", false, false)
 }
 
-func validateUpgradeWithNewFailAllIP(t *testing.T, v11capability, expecterr bool) {
+func validateUpgradeWithNewFailAllIP(t *testing.T, ccver string, v11capability, expecterr bool) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{V1_1ValidationRv: v11capability}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -1583,11 +1563,7 @@ func validateUpgradeWithNewFailAllIP(t *testing.T, v11capability, expecterr bool
 	// deploy the chaincode with an accept all policy
 
 	ccname := "mycc"
-	ccver := "1"
-	path := "justledger/examples/chaincode/go/example02/cmd"
-	ppath := lccctestpath + "/" + ccname + "." + ccver
-
-	os.Remove(ppath)
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {
@@ -1596,7 +1572,7 @@ func validateUpgradeWithNewFailAllIP(t *testing.T, v11capability, expecterr bool
 	}
 	_, err = processSignedCDS(cds, cauthdsl.AcceptAllPolicy)
 	assert.NoError(t, err)
-	defer os.Remove(ppath)
+
 	var b []byte
 	if b, err = proto.Marshal(cds); err != nil || b == nil {
 		t.FailNow()
@@ -1613,7 +1589,7 @@ func validateUpgradeWithNewFailAllIP(t *testing.T, v11capability, expecterr bool
 
 	// now we upgrade, with v 2 of the same cc, with the crucial difference that it has a reject all IP
 
-	ccver = "2"
+	ccver = ccver + ".2"
 
 	simresres, err := createCCDataRWset(ccname, ccname, ccver,
 		cauthdsl.MarshaledRejectAllPolicy, // here's where we specify the IP of the upgraded cc
@@ -1650,7 +1626,7 @@ func validateUpgradeWithNewFailAllIP(t *testing.T, v11capability, expecterr bool
 func TestValidateUpgradeWithPoliciesFail(t *testing.T) {
 	state := make(map[string]map[string][]byte)
 	mp := (&scc.MocksccProviderFactory{
-		Qe: lm.NewMockQueryExecutor(state),
+		Qe:                    lm.NewMockQueryExecutor(state),
 		ApplicationConfigBool: true,
 		ApplicationConfigRv:   &mc.MockApplication{CapabilitiesRv: &mc.MockApplicationCapabilities{}},
 	}).NewSystemChaincodeProvider().(*scc.MocksccProviderImpl)
@@ -1663,12 +1639,8 @@ func TestValidateUpgradeWithPoliciesFail(t *testing.T) {
 	state["lscc"] = stublccc.State
 
 	ccname := "mycc"
-	ccver := "1"
-	path := "justledger/examples/chaincode/go/example02/cmd"
-
-	ppath := lccctestpath + "/" + ccname + "." + ccver
-
-	os.Remove(ppath)
+	ccver := "upgradewithpoliciesfail"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {
@@ -1677,7 +1649,7 @@ func TestValidateUpgradeWithPoliciesFail(t *testing.T) {
 	}
 	cdbytes, err := processSignedCDS(cds, cauthdsl.RejectAllPolicy)
 	assert.NoError(t, err)
-	defer os.Remove(ppath)
+
 	var b []byte
 	if b, err = proto.Marshal(cds); err != nil || b == nil {
 		t.FailNow()
@@ -1970,19 +1942,22 @@ func TestValidateRWSetAndCollectionForUpgrade(t *testing.T) {
 	assert.EqualError(t, err, "the BlockToLive in the following existing collections must not be modified: [mycollection2]")
 }
 
-var lccctestpath = "/tmp/lscc-validation-test"
-
 func TestMain(m *testing.M) {
-	ccprovider.SetChaincodesPath(lccctestpath)
+	testDir, err := ioutil.TempDir("", "v1.3-validation")
+	if err != nil {
+		fmt.Printf("Could not create temp dir: %s", err)
+		os.Exit(-1)
+	}
+	defer os.RemoveAll(testDir)
+	ccprovider.SetChaincodesPath(testDir)
+
 	policy.RegisterPolicyCheckerFactory(&mockPolicyCheckerFactory{})
 
 	mspGetter := func(cid string) []string {
 		return []string{"SampleOrg"}
 	}
 
-	per.MockSetMSPIDGetter(mspGetter)
-
-	var err error
+	corepeer.MockSetMSPIDGetter(mspGetter)
 
 	// setup the MSP manager so that we can sign/verify
 	msptesttools.LoadMSPSetupForTesting()

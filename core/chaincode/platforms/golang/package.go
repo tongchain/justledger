@@ -9,13 +9,12 @@ package golang
 import (
 	"errors"
 	"fmt"
-	"strings"
-
 	"os"
 	"path/filepath"
+	"strings"
 
-	"justledger/common/flogging"
-	ccutil "justledger/core/chaincode/platforms/util"
+	"github.com/justledger/fabric/common/flogging"
+	ccutil "github.com/justledger/fabric/core/chaincode/platforms/util"
 )
 
 var includeFileTypes = map[string]bool{
@@ -27,7 +26,7 @@ var includeFileTypes = map[string]bool{
 	".json": true,
 }
 
-var logger = flogging.MustGetLogger("golang-platform")
+var logger = flogging.MustGetLogger("chaincode.platform.golang")
 
 func getCodeFromFS(path string) (codegopath string, err error) {
 	logger.Debugf("getCodeFromFS %s", path)

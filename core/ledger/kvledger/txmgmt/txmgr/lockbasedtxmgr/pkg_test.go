@@ -17,20 +17,22 @@ limitations under the License.
 package lockbasedtxmgr
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/bookkeeping"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/txmgr"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/pvtdatapolicy"
-	"justledger/core/ledger/util"
-	"justledger/protos/common"
-	"justledger/protos/ledger/queryresult"
-	"justledger/protos/ledger/rwset"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/bookkeeping"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/mock"
+	"github.com/justledger/fabric/core/ledger/pvtdatapolicy"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
+	"github.com/justledger/fabric/protos/ledger/rwset"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -85,8 +87,12 @@ func (env *lockBasedEnv) init(t *testing.T, testLedgerID string, btlPolicy pvtda
 	env.testDB = env.testDBEnv.GetDBHandle(testLedgerID)
 	assert.NoError(t, err)
 	env.testBookkeepingEnv = bookkeeping.NewTestEnv(t)
-	env.txmgr, err = NewLockBasedTxMgr(testLedgerID, env.testDB, nil, btlPolicy, env.testBookkeepingEnv.TestProvider)
+	env.txmgr, err = NewLockBasedTxMgr(
+		testLedgerID, env.testDB, nil,
+		btlPolicy, env.testBookkeepingEnv.TestProvider,
+		&mock.DeployedChaincodeInfoProvider{})
 	assert.NoError(t, err)
+
 }
 
 func (env *lockBasedEnv) getTxMgr() txmgr.TxMgr {
@@ -119,7 +125,7 @@ func newTxMgrTestHelper(t *testing.T, txMgr txmgr.TxMgr) *txMgrTestHelper {
 func (h *txMgrTestHelper) validateAndCommitRWSet(txRWSet *rwset.TxReadWriteSet) {
 	rwSetBytes, _ := proto.Marshal(txRWSet)
 	block := h.bg.NextBlock([][]byte{rwSetBytes})
-	err := h.txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block, BlockPvtData: nil}, true)
+	_, _, err := h.txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block, PvtData: nil}, true)
 	assert.NoError(h.t, err)
 	txsFltr := util.TxValidationFlags(block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER])
 	invalidTxNum := 0
@@ -136,7 +142,7 @@ func (h *txMgrTestHelper) validateAndCommitRWSet(txRWSet *rwset.TxReadWriteSet) 
 func (h *txMgrTestHelper) checkRWsetInvalid(txRWSet *rwset.TxReadWriteSet) {
 	rwSetBytes, _ := proto.Marshal(txRWSet)
 	block := h.bg.NextBlock([][]byte{rwSetBytes})
-	err := h.txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block, BlockPvtData: nil}, true)
+	_, _, err := h.txMgr.ValidateAndPrepare(&ledger.BlockAndPvtData{Block: block, PvtData: nil}, true)
 	assert.NoError(h.t, err)
 	txsFltr := util.TxValidationFlags(block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER])
 	invalidTxNum := 0
@@ -164,14 +170,12 @@ func populateCollConfigForTest(t *testing.T, txMgr *LockBasedTxMgr, nsColls []co
 		}
 		pkg.Config = append(pkg.Config, &common.CollectionConfig{Payload: sCollConfig})
 	}
-	updates := privacyenabledstate.NewUpdateBatch()
-
-	for ns, pkg := range m {
-		pkgBytes, err := proto.Marshal(pkg)
-		assert.NoError(t, err)
-		updates.PubUpdates.Put(lsccNamespace, constructCollectionConfigKey(ns), pkgBytes, ht)
+	ccInfoProvider := &mock.DeployedChaincodeInfoProvider{}
+	ccInfoProvider.ChaincodeInfoStub = func(ccName string, qe ledger.SimpleQueryExecutor) (*ledger.DeployedChaincodeInfo, error) {
+		fmt.Printf("retrieveing info for [%s] from [%s]\n", ccName, m)
+		return &ledger.DeployedChaincodeInfo{Name: ccName, CollectionConfigPkg: m[ccName]}, nil
 	}
-	txMgr.db.ApplyPrivacyAwareUpdates(updates, ht)
+	txMgr.ccInfoProvider = ccInfoProvider
 }
 
 func testutilPopulateDB(t *testing.T, txMgr *LockBasedTxMgr, ns string, data []*queryresult.KV, version *version.Height) {

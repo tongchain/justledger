@@ -9,7 +9,7 @@ package msp
 import (
 	"time"
 
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/protos/msp"
 )
 
 // IdentityDeserializer is implemented by both MSPManger and MSP
@@ -24,11 +24,11 @@ type IdentityDeserializer interface {
 	IsWellFormed(identity *msp.SerializedIdentity) error
 }
 
-// Membership service provider APIs for Hyperledger Fabric:
+// Membership service provider APIs for justledger Fabric:
 //
 // By "membership service provider" we refer to an abstract component of the
 // system that would provide (anonymous) credentials to clients, and peers for
-// them to participate in Hyperledger/fabric network. Clients use these
+// them to participate in justledger/fabric network. Clients use these
 // credentials to authenticate their transactions, and peers use these credentials
 // to authenticate transaction processing results (endorsements). While
 // strongly connected to the transaction processing components of the systems,

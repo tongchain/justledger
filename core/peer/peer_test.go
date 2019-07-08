@@ -12,23 +12,27 @@ import (
 	"net"
 	"testing"
 
-	configtxtest "justledger/common/configtx/test"
-	"justledger/common/localmsp"
-	mscc "justledger/common/mocks/scc"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/comm"
-	"justledger/core/committer/txvalidator"
-	"justledger/core/deliverservice"
-	"justledger/core/deliverservice/blocksprovider"
-	"justledger/core/handlers/validation/api"
-	ledgermocks "justledger/core/ledger/mock"
-	"justledger/core/mocks/ccprovider"
-	"justledger/gossip/api"
-	"justledger/gossip/service"
-	"justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	peergossip "justledger/peer/gossip"
-	"justledger/peer/gossip/mocks"
+	"github.com/justledger/fabric/common/channelconfig"
+	configtxtest "github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/common/localmsp"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/common/mocks/config"
+	mscc "github.com/justledger/fabric/common/mocks/scc"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/comm"
+	"github.com/justledger/fabric/core/committer/txvalidator"
+	deliverclient "github.com/justledger/fabric/core/deliverservice"
+	"github.com/justledger/fabric/core/deliverservice/blocksprovider"
+	validation "github.com/justledger/fabric/core/handlers/validation/api"
+	ledgermocks "github.com/justledger/fabric/core/ledger/mock"
+	"github.com/justledger/fabric/core/mocks/ccprovider"
+	fakeconfig "github.com/justledger/fabric/core/peer/mocks"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/service"
+	"github.com/justledger/fabric/msp/mgmt"
+	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
+	peergossip "github.com/justledger/fabric/peer/gossip"
+	"github.com/justledger/fabric/peer/gossip/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -37,7 +41,7 @@ import (
 type mockDeliveryClient struct {
 }
 
-func (ds *mockDeliveryClient) UpdateEndpoints(chainID string, endpoints []string) error {
+func (ds *mockDeliveryClient) UpdateEndpoints(chainID string, _ deliverclient.ConnectionCriteria) error {
 	return nil
 }
 
@@ -60,7 +64,7 @@ func (*mockDeliveryClient) Stop() {
 type mockDeliveryClientFactory struct {
 }
 
-func (*mockDeliveryClientFactory) Service(g service.GossipService, endpoints []string, mcs api.MessageCryptoService) (deliverclient.DeliverService, error) {
+func (*mockDeliveryClientFactory) Service(g service.GossipService, _ service.OrdererAddressConfig, mcs api.MessageCryptoService) (deliverclient.DeliverService, error) {
 	return &mockDeliveryClient{}, nil
 }
 
@@ -86,14 +90,14 @@ func TestInitialize(t *testing.T) {
 	cleanup := setupPeerFS(t)
 	defer cleanup()
 
-	Initialize(nil, &ccprovider.MockCcProviderImpl{}, (&mscc.MocksccProviderFactory{}).NewSystemChaincodeProvider(), txvalidator.MapBasedPluginMapper(map[string]validation.PluginFactory{}), nil, &ledgermocks.DeployedChaincodeInfoProvider{})
+	Initialize(nil, &ccprovider.MockCcProviderImpl{}, (&mscc.MocksccProviderFactory{}).NewSystemChaincodeProvider(), txvalidator.MapBasedPluginMapper(map[string]validation.PluginFactory{}), nil, &ledgermocks.DeployedChaincodeInfoProvider{}, nil, &disabled.Provider{})
 }
 
 func TestCreateChainFromBlock(t *testing.T) {
 	cleanup := setupPeerFS(t)
 	defer cleanup()
 
-	Initialize(nil, &ccprovider.MockCcProviderImpl{}, (&mscc.MocksccProviderFactory{}).NewSystemChaincodeProvider(), txvalidator.MapBasedPluginMapper(map[string]validation.PluginFactory{}), &platforms.Registry{}, &ledgermocks.DeployedChaincodeInfoProvider{})
+	Initialize(nil, &ccprovider.MockCcProviderImpl{}, (&mscc.MocksccProviderFactory{}).NewSystemChaincodeProvider(), txvalidator.MapBasedPluginMapper(map[string]validation.PluginFactory{}), &platforms.Registry{}, &ledgermocks.DeployedChaincodeInfoProvider{}, nil, &disabled.Provider{})
 	testChainID := fmt.Sprintf("mytestchainid-%d", rand.Int())
 	block, err := configtxtest.MakeGenesisBlock(testChainID)
 	if err != nil {
@@ -117,8 +121,7 @@ func TestCreateChainFromBlock(t *testing.T) {
 		return dialOpts
 	}
 	err = service.InitGossipServiceCustomDeliveryFactory(
-		identity, socket.Addr().String(), grpcServer, nil,
-		&mockDeliveryClientFactory{},
+		identity, &disabled.Provider{}, socket.Addr().String(), grpcServer, nil, &mockDeliveryClientFactory{},
 		messageCryptoService, secAdv, defaultSecureDialOpts)
 
 	assert.NoError(t, err)
@@ -208,12 +211,34 @@ func TestDeliverSupportManager(t *testing.T) {
 	MockInitialize()
 
 	manager := &DeliverChainManager{}
-	chainSupport, ok := manager.GetChain("fake")
+	chainSupport := manager.GetChain("fake")
 	assert.Nil(t, chainSupport, "chain support should be nil")
-	assert.False(t, ok, "Should not find fake channel")
 
 	MockCreateChain("testchain")
-	chainSupport, ok = manager.GetChain("testchain")
+	chainSupport = manager.GetChain("testchain")
 	assert.NotNil(t, chainSupport, "chain support should not be nil")
-	assert.True(t, ok, "Should find testchain channel")
+}
+
+func TestGossipChannelConfigOrdererAddressesByOrgs(t *testing.T) {
+	ordererOrg1 := &fakeconfig.OrdererOrg{}
+	ordererOrg2 := &fakeconfig.OrdererOrg{}
+
+	ordererOrg1.On("MSPID").Return("Org1")
+	ordererOrg2.On("MSPID").Return("Org2")
+	ordererOrg1.On("Endpoints").Return([]string{"o1"})
+	ordererOrg2.On("Endpoints").Return([]string{"o2"})
+
+	gcp := &gossipChannelConfig{
+		oc: &config.Orderer{
+			OrganizationsVal: map[string]channelconfig.OrdererOrg{
+				"Org1": ordererOrg1,
+				"Org2": ordererOrg2,
+			},
+		},
+	}
+
+	assert.Equal(t, map[string][]string{
+		"Org1": {"o1"},
+		"Org2": {"o2"},
+	}, gcp.OrdererAddressesByOrgs())
 }

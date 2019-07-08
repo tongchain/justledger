@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package endorser
 
 import (
-	"justledger/core/handlers/endorsement/api/state"
-	"justledger/core/ledger"
-	"justledger/core/transientstore"
-	"justledger/protos/ledger/rwset"
+	"github.com/justledger/fabric/core/handlers/endorsement/api/state"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/transientstore"
+	"github.com/justledger/fabric/protos/ledger/rwset"
 	"github.com/pkg/errors"
 )
 

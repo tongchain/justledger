@@ -21,15 +21,15 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/admin"
-	"justledger/core/comm"
-	testpb "justledger/core/comm/testdata/grpc"
-	"justledger/core/peer"
-	"justledger/msp"
-	common2 "justledger/peer/common"
-	"justledger/peer/mocks"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/admin"
+	"github.com/justledger/fabric/core/comm"
+	testpb "github.com/justledger/fabric/core/comm/testdata/grpc"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/msp"
+	common2 "github.com/justledger/fabric/peer/common"
+	"github.com/justledger/fabric/peer/mocks"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -80,18 +80,21 @@ func TestStatus(t *testing.T) {
 		name          string
 		peerAddress   string
 		listenAddress string
+		timeout       time.Duration
 		shouldSucceed bool
 	}{
 		{
 			name:          "status function to success",
 			peerAddress:   "localhost:7071",
 			listenAddress: "localhost:7071",
+			timeout:       time.Second,
 			shouldSucceed: true,
 		},
 		{
 			name:          "admin client error",
 			peerAddress:   "",
 			listenAddress: "localhost:7072",
+			timeout:       100 * time.Millisecond,
 			shouldSucceed: false,
 		},
 	}
@@ -101,7 +104,7 @@ func TestStatus(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			t.Logf("Running test: %s", test.name)
 			viper.Set("peer.address", test.peerAddress)
-			viper.Set("peer.client.connTimeout", 10*time.Millisecond)
+			viper.Set("peer.client.connTimeout", test.timeout)
 			peerServer, err := peer.NewPeerServer(test.listenAddress, comm.ServerConfig{})
 			if err != nil {
 				t.Fatalf("Failed to create peer server (%s)", err)

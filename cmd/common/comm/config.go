@@ -10,8 +10,8 @@ import (
 	"io/ioutil"
 	"time"
 
-	"justledger/common/crypto/tlsgen"
-	"justledger/core/comm"
+	"github.com/justledger/fabric/common/crypto/tlsgen"
+	"github.com/justledger/fabric/core/comm"
 	"github.com/pkg/errors"
 )
 

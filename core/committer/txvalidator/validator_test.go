@@ -14,34 +14,36 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/cauthdsl"
-	ctxt "justledger/common/configtx/test"
-	commonerrors "justledger/common/errors"
-	ledger2 "justledger/common/ledger"
-	"justledger/common/ledger/testutil"
-	mockconfig "justledger/common/mocks/config"
-	"justledger/common/mocks/scc"
-	"justledger/common/util"
-	"justledger/core/committer/txvalidator"
-	"justledger/core/committer/txvalidator/mocks"
-	"justledger/core/committer/txvalidator/testdata"
-	ccp "justledger/core/common/ccprovider"
-	"justledger/core/handlers/validation/api"
-	"justledger/core/handlers/validation/builtin"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/ledgermgmt"
-	lutils "justledger/core/ledger/util"
-	mocktxvalidator "justledger/core/mocks/txvalidator"
-	mocks2 "justledger/discovery/support/mocks"
-	"justledger/msp"
-	"justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	"justledger/protos/common"
-	mb "justledger/protos/msp"
-	"justledger/protos/peer"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/common/cauthdsl"
+	ctxt "github.com/justledger/fabric/common/configtx/test"
+	commonerrors "github.com/justledger/fabric/common/errors"
+	ledger2 "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	mockconfig "github.com/justledger/fabric/common/mocks/config"
+	"github.com/justledger/fabric/common/mocks/scc"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/committer/txvalidator"
+	"github.com/justledger/fabric/core/committer/txvalidator/mocks"
+	"github.com/justledger/fabric/core/committer/txvalidator/testdata"
+	ccp "github.com/justledger/fabric/core/common/ccprovider"
+	validation "github.com/justledger/fabric/core/handlers/validation/api"
+	"github.com/justledger/fabric/core/handlers/validation/builtin"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	lutils "github.com/justledger/fabric/core/ledger/util"
+	mocktxvalidator "github.com/justledger/fabric/core/mocks/txvalidator"
+	mocks2 "github.com/justledger/fabric/discovery/support/mocks"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/msp/mgmt"
+	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
+	"github.com/justledger/fabric/protos/common"
+	mb "github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/peer"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/token"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -72,6 +74,10 @@ func v13Capabilities() *mockconfig.MockApplicationCapabilities {
 	return &mockconfig.MockApplicationCapabilities{V1_2ValidationRv: true, PrivateChannelDataRv: true, V1_3ValidationRv: true, KeyLevelEndorsementRv: true}
 }
 
+func fabTokenCapabilities() *mockconfig.MockApplicationCapabilities {
+	return &mockconfig.MockApplicationCapabilities{V1_2ValidationRv: true, FabTokenRv: true}
+}
+
 func setupLedgerAndValidatorExplicit(t *testing.T, cpb *mockconfig.MockApplicationCapabilities, plugin validation.Plugin) (ledger.PeerLedger, txvalidator.Validator) {
 	return setupLedgerAndValidatorExplicitWithMSP(t, cpb, plugin, nil)
 }
@@ -86,6 +92,10 @@ func setupLedgerAndValidatorWithV12Capabilities(t *testing.T) (ledger.PeerLedger
 
 func setupLedgerAndValidatorWithV13Capabilities(t *testing.T) (ledger.PeerLedger, txvalidator.Validator) {
 	return setupLedgerAndValidatorWithCapabilities(t, v13Capabilities())
+}
+
+func setupLedgerAndValidatorWithFabTokenCapabilities(t *testing.T) (ledger.PeerLedger, txvalidator.Validator) {
+	return setupLedgerAndValidatorWithCapabilities(t, fabTokenCapabilities())
 }
 
 func setupLedgerAndValidatorWithCapabilities(t *testing.T, c *mockconfig.MockApplicationCapabilities) (ledger.PeerLedger, txvalidator.Validator) {
@@ -195,6 +205,69 @@ func getEnvWithSigner(ccID string, event []byte, res []byte, sig msp.SigningIden
 	return tx
 }
 
+func getTokenTx(t *testing.T) *common.Envelope {
+	transactionData := &token.TokenTransaction{
+		Action: &token.TokenTransaction_PlainAction{
+			PlainAction: &token.PlainTokenAction{
+				Data: &token.PlainTokenAction_PlainImport{
+					PlainImport: &token.PlainImport{
+						Outputs: []*token.PlainOutput{
+							{Owner: []byte("owner-1"), Type: "TOK1", Quantity: 111},
+							{Owner: []byte("owner-2"), Type: "TOK2", Quantity: 222},
+						},
+					},
+				},
+			},
+		},
+	}
+	tdBytes, err := proto.Marshal(transactionData)
+	assert.NoError(t, err)
+
+	signerBytes, err := signer.Serialize()
+	assert.NoError(t, err)
+	nonce := []byte{0, 1, 2, 3, 4}
+	txID, err := utils.ComputeTxID(nonce, signerBytes)
+	assert.NoError(t, err)
+
+	hdr := &common.Header{
+		SignatureHeader: utils.MarshalOrPanic(
+			&common.SignatureHeader{
+				Creator: signerBytes,
+				Nonce:   nonce,
+			},
+		),
+		ChannelHeader: utils.MarshalOrPanic(
+			&common.ChannelHeader{
+				Type: int32(common.HeaderType_TOKEN_TRANSACTION),
+				TxId: txID,
+			},
+		),
+	}
+
+	// assemble a transaction from that proposal and endorsement
+	// create a transaction
+	taa := &peer.TransactionAction{Header: hdr.SignatureHeader, Payload: tdBytes}
+	taas := make([]*peer.TransactionAction, 1)
+	taas[0] = taa
+	tx := &peer.Transaction{Actions: taas}
+
+	// serialize the tx
+	txBytes, err := utils.GetBytesTransaction(tx)
+	assert.NoError(t, err)
+
+	// create the payload
+	payl := &common.Payload{Header: hdr, Data: txBytes}
+	paylBytes, err := utils.GetBytesPayload(payl)
+	assert.NoError(t, err)
+
+	// sign the payload
+	sig, err := signer.Sign(paylBytes)
+	assert.NoError(t, err)
+
+	// here's the envelope
+	return &common.Envelope{Payload: paylBytes, Signature: sig}
+}
+
 func putCCInfoWithVSCCAndVer(theLedger ledger.PeerLedger, ccname, vscc, ver string, policy []byte, t *testing.T) {
 	cd := &ccp.ChaincodeData{
 		Name:    ccname,
@@ -218,9 +291,7 @@ func putCCInfoWithVSCCAndVer(theLedger ledger.PeerLedger, ccname, vscc, ver stri
 	bcInfo, err := theLedger.GetBlockchainInfo()
 	assert.NoError(t, err)
 	block0 := testutil.ConstructBlock(t, 1, bcInfo.CurrentBlockHash, [][]byte{pubSimulationBytes}, true)
-	err = theLedger.CommitWithPvtData(&ledger.BlockAndPvtData{
-		Block: block0,
-	})
+	err = theLedger.CommitWithPvtData(&ledger.BlockAndPvtData{Block: block0}, &ledger.CommitOptions{})
 	assert.NoError(t, err)
 }
 
@@ -240,9 +311,7 @@ func putSBEP(theLedger ledger.PeerLedger, cc, key string, policy []byte, t *test
 	bcInfo, err := theLedger.GetBlockchainInfo()
 	assert.NoError(t, err)
 	block0 := testutil.ConstructBlock(t, 2, bcInfo.CurrentBlockHash, [][]byte{pubSimulationBytes}, true)
-	err = theLedger.CommitWithPvtData(&ledger.BlockAndPvtData{
-		Block: block0,
-	})
+	err = theLedger.CommitWithPvtData(&ledger.BlockAndPvtData{Block: block0}, &ledger.CommitOptions{})
 	assert.NoError(t, err)
 }
 
@@ -1381,6 +1450,68 @@ func validateTxWithStateBasedEndorsement(t *testing.T, l ledger.PeerLedger, v tx
 	return err, b
 }
 
+func TestTokenValidTransaction(t *testing.T) {
+	t.Skip("Skipping TestTokenValidTransaction until token transaction is enabled after v1.4")
+	l, v := setupLedgerAndValidatorWithFabTokenCapabilities(t)
+	defer ledgermgmt.CleanupTestEnv()
+	defer l.Close()
+
+	tx := getTokenTx(t)
+	b := &common.Block{Data: &common.BlockData{Data: [][]byte{utils.MarshalOrPanic(tx)}}, Header: &common.BlockHeader{Number: 1}}
+
+	err := v.Validate(b)
+	assert.NoError(t, err)
+	assertValid(b, t)
+}
+
+func TestTokenCapabilityNotEnabled(t *testing.T) {
+	l, v := setupLedgerAndValidatorWithPreV12Capabilities(t)
+	defer ledgermgmt.CleanupTestEnv()
+	defer l.Close()
+
+	tx := getTokenTx(t)
+	b := &common.Block{Data: &common.BlockData{Data: [][]byte{utils.MarshalOrPanic(tx)}}, Header: &common.BlockHeader{Number: 1}}
+
+	err := v.Validate(b)
+
+	assertion := assert.New(t)
+	// We expect no validation error because we simply mark the tx as invalid
+	assertion.NoError(err)
+
+	// We expect the tx to be invalid because of a duplicate txid
+	txsfltr := lutils.TxValidationFlags(b.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER])
+	assertion.True(txsfltr.IsInvalid(0))
+	assertion.True(txsfltr.Flag(0) == peer.TxValidationCode_UNKNOWN_TX_TYPE)
+}
+
+func TestTokenDuplicateTxId(t *testing.T) {
+	t.Skip("Skipping TestTokenDuplicateTxId until token transaction is enabled after v1.4")
+	theLedger := new(mockLedger)
+	vcs := struct {
+		*mocktxvalidator.Support
+		*semaphore.Weighted
+	}{&mocktxvalidator.Support{LedgerVal: theLedger, ACVal: fabTokenCapabilities()}, semaphore.NewWeighted(10)}
+	mp := (&scc.MocksccProviderFactory{}).NewSystemChaincodeProvider()
+	pm := &mocks.PluginMapper{}
+	validator := txvalidator.NewTxValidator("", vcs, mp, pm)
+
+	tx := getTokenTx(t)
+	theLedger.On("GetTransactionByID", mock.Anything).Return(&peer.ProcessedTransaction{}, nil)
+
+	b := testutil.NewBlock([]*common.Envelope{tx}, 0, nil)
+
+	err := validator.Validate(b)
+
+	assertion := assert.New(t)
+	// We expect no validation error because we simply mark the tx as invalid
+	assertion.NoError(err)
+
+	// We expect the tx to be invalid because of a duplicate txid
+	txsfltr := lutils.TxValidationFlags(b.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER])
+	assertion.True(txsfltr.IsInvalid(0))
+	assertion.True(txsfltr.Flag(0) == peer.TxValidationCode_DUPLICATE_TXID)
+}
+
 // mockLedger structure used to test ledger
 // failure, therefore leveraging mocking
 // library as need to simulate ledger which not
@@ -1444,7 +1575,7 @@ func (m *mockLedger) GetPvtDataByNum(blockNum uint64, filter ledger.PvtNsCollFil
 }
 
 // CommitWithPvtData commits the block and the corresponding pvt data in an atomic operation
-func (m *mockLedger) CommitWithPvtData(pvtDataAndBlock *ledger.BlockAndPvtData) error {
+func (m *mockLedger) CommitWithPvtData(pvtDataAndBlock *ledger.BlockAndPvtData, commitOpts *ledger.CommitOptions) error {
 	return nil
 }
 
@@ -1466,6 +1597,11 @@ func (m *mockLedger) Prune(policy ledger2.PrunePolicy) error {
 func (m *mockLedger) GetBlockchainInfo() (*common.BlockchainInfo, error) {
 	args := m.Called()
 	return args.Get(0).(*common.BlockchainInfo), nil
+}
+
+func (m *mockLedger) DoesPvtDataInfoExist(blkNum uint64) (bool, error) {
+	args := m.Called()
+	return args.Get(0).(bool), args.Error(1)
 }
 
 func (m *mockLedger) GetBlockByNumber(blockNumber uint64) (*common.Block, error) {
@@ -1492,7 +1628,7 @@ func (m *mockLedger) GetConfigHistoryRetriever() (ledger.ConfigHistoryRetriever,
 	return args.Get(0).(ledger.ConfigHistoryRetriever), nil
 }
 
-func (m *mockLedger) CommitPvtData(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error) {
+func (m *mockLedger) CommitPvtDataOfOldBlocks(blockPvtData []*ledger.BlockPvtData) ([]*ledger.PvtdataHashMismatch, error) {
 	return nil, nil
 }
 
@@ -1599,7 +1735,7 @@ func createCustomSupportAndLedger(t *testing.T) (*mocktxvalidator.Support, ledge
 
 func TestDynamicCapabilitiesAndMSP(t *testing.T) {
 	factory := &mocks.PluginFactory{}
-	factory.On("New").Return(&testdata.SampleValidationPlugin{})
+	factory.On("New").Return(testdata.NewSampleValidationPlugin(t))
 	pm := &mocks.PluginMapper{}
 	pm.On("PluginFactoryByName", txvalidator.PluginName("vscc")).Return(factory)
 

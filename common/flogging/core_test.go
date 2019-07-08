@@ -11,7 +11,8 @@ import (
 	"errors"
 	"testing"
 
-	"justledger/common/flogging"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/flogging/mock"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
@@ -21,6 +22,7 @@ import (
 func TestCoreWith(t *testing.T) {
 	core := &flogging.Core{
 		Encoders: map[flogging.Encoding]zapcore.Encoder{},
+		Observer: &mock.Observer{},
 	}
 	clone := core.With([]zapcore.Field{zap.String("key", "value")})
 	assert.Equal(t, core, clone)
@@ -46,22 +48,26 @@ func TestCoreWith(t *testing.T) {
 
 func TestCoreCheck(t *testing.T) {
 	var enabledArgs []zapcore.Level
+	levels := &flogging.LoggerLevels{}
+	err := levels.ActivateSpec("warning")
+	assert.NoError(t, err)
 	core := &flogging.Core{
 		LevelEnabler: zap.LevelEnablerFunc(func(l zapcore.Level) bool {
 			enabledArgs = append(enabledArgs, l)
-			return l != zapcore.WarnLevel
+			return l >= zapcore.WarnLevel
 		}),
+		Levels: levels,
 	}
 
-	// enabled
-	ce := core.Check(zapcore.Entry{Level: zapcore.DebugLevel}, nil)
-	assert.NotNil(t, ce)
-	ce = core.Check(zapcore.Entry{Level: zapcore.InfoLevel}, nil)
-	assert.NotNil(t, ce)
-
 	// not enabled
-	ce = core.Check(zapcore.Entry{Level: zapcore.WarnLevel}, nil)
+	ce := core.Check(zapcore.Entry{Level: zapcore.DebugLevel}, nil)
 	assert.Nil(t, ce)
+	ce = core.Check(zapcore.Entry{Level: zapcore.InfoLevel}, nil)
+	assert.Nil(t, ce)
+
+	// enabled
+	ce = core.Check(zapcore.Entry{Level: zapcore.WarnLevel}, nil)
+	assert.NotNil(t, ce)
 
 	assert.Equal(t, enabledArgs, []zapcore.Level{zapcore.DebugLevel, zapcore.InfoLevel, zapcore.WarnLevel})
 }
@@ -182,4 +188,64 @@ func TestCoreSync(t *testing.T) {
 	syncWriter.syncErr = errors.New("bummer")
 	err = core.Sync()
 	assert.EqualError(t, err, "bummer")
+}
+
+func TestObserverCheck(t *testing.T) {
+	observer := &mock.Observer{}
+	entry := zapcore.Entry{
+		Level:   zapcore.DebugLevel,
+		Message: "message",
+	}
+	checkedEntry := &zapcore.CheckedEntry{}
+
+	levels := &flogging.LoggerLevels{}
+	levels.ActivateSpec("debug")
+	core := &flogging.Core{
+		LevelEnabler: zap.LevelEnablerFunc(func(l zapcore.Level) bool { return true }),
+		Levels:       levels,
+		Observer:     observer,
+	}
+
+	ce := core.Check(entry, checkedEntry)
+	assert.Exactly(t, ce, checkedEntry)
+
+	assert.Equal(t, 1, observer.CheckCallCount())
+	observedEntry, observedCE := observer.CheckArgsForCall(0)
+	assert.Equal(t, entry, observedEntry)
+	assert.Equal(t, ce, observedCE)
+}
+
+func TestObserverWriteEntry(t *testing.T) {
+	observer := &mock.Observer{}
+	entry := zapcore.Entry{
+		Level:   zapcore.DebugLevel,
+		Message: "message",
+	}
+	fields := []zapcore.Field{
+		{Key: "key1", Type: zapcore.SkipType},
+		{Key: "key2", Type: zapcore.SkipType},
+	}
+
+	levels := &flogging.LoggerLevels{}
+	levels.ActivateSpec("debug")
+	selector := &sw{}
+	output := &sw{}
+	core := &flogging.Core{
+		LevelEnabler: zap.LevelEnablerFunc(func(l zapcore.Level) bool { return true }),
+		Levels:       levels,
+		Selector:     selector,
+		Encoders: map[flogging.Encoding]zapcore.Encoder{
+			flogging.CONSOLE: zapcore.NewConsoleEncoder(zapcore.EncoderConfig{}),
+		},
+		Output:   output,
+		Observer: observer,
+	}
+
+	err := core.Write(entry, fields)
+	assert.NoError(t, err)
+
+	assert.Equal(t, 1, observer.WriteEntryCallCount())
+	observedEntry, observedFields := observer.WriteEntryArgsForCall(0)
+	assert.Equal(t, entry, observedEntry)
+	assert.Equal(t, fields, observedFields)
 }

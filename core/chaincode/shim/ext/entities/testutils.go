@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"sync"
 
-	b "justledger/bccsp"
-	"justledger/bccsp/factory"
+	b "github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/factory"
 )
 
 var bccspInst b.BCCSP

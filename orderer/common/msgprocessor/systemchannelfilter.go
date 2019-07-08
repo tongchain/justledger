@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package msgprocessor
 
 import (
-	"justledger/common/channelconfig"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/common/channelconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 
@@ -79,6 +79,10 @@ func (scf *SystemChainFilter) Apply(env *cb.Envelope) error {
 		if uint64(scf.cc.ChannelsCount()) > maxChannels {
 			return errors.Errorf("channel creation would exceed maximimum number of channels: %d", maxChannels)
 		}
+	}
+
+	if ordererConfig.ConsensusState() != orderer.ConsensusType_STATE_NORMAL {
+		return errors.WithMessage(ErrMaintenanceMode, "channel creation is not permitted")
 	}
 
 	configTx := &cb.Envelope{}

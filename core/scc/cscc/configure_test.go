@@ -8,53 +8,57 @@ package cscc
 
 import (
 	"fmt"
+	"net"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/config"
-	"justledger/common/configtx"
-	configtxtest "justledger/common/configtx/test"
-	"justledger/common/crypto/tlsgen"
-	"justledger/common/genesis"
-	"justledger/common/localmsp"
-	"justledger/common/mocks/scc"
-	"justledger/common/policies"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/core/aclmgmt"
-	aclmocks "justledger/core/aclmgmt/mocks"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/chaincode"
-	"justledger/core/chaincode/accesscontrol"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	"justledger/core/container"
-	"justledger/core/container/inproccontroller"
-	"justledger/core/deliverservice"
-	"justledger/core/deliverservice/blocksprovider"
-	"justledger/core/ledger/ledgermgmt"
-	ccprovidermocks "justledger/core/mocks/ccprovider"
-	"justledger/core/peer"
-	"justledger/core/policy"
-	policymocks "justledger/core/policy/mocks"
-	"justledger/core/scc/cscc/mock"
-	"justledger/gossip/api"
-	"justledger/gossip/service"
-	"justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	peergossip "justledger/peer/gossip"
-	"justledger/peer/gossip/mocks"
-	cb "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/config"
+	"github.com/justledger/fabric/common/configtx"
+	configtxtest "github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/common/crypto/tlsgen"
+	"github.com/justledger/fabric/common/genesis"
+	"github.com/justledger/fabric/common/localmsp"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/common/mocks/scc"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/core/aclmgmt"
+	aclmocks "github.com/justledger/fabric/core/aclmgmt/mocks"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/core/chaincode/accesscontrol"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/golang"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/container"
+	"github.com/justledger/fabric/core/container/inproccontroller"
+	deliverclient "github.com/justledger/fabric/core/deliverservice"
+	"github.com/justledger/fabric/core/deliverservice/blocksprovider"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	ccprovidermocks "github.com/justledger/fabric/core/mocks/ccprovider"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/core/policy"
+	policymocks "github.com/justledger/fabric/core/policy/mocks"
+	"github.com/justledger/fabric/core/scc/cscc/mock"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/service"
+	"github.com/justledger/fabric/msp/mgmt"
+	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
+	peergossip "github.com/justledger/fabric/peer/gossip"
+	"github.com/justledger/fabric/peer/gossip/mocks"
+	cb "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
 )
 
 //go:generate counterfeiter -o mock/config_manager.go --fake-name ConfigManager . configManager
@@ -75,7 +79,7 @@ type configtxValidator interface {
 type mockDeliveryClient struct {
 }
 
-func (ds *mockDeliveryClient) UpdateEndpoints(chainID string, endpoints []string) error {
+func (ds *mockDeliveryClient) UpdateEndpoints(chainID string, _ deliverclient.ConnectionCriteria) error {
 	return nil
 }
 
@@ -99,7 +103,7 @@ func (*mockDeliveryClient) Stop() {
 type mockDeliveryClientFactory struct {
 }
 
-func (*mockDeliveryClientFactory) Service(g service.GossipService, endpoints []string, mcs api.MessageCryptoService) (deliverclient.DeliverService, error) {
+func (*mockDeliveryClientFactory) Service(g service.GossipService, _ service.OrdererAddressConfig, mcs api.MessageCryptoService) (deliverclient.DeliverService, error) {
 	return &mockDeliveryClient{}, nil
 }
 
@@ -155,9 +159,9 @@ func TestConfigerInvokeInvalidParameters(t *testing.T) {
 }
 
 func TestConfigerInvokeJoinChainMissingParams(t *testing.T) {
-	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
-	os.Mkdir("/tmp/hyperledgertest", 0755)
-	defer os.RemoveAll("/tmp/hyperledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
+	os.Mkdir("/tmp/justledgertest", 0755)
+	defer os.RemoveAll("/tmp/justledgertest/")
 
 	e := New(nil, nil, mockAclProvider)
 	stub := shim.NewMockStub("PeerConfiger", e)
@@ -176,9 +180,9 @@ func TestConfigerInvokeJoinChainMissingParams(t *testing.T) {
 
 func TestConfigerInvokeJoinChainWrongParams(t *testing.T) {
 
-	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
-	os.Mkdir("/tmp/hyperledgertest", 0755)
-	defer os.RemoveAll("/tmp/hyperledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
+	os.Mkdir("/tmp/justledgertest", 0755)
+	defer os.RemoveAll("/tmp/justledgertest/")
 
 	e := New(nil, nil, mockAclProvider)
 	stub := shim.NewMockStub("PeerConfiger", e)
@@ -199,19 +203,19 @@ func TestConfigerInvokeJoinChainCorrectParams(t *testing.T) {
 	mp := (&scc.MocksccProviderFactory{}).NewSystemChaincodeProvider()
 	ccp := &ccprovidermocks.MockCcProviderImpl{}
 
-	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
 	viper.Set("chaincode.executetimeout", "3s")
-	os.Mkdir("/tmp/hyperledgertest", 0755)
+	os.Mkdir("/tmp/justledgertest", 0755)
 
 	peer.MockInitialize()
 	ledgermgmt.InitializeTestEnv()
 	defer ledgermgmt.CleanupTestEnv()
-	defer os.RemoveAll("/tmp/hyperledgertest/")
+	defer os.RemoveAll("/tmp/justledgertest/")
 
 	e := New(ccp, mp, mockAclProvider)
 	stub := shim.NewMockStub("PeerConfiger", e)
 
-	peerEndpoint := "localhost:13611"
+	peerEndpoint := "127.0.0.1:13611"
 
 	ca, _ := tlsgen.NewCA()
 	certGenerator := accesscontrol.NewAuthenticator(ca)
@@ -234,6 +238,7 @@ func TestConfigerInvokeJoinChainCorrectParams(t *testing.T) {
 		mp,
 		platforms.NewRegistry(&golang.Platform{}),
 		peer.DefaultSupport,
+		&disabled.Provider{},
 	)
 
 	// Init the policy checker
@@ -261,11 +266,24 @@ func TestConfigerInvokeJoinChainCorrectParams(t *testing.T) {
 		&policymocks.MockMSPPrincipalGetter{Principal: []byte("Alice")},
 	)
 
+	grpcServer := grpc.NewServer()
+	socket, err := net.Listen("tcp", peerEndpoint)
+	require.NoError(t, err)
+
 	identity, _ := mgmt.GetLocalSigningIdentityOrPanic().Serialize()
 	messageCryptoService := peergossip.NewMCS(&mocks.ChannelPolicyManagerGetter{}, localmsp.NewSigner(), mgmt.NewDeserializersManager())
 	secAdv := peergossip.NewSecurityAdvisor(mgmt.NewDeserializersManager())
-	err := service.InitGossipServiceCustomDeliveryFactory(identity, peerEndpoint, nil, nil, &mockDeliveryClientFactory{}, messageCryptoService, secAdv, nil)
+	var defaultSecureDialOpts = func() []grpc.DialOption {
+		var dialOpts []grpc.DialOption
+		dialOpts = append(dialOpts, grpc.WithInsecure())
+		return dialOpts
+	}
+	err = service.InitGossipServiceCustomDeliveryFactory(identity, &disabled.Provider{}, peerEndpoint, grpcServer, nil,
+		&mockDeliveryClientFactory{}, messageCryptoService, secAdv, defaultSecureDialOpts)
 	assert.NoError(t, err)
+
+	go grpcServer.Serve(socket)
+	defer grpcServer.Stop()
 
 	// Successful path for JoinChain
 	blockBytes := mockConfigBlock()
@@ -491,9 +509,9 @@ func TestSimulateConfigTreeUpdate(t *testing.T) {
 }
 
 func TestPeerConfiger_SubmittingOrdererGenesis(t *testing.T) {
-	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
-	os.Mkdir("/tmp/hyperledgertest", 0755)
-	defer os.RemoveAll("/tmp/hyperledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
+	os.Mkdir("/tmp/justledgertest", 0755)
+	defer os.RemoveAll("/tmp/justledgertest/")
 
 	e := New(nil, nil, nil)
 	stub := shim.NewMockStub("PeerConfiger", e)
@@ -506,8 +524,7 @@ func TestPeerConfiger_SubmittingOrdererGenesis(t *testing.T) {
 	conf.Application = nil
 	cg, err := encoder.NewChannelGroup(conf)
 	assert.NoError(t, err)
-	block, err := genesis.NewFactoryImpl(cg).Block("mytestchainid")
-	assert.NoError(t, err)
+	block := genesis.NewFactoryImpl(cg).Block("mytestchainid")
 	blockBytes := utils.MarshalOrPanic(block)
 
 	// Failed path: wrong parameter type

@@ -15,11 +15,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	localconfig "justledger/orderer/common/localconfig"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	"justledger/protos/utils"
-
+	localconfig "github.com/justledger/fabric/orderer/common/localconfig"
+	"github.com/justledger/fabric/orderer/common/multichannel"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/peer"
@@ -148,4 +148,12 @@ func TestDeliverMsgTrace(t *testing.T) {
 			},
 		}
 	}, t)
+}
+
+func TestDeliverNoChannel(t *testing.T) {
+	r := &multichannel.Registrar{}
+	ds := &deliverSupport{Registrar: r}
+	chain := ds.GetChain("mychannel")
+	assert.Nil(t, chain)
+	assert.True(t, chain == nil)
 }

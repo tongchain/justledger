@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package validator
 
 import (
-	"justledger/protos/common"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/mock"
 )
 

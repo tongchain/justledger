@@ -16,15 +16,15 @@ import (
 	"regexp"
 	"strings"
 
-	"justledger/common/flogging"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/ccmetadata"
-	"justledger/core/chaincode/platforms/util"
-	cutil "justledger/core/container/util"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/ccmetadata"
+	"github.com/justledger/fabric/core/chaincode/platforms/util"
+	cutil "github.com/justledger/fabric/core/container/util"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
-var logger = flogging.MustGetLogger("java-platform")
+var logger = flogging.MustGetLogger("chaincode.platform.java")
 
 // Platform for java chaincodes in java
 type Platform struct {

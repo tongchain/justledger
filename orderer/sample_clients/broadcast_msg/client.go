@@ -10,14 +10,13 @@ import (
 	"os"
 	"sync"
 
-	"justledger/common/crypto"
-	"justledger/common/localmsp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/orderer/common/localconfig"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	"justledger/protos/utils"
-
+	"github.com/justledger/fabric/common/crypto"
+	"github.com/justledger/fabric/common/localmsp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/orderer/common/localconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"google.golang.org/grpc"
 	"gopkg.in/cheggaaa/pb.v1"
 )

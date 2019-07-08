@@ -9,7 +9,7 @@ package storageutil
 import (
 	"testing"
 
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 

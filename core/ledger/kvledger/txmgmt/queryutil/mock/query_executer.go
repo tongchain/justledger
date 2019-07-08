@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"justledger/core/ledger/kvledger/txmgmt/queryutil"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/queryutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
 )
 
 type QueryExecuter struct {

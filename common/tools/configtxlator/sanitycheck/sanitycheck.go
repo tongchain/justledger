@@ -9,11 +9,10 @@ package sanitycheck
 import (
 	"fmt"
 
-	newchannelconfig "justledger/common/channelconfig"
-	cb "justledger/protos/common"
-	mspprotos "justledger/protos/msp"
-
 	"github.com/golang/protobuf/proto"
+	newchannelconfig "github.com/justledger/fabric/common/channelconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	mspprotos "github.com/justledger/fabric/protos/msp"
 )
 
 type Messages struct {

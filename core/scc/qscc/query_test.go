@@ -21,16 +21,16 @@ import (
 	"os"
 	"testing"
 
-	"justledger/common/ledger/testutil"
-	"justledger/common/util"
-	"justledger/core/aclmgmt/mocks"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/chaincode/shim"
-	ledger2 "justledger/core/ledger"
-	"justledger/core/peer"
-	"justledger/protos/common"
-	peer2 "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/aclmgmt/mocks"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	ledger2 "github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/protos/common"
+	peer2 "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -353,7 +353,7 @@ func addBlockForTesting(t *testing.T, chainid string) *common.Block {
 	bcInfo, err := ledger.GetBlockchainInfo()
 	assert.NoError(t, err)
 	block1 := testutil.ConstructBlock(t, 1, bcInfo.CurrentBlockHash, [][]byte{pubSimResBytes1, pubSimResBytes2}, false)
-	ledger.CommitWithPvtData(&ledger2.BlockAndPvtData{Block: block1})
+	ledger.CommitWithPvtData(&ledger2.BlockAndPvtData{Block: block1}, &ledger2.CommitOptions{})
 	return block1
 }
 

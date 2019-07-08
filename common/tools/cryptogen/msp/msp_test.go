@@ -11,12 +11,11 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/justledger/fabric/common/tools/cryptogen/ca"
+	"github.com/justledger/fabric/common/tools/cryptogen/msp"
+	fabricmsp "github.com/justledger/fabric/msp"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
-
-	"justledger/common/tools/cryptogen/ca"
-	"justledger/common/tools/cryptogen/msp"
-	fabricmsp "justledger/msp"
 )
 
 const (
@@ -26,7 +25,7 @@ const (
 	testCountry            = "US"
 	testProvince           = "California"
 	testLocality           = "San Francisco"
-	testOrganizationalUnit = "Hyperledger Fabric"
+	testOrganizationalUnit = "justledger Fabric"
 	testStreetAddress      = "testStreetAddress"
 	testPostalCode         = "123456"
 )

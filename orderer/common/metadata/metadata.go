@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"runtime"
 
-	common "justledger/common/metadata"
+	common "github.com/justledger/fabric/common/metadata"
 )
 
 // package-scoped variables
 
 // Package version
-var Version string
+var Version string = common.Version
 
 // package-scoped constants
 
@@ -24,14 +24,12 @@ var Version string
 const ProgramName = "orderer"
 
 func GetVersionInfo() string {
-	Version = common.Version
-	if Version == "" {
-		Version = "development build"
-	}
-
-	return fmt.Sprintf("%s:\n Version: %s\n Commit SHA: %s\n"+
-		" Go version: %s\n OS/Arch: %s\n"+
-		" Experimental features: %s\n", ProgramName, Version, common.CommitSHA,
+	return fmt.Sprintf(
+		"%s:\n Version: %s\n Commit SHA: %s\n Go version: %s\n OS/Arch: %s\n",
+		ProgramName,
+		Version,
+		common.CommitSHA,
 		runtime.Version(),
-		fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH), common.Experimental)
+		fmt.Sprintf("%s/%s", runtime.GOOS, runtime.GOARCH),
+	)
 }

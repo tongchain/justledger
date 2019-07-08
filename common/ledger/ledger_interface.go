@@ -17,7 +17,7 @@ limitations under the License.
 package ledger
 
 import (
-	"justledger/protos/common"
+	"github.com/justledger/fabric/protos/common"
 )
 
 // Ledger captures the methods that are common across the 'PeerLedger', 'OrdererLedger', and 'ValidatedLedger'

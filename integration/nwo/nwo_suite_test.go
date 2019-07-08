@@ -10,7 +10,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"justledger/integration/nwo"
+	"github.com/justledger/fabric/integration/nwo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

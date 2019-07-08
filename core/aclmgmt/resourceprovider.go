@@ -9,10 +9,10 @@ package aclmgmt
 import (
 	"fmt"
 
-	"justledger/common/channelconfig"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 //--------- errors ---------

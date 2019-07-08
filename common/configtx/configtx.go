@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package configtx
 
 import (
-	cb "justledger/protos/common"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 // Validator provides a mechanism to propose config updates, see the config update results

@@ -11,17 +11,17 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/common/channelconfig"
-	"justledger/common/mocks/ledger"
-	"justledger/core/committer/txvalidator"
-	"justledger/core/committer/txvalidator/mocks"
-	"justledger/core/committer/txvalidator/testdata"
-	"justledger/core/handlers/validation/api"
-	. "justledger/core/handlers/validation/api/capabilities"
-	"justledger/msp"
-	. "justledger/msp/mocks"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/mocks/ledger"
+	"github.com/justledger/fabric/core/committer/txvalidator"
+	"github.com/justledger/fabric/core/committer/txvalidator/mocks"
+	"github.com/justledger/fabric/core/committer/txvalidator/testdata"
+	"github.com/justledger/fabric/core/handlers/validation/api"
+	. "github.com/justledger/fabric/core/handlers/validation/api/capabilities"
+	"github.com/justledger/fabric/msp"
+	. "github.com/justledger/fabric/msp/mocks"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -90,7 +90,7 @@ func TestSamplePlugin(t *testing.T) {
 	capabilites := &mocks.Capabilities{}
 	capabilites.On("PrivateChannelData").Return(true)
 	factory := &mocks.PluginFactory{}
-	factory.On("New").Return(&testdata.SampleValidationPlugin{})
+	factory.On("New").Return(testdata.NewSampleValidationPlugin(t))
 	pm["vscc"] = factory
 
 	transaction := testdata.MarshaledSignedData{

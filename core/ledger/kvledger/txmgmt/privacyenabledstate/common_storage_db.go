@@ -10,20 +10,19 @@ import (
 	"encoding/base64"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric-lib-go/healthz"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/metrics"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/cceventmgmt"
+	"github.com/justledger/fabric/core/ledger/kvledger/bookkeeping"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
 	"github.com/pkg/errors"
-	"justledger/common/flogging"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/privdata"
-	"justledger/core/ledger/cceventmgmt"
-	"justledger/core/ledger/kvledger/bookkeeping"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/statemongodb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/ledgerconfig"
-	"justledger/protos/common"
 )
 
 var logger = flogging.MustGetLogger("privacyenabledstate")
@@ -37,25 +36,37 @@ const (
 // CommonStorageDBProvider implements interface DBProvider
 type CommonStorageDBProvider struct {
 	statedb.VersionedDBProvider
+	HealthCheckRegistry ledger.HealthCheckRegistry
 	bookkeepingProvider bookkeeping.Provider
 }
 
 // NewCommonStorageDBProvider constructs an instance of DBProvider
-func NewCommonStorageDBProvider(bookkeeperProvider bookkeeping.Provider) (DBProvider, error) {
+func NewCommonStorageDBProvider(bookkeeperProvider bookkeeping.Provider, metricsProvider metrics.Provider, healthCheckRegistry ledger.HealthCheckRegistry) (DBProvider, error) {
 	var vdbProvider statedb.VersionedDBProvider
 	var err error
 	if ledgerconfig.IsCouchDBEnabled() {
-		if vdbProvider, err = statecouchdb.NewVersionedDBProvider(); err != nil {
-			return nil, err
-		}
-	} else if ledgerconfig.IsMongoDBEnabled() {
-		if vdbProvider, err = statemongodb.NewVersionedDBProvider(); err != nil {
+		if vdbProvider, err = statecouchdb.NewVersionedDBProvider(metricsProvider); err != nil {
 			return nil, err
 		}
 	} else {
 		vdbProvider = stateleveldb.NewVersionedDBProvider()
 	}
-	return &CommonStorageDBProvider{vdbProvider, bookkeeperProvider}, nil
+
+	dbProvider := &CommonStorageDBProvider{vdbProvider, healthCheckRegistry, bookkeeperProvider}
+
+	err = dbProvider.RegisterHealthChecker()
+	if err != nil {
+		return nil, err
+	}
+
+	return dbProvider, nil
+}
+
+func (p *CommonStorageDBProvider) RegisterHealthChecker() error {
+	if healthChecker, ok := p.VersionedDBProvider.(healthz.HealthChecker); ok {
+		return p.HealthCheckRegistry.RegisterChecker("couchdb", healthChecker)
+	}
+	return nil
 }
 
 // GetDBHandle implements function from interface DBProvider
@@ -106,7 +117,7 @@ func (s *CommonStorageDB) LoadCommittedVersionsOfPubAndHashedKeys(pubKeys []*sta
 		ns := deriveHashedDataNs(key.Namespace, key.CollectionName)
 		// No need to check for duplicates as hashedKeys are in separate namespace
 		var keyHashStr string
-		if !s.BytesKeySuppoted() {
+		if !s.BytesKeySupported() {
 			keyHashStr = base64.StdEncoding.EncodeToString([]byte(key.KeyHash))
 		} else {
 			keyHashStr = key.KeyHash
@@ -150,7 +161,7 @@ func (s *CommonStorageDB) GetPrivateData(namespace, collection, key string) (*st
 // GetValueHash implements corresponding function in interface DB
 func (s *CommonStorageDB) GetValueHash(namespace, collection string, keyHash []byte) (*statedb.VersionedValue, error) {
 	keyHashStr := string(keyHash)
-	if !s.BytesKeySuppoted() {
+	if !s.BytesKeySupported() {
 		keyHashStr = base64.StdEncoding.EncodeToString(keyHash)
 	}
 	return s.GetState(deriveHashedDataNs(namespace, collection), keyHashStr)
@@ -159,7 +170,7 @@ func (s *CommonStorageDB) GetValueHash(namespace, collection string, keyHash []b
 // GetKeyHashVersion implements corresponding function in interface DB
 func (s *CommonStorageDB) GetKeyHashVersion(namespace, collection string, keyHash []byte) (*version.Height, error) {
 	keyHashStr := string(keyHash)
-	if !s.BytesKeySuppoted() {
+	if !s.BytesKeySupported() {
 		keyHashStr = base64.StdEncoding.EncodeToString(keyHash)
 	}
 	return s.GetVersion(deriveHashedDataNs(namespace, collection), keyHashStr)
@@ -173,7 +184,7 @@ func (s *CommonStorageDB) GetCachedKeyHashVersion(namespace, collection string, 
 	}
 
 	keyHashStr := string(keyHash)
-	if !s.BytesKeySuppoted() {
+	if !s.BytesKeySupported() {
 		keyHashStr = base64.StdEncoding.EncodeToString(keyHash)
 	}
 	return bulkOptimizable.GetCachedVersion(deriveHashedDataNs(namespace, collection), keyHashStr)
@@ -205,7 +216,7 @@ func (s *CommonStorageDB) ApplyPrivacyAwareUpdates(updates *UpdateBatch, height 
 	// combinedUpdates includes both updates to public db and private db, which are partitioned by a separate namespace
 	combinedUpdates := updates.PubUpdates
 	addPvtUpdates(combinedUpdates, updates.PvtUpdates)
-	addHashedUpdates(combinedUpdates, updates.HashUpdates, !s.BytesKeySuppoted())
+	addHashedUpdates(combinedUpdates, updates.HashUpdates, !s.BytesKeySupported())
 	s.metadataHint.setMetadataUsedFlag(updates)
 	return s.VersionedDB.ApplyUpdates(combinedUpdates.UpdateBatch, height)
 }
@@ -239,53 +250,6 @@ func (s *CommonStorageDB) GetPrivateDataMetadataByHash(namespace, collection str
 	return vv.Metadata, nil
 }
 
-func (s *CommonStorageDB) getCollectionConfigMap(chaincodeDefinition *cceventmgmt.ChaincodeDefinition) (map[string]bool, error) {
-	var collectionConfigsBytes []byte
-	collectionConfigsMap := make(map[string]bool)
-
-	// We need use the collection config present in the chaincodeDefinition to build the
-	// collection map.  If the chaincode definition does not contain the collection config,
-	// we need to fetch config from the state database if exists
-	if chaincodeDefinition.CollectionConfigs != nil {
-		// When the collection configs are passed in the instantiate/upgrade request,
-		// the passed collection config would be present in the chaincodeDefinition
-		collectionConfigsBytes = chaincodeDefinition.CollectionConfigs
-	} else {
-		// When the collection configs are not passed in the instantiate/upgrade or
-		// when the current request is install after an instantiate, we need to fetch the
-		// collection config from the state database
-		lsccNamespace := "lscc"
-		collectionConfigKey := privdata.BuildCollectionKVSKey(chaincodeDefinition.Name)
-
-		versionedValue, err := s.VersionedDB.GetState(lsccNamespace, collectionConfigKey)
-		if err != nil {
-			return nil, err
-		}
-		// if there is no collection config for the given chaincode in the state db,
-		// the versionedValue would be nil
-		if versionedValue != nil {
-			collectionConfigsBytes = versionedValue.Value
-		}
-	}
-
-	if collectionConfigsBytes != nil {
-		collectionConfigs := &common.CollectionConfigPackage{}
-		if err := proto.Unmarshal(collectionConfigsBytes, collectionConfigs); err != nil {
-			return nil, err
-		}
-
-		for _, config := range collectionConfigs.Config {
-			sConfig := config.GetStaticCollectionConfig()
-			if sConfig == nil {
-				continue
-			}
-			collectionConfigsMap[sConfig.Name] = true
-		}
-	}
-
-	return collectionConfigsMap, nil
-}
-
 // HandleChaincodeDeploy initializes database artifacts for the database associated with the namespace
 // This function delibrately suppresses the errors that occur during the creation of the indexes on couchdb.
 // This is because, in the present code, we do not differentiate between the errors because of couchdb interaction
@@ -307,7 +271,7 @@ func (s *CommonStorageDB) HandleChaincodeDeploy(chaincodeDefinition *cceventmgmt
 		return nil
 	}
 
-	collectionConfigMap, err := s.getCollectionConfigMap(chaincodeDefinition)
+	collectionConfigMap, err := extractCollectionNames(chaincodeDefinition)
 	if err != nil {
 		logger.Errorf("Error while retrieving collection config for chaincode=[%s]: %s",
 			chaincodeDefinition.Name, err)
@@ -377,4 +341,19 @@ func addHashedUpdates(pubUpdateBatch *PubUpdateBatch, hashedUpdateBatch *HashedU
 			}
 		}
 	}
+}
+
+func extractCollectionNames(chaincodeDefinition *cceventmgmt.ChaincodeDefinition) (map[string]bool, error) {
+	collectionConfigs := chaincodeDefinition.CollectionConfigs
+	collectionConfigsMap := make(map[string]bool)
+	if collectionConfigs != nil {
+		for _, config := range collectionConfigs.Config {
+			sConfig := config.GetStaticCollectionConfig()
+			if sConfig == nil {
+				continue
+			}
+			collectionConfigsMap[sConfig.Name] = true
+		}
+	}
+	return collectionConfigsMap, nil
 }

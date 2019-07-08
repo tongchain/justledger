@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package ccprovider
 
 import (
-	commonledger "justledger/common/ledger"
-	"justledger/core/common/ccprovider"
-	"justledger/core/ledger"
-	"justledger/protos/peer"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 type ExecuteChaincodeResultProvider interface {

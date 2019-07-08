@@ -7,14 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package plain
 
 import (
-	"sync"
-
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/token"
-	"justledger/token/tms"
+	"github.com/justledger/fabric/protos/token"
+	"github.com/justledger/fabric/token/tms"
 	"github.com/pkg/errors"
 )
 

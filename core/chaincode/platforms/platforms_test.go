@@ -7,17 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package platforms_test
 
 import (
+	"archive/tar"
 	"bytes"
 	"errors"
 	"fmt"
-
-	"archive/tar"
 	"io/ioutil"
 
-	"justledger/common/metadata"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/mock"
-
+	"github.com/justledger/fabric/common/metadata"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -116,11 +114,11 @@ var _ = Describe("Platforms", func() {
 			df, err := registry.GenerateDockerfile("fakeType", "cc-name", "cc-version")
 			Expect(err).NotTo(HaveOccurred())
 			expectedDockerfile := fmt.Sprintf(`docker-header
-LABEL org.hyperledger.fabric.chaincode.id.name="cc-name" \
-      org.hyperledger.fabric.chaincode.id.version="cc-version" \
-      org.hyperledger.fabric.chaincode.type="fakeType" \
-      org.hyperledger.fabric.version="%s" \
-      org.hyperledger.fabric.base.version="%s"
+LABEL org.justledger.fabric.chaincode.id.name="cc-name" \
+      org.justledger.fabric.chaincode.id.version="cc-version" \
+      org.justledger.fabric.chaincode.type="fakeType" \
+      org.justledger.fabric.version="%s" \
+      org.justledger.fabric.base.version="%s"
 ENV CORE_CHAINCODE_BUILDLEVEL=%s`, metadata.Version, metadata.BaseVersion, metadata.Version)
 			Expect(df).To(Equal(expectedDockerfile))
 		})

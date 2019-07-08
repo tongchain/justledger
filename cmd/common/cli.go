@@ -8,13 +8,12 @@ package common
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 
-	"io"
-
-	"justledger/cmd/common/comm"
-	"justledger/cmd/common/signer"
+	"github.com/justledger/fabric/cmd/common/comm"
+	"github.com/justledger/fabric/cmd/common/signer"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 

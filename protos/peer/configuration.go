@@ -19,10 +19,9 @@ package peer
 import (
 	"fmt"
 
-	"justledger/protos/common"
-	"justledger/protos/msp"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/msp"
 )
 
 func init() {

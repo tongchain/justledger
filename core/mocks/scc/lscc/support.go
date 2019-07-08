@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package lscc
 
 import (
-	"justledger/core/common/ccprovider"
-	"justledger/protos/common"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 type MockSupport struct {

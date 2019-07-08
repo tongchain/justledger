@@ -9,26 +9,25 @@ package statecouchdb
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/commontests"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	ledgertestutil "github.com/justledger/fabric/core/ledger/testutil"
+	"github.com/justledger/fabric/core/ledger/util/couchdb"
+	"github.com/justledger/fabric/integration/runner"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-
-	"justledger/common/flogging"
-	"justledger/common/ledger/testutil"
-	"justledger/core/common/ccprovider"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/commontests"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	ledgertestutil "justledger/core/ledger/testutil"
-	"justledger/integration/runner"
 )
 
 func TestMain(m *testing.M) {
-	flogging.SetModuleLevel("statecouchdb", "debug")
-	flogging.SetModuleLevel("couchdb", "debug")
 	os.Exit(testMain(m))
 }
 
@@ -54,7 +53,7 @@ func testMain(m *testing.M) int {
 	// Disable auto warm to avoid error logs when the couchdb database has been dropped
 	viper.Set("ledger.state.couchDBConfig.autoWarmIndexes", false)
 
-	flogging.SetModuleLevel("statecouchdb", "debug")
+	flogging.ActivateSpec("statecouchdb,couchdb=debug")
 	//run the actual test
 	return m.Run()
 }
@@ -155,17 +154,21 @@ func TestUtilityFunctions(t *testing.T) {
 	db, err := env.DBProvider.GetDBHandle("testutilityfunctions")
 	assert.NoError(t, err)
 
-	// BytesKeySuppoted should be false for CouchDB
-	byteKeySupported := db.BytesKeySuppoted()
+	// BytesKeySupported should be false for CouchDB
+	byteKeySupported := db.BytesKeySupported()
 	assert.False(t, byteKeySupported)
 
 	// ValidateKeyValue should return nil for a valid key and value
 	err = db.ValidateKeyValue("testKey", []byte("Some random bytes"))
 	assert.Nil(t, err)
 
-	// ValidateKey should return an error for an invalid key
+	// ValidateKeyValue should return an error for a key that is not a utf-8 valid string
 	err = db.ValidateKeyValue(string([]byte{0xff, 0xfe, 0xfd}), []byte("Some random bytes"))
 	assert.Error(t, err, "ValidateKey should have thrown an error for an invalid utf-8 string")
+
+	// ValidateKeyValue should return an error for a key that is an empty string
+	assert.EqualError(t, db.ValidateKeyValue("", []byte("validValue")),
+		"invalid key. Empty string is not supported as a key by couchdb")
 
 	reservedFields := []string{"~version", "_id", "_test"}
 
@@ -244,11 +247,11 @@ func TestDebugFunctions(t *testing.T) {
 	// initialize a key list
 	loadKeys := []*statedb.CompositeKey{}
 	//create a composite key and add to the key list
-	compositeKey := statedb.CompositeKey{Namespace: "ns", Key: "key3"}
-	loadKeys = append(loadKeys, &compositeKey)
-	compositeKey = statedb.CompositeKey{Namespace: "ns", Key: "key4"}
-	loadKeys = append(loadKeys, &compositeKey)
-	assert.Equal(t, "[ns,key4],[ns,key4]", printCompositeKeys(loadKeys))
+	compositeKey3 := statedb.CompositeKey{Namespace: "ns", Key: "key3"}
+	loadKeys = append(loadKeys, &compositeKey3)
+	compositeKey4 := statedb.CompositeKey{Namespace: "ns", Key: "key4"}
+	loadKeys = append(loadKeys, &compositeKey4)
+	assert.Equal(t, "[ns,key3],[ns,key4]", printCompositeKeys(loadKeys))
 
 }
 
@@ -687,5 +690,150 @@ func TestPaginatedQueryValidation(t *testing.T) {
 
 	err = validateQueryMetadata(queryOptions)
 	assert.Error(t, err, "An should have been thrown for an invalid options")
+}
 
+func TestLSCCStateCache(t *testing.T) {
+	env := NewTestVDBEnv(t)
+	defer env.Cleanup()
+
+	db, err := env.DBProvider.GetDBHandle("testinit")
+	assert.NoError(t, err)
+	db.Open()
+	defer db.Close()
+
+	// Scenario 1: Storing two keys in the lscc name space.
+	// Checking whether the cache is populated correctly during
+	// GetState()
+	batch := statedb.NewUpdateBatch()
+	batch.Put("lscc", "key1", []byte("value1"), version.NewHeight(1, 1))
+	batch.Put("lscc", "key2", []byte("value2"), version.NewHeight(1, 1))
+
+	savePoint := version.NewHeight(1, 1)
+	db.ApplyUpdates(batch, savePoint)
+
+	// cache should not contain key1 and key2
+	assert.Nil(t, db.(*VersionedDB).lsccStateCache.getState("key1"))
+	assert.Nil(t, db.(*VersionedDB).lsccStateCache.getState("key2"))
+
+	// GetState() populates the cache
+	valueFromDB, err := db.GetState("lscc", "key1")
+	assert.NoError(t, err)
+	valueFromCache := db.(*VersionedDB).lsccStateCache.getState("key1")
+	assert.Equal(t, valueFromCache, valueFromDB)
+
+	// Scenario 2: updates an existing key in lscc namespace. Note that the
+	// key in lsccStateCache should be updated
+	batch = statedb.NewUpdateBatch()
+	batch.Put("lscc", "key1", []byte("new-value1"), version.NewHeight(1, 2))
+	savePoint = version.NewHeight(1, 2)
+	db.ApplyUpdates(batch, savePoint)
+
+	valueFromCache = db.(*VersionedDB).lsccStateCache.getState("key1")
+	expectedValue := &statedb.VersionedValue{Value: []byte("new-value1"), Version: version.NewHeight(1, 2)}
+	assert.Equal(t, expectedValue, valueFromCache)
+
+	// Scenario 3: adds LsccCacheSize number of keys in lscc namespace.
+	// Read all keys in lscc namespace to make the cache full. This is to
+	// test the eviction.
+	batch = statedb.NewUpdateBatch()
+	for i := 0; i < lsccCacheSize; i++ {
+		batch.Put("lscc", "key"+strconv.Itoa(i), []byte("value"+strconv.Itoa(i)), version.NewHeight(1, 3))
+	}
+	savePoint = version.NewHeight(1, 3)
+	db.ApplyUpdates(batch, savePoint)
+
+	for i := 0; i < lsccCacheSize; i++ {
+		_, err := db.GetState("lscc", "key"+strconv.Itoa(i))
+		assert.NoError(t, err)
+	}
+	assert.Equal(t, true, db.(*VersionedDB).lsccStateCache.isCacheFull())
+
+	batch = statedb.NewUpdateBatch()
+	batch.Put("lscc", "key50", []byte("value1"), version.NewHeight(1, 4))
+	savePoint = version.NewHeight(1, 4)
+	db.ApplyUpdates(batch, savePoint)
+
+	// GetState() populates the cache after a eviction
+	valueFromDB, err = db.GetState("lscc", "key50")
+	assert.NoError(t, err)
+	valueFromCache = db.(*VersionedDB).lsccStateCache.getState("key50")
+	assert.Equal(t, valueFromCache, valueFromDB)
+	assert.Equal(t, true, db.(*VersionedDB).lsccStateCache.isCacheFull())
+}
+
+func TestApplyUpdatesWithNilHeight(t *testing.T) {
+	env := NewTestVDBEnv(t)
+	defer env.Cleanup()
+	commontests.TestApplyUpdatesWithNilHeight(t, env.DBProvider)
+}
+
+func TestRangeScanWithCouchInternalDocsPresent(t *testing.T) {
+	env := NewTestVDBEnv(t)
+	defer env.Cleanup()
+	db, err := env.DBProvider.GetDBHandle("testrangescanfiltercouchinternaldocs")
+	assert.NoError(t, err)
+	couchDatabse, err := db.(*VersionedDB).getNamespaceDBHandle("ns")
+	assert.NoError(t, err)
+	db.Open()
+	defer db.Close()
+	_, err = couchDatabse.CreateIndex(`{
+		"index" : {"fields" : ["asset_name"]},
+			"ddoc" : "indexAssetName",
+			"name" : "indexAssetName",
+			"type" : "json"
+		}`)
+	assert.NoError(t, err)
+
+	_, err = couchDatabse.CreateIndex(`{
+		"index" : {"fields" : ["assetValue"]},
+			"ddoc" : "indexAssetValue",
+			"name" : "indexAssetValue",
+			"type" : "json"
+		}`)
+	assert.NoError(t, err)
+
+	batch := statedb.NewUpdateBatch()
+	for i := 1; i <= 3; i++ {
+		keySmallerThanDesignDoc := fmt.Sprintf("Key-%d", i)
+		keyGreaterThanDesignDoc := fmt.Sprintf("key-%d", i)
+		jsonValue := fmt.Sprintf(`{"asset_name": "marble-%d"}`, i)
+		batch.Put("ns", keySmallerThanDesignDoc, []byte(jsonValue), version.NewHeight(1, uint64(i)))
+		batch.Put("ns", keyGreaterThanDesignDoc, []byte(jsonValue), version.NewHeight(1, uint64(i)))
+	}
+	db.ApplyUpdates(batch, version.NewHeight(2, 2))
+	assert.NoError(t, err)
+
+	// The Keys in db are in this order
+	// Key-1, Key-2, Key-3,_design/indexAssetNam, _design/indexAssetValue, key-1, key-2, key-3
+	// query different ranges and verify results
+	s, err := newQueryScanner("ns", couchDatabse, "", 3, 3, "", "", "")
+	assert.NoError(t, err)
+	assertQueryResults(t, s.resultsInfo.results, []string{"Key-1", "Key-2", "Key-3"})
+	assert.Equal(t, "key-1", s.queryDefinition.startKey)
+
+	s, err = newQueryScanner("ns", couchDatabse, "", 4, 4, "", "", "")
+	assert.NoError(t, err)
+	assertQueryResults(t, s.resultsInfo.results, []string{"Key-1", "Key-2", "Key-3", "key-1"})
+	assert.Equal(t, "key-2", s.queryDefinition.startKey)
+
+	s, err = newQueryScanner("ns", couchDatabse, "", 2, 2, "", "", "")
+	assert.NoError(t, err)
+	assertQueryResults(t, s.resultsInfo.results, []string{"Key-1", "Key-2"})
+	assert.Equal(t, "Key-3", s.queryDefinition.startKey)
+	s.getNextStateRangeScanResults()
+	assertQueryResults(t, s.resultsInfo.results, []string{"Key-3", "key-1"})
+	assert.Equal(t, "key-2", s.queryDefinition.startKey)
+
+	s, err = newQueryScanner("ns", couchDatabse, "", 2, 2, "", "_", "")
+	assert.NoError(t, err)
+	assertQueryResults(t, s.resultsInfo.results, []string{"key-1", "key-2"})
+	assert.Equal(t, "key-3", s.queryDefinition.startKey)
+}
+
+func assertQueryResults(t *testing.T, results []*couchdb.QueryResult, expectedIds []string) {
+	var actualIds []string
+	for _, res := range results {
+		actualIds = append(actualIds, res.ID)
+	}
+	assert.Equal(t, expectedIds, actualIds)
 }

@@ -10,23 +10,23 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/configtx/test"
-	"justledger/common/ledger/testutil"
-	"justledger/common/mocks/config"
-	util2 "justledger/common/util"
-	"justledger/core/common/sysccprovider"
-	ledger2 "justledger/core/ledger"
-	"justledger/core/ledger/ledgermgmt"
-	"justledger/core/ledger/util"
-	ledgerUtil "justledger/core/ledger/util"
-	mocktxvalidator "justledger/core/mocks/txvalidator"
-	"justledger/core/mocks/validator"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	"justledger/protos/common"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/common/mocks/config"
+	util2 "github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/common/sysccprovider"
+	ledger2 "github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	"github.com/justledger/fabric/core/ledger/util"
+	ledgerUtil "github.com/justledger/fabric/core/ledger/util"
+	mocktxvalidator "github.com/justledger/fabric/core/mocks/txvalidator"
+	"github.com/justledger/fabric/core/mocks/validator"
+	"github.com/justledger/fabric/msp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/sync/semaphore"
@@ -276,9 +276,7 @@ func TestTxValidationFailure_InvalidTxid(t *testing.T) {
 	block.Metadata.Metadata[common.BlockMetadataIndex_TRANSACTIONS_FILTER] = txsFilter
 
 	// Commit block to the ledger
-	ledger.CommitWithPvtData(&ledger2.BlockAndPvtData{
-		Block: block,
-	})
+	ledger.CommitWithPvtData(&ledger2.BlockAndPvtData{Block: block}, &ledger2.CommitOptions{})
 
 	// Validation should invalidate transaction,
 	// because it's already committed

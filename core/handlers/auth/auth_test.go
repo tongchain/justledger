@@ -11,7 +11,7 @@ import (
 	"encoding/binary"
 	"testing"
 
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

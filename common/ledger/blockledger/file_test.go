@@ -20,9 +20,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "justledger/common/ledger/blockledger"
-	fileledger "justledger/common/ledger/blockledger/file"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	. "github.com/justledger/fabric/common/ledger/blockledger"
+	fileledger "github.com/justledger/fabric/common/ledger/blockledger/file"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
 )
 
 func init() {
@@ -38,7 +39,7 @@ type fileLedgerTestEnv struct {
 
 func (env *fileLedgerTestEnv) Initialize() (ledgerTestFactory, error) {
 	var err error
-	location, err := ioutil.TempDir("", "hyperledger")
+	location, err := ioutil.TempDir("", "justledger")
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +64,7 @@ func (env *fileLedgerTestFactory) Persistent() bool {
 }
 
 func (env *fileLedgerTestFactory) New() (Factory, ReadWriter) {
-	flf := fileledger.New(env.location)
+	flf := fileledger.New(env.location, &disabled.Provider{})
 	fl, err := flf.GetOrCreate(genesisconfig.TestChainID)
 	if err != nil {
 		panic(err)

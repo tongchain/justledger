@@ -8,18 +8,17 @@ package endorsement
 
 import (
 	"bytes"
+	"fmt"
 	"testing"
 
-	"fmt"
-
-	"justledger/common/policies"
-	"justledger/gossip/api"
-	gcommon "justledger/gossip/common"
-	disc "justledger/gossip/discovery"
-	"justledger/protos/common"
-	"justledger/protos/discovery"
-	"justledger/protos/msp"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/gossip/api"
+	gcommon "github.com/justledger/fabric/gossip/common"
+	disc "github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/discovery"
+	"github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

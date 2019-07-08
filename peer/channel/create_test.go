@@ -20,11 +20,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/config/configtest"
-	"justledger/msp/mgmt/testtools"
-	"justledger/peer/common"
-	cb "justledger/protos/common"
-	"justledger/protos/orderer"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/msp/mgmt/testtools"
+	"github.com/justledger/fabric/peer/common"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/orderer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -315,7 +315,7 @@ func TestCreateChainWithTimeoutErr(t *testing.T) {
 	cmd := createCmd(mockCF)
 	AddFlags(cmd)
 	channelCmd.AddCommand(cmd)
-	args := []string{"create", "-c", mockchain, "-o", "localhost:8102", "-t", "10ms"}
+	args := []string{"create", "-c", mockchain, "-o", "localhost:8102", "-t", "10ms", "--connTimeout", "1s"}
 	channelCmd.SetArgs(args)
 
 	if err := channelCmd.Execute(); err == nil {
@@ -325,7 +325,7 @@ func TestCreateChainWithTimeoutErr(t *testing.T) {
 	}
 
 	// failure - point to bad port and time out connecting to orderer
-	args = []string{"create", "-c", mockchain, "-o", "localhost:0", "--connTimeout", "10ms"}
+	args = []string{"create", "-c", mockchain, "-o", "localhost:0", "-t", "1s", "--connTimeout", "10ms"}
 	channelCmd.SetArgs(args)
 
 	if err := channelCmd.Execute(); err == nil {

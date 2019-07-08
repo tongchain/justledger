@@ -11,11 +11,11 @@ import (
 	"errors"
 	"path/filepath"
 
-	"justledger/common/ledger/util"
-	"justledger/core/config"
-	"justledger/core/ledger"
-	"justledger/protos/common"
-	"justledger/protos/ledger/rwset"
+	"github.com/justledger/fabric/common/ledger/util"
+	"github.com/justledger/fabric/core/config"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/ledger/rwset"
 )
 
 var (
@@ -92,7 +92,7 @@ func splitCompositeKeyOfPurgeIndexByTxid(compositeKey []byte) (uuid string, bloc
 // into txid, uuid and blockHeight.
 func splitCompositeKeyOfPurgeIndexByHeight(compositeKey []byte) (txid string, uuid string, blockHeight uint64) {
 	var n int
-	blockHeight, n = util.DecodeOrderPreservingVarUint64(compositeKey[2:])
+	blockHeight, n, _ = util.DecodeOrderPreservingVarUint64(compositeKey[2:])
 	splits := bytes.Split(compositeKey[n+3:], []byte{compositeKeySep})
 	txid = string(splits[0])
 	uuid = string(splits[1])
@@ -106,7 +106,7 @@ func splitCompositeKeyWithoutPrefixForTxid(compositeKey []byte) (uuid string, bl
 	firstSepIndex := bytes.IndexByte(compositeKey, compositeKeySep)
 	secondSepIndex := firstSepIndex + bytes.IndexByte(compositeKey[firstSepIndex+1:], compositeKeySep) + 1
 	uuid = string(compositeKey[firstSepIndex+1 : secondSepIndex])
-	blockHeight, _ = util.DecodeOrderPreservingVarUint64(compositeKey[secondSepIndex+1:])
+	blockHeight, _, _ = util.DecodeOrderPreservingVarUint64(compositeKey[secondSepIndex+1:])
 	return
 }
 

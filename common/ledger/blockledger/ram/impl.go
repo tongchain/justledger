@@ -10,16 +10,14 @@ import (
 	"bytes"
 	"sync"
 
-	"justledger/common/flogging"
-	"justledger/common/ledger/blockledger"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
 	"github.com/pkg/errors"
 )
 
-const pkgLogID = "orderer/ledger/ramledger"
-
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger = flogging.MustGetLogger("common.ledger.blockledger.ram")
 
 type cursor struct {
 	list *simpleList

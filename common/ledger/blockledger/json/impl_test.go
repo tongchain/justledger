@@ -12,19 +12,18 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/flogging"
-	"justledger/common/ledger/blockledger"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 
 var genesisBlock = cb.NewBlock(0, nil)
 
 func init() {
-	flogging.SetModuleLevel(pkgLogID, "DEBUG")
+	flogging.ActivateSpec("common.ledger.blockledger.json=DEBUG")
 }
 
 type testEnv struct {
@@ -33,7 +32,7 @@ type testEnv struct {
 }
 
 func initialize(t *testing.T) (*testEnv, *jsonLedger) {
-	name, err := ioutil.TempDir("", "hyperledger_fabric")
+	name, err := ioutil.TempDir("", "justledger_fabric")
 	if err != nil {
 		t.Fatalf("Error creating temp dir: %s", err)
 	}

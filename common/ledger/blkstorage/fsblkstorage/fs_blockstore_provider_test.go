@@ -17,16 +17,15 @@ limitations under the License.
 package fsblkstorage
 
 import (
+	"fmt"
 	"testing"
 
-	"fmt"
-
-	"justledger/common/ledger/blkstorage"
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger/util"
-	"justledger/protos/common"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/ledger/blkstorage"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -13,28 +13,27 @@ import (
 	"fmt"
 	"sync"
 
-	"justledger/common/channelconfig"
-	"justledger/common/configtx"
-	"justledger/common/crypto"
-	"justledger/common/flogging"
-	"justledger/common/ledger/blockledger"
-	"justledger/orderer/common/msgprocessor"
-	"justledger/orderer/consensus"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	"justledger/protos/utils"
-
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/configtx"
+	"github.com/justledger/fabric/common/crypto"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	"github.com/justledger/fabric/common/metrics"
+	"github.com/justledger/fabric/orderer/common/blockcutter"
+	"github.com/justledger/fabric/orderer/common/msgprocessor"
+	"github.com/justledger/fabric/orderer/consensus"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 
 const (
-	pkgLogID = "orderer/commmon/multichannel"
-
 	msgVersion = int32(0)
 	epoch      = 0
 )
 
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger = flogging.MustGetLogger("orderer.commmon.multichannel")
 
 // checkResources makes sure that the channel config is compatible with this binary and logs sanity checks
 func checkResources(res channelconfig.Resources) error {
@@ -95,16 +94,19 @@ type Registrar struct {
 	lock   sync.RWMutex
 	chains map[string]*ChainSupport
 
-	consenters      map[string]consensus.Consenter
-	ledgerFactory   blockledger.Factory
-	signer          crypto.LocalSigner
-	systemChannelID string
-	systemChannel   *ChainSupport
-	templator       msgprocessor.ChannelConfigTemplator
-	callbacks       []func(bundle *channelconfig.Bundle)
+	consenters         map[string]consensus.Consenter
+	ledgerFactory      blockledger.Factory
+	signer             crypto.LocalSigner
+	blockcutterMetrics *blockcutter.Metrics
+	systemChannelID    string
+	systemChannel      *ChainSupport
+	templator          msgprocessor.ChannelConfigTemplator
+	callbacks          []channelconfig.BundleActor
 }
 
-func getConfigTx(reader blockledger.Reader) *cb.Envelope {
+// ConfigBlock retrieves the last configuration block from the given ledger.
+// Panics on failure.
+func ConfigBlock(reader blockledger.Reader) *cb.Block {
 	lastBlock := blockledger.GetBlock(reader, reader.Height()-1)
 	index, err := utils.GetLastConfigIndexFromBlock(lastBlock)
 	if err != nil {
@@ -115,27 +117,37 @@ func getConfigTx(reader blockledger.Reader) *cb.Envelope {
 		logger.Panicf("Config block does not exist")
 	}
 
-	return utils.ExtractEnvelopeOrPanic(configBlock, 0)
+	return configBlock
+}
+
+func configTx(reader blockledger.Reader) *cb.Envelope {
+	return utils.ExtractEnvelopeOrPanic(ConfigBlock(reader), 0)
 }
 
 // NewRegistrar produces an instance of a *Registrar.
-func NewRegistrar(ledgerFactory blockledger.Factory, consenters map[string]consensus.Consenter,
-	signer crypto.LocalSigner, callbacks ...func(bundle *channelconfig.Bundle)) *Registrar {
+func NewRegistrar(ledgerFactory blockledger.Factory,
+	signer crypto.LocalSigner, metricsProvider metrics.Provider, callbacks ...channelconfig.BundleActor) *Registrar {
 	r := &Registrar{
-		chains:        make(map[string]*ChainSupport),
-		ledgerFactory: ledgerFactory,
-		consenters:    consenters,
-		signer:        signer,
-		callbacks:     callbacks,
+		chains:             make(map[string]*ChainSupport),
+		ledgerFactory:      ledgerFactory,
+		signer:             signer,
+		blockcutterMetrics: blockcutter.NewMetrics(metricsProvider),
+		callbacks:          callbacks,
 	}
 
-	existingChains := ledgerFactory.ChainIDs()
+	return r
+}
+
+func (r *Registrar) Initialize(consenters map[string]consensus.Consenter) {
+	r.consenters = consenters
+	existingChains := r.ledgerFactory.ChainIDs()
+
 	for _, chainID := range existingChains {
-		rl, err := ledgerFactory.GetOrCreate(chainID)
+		rl, err := r.ledgerFactory.GetOrCreate(chainID)
 		if err != nil {
 			logger.Panicf("Ledger factory reported chainID %s but could not retrieve it: %s", chainID, err)
 		}
-		configTx := getConfigTx(rl)
+		configTx := configTx(rl)
 		if configTx == nil {
 			logger.Panic("Programming error, configTx should never be nil here")
 		}
@@ -146,11 +158,14 @@ func NewRegistrar(ledgerFactory blockledger.Factory, consenters map[string]conse
 			if r.systemChannelID != "" {
 				logger.Panicf("There appear to be two system chains %s and %s", r.systemChannelID, chainID)
 			}
+
 			chain := newChainSupport(
 				r,
 				ledgerResources,
-				consenters,
-				signer)
+				r.consenters,
+				r.signer,
+				r.blockcutterMetrics,
+			)
 			r.templator = msgprocessor.NewDefaultTemplator(chain)
 			chain.Processor = msgprocessor.NewSystemChannel(chain, r.templator, msgprocessor.CreateSystemChannelFilters(r, chain))
 
@@ -164,7 +179,8 @@ func NewRegistrar(ledgerFactory blockledger.Factory, consenters map[string]conse
 			if status != cb.Status_SUCCESS {
 				logger.Panicf("Error reading genesis block of system channel '%s'", chainID)
 			}
-			logger.Infof("Starting system channel '%s' with genesis block hash %x and orderer type %s", chainID, genesisBlock.Header.Hash(), chain.SharedConfig().ConsensusType())
+			logger.Infof("Starting system channel '%s' with genesis block hash %x and orderer type %s",
+				chainID, genesisBlock.Header.Hash(), chain.SharedConfig().ConsensusType())
 
 			r.chains[chainID] = chain
 			r.systemChannelID = chainID
@@ -176,8 +192,10 @@ func NewRegistrar(ledgerFactory blockledger.Factory, consenters map[string]conse
 			chain := newChainSupport(
 				r,
 				ledgerResources,
-				consenters,
-				signer)
+				r.consenters,
+				r.signer,
+				r.blockcutterMetrics,
+			)
 			r.chains[chainID] = chain
 			chain.start()
 		}
@@ -187,8 +205,6 @@ func NewRegistrar(ledgerFactory blockledger.Factory, consenters map[string]conse
 	if r.systemChannelID == "" {
 		logger.Panicf("No system chain found.  If bootstrapping, does your system channel contain a consortiums group definition?")
 	}
-
-	return r
 }
 
 // SystemChannelID returns the ChannelID for the system channel.
@@ -205,8 +221,9 @@ func (r *Registrar) BroadcastChannelSupport(msg *cb.Envelope) (*cb.ChannelHeader
 		return nil, false, nil, fmt.Errorf("could not determine channel ID: %s", err)
 	}
 
-	cs, ok := r.GetChain(chdr.ChannelId)
-	if !ok {
+	cs := r.GetChain(chdr.ChannelId)
+	// New channel creation
+	if cs == nil {
 		cs = r.systemChannel
 	}
 
@@ -222,13 +239,12 @@ func (r *Registrar) BroadcastChannelSupport(msg *cb.Envelope) (*cb.ChannelHeader
 	return chdr, isConfig, cs, nil
 }
 
-// GetChain retrieves the chain support for a chain (and whether it exists)
-func (r *Registrar) GetChain(chainID string) (*ChainSupport, bool) {
+// GetChain retrieves the chain support for a chain if it exists.
+func (r *Registrar) GetChain(chainID string) *ChainSupport {
 	r.lock.RLock()
 	defer r.lock.RUnlock()
 
-	cs, ok := r.chains[chainID]
-	return cs, ok
+	return r.chains[chainID]
 }
 
 func (r *Registrar) newLedgerResources(configTx *cb.Envelope) *ledgerResources {
@@ -271,12 +287,30 @@ func (r *Registrar) newLedgerResources(configTx *cb.Envelope) *ledgerResources {
 	}
 }
 
+// CreateChain makes the Registrar create a chain with the given name.
+func (r *Registrar) CreateChain(chainName string) {
+	lf, err := r.ledgerFactory.GetOrCreate(chainName)
+	if err != nil {
+		logger.Panicf("Failed obtaining ledger factory for %s: %v", chainName, err)
+	}
+	chain := r.GetChain(chainName)
+	if chain != nil {
+		logger.Infof("A chain of type %T for channel %s already exists. "+
+			"Halting it.", chain.Chain, chainName)
+		chain.Halt()
+	}
+	r.newChain(configTx(lf))
+}
+
 func (r *Registrar) newChain(configtx *cb.Envelope) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 
 	ledgerResources := r.newLedgerResources(configtx)
-	ledgerResources.Append(blockledger.CreateNextBlock(ledgerResources, []*cb.Envelope{configtx}))
+	// If we have no blocks, we need to create the genesis block ourselves.
+	if ledgerResources.Height() == 0 {
+		ledgerResources.Append(blockledger.CreateNextBlock(ledgerResources, []*cb.Envelope{configtx}))
+	}
 
 	// Copy the map to allow concurrent reads from broadcast/deliver while the new chainSupport is
 	newChains := make(map[string]*ChainSupport)
@@ -284,7 +318,7 @@ func (r *Registrar) newChain(configtx *cb.Envelope) {
 		newChains[key] = value
 	}
 
-	cs := newChainSupport(r, ledgerResources, r.consenters, r.signer)
+	cs := newChainSupport(r, ledgerResources, r.consenters, r.signer, r.blockcutterMetrics)
 	chainID := ledgerResources.ConfigtxValidator().ChainID()
 
 	logger.Infof("Created and starting new chain %s", chainID)

@@ -26,7 +26,7 @@ import (
 	"strings"
 	"testing"
 
-	"justledger/bccsp/mocks"
+	"github.com/justledger/fabric/bccsp/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

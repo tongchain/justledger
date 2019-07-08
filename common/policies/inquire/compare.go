@@ -8,12 +8,11 @@ package inquire
 
 import (
 	"bytes"
-
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/policies"
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/protos/msp"
 )
 
 // ComparablePrincipal defines an MSPPrincipal that can be compared to other principals

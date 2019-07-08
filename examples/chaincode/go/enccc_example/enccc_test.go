@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
-	"justledger/bccsp/factory"
-	"justledger/core/chaincode/shim"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/core/chaincode/shim"
 	"github.com/stretchr/testify/assert"
 )
 

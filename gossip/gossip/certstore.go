@@ -8,13 +8,14 @@ package gossip
 
 import (
 	"bytes"
+	"encoding/hex"
 
-	"justledger/gossip/api"
-	"justledger/gossip/common"
-	"justledger/gossip/gossip/pull"
-	"justledger/gossip/identity"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/gossip/pull"
+	"github.com/justledger/fabric/gossip/identity"
+	"github.com/justledger/fabric/gossip/util"
+	proto "github.com/justledger/fabric/protos/gossip"
 	"github.com/pkg/errors"
 )
 
@@ -29,7 +30,7 @@ type certStore struct {
 
 func newCertStore(puller pull.Mediator, idMapper identity.Mapper, selfIdentity api.PeerIdentityType, mcs api.MessageCryptoService) *certStore {
 	selfPKIID := idMapper.GetPKIidOfCert(selfIdentity)
-	logger := util.GetLogger(util.LoggingGossipModule, string(selfPKIID))
+	logger := util.GetLogger(util.GossipLogger, hex.EncodeToString(selfPKIID))
 
 	certStore := &certStore{
 		mcs:          mcs,

@@ -21,8 +21,8 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/kr/pretty"
 	"github.com/stretchr/testify/assert"
 )
@@ -123,6 +123,13 @@ func TestCollHashedRwSetConversion(t *testing.T) {
 	assert.Equal(t, collHashedRwSet.CollectionName, collHashedRwSet1.CollectionName)
 	assert.True(t, proto.Equal(collHashedRwSet.HashedRwSet, collHashedRwSet1.HashedRwSet), "proto messages are not equal")
 	assert.Equal(t, collHashedRwSet.PvtRwSetHash, collHashedRwSet1.PvtRwSetHash)
+}
+
+func TestNumCollections(t *testing.T) {
+	var txRwSet *TxRwSet
+	assert.Equal(t, 0, txRwSet.NumCollections())         // nil TxRwSet
+	assert.Equal(t, 0, (&TxRwSet{}).NumCollections())    // empty TxRwSet
+	assert.Equal(t, 4, sampleTxRwSet().NumCollections()) // sample TxRwSet
 }
 
 func sampleTxRwSet() *TxRwSet {

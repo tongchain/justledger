@@ -14,12 +14,11 @@
 package main
 
 import (
+	"chaincodes/AutoVendor/directdep"
 	"fmt"
 
-	"chaincodes/AutoVendor/directdep"
-
-	"justledger/core/chaincode/shim"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 // SimpleChaincode example simple Chaincode implementation

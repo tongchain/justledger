@@ -13,12 +13,11 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/msp"
 	"github.com/spf13/viper"
-
-	"justledger/bccsp/factory"
-	"justledger/common/flogging"
-	"justledger/core/config/configtest"
-	"justledger/msp"
 )
 
 var configLogger = flogging.MustGetLogger("config")

@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package pvtdatastorage
 
 import (
-	"justledger/core/ledger"
-	"justledger/core/ledger/pvtdatapolicy"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/pvtdatapolicy"
 )
 
 // Provider provides handle to specific 'Store' that in turn manages
@@ -55,11 +55,27 @@ type Store interface {
 	// that enough preparation is done such that `Commit` function invoked afterwards can commit the
 	// data and the store is capable of surviving a crash between this function call and the next
 	// invoke to the `Commit`
-	Prepare(blockNum uint64, pvtData []*ledger.TxPvtData, missing *ledger.MissingPrivateDataList) error
+	Prepare(blockNum uint64, pvtData []*ledger.TxPvtData, missingPvtData ledger.TxMissingPvtDataMap) error
 	// Commit commits the pvt data passed in the previous invoke to the `Prepare` function
 	Commit() error
 	// Rollback rolls back the pvt data passed in the previous invoke to the `Prepare` function
 	Rollback() error
+	// ProcessCollsEligibilityEnabled notifies the store when the peer becomes eligible to recieve data for an
+	// existing collection. Parameter 'committingBlk' refers to the block number that contains the corresponding
+	// collection upgrade transaction and the parameter 'nsCollMap' contains the collections for which the peer
+	// is now eligible to recieve pvt data
+	ProcessCollsEligibilityEnabled(committingBlk uint64, nsCollMap map[string][]string) error
+	// CommitPvtDataOfOldBlocks commits the pvtData (i.e., previously missing data) of old blocks.
+	// The parameter `blocksPvtData` refers a list of old block's pvtdata which are missing in the pvtstore.
+	// This call stores an additional entry called `lastUpdatedOldBlocksList` which keeps the exact list
+	// of updated blocks. This list would be used during recovery process. Once the stateDB is updated with
+	// these pvtData, the `lastUpdatedOldBlocksList` must be removed. During the peer startup,
+	// if the `lastUpdatedOldBlocksList` exists, stateDB needs to be updated with the appropriate pvtData.
+	CommitPvtDataOfOldBlocks(blocksPvtData map[uint64][]*ledger.TxPvtData) error
+	// GetLastUpdatedOldBlocksPvtData returns the pvtdata of blocks listed in `lastUpdatedOldBlocksList`
+	GetLastUpdatedOldBlocksPvtData() (map[uint64][]*ledger.TxPvtData, error)
+	// ResetLastUpdatedOldBlocksList removes the `lastUpdatedOldBlocksList` entry from the store
+	ResetLastUpdatedOldBlocksList() error
 	// IsEmpty returns true if the store does not have any block committed yet
 	IsEmpty() (bool, error)
 	// LastCommittedBlockHeight returns the height of the last committed block

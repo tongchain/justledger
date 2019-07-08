@@ -12,33 +12,36 @@ import (
 	"runtime"
 	"sync"
 
-	"justledger/common/channelconfig"
-	cc "justledger/common/config"
-	"justledger/common/configtx"
-	"justledger/common/deliver"
-	"justledger/common/flogging"
-	commonledger "justledger/common/ledger"
-	"justledger/common/ledger/blockledger"
-	fileledger "justledger/common/ledger/blockledger/file"
-	"justledger/common/policies"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/comm"
-	"justledger/core/committer"
-	"justledger/core/committer/txvalidator"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/privdata"
-	"justledger/core/common/sysccprovider"
-	"justledger/core/ledger"
-	"justledger/core/ledger/customtx"
-	"justledger/core/ledger/ledgermgmt"
-	"justledger/core/transientstore"
-	"justledger/gossip/api"
-	"justledger/gossip/service"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/channelconfig"
+	cc "github.com/justledger/fabric/common/config"
+	"github.com/justledger/fabric/common/configtx"
+	"github.com/justledger/fabric/common/deliver"
+	"github.com/justledger/fabric/common/flogging"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	fileledger "github.com/justledger/fabric/common/ledger/blockledger/file"
+	"github.com/justledger/fabric/common/metrics"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/comm"
+	"github.com/justledger/fabric/core/committer"
+	"github.com/justledger/fabric/core/committer/txvalidator"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/core/common/sysccprovider"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/customtx"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	"github.com/justledger/fabric/core/transientstore"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/service"
+	"github.com/justledger/fabric/msp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
+	"github.com/justledger/fabric/token/tms/manager"
+	"github.com/justledger/fabric/token/transaction"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"golang.org/x/sync/semaphore"
@@ -49,17 +52,55 @@ var peerLogger = flogging.MustGetLogger("peer")
 var peerServer *comm.GRPCServer
 
 var configTxProcessor = newConfigTxProcessor()
+var tokenTxProcessor = &transaction.Processor{
+	TMSManager: &manager.Manager{
+		IdentityDeserializerManager: &manager.FabricIdentityDeserializerManager{}}}
 var ConfigTxProcessors = customtx.Processors{
-	common.HeaderType_CONFIG: configTxProcessor,
+	common.HeaderType_CONFIG:            configTxProcessor,
+	common.HeaderType_TOKEN_TRANSACTION: tokenTxProcessor,
 }
 
 // singleton instance to manage credentials for the peer across channel config changes
 var credSupport = comm.GetCredentialSupport()
 
-type gossipSupport struct {
-	channelconfig.Application
+//go:generate mockery -dir . -name OrdererOrg -case underscore -output mocks/
+
+// OrdererOrg stores the per org orderer config.
+type OrdererOrg interface {
+	channelconfig.Org
+
+	// Endpoints returns the endpoints of orderer nodes.
+	Endpoints() []string
+}
+
+type gossipChannelConfig struct {
+	ac channelconfig.Application
+	oc channelconfig.Orderer
 	configtx.Validator
 	channelconfig.Channel
+}
+
+func (gcp *gossipChannelConfig) ApplicationOrgs() service.ApplicationOrgs {
+	return gcp.ac.Organizations()
+}
+
+func (gcp *gossipChannelConfig) OrdererOrgs() []string {
+	var res []string
+	for _, org := range gcp.oc.Organizations() {
+		res = append(res, org.MSPID())
+	}
+	return res
+}
+
+func (gcp *gossipChannelConfig) OrdererAddressesByOrgs() map[string][]string {
+	res := make(map[string][]string)
+	for _, ordererOrg := range gcp.oc.Organizations() {
+		if len(ordererOrg.Endpoints()) == 0 {
+			continue
+		}
+		res[ordererOrg.MSPID()] = ordererOrg.Endpoints()
+	}
+	return res
 }
 
 type chainSupport struct {
@@ -162,6 +203,8 @@ func (cs *chainSupport) Reader() blockledger.Reader {
 // the peer does not have any error conditions that lead to
 // this function signaling that an error has occurred.
 func (cs *chainSupport) Errored() <-chan struct{} {
+	// If this is ever updated to return a real channel, the error message
+	// in deliver.go around this channel closing should be updated.
 	return nil
 }
 
@@ -195,7 +238,9 @@ var validationWorkersSemaphore *semaphore.Weighted
 // Initialize sets up any chains that the peer has from the persistence. This
 // function should be called at the start up when the ledger and gossip
 // ready
-func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccprovider.SystemChaincodeProvider, pm txvalidator.PluginMapper, pr *platforms.Registry, deployedCCInfoProvider ledger.DeployedChaincodeInfoProvider) {
+func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccprovider.SystemChaincodeProvider,
+	pm txvalidator.PluginMapper, pr *platforms.Registry, deployedCCInfoProvider ledger.DeployedChaincodeInfoProvider,
+	membershipProvider ledger.MembershipInfoProvider, metricsProvider metrics.Provider) {
 	nWorkers := viper.GetInt("peer.validatorPoolSize")
 	if nWorkers <= 0 {
 		nWorkers = runtime.NumCPU()
@@ -211,6 +256,8 @@ func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccp
 		CustomTxProcessors:            ConfigTxProcessors,
 		PlatformRegistry:              pr,
 		DeployedChaincodeInfoProvider: deployedCCInfoProvider,
+		MembershipInfoProvider:        membershipProvider,
+		MetricsProvider:               metricsProvider,
 	})
 	ledgerIds, err := ledgermgmt.GetLedgerIDs()
 	if err != nil {
@@ -219,18 +266,18 @@ func Initialize(init func(string), ccp ccprovider.ChaincodeProvider, sccp sysccp
 	for _, cid := range ledgerIds {
 		peerLogger.Infof("Loading chain %s", cid)
 		if ledger, err = ledgermgmt.OpenLedger(cid); err != nil {
-			peerLogger.Warningf("Failed to load ledger %s(%s)", cid, err)
+			peerLogger.Errorf("Failed to load ledger %s(%s)", cid, err)
 			peerLogger.Debugf("Error while loading ledger %s with message %s. We continue to the next ledger rather than abort.", cid, err)
 			continue
 		}
 		if cb, err = getCurrConfigBlockFromLedger(ledger); err != nil {
-			peerLogger.Warningf("Failed to find config block on ledger %s(%s)", cid, err)
+			peerLogger.Errorf("Failed to find config block on ledger %s(%s)", cid, err)
 			peerLogger.Debugf("Error while looking for config block on ledger %s with message %s. We continue to the next ledger rather than abort.", cid, err)
 			continue
 		}
 		// Create a chain if we get a valid ledger with config block
 		if err = createChain(cid, ledger, cb, ccp, sccp, pm); err != nil {
-			peerLogger.Warningf("Failed to load chain %s(%s)", cid, err)
+			peerLogger.Errorf("Failed to load chain %s(%s)", cid, err)
 			peerLogger.Debugf("Error reloading chain %s with message %s. We continue to the next chain rather than abort.", cid, err)
 			continue
 		}
@@ -317,10 +364,18 @@ func createChain(cid string, ledger ledger.PeerLedger, cb *common.Block, ccp ccp
 			// TODO, handle a missing ApplicationConfig more gracefully
 			ac = nil
 		}
-		gossipEventer.ProcessConfigUpdate(&gossipSupport{
-			Validator:   bundle.ConfigtxValidator(),
-			Application: ac,
-			Channel:     bundle.ChannelConfig(),
+
+		oc, ok := bundle.OrdererConfig()
+		if !ok {
+			// TODO: handle a missing OrdererConfig more gracefully
+			oc = nil
+		}
+
+		gossipEventer.ProcessConfigUpdate(&gossipChannelConfig{
+			Validator: bundle.ConfigtxValidator(),
+			ac:        ac,
+			oc:        oc,
+			Channel:   bundle.ChannelConfig(),
 		})
 		service.GetGossipService().SuspectPeers(func(identity api.PeerIdentityType) bool {
 			// TODO: this is a place-holder that would somehow make the MSP layer suspect
@@ -380,8 +435,23 @@ func createChain(cid string, ledger ledger.PeerLedger, cb *common.Block, ccp ccp
 		return SetCurrConfigBlock(block, chainID)
 	})
 
+	oc, ok := bundle.OrdererConfig()
+	if !ok {
+		return errors.New("no orderer config in bundle")
+	}
+
+	ordererAddressesByOrg := make(map[string][]string)
+	var ordererOrganizations []string
+	for _, ordererOrg := range oc.Organizations() {
+		ordererOrganizations = append(ordererOrganizations, ordererOrg.MSPID())
+		if len(ordererOrg.Endpoints()) == 0 {
+			continue
+		}
+		ordererAddressesByOrg[ordererOrg.MSPID()] = ordererOrg.Endpoints()
+	}
+
 	ordererAddresses := bundle.ChannelConfig().OrdererAddresses()
-	if len(ordererAddresses) == 0 {
+	if len(ordererAddresses) == 0 && len(ordererAddressesByOrg) == 0 {
 		return errors.New("no ordering service endpoint provided in configuration block")
 	}
 
@@ -390,17 +460,23 @@ func createChain(cid string, ledger ledger.PeerLedger, cb *common.Block, ccp ccp
 	if err != nil {
 		return errors.Wrapf(err, "[channel %s] failed opening transient store", bundle.ConfigtxValidator().ChainID())
 	}
-	csStoreSupport := &collectionSupport{
+	csStoreSupport := &CollectionSupport{
 		PeerLedger: ledger,
 	}
 	simpleCollectionStore := privdata.NewSimpleCollectionStore(csStoreSupport)
 
-	service.GetGossipService().InitializeChannel(bundle.ConfigtxValidator().ChainID(), ordererAddresses, service.Support{
+	oac := service.OrdererAddressConfig{
+		Addresses:      ordererAddresses,
+		AddressesByOrg: ordererAddressesByOrg,
+		Organizations:  ordererOrganizations,
+	}
+	service.GetGossipService().InitializeChannel(bundle.ConfigtxValidator().ChainID(), oac, service.Support{
 		Validator:            validator,
 		Committer:            c,
 		Store:                store,
 		Cs:                   simpleCollectionStore,
 		IdDeserializeFactory: csStoreSupport,
+		Capabilities:         cs.Application.Capabilities(),
 	})
 
 	chains.Lock()
@@ -530,8 +606,6 @@ func buildTrustedRootsForChain(cm channelconfig.Resources) {
 	credSupport.Lock()
 	defer credSupport.Unlock()
 
-	appRootCAs := [][]byte{}
-	ordererRootCAs := [][]byte{}
 	appOrgMSPs := make(map[string]struct{})
 	ordOrgMSPs := make(map[string]struct{})
 
@@ -549,14 +623,17 @@ func buildTrustedRootsForChain(cm channelconfig.Resources) {
 		}
 	}
 
+	var appRootCAs comm.CertificateBundle
 	cid := cm.ConfigtxValidator().ChainID()
 	peerLogger.Debugf("updating root CAs for channel [%s]", cid)
 	msps, err := cm.MSPManager().GetMSPs()
 	if err != nil {
 		peerLogger.Errorf("Error getting root CAs for channel %s (%s)", cid, err)
 	}
+	ordererRootCAsPerOrg := make(map[string]comm.CertificateBundle)
 	if err == nil {
 		for k, v := range msps {
+			var ordererRootCAs comm.CertificateBundle
 			// check to see if this is a FABRIC MSP
 			if v.GetType() == msp.FABRIC {
 				for _, root := range v.GetTLSRootCerts() {
@@ -583,10 +660,11 @@ func buildTrustedRootsForChain(cm channelconfig.Resources) {
 						ordererRootCAs = append(ordererRootCAs, intermediate)
 					}
 				}
+				ordererRootCAsPerOrg[k] = ordererRootCAs
 			}
 		}
 		credSupport.AppRootCAsByChain[cid] = appRootCAs
-		credSupport.OrdererRootCAsByChain[cid] = ordererRootCAs
+		credSupport.OrdererRootCAsByChainAndOrg[cid] = ordererRootCAsPerOrg
 	}
 }
 
@@ -692,15 +770,24 @@ func NewPeerServer(listenAddress string, serverConfig comm.ServerConfig) (*comm.
 	return peerServer, nil
 }
 
-type collectionSupport struct {
+// TODO: Remove CollectionSupport and respective methonds on them.
+// CollectionSupport is created per chain and is passed to the simple
+// collection store and the gossip. As it is created per chain, there
+// is no need to pass the channelID for both GetQueryExecutorForLedger()
+// and GetIdentityDeserializer(). Note that the cid passed to
+// GetQueryExecutorForLedger is never used. Instead, we can directly
+// pass the ledger.PeerLedger and msp.IdentityDeserializer to the
+// simpleCollectionStore and pass only the msp.IdentityDeserializer to
+// the gossip in createChain() -- FAB-13037
+type CollectionSupport struct {
 	ledger.PeerLedger
 }
 
-func (cs *collectionSupport) GetQueryExecutorForLedger(cid string) (ledger.QueryExecutor, error) {
+func (cs *CollectionSupport) GetQueryExecutorForLedger(cid string) (ledger.QueryExecutor, error) {
 	return cs.NewQueryExecutor()
 }
 
-func (*collectionSupport) GetIdentityDeserializer(chainID string) msp.IdentityDeserializer {
+func (*CollectionSupport) GetIdentityDeserializer(chainID string) msp.IdentityDeserializer {
 	return mspmgmt.GetManagerForChain(chainID)
 }
 
@@ -712,12 +799,12 @@ func (*collectionSupport) GetIdentityDeserializer(chainID string) msp.IdentityDe
 type DeliverChainManager struct {
 }
 
-func (DeliverChainManager) GetChain(chainID string) (deliver.Chain, bool) {
+func (DeliverChainManager) GetChain(chainID string) deliver.Chain {
 	channel, ok := chains.list[chainID]
 	if !ok {
-		return nil, ok
+		return nil
 	}
-	return channel.cs, ok
+	return channel.cs
 }
 
 // fileLedgerBlockStore implements the interface expected by

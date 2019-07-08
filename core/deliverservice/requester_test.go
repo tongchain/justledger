@@ -16,11 +16,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/comm"
-	"justledger/core/deliverservice/blocksprovider"
-	"justledger/protos/common"
-	"justledger/protos/orderer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/core/comm"
+	"github.com/justledger/fabric/core/deliverservice/blocksprovider"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -50,7 +50,7 @@ func TestTLSBinding(t *testing.T) {
 	})
 	assert.NoError(t, err)
 
-	orderer.RegisterAtomicBroadcastServer(s.Server(), &mockOrderer{})
+	orderer.RegisterAtomicBroadcastServer(s.Server(), &mockOrderer{t: t})
 	go s.Start()
 	defer s.Stop()
 	time.Sleep(time.Second * 3)

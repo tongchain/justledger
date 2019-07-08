@@ -15,15 +15,15 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/util"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/golang"
+	"github.com/justledger/fabric/msp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/msp/mgmt/testtools"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -606,22 +606,22 @@ func TestProposalTxID(t *testing.T) {
 	nonce := []byte{1}
 	creator := []byte{2}
 
-	txid, err := utils.ComputeProposalTxID(nonce, creator)
+	txid, err := utils.ComputeTxID(nonce, creator)
 	assert.NotEmpty(t, txid, "TxID cannot be empty.")
 	assert.NoError(t, err, "Failed computing txID")
-	assert.Nil(t, utils.CheckProposalTxID(txid, nonce, creator))
-	assert.Error(t, utils.CheckProposalTxID("", nonce, creator))
+	assert.Nil(t, utils.CheckTxID(txid, nonce, creator))
+	assert.Error(t, utils.CheckTxID("", nonce, creator))
 
-	txid, err = utils.ComputeProposalTxID(nil, nil)
+	txid, err = utils.ComputeTxID(nil, nil)
 	assert.NotEmpty(t, txid, "TxID cannot be empty.")
 	assert.NoError(t, err, "Failed computing txID")
 }
 
 func TestComputeProposalTxID(t *testing.T) {
-	txid, err := utils.ComputeProposalTxID([]byte{1}, []byte{1})
+	txid, err := utils.ComputeTxID([]byte{1}, []byte{1})
 	assert.NoError(t, err, "Failed computing TxID")
 
-	// Compute the function computed by ComputeProposalTxID,
+	// Compute the function computed by ComputeTxID,
 	// namely, base64(sha256(nonce||creator))
 	hf := sha256.New()
 	hf.Write([]byte{1})

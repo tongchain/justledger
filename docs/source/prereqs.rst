@@ -57,7 +57,7 @@ Go Programming Language
 Hyperledger Fabric uses the Go Programming Language for many of its
 components.
 
-  - `Go <https://golang.org/dl/>`__ version 1.10.x is required.
+  - `Go <https://golang.org/dl/>`__ version 1.11.x is required.
 
 Given that we will be writing chaincode programs in Go, there are two
 environment variables you will need to set properly; you can make these
@@ -100,9 +100,9 @@ If you will be developing applications for Hyperledger Fabric leveraging the
 Hyperledger Fabric SDK for Node.js, you will need to have version 8.9.x of Node.js
 installed.
 
-.. note:: Node.js version 9.x is not supported at this time.
+.. note:: Versions other than the 8.x series are not supported at this time.
 
-  - `Node.js <https://nodejs.org/en/download/>`__ - version 8.9.x or greater
+  - `Node.js <https://nodejs.org/en/download/>`__ - version 8.x
 
 .. note:: Installing Node.js will also install NPM, however it is recommended
           that you confirm the version of NPM installed. You can upgrade

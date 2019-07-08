@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"justledger/protos/token"
-	"justledger/token/server"
+	"github.com/justledger/fabric/protos/token"
+	"github.com/justledger/fabric/token/server"
 )
 
 type PolicyChecker struct {

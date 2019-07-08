@@ -9,9 +9,8 @@ package configtx
 import (
 	"testing"
 
+	cb "github.com/justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
-
-	cb "justledger/protos/common"
 )
 
 func TestCompareConfigValue(t *testing.T) {

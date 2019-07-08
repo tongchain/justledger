@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package endorsement
 
 import (
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 // Argument defines the argument for endorsement

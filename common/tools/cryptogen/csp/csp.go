@@ -15,9 +15,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"justledger/bccsp"
-	"justledger/bccsp/factory"
-	"justledger/bccsp/signer"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/bccsp/signer"
+	"github.com/pkg/errors"
 )
 
 // LoadPrivateKey loads a private key from file in keystorePath
@@ -51,6 +52,9 @@ func LoadPrivateKey(keystorePath string) (bccsp.Key, crypto.Signer, error) {
 			}
 
 			block, _ := pem.Decode(rawKey)
+			if block == nil {
+				return errors.Errorf("%s: wrong PEM encoding", path)
+			}
 			priv, err = csp.KeyImport(block.Bytes, &bccsp.ECDSAPrivateKeyImportOpts{Temporary: true})
 			if err != nil {
 				return err

@@ -11,27 +11,27 @@ import (
 	"regexp"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/common/flogging"
-	"justledger/core/aclmgmt"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/ccmetadata"
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/privdata"
-	"justledger/core/common/sysccprovider"
-	"justledger/core/ledger"
-	"justledger/core/ledger/cceventmgmt"
-	"justledger/core/peer"
-	"justledger/core/policy"
-	"justledger/core/policyprovider"
-	"justledger/msp"
-	"justledger/msp/mgmt"
-	"justledger/protos/common"
-	mb "justledger/protos/msp"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/aclmgmt"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/ccmetadata"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/core/common/sysccprovider"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/cceventmgmt"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/core/policy"
+	"github.com/justledger/fabric/core/policyprovider"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/protos/common"
+	mb "github.com/justledger/fabric/protos/msp"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 
@@ -154,33 +154,27 @@ func New(sccp sysccprovider.SystemChaincodeProvider, ACLProvider aclmgmt.ACLProv
 }
 
 func (lscc *LifeCycleSysCC) Name() string              { return "lscc" }
-func (lscc *LifeCycleSysCC) Path() string              { return "justledger/core/scc/lscc" }
+func (lscc *LifeCycleSysCC) Path() string              { return "github.com/justledger/fabric/core/scc/lscc" }
 func (lscc *LifeCycleSysCC) InitArgs() [][]byte        { return nil }
 func (lscc *LifeCycleSysCC) Chaincode() shim.Chaincode { return lscc }
 func (lscc *LifeCycleSysCC) InvokableExternal() bool   { return true }
 func (lscc *LifeCycleSysCC) InvokableCC2CC() bool      { return true }
 func (lscc *LifeCycleSysCC) Enabled() bool             { return true }
 
-func (lscc *LifeCycleSysCC) ChaincodeContainerInfo(channelID, ccName string) (*ccprovider.ChaincodeContainerInfo, error) {
-	qe, err := lscc.SCCProvider.GetQueryExecutorForLedger(channelID)
+func (lscc *LifeCycleSysCC) ChaincodeContainerInfo(chaincodeName string, qe ledger.QueryExecutor) (*ccprovider.ChaincodeContainerInfo, error) {
+	chaincodeDataBytes, err := qe.GetState("lscc", chaincodeName)
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not retrieve QueryExecutor for channel %s", channelID)
-	}
-	defer qe.Done()
-
-	chaincodeDataBytes, err := qe.GetState("lscc", ccName)
-	if err != nil {
-		return nil, errors.Wrapf(err, "could not retrieve state for chaincode %s on channel %s", ccName, channelID)
+		return nil, errors.Wrapf(err, "could not retrieve state for chaincode %s", chaincodeName)
 	}
 
 	if chaincodeDataBytes == nil {
-		return nil, errors.Errorf("chaincode %s not found on channel %s", ccName, channelID)
+		return nil, errors.Errorf("chaincode %s not found", chaincodeName)
 	}
 
 	// Note, although it looks very tempting to replace the bulk of this function with
 	// the below 'ChaincodeDefinition' call, the 'getCCCode' call provides us security
 	// by side-effect, so we must leave it as is for now.
-	cds, _, err := lscc.getCCCode(ccName, chaincodeDataBytes)
+	cds, _, err := lscc.getCCCode(chaincodeName, chaincodeDataBytes)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not get chaincode code")
 	}
@@ -188,8 +182,8 @@ func (lscc *LifeCycleSysCC) ChaincodeContainerInfo(channelID, ccName string) (*c
 	return ccprovider.DeploymentSpecToChaincodeContainerInfo(cds), nil
 }
 
-func (lscc *LifeCycleSysCC) ChaincodeDefinition(chaincodeName string, txsim ledger.QueryExecutor) (ccprovider.ChaincodeDefinition, error) {
-	chaincodeDataBytes, err := txsim.GetState("lscc", chaincodeName)
+func (lscc *LifeCycleSysCC) ChaincodeDefinition(chaincodeName string, qe ledger.QueryExecutor) (ccprovider.ChaincodeDefinition, error) {
+	chaincodeDataBytes, err := qe.GetState("lscc", chaincodeName)
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not retrieve state for chaincode %s", chaincodeName)
 	}
@@ -224,7 +218,11 @@ func (lscc *LifeCycleSysCC) putChaincodeData(stub shim.ChaincodeStubInterface, c
 }
 
 // checkCollectionMemberPolicy checks whether the supplied collection configuration
-// complies to the given msp configuration
+// complies to the given msp configuration and performs semantic validation.
+// Channel config may change afterwards (i.e., after endorsement or commit of this transaction).
+// Fabric will deal with the situation where some collection configs are no longer meaningful.
+// Therefore, the use of channel config for verifying during endorsement is more
+// towards catching manual errors in the config as oppose to any attempt of serializability.
 func checkCollectionMemberPolicy(collectionConfig *common.CollectionConfig, mspmgr msp.MSPManager) error {
 	if mspmgr == nil {
 		return fmt.Errorf("msp manager not set")
@@ -299,6 +297,14 @@ func checkCollectionMemberPolicy(collectionConfig *common.CollectionConfig, mspm
 		if !found {
 			logger.Warningf("collection-name: %s collection member %s is not part of the channel", coll.GetName(), orgID)
 		}
+	}
+
+	// Call the constructor for SignaturePolicyEnvelope evaluators to perform extra semantic validation.
+	// Among other things, this validation catches any out-of-range references to the identities array.
+	policyProvider := &cauthdsl.EnvelopeBasedPolicyProvider{Deserializer: mspmgr}
+	if _, err := policyProvider.NewPolicy(coll.MemberOrgsPolicy.GetSignaturePolicy()); err != nil {
+		logger.Errorf("Invalid member org policy for collection '%s', error: %s", coll.Name, err)
+		return errors.WithMessage(err, fmt.Sprintf("invalid member org policy for collection '%s'", coll.Name))
 	}
 
 	return nil
@@ -599,7 +605,7 @@ func (lscc *LifeCycleSysCC) executeInstall(stub shim.ChaincodeStubInterface, ccb
 	// any channel's statedb where the chaincode is already instantiated
 	// Note - this step is done prior to PutChaincodeToLocalStorage() since this step is idempotent and harmless until endorsements start,
 	// that is, if there are errors deploying the indexes the chaincode install can safely be re-attempted later.
-	err = cceventmgmt.GetMgr().HandleChaincodeInstall(chaincodeDefinition, statedbArtifactsTar, lscc.SCCProvider)
+	err = cceventmgmt.GetMgr().HandleChaincodeInstall(chaincodeDefinition, statedbArtifactsTar)
 	defer func() {
 		cceventmgmt.GetMgr().ChaincodeInstallDone(err == nil)
 	}()
@@ -863,9 +869,10 @@ func (lscc *LifeCycleSysCC) Invoke(stub shim.ChaincodeStubInterface) pb.Response
 		}
 
 		depSpec := args[2]
-		cds, err := utils.GetChaincodeDeploymentSpec(depSpec, lscc.PlatformRegistry)
+		cds := &pb.ChaincodeDeploymentSpec{}
+		err := proto.Unmarshal(depSpec, cds)
 		if err != nil {
-			return shim.Error(err.Error())
+			return shim.Error(fmt.Sprintf("error unmarshaling ChaincodeDeploymentSpec: %s", err))
 		}
 
 		// optional arguments here (they can each be nil and may or may not be present)

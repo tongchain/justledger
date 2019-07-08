@@ -10,13 +10,12 @@ import (
 	"fmt"
 	"strings"
 
-	"justledger/common/flogging"
-	cb "justledger/protos/common"
-	"go.uber.org/zap/zapcore"
-
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/common/flogging"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
+	"go.uber.org/zap/zapcore"
 )
 
 const (
@@ -49,6 +48,15 @@ const (
 
 	// BlockValidation is the label for the policy which should validate the block signatures for the channel
 	BlockValidation = PathSeparator + ChannelPrefix + PathSeparator + OrdererPrefix + PathSeparator + "BlockValidation"
+
+	// ChannelOrdererAdmins is the label for the channel's orderer admin policy
+	ChannelOrdererAdmins = PathSeparator + ChannelPrefix + PathSeparator + OrdererPrefix + PathSeparator + "Admins"
+
+	// ChannelOrdererWriters is the label for the channel's orderer writers policy
+	ChannelOrdererWriters = PathSeparator + ChannelPrefix + PathSeparator + OrdererPrefix + PathSeparator + "Writers"
+
+	// ChannelOrdererReaders is the label for the channel's orderer readers policy
+	ChannelOrdererReaders = PathSeparator + ChannelPrefix + PathSeparator + OrdererPrefix + PathSeparator + "Readers"
 )
 
 var logger = flogging.MustGetLogger("policies")

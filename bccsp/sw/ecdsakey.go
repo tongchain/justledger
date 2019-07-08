@@ -17,16 +17,13 @@ package sw
 
 import (
 	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/sha256"
 	"crypto/x509"
+	"errors"
 	"fmt"
 
-	"crypto/sha256"
-
-	"errors"
-
-	"crypto/elliptic"
-
-	"justledger/bccsp"
+	"github.com/justledger/fabric/bccsp"
 )
 
 type ecdsaPrivateKey struct {

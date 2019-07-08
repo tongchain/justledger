@@ -26,9 +26,8 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/justledger/fabric/bccsp/utils"
 	"github.com/stretchr/testify/assert"
-
-	"justledger/bccsp/utils"
 )
 
 func TestInvalidStoreKey(t *testing.T) {

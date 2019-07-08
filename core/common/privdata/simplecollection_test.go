@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/cauthdsl"
-	"justledger/msp"
-	pb "justledger/protos/common"
-	mb "justledger/protos/msp"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/msp"
+	pb "github.com/justledger/fabric/protos/common"
+	mb "github.com/justledger/fabric/protos/msp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -90,11 +90,21 @@ func (md *mockDeserializer) IsWellFormed(_ *mb.SerializedIdentity) error {
 	return nil
 }
 
-func TestSetupBadConfig(t *testing.T) {
+func TestSetupWithBadConfig(t *testing.T) {
 	// set up simple collection with invalid data
 	var sc SimpleCollection
 	err := sc.Setup(&pb.StaticCollectionConfig{}, &mockDeserializer{})
 	assert.Error(t, err)
+
+	// create static collection config with faulty policy
+	collectionConfig := &pb.StaticCollectionConfig{
+		Name:              "test collection",
+		RequiredPeerCount: 1,
+		MemberOrgsPolicy:  getBadAccessPolicy([]string{"peer0", "peer1"}, 3),
+	}
+	err = sc.Setup(collectionConfig, &mockDeserializer{})
+	assert.Error(t, err)
+	assert.EqualError(t, err, "failed constructing policy object out of collection policy config: identity index out of range, requested 3, but identities length is 2")
 }
 
 func TestSetupGoodConfigCollection(t *testing.T) {

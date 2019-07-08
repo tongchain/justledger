@@ -10,11 +10,13 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	lm "justledger/common/mocks/ledger"
-	"justledger/core/ledger"
-	"justledger/msp"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/common/cauthdsl"
+	lm "github.com/justledger/fabric/common/mocks/ledger"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/syndtr/goleveldb/leveldb/errors"
 )
@@ -73,7 +75,11 @@ func TestCollectionStore(t *testing.T) {
 	accessPolicy := createCollectionPolicyConfig(policyEnvelope)
 
 	cc = &common.CollectionConfig{Payload: &common.CollectionConfig_StaticCollectionConfig{
-		StaticCollectionConfig: &common.StaticCollectionConfig{Name: "mycollection", MemberOrgsPolicy: accessPolicy},
+		StaticCollectionConfig: &common.StaticCollectionConfig{
+			Name:             "mycollection",
+			MemberOrgsPolicy: accessPolicy,
+			MemberOnlyRead:   false,
+		},
 	}}
 	ccp = &common.CollectionConfigPackage{Config: []*common.CollectionConfig{cc}}
 	ccpBytes, err = proto.Marshal(ccp)
@@ -97,4 +103,29 @@ func TestCollectionStore(t *testing.T) {
 	ccc, err := cs.RetrieveCollectionConfigPackage(ccr)
 	assert.NoError(t, err)
 	assert.NotNil(t, ccc)
+
+	cc = &common.CollectionConfig{Payload: &common.CollectionConfig_StaticCollectionConfig{
+		StaticCollectionConfig: &common.StaticCollectionConfig{
+			Name:             "mycollection",
+			MemberOrgsPolicy: accessPolicy,
+			MemberOnlyRead:   true,
+		},
+	}}
+	ccp = &common.CollectionConfigPackage{Config: []*common.CollectionConfig{cc}}
+	ccpBytes, err = proto.Marshal(ccp)
+	assert.NoError(t, err)
+	assert.NotNil(t, ccpBytes)
+
+	wState["lscc"][BuildCollectionKVSKey(ccr.Namespace)] = ccpBytes
+
+	signedProp, _ := utils.MockSignedEndorserProposalOrPanic("A", &peer.ChaincodeSpec{}, []byte("signer0"), []byte("msg1"))
+	allowedAccess, err := cs.HasReadAccess(ccr, signedProp, &lm.MockQueryExecutor{State: wState})
+	assert.NoError(t, err)
+	assert.True(t, allowedAccess)
+
+	// only signer0 and signer1 are the members
+	signedProp, _ = utils.MockSignedEndorserProposalOrPanic("A", &peer.ChaincodeSpec{}, []byte("signer2"), []byte("msg1"))
+	allowedAccess, err = cs.HasReadAccess(ccr, signedProp, &lm.MockQueryExecutor{State: wState})
+	assert.NoError(t, err)
+	assert.False(t, allowedAccess)
 }

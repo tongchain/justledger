@@ -13,8 +13,8 @@ import (
 	"sync"
 	"testing"
 
-	"justledger/common/flogging"
-	"justledger/common/flogging/fabenc"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/flogging/fabenc"
 	"github.com/onsi/gomega/gbytes"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"
@@ -201,9 +201,9 @@ func (t *TestingWriter) Sync() error { return nil }
 
 type Option func(r *RecordingCore, l *zap.Logger) *zap.Logger
 
-func Named(moduleName string) Option {
+func Named(loggerName string) Option {
 	return func(r *RecordingCore, l *zap.Logger) *zap.Logger {
-		return l.Named(moduleName)
+		return l.Named(loggerName)
 	}
 }
 

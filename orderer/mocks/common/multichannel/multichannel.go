@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package multichannel
 
 import (
-	"justledger/common/channelconfig"
-	mockconfig "justledger/common/mocks/config"
-	"justledger/orderer/common/blockcutter"
-	"justledger/orderer/common/msgprocessor"
-	mockblockcutter "justledger/orderer/mocks/common/blockcutter"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/channelconfig"
+	mockconfig "github.com/justledger/fabric/common/mocks/config"
+	"github.com/justledger/fabric/orderer/common/blockcutter"
+	"github.com/justledger/fabric/orderer/common/msgprocessor"
+	mockblockcutter "github.com/justledger/fabric/orderer/mocks/common/blockcutter"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 // ConsenterSupport is used to mock the multichannel.ConsenterSupport interface
@@ -22,10 +22,16 @@ type ConsenterSupport struct {
 	// SharedConfigVal is the value returned by SharedConfig()
 	SharedConfigVal *mockconfig.Orderer
 
+	// SharedConfigVal is the value returned by ChannelConfig()
+	ChannelConfigVal *mockconfig.Channel
+
 	// BlockCutterVal is the value returned by BlockCutter()
 	BlockCutterVal *mockblockcutter.Receiver
 
-	// Blocks is the channel where WriteBlock writes the most recently created block
+	// BlockByIndex maps block numbers to retrieved values of these blocks
+	BlockByIndex map[uint64]*cb.Block
+
+	// Blocks is the channel where WriteBlock writes the most recently created block,
 	Blocks chan *cb.Block
 
 	// ChainIDVal is the value returned by ChainID()
@@ -60,6 +66,14 @@ type ConsenterSupport struct {
 
 	// SequenceVal is returned by Sequence
 	SequenceVal uint64
+
+	// BlockVerificationErr is returned by VerifyBlockSignature
+	BlockVerificationErr error
+}
+
+// Block returns the block with the given number or nil if not found
+func (mcs *ConsenterSupport) Block(number uint64) *cb.Block {
+	return mcs.BlockByIndex[number]
 }
 
 // BlockCutter returns BlockCutterVal
@@ -70,6 +84,11 @@ func (mcs *ConsenterSupport) BlockCutter() blockcutter.Receiver {
 // SharedConfig returns SharedConfigVal
 func (mcs *ConsenterSupport) SharedConfig() channelconfig.Orderer {
 	return mcs.SharedConfigVal
+}
+
+// ChannelConfig returns ChannelConfigVal
+func (mcs *ConsenterSupport) ChannelConfig() channelconfig.Channel {
+	return mcs.ChannelConfigVal
 }
 
 // CreateNextBlock creates a simple block structure with the given data
@@ -89,8 +108,7 @@ func (mcs *ConsenterSupport) WriteBlock(block *cb.Block, encodedMetadataValue []
 	if encodedMetadataValue != nil {
 		block.Metadata.Metadata[cb.BlockMetadataIndex_ORDERER] = utils.MarshalOrPanic(&cb.Metadata{Value: encodedMetadataValue})
 	}
-	mcs.HeightVal++
-	mcs.Blocks <- block
+	mcs.Append(block)
 }
 
 // WriteConfigBlock calls WriteBlock
@@ -141,4 +159,17 @@ func (mcs *ConsenterSupport) ProcessConfigMsg(env *cb.Envelope) (*cb.Envelope, u
 // Sequence returns SequenceVal
 func (mcs *ConsenterSupport) Sequence() uint64 {
 	return mcs.SequenceVal
+}
+
+// VerifyBlockSignature verifies a signature of a block
+func (mcs *ConsenterSupport) VerifyBlockSignature(_ []*cb.SignedData, _ *cb.ConfigEnvelope) error {
+	return mcs.BlockVerificationErr
+}
+
+// Append appends a new block to the ledger in its raw form,
+// unlike WriteBlock that also mutates its metadata.
+func (mcs *ConsenterSupport) Append(block *cb.Block) error {
+	mcs.HeightVal++
+	mcs.Blocks <- block
+	return nil
 }

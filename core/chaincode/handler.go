@@ -9,21 +9,25 @@ package chaincode
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/channelconfig"
-	"justledger/common/flogging"
-	commonledger "justledger/common/ledger"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/sysccprovider"
-	"justledger/core/container/ccintf"
-	"justledger/core/ledger"
-	"justledger/core/ledger/ledgerconfig"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/flogging"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/core/common/sysccprovider"
+	"github.com/justledger/fabric/core/container/ccintf"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 
@@ -162,6 +166,8 @@ type Handler struct {
 	chatStream ccintf.ChaincodeStream
 	// errChan is used to communicate errors from the async send to the receive loop
 	errChan chan error
+	// Metrics holds chaincode handler metrics
+	Metrics *HandlerMetrics
 }
 
 // handleMessage is called by ProcessStream to dispatch messages.
@@ -244,6 +250,7 @@ func (h *Handler) HandleTransaction(msg *pb.ChaincodeMessage, delegate handleFun
 		return
 	}
 
+	startTime := time.Now()
 	var txContext *TransactionContext
 	var err error
 	if msg.Type == pb.ChaincodeMessage_INVOKE_CHAINCODE {
@@ -251,6 +258,14 @@ func (h *Handler) HandleTransaction(msg *pb.ChaincodeMessage, delegate handleFun
 	} else {
 		txContext, err = h.isValidTxSim(msg.ChannelId, msg.Txid, "no ledger context")
 	}
+
+	chaincodeName := h.chaincodeID.Name + ":" + h.chaincodeID.Version
+	meterLabels := []string{
+		"type", msg.Type.String(),
+		"channel", msg.ChannelId,
+		"chaincode", chaincodeName,
+	}
+	h.Metrics.ShimRequestsReceived.With(meterLabels...).Add(1)
 
 	var resp *pb.ChaincodeMessage
 	if err == nil {
@@ -266,6 +281,10 @@ func (h *Handler) HandleTransaction(msg *pb.ChaincodeMessage, delegate handleFun
 	chaincodeLogger.Debugf("[%s] Completed %s. Sending %s", shorttxid(msg.Txid), msg.Type, resp.Type)
 	h.ActiveTransactions.Remove(msg.ChannelId, msg.Txid)
 	h.serialSendAsync(resp)
+
+	meterLabels = append(meterLabels, "success", strconv.FormatBool(resp.Type != pb.ChaincodeMessage_ERROR))
+	h.Metrics.ShimRequestDuration.With(meterLabels...).Observe(time.Since(startTime).Seconds())
+	h.Metrics.ShimRequestsCompleted.With(meterLabels...).Add(1)
 }
 
 func shorttxid(txid string) string {
@@ -553,26 +572,67 @@ func (h *Handler) checkMetadataCap(msg *pb.ChaincodeMessage) error {
 	}
 
 	if !ac.Capabilities().KeyLevelEndorsement() {
-		return errors.New("key level endorsement is not enabled")
+		return errors.New("key level endorsement is not enabled, channel application capability of V1_3 or later is required")
 	}
 	return nil
 }
 
+func errorIfCreatorHasNoReadAccess(chaincodeName, collection string, txContext *TransactionContext) error {
+	accessAllowed, err := hasReadAccess(chaincodeName, collection, txContext)
+	if err != nil {
+		return err
+	}
+	if !accessAllowed {
+		return errors.Errorf("tx creator does not have read access permission on privatedata in chaincodeName:%s collectionName: %s",
+			chaincodeName, collection)
+	}
+	return nil
+}
+
+func hasReadAccess(chaincodeName, collection string, txContext *TransactionContext) (bool, error) {
+	// check to see if read access has already been checked in the scope of this chaincode simulation
+	if txContext.AllowedCollectionAccess[collection] {
+		return true, nil
+	}
+
+	cc := common.CollectionCriteria{
+		Channel:    txContext.ChainID,
+		Namespace:  chaincodeName,
+		Collection: collection,
+	}
+
+	accessAllowed, err := txContext.CollectionStore.HasReadAccess(cc, txContext.SignedProp, txContext.TXSimulator)
+	if err != nil {
+		return false, err
+	}
+	if accessAllowed {
+		txContext.AllowedCollectionAccess[collection] = accessAllowed
+	}
+
+	return accessAllowed, err
+}
+
 // Handles query to ledger to get state
 func (h *Handler) HandleGetState(msg *pb.ChaincodeMessage, txContext *TransactionContext) (*pb.ChaincodeMessage, error) {
-	key := string(msg.Payload)
 	getState := &pb.GetState{}
 	err := proto.Unmarshal(msg.Payload, getState)
 	if err != nil {
 		return nil, errors.Wrap(err, "unmarshal failed")
 	}
 
+	var res []byte
 	chaincodeName := h.ChaincodeName()
+	collection := getState.Collection
 	chaincodeLogger.Debugf("[%s] getting state for chaincode %s, key %s, channel %s", shorttxid(msg.Txid), chaincodeName, getState.Key, txContext.ChainID)
 
-	var res []byte
-	if isCollectionSet(getState.Collection) {
-		res, err = txContext.TXSimulator.GetPrivateData(chaincodeName, getState.Collection, getState.Key)
+	if isCollectionSet(collection) {
+		if txContext.IsInitTransaction {
+			return nil, errors.New("private data APIs are not allowed in chaincode Init()")
+		}
+		if err := errorIfCreatorHasNoReadAccess(chaincodeName, collection, txContext); err != nil {
+			return nil, err
+		}
+		res, err = txContext.TXSimulator.GetPrivateData(chaincodeName, collection, getState.Key)
 	} else {
 		res, err = txContext.TXSimulator.GetState(chaincodeName, getState.Key)
 	}
@@ -580,7 +640,7 @@ func (h *Handler) HandleGetState(msg *pb.ChaincodeMessage, txContext *Transactio
 		return nil, errors.WithStack(err)
 	}
 	if res == nil {
-		chaincodeLogger.Debugf("[%s] No state associated with key: %s. Sending %s with an empty payload", shorttxid(msg.Txid), key, pb.ChaincodeMessage_RESPONSE)
+		chaincodeLogger.Debugf("[%s] No state associated with key: %s. Sending %s with an empty payload", shorttxid(msg.Txid), getState.Key, pb.ChaincodeMessage_RESPONSE)
 	}
 
 	// Send response msg back to chaincode. GetState will not trigger event
@@ -601,11 +661,18 @@ func (h *Handler) HandleGetStateMetadata(msg *pb.ChaincodeMessage, txContext *Tr
 	}
 
 	chaincodeName := h.ChaincodeName()
+	collection := getStateMetadata.Collection
 	chaincodeLogger.Debugf("[%s] getting state metadata for chaincode %s, key %s, channel %s", shorttxid(msg.Txid), chaincodeName, getStateMetadata.Key, txContext.ChainID)
 
 	var metadata map[string][]byte
-	if isCollectionSet(getStateMetadata.Collection) {
-		metadata, err = txContext.TXSimulator.GetPrivateDataMetadata(chaincodeName, getStateMetadata.Collection, getStateMetadata.Key)
+	if isCollectionSet(collection) {
+		if txContext.IsInitTransaction {
+			return nil, errors.New("private data APIs are not allowed in chaincode Init()")
+		}
+		if err := errorIfCreatorHasNoReadAccess(chaincodeName, collection, txContext); err != nil {
+			return nil, err
+		}
+		metadata, err = txContext.TXSimulator.GetPrivateDataMetadata(chaincodeName, collection, getStateMetadata.Key)
 	} else {
 		metadata, err = txContext.TXSimulator.GetStateMetadata(chaincodeName, getStateMetadata.Key)
 	}
@@ -642,15 +709,22 @@ func (h *Handler) HandleGetStateByRange(msg *pb.ChaincodeMessage, txContext *Tra
 	totalReturnLimit := calculateTotalReturnLimit(metadata)
 
 	iterID := h.UUIDGenerator.New()
-	chaincodeName := h.ChaincodeName()
 
 	var rangeIter commonledger.ResultsIterator
 	var paginationInfo map[string]interface{}
 
 	isPaginated := false
 
-	if isCollectionSet(getStateByRange.Collection) {
-		rangeIter, err = txContext.TXSimulator.GetPrivateDataRangeScanIterator(chaincodeName, getStateByRange.Collection,
+	chaincodeName := h.ChaincodeName()
+	collection := getStateByRange.Collection
+	if isCollectionSet(collection) {
+		if txContext.IsInitTransaction {
+			return nil, errors.New("private data APIs are not allowed in chaincode Init()")
+		}
+		if err := errorIfCreatorHasNoReadAccess(chaincodeName, collection, txContext); err != nil {
+			return nil, err
+		}
+		rangeIter, err = txContext.TXSimulator.GetPrivateDataRangeScanIterator(chaincodeName, collection,
 			getStateByRange.StartKey, getStateByRange.EndKey)
 	} else if isMetadataSetForPagination(metadata) {
 		paginationInfo, err = createPaginationInfoFromMetadata(metadata, totalReturnLimit, pb.ChaincodeMessage_GET_STATE_BY_RANGE)
@@ -747,7 +821,6 @@ func (h *Handler) HandleQueryStateClose(msg *pb.ChaincodeMessage, txContext *Tra
 // Handles query to ledger to execute query state
 func (h *Handler) HandleGetQueryResult(msg *pb.ChaincodeMessage, txContext *TransactionContext) (*pb.ChaincodeMessage, error) {
 	iterID := h.UUIDGenerator.New()
-	chaincodeName := h.ChaincodeName()
 
 	getQueryResult := &pb.GetQueryResult{}
 	err := proto.Unmarshal(msg.Payload, getQueryResult)
@@ -766,8 +839,16 @@ func (h *Handler) HandleGetQueryResult(msg *pb.ChaincodeMessage, txContext *Tran
 	var executeIter commonledger.ResultsIterator
 	var paginationInfo map[string]interface{}
 
-	if isCollectionSet(getQueryResult.Collection) {
-		executeIter, err = txContext.TXSimulator.ExecuteQueryOnPrivateData(chaincodeName, getQueryResult.Collection, getQueryResult.Query)
+	chaincodeName := h.ChaincodeName()
+	collection := getQueryResult.Collection
+	if isCollectionSet(collection) {
+		if txContext.IsInitTransaction {
+			return nil, errors.New("private data APIs are not allowed in chaincode Init()")
+		}
+		if err := errorIfCreatorHasNoReadAccess(chaincodeName, collection, txContext); err != nil {
+			return nil, err
+		}
+		executeIter, err = txContext.TXSimulator.ExecuteQueryOnPrivateData(chaincodeName, collection, getQueryResult.Query)
 	} else if isMetadataSetForPagination(metadata) {
 		paginationInfo, err = createPaginationInfoFromMetadata(metadata, totalReturnLimit, pb.ChaincodeMessage_GET_QUERY_RESULT)
 		if err != nil {
@@ -935,8 +1016,12 @@ func (h *Handler) HandlePutState(msg *pb.ChaincodeMessage, txContext *Transactio
 	}
 
 	chaincodeName := h.ChaincodeName()
-	if isCollectionSet(putState.Collection) {
-		err = txContext.TXSimulator.SetPrivateData(chaincodeName, putState.Collection, putState.Key, putState.Value)
+	collection := putState.Collection
+	if isCollectionSet(collection) {
+		if txContext.IsInitTransaction {
+			return nil, errors.New("private data APIs are not allowed in chaincode Init()")
+		}
+		err = txContext.TXSimulator.SetPrivateData(chaincodeName, collection, putState.Key, putState.Value)
 	} else {
 		err = txContext.TXSimulator.SetState(chaincodeName, putState.Key, putState.Value)
 	}
@@ -963,8 +1048,12 @@ func (h *Handler) HandlePutStateMetadata(msg *pb.ChaincodeMessage, txContext *Tr
 	metadata[putStateMetadata.Metadata.Metakey] = putStateMetadata.Metadata.Value
 
 	chaincodeName := h.ChaincodeName()
-	if isCollectionSet(putStateMetadata.Collection) {
-		err = txContext.TXSimulator.SetPrivateDataMetadata(chaincodeName, putStateMetadata.Collection, putStateMetadata.Key, metadata)
+	collection := putStateMetadata.Collection
+	if isCollectionSet(collection) {
+		if txContext.IsInitTransaction {
+			return nil, errors.New("private data APIs are not allowed in chaincode Init()")
+		}
+		err = txContext.TXSimulator.SetPrivateDataMetadata(chaincodeName, collection, putStateMetadata.Key, metadata)
 	} else {
 		err = txContext.TXSimulator.SetStateMetadata(chaincodeName, putStateMetadata.Key, metadata)
 	}
@@ -983,8 +1072,12 @@ func (h *Handler) HandleDelState(msg *pb.ChaincodeMessage, txContext *Transactio
 	}
 
 	chaincodeName := h.ChaincodeName()
-	if isCollectionSet(delState.Collection) {
-		err = txContext.TXSimulator.DeletePrivateData(chaincodeName, delState.Collection, delState.Key)
+	collection := delState.Collection
+	if isCollectionSet(collection) {
+		if txContext.IsInitTransaction {
+			return nil, errors.New("private data APIs are not allowed in chaincode Init()")
+		}
+		err = txContext.TXSimulator.DeletePrivateData(chaincodeName, collection, delState.Key)
 	} else {
 		err = txContext.TXSimulator.DeleteState(chaincodeName, delState.Key)
 	}
@@ -1108,6 +1201,9 @@ func (h *Handler) Execute(txParams *ccprovider.TransactionParams, cccid *ccprovi
 	chaincodeLogger.Debugf("Entry")
 	defer chaincodeLogger.Debugf("Exit")
 
+	txParams.CollectionStore = h.getCollectionStore(msg.ChannelId)
+	txParams.IsInitTransaction = (msg.Type == pb.ChaincodeMessage_INIT)
+
 	txctx, err := h.TXContexts.Create(txParams)
 	if err != nil {
 		return nil, err
@@ -1127,6 +1223,10 @@ func (h *Handler) Execute(txParams *ccprovider.TransactionParams, cccid *ccprovi
 		// are typically treated as error
 	case <-time.After(timeout):
 		err = errors.New("timeout expired while executing transaction")
+		ccName := cccid.Name + ":" + cccid.Version
+		h.Metrics.ExecuteTimeouts.With(
+			"chaincode", ccName,
+		).Add(1)
 	}
 
 	return ccresp, err
@@ -1137,11 +1237,19 @@ func (h *Handler) setChaincodeProposal(signedProp *pb.SignedProposal, prop *pb.P
 		return errors.New("failed getting proposal context. Signed proposal is nil")
 	}
 	// TODO: This doesn't make a lot of sense. Feels like both are required or
-	// neither should be set. Check with a knowledable expert.
+	// neither should be set. Check with a knowledgeable expert.
 	if prop != nil {
 		msg.Proposal = signedProp
 	}
 	return nil
+}
+
+func (h *Handler) getCollectionStore(channelID string) privdata.CollectionStore {
+	csStoreSupport := &peer.CollectionSupport{
+		PeerLedger: h.LedgerGetter.GetLedger(channelID),
+	}
+	return privdata.NewSimpleCollectionStore(csStoreSupport)
+
 }
 
 func (h *Handler) State() State { return h.state }

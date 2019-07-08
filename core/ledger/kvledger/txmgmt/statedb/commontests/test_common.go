@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -66,7 +66,7 @@ func TestBasicRW(t *testing.T, dbProvider statedb.VersionedDBProvider) {
 	assert.Nil(t, sp)
 
 	// Test retrieval of non-existent key - returns nil rather than error
-	// For more details see https://github.com/hyperledger-archives/fabric/issues/936.
+	// For more details see https://github.com/justledger-archives/fabric/issues/936.
 	val, err := db.GetState("ns", "key1")
 	assert.NoError(t, err, "Should receive nil rather than error upon reading non existent key")
 	assert.Nil(t, val)
@@ -946,4 +946,23 @@ func TestItrWithoutClose(t *testing.T, itr statedb.ResultsIterator, expectedKeys
 	queryResult, err := itr.Next()
 	assert.NoError(t, err, "An unexpected error was thrown during iterator Next()")
 	assert.Nil(t, queryResult)
+}
+
+func TestApplyUpdatesWithNilHeight(t *testing.T, dbProvider statedb.VersionedDBProvider) {
+	db, err := dbProvider.GetDBHandle("test-apply-updates-with-nil-height")
+	assert.NoError(t, err)
+
+	batch1 := statedb.NewUpdateBatch()
+	batch1.Put("ns", "key1", []byte("value1"), version.NewHeight(1, 4))
+	savePoint := version.NewHeight(1, 5)
+	assert.NoError(t, db.ApplyUpdates(batch1, savePoint))
+
+	batch2 := statedb.NewUpdateBatch()
+	batch2.Put("ns", "key1", []byte("value2"), version.NewHeight(1, 1))
+	assert.NoError(t, db.ApplyUpdates(batch2, nil))
+
+	ht, err := db.GetLatestSavePoint()
+	assert.NoError(t, err)
+	assert.Equal(t, savePoint, ht) // savepoint should still be what was set with batch1
+	// (because batch2 calls ApplyUpdates with savepoint as nil)
 }

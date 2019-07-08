@@ -11,12 +11,11 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-
 	"strings"
 
-	"justledger/common/flogging"
-	"justledger/common/metadata"
-	cutil "justledger/core/container/util"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/metadata"
+	cutil "github.com/justledger/fabric/core/container/util"
 )
 
 //MetadataProvider is implemented by each platform in a platform specific manner.
@@ -55,7 +54,7 @@ type Registry struct {
 	PackageWriter PackageWriter
 }
 
-var logger = flogging.MustGetLogger("chaincode-platform")
+var logger = flogging.MustGetLogger("chaincode.platform")
 
 func NewRegistry(platformTypes ...Platform) *Registry {
 	platforms := make(map[string]Platform)

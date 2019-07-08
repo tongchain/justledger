@@ -8,11 +8,11 @@ package clilogging
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/common/crypto"
-	"justledger/peer/common"
-	common2 "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/crypto"
+	"github.com/justledger/fabric/peer/common"
+	common2 "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -57,7 +57,7 @@ func InitCmdFactory() (*LoggingCmdFactory, error) {
 
 func checkLoggingCmdParams(cmd *cobra.Command, args []string) error {
 	var err error
-	if cmd.Name() == "revertlevels" {
+	if cmd.Name() == "revertlevels" || cmd.Name() == "getlogspec" {
 		if len(args) > 0 {
 			err = errors.Errorf("more parameters than necessary were provided. Expected 0, received %d", len(args))
 			return err

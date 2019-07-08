@@ -10,10 +10,10 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
-	"justledger/idemix"
-	"justledger/msp"
-	m "justledger/protos/msp"
+	"github.com/justledger/fabric-amcl/amcl/FP256BN"
+	"github.com/justledger/fabric/idemix"
+	"github.com/justledger/fabric/msp"
+	m "github.com/justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 )
 
@@ -63,7 +63,7 @@ func GenerateSignerConfig(roleMask int, ouString string, enrollmentId string, re
 		return nil, errors.WithMessage(err, "Error getting PRNG")
 	}
 	sk := idemix.RandModOrder(rng)
-	ni := idemix.RandModOrder(rng)
+	ni := idemix.BigToBytes(idemix.RandModOrder(rng))
 	msg := idemix.NewCredRequest(sk, ni, key.Ipk, rng)
 	cred, err := idemix.NewCredential(key, msg, attrs, rng)
 	if err != nil {
@@ -86,9 +86,9 @@ func GenerateSignerConfig(roleMask int, ouString string, enrollmentId string, re
 	}
 
 	signer := &m.IdemixMSPSignerConfig{
-		Cred: credBytes,
-		Sk:   idemix.BigToBytes(sk),
-		OrganizationalUnitIdentifier: ouString,
+		Cred:                            credBytes,
+		Sk:                              idemix.BigToBytes(sk),
+		OrganizationalUnitIdentifier:    ouString,
 		Role:                            int32(roleMask),
 		EnrollmentId:                    enrollmentId,
 		CredentialRevocationInformation: criBytes,

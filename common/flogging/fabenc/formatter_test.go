@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/flogging/fabenc"
+	"github.com/justledger/fabric/common/flogging/fabenc"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

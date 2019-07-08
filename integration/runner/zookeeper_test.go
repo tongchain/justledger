@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/fsouza/go-dockerclient"
-	"justledger/integration/runner"
+	"github.com/justledger/fabric/integration/runner"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -73,7 +73,7 @@ var _ = Describe("ZooKeeper Runner", func() {
 		Expect(container.Name).To(Equal("/zookeeper0"))
 		Expect(container.State.Status).To(Equal("running"))
 		Expect(container.Config).NotTo(BeNil())
-		Expect(container.Config.Image).To(Equal("hyperledger/fabric-zookeeper:latest"))
+		Expect(container.Config.Image).To(Equal("justledger/fabric-zookeeper:latest"))
 		Expect(container.ID).To(Equal(zookeeper.ContainerID()))
 
 		Expect(zookeeper.ContainerAddress()).To(Equal(net.JoinHostPort(container.NetworkSettings.IPAddress, "2181")))

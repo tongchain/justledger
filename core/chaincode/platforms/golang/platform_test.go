@@ -19,9 +19,9 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/chaincode/platforms"
-	"justledger/core/config/configtest"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/config/configtest"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -128,12 +128,12 @@ func Test_findSource(t *testing.T) {
 
 	var source SourceMap
 
-	source, err = findSource(gopath, "justledger/peer")
+	source, err = findSource(gopath, "github.com/justledger/fabric/peer")
 	if err != nil {
 		t.Errorf("failed to find source: %s", err)
 	}
 
-	if _, ok := source["src/github.com/hyperledger/fabric/peer/main.go"]; !ok {
+	if _, ok := source["src/github.com/justledger/fabric/peer/main.go"]; !ok {
 		t.Errorf("Failed to find expected source file: %v", source)
 	}
 
@@ -146,7 +146,7 @@ func Test_findSource(t *testing.T) {
 func Test_DeploymentPayload(t *testing.T) {
 	platform := &Platform{}
 
-	payload, err := platform.GetDeploymentPayload("justledger/examples/chaincode/go/example02/cmd")
+	payload, err := platform.GetDeploymentPayload("github.com/justledger/fabric/examples/chaincode/go/example02/cmd")
 	assert.NoError(t, err)
 
 	t.Logf("payload size: %d", len(payload))
@@ -171,7 +171,7 @@ func Test_DeploymentPayload(t *testing.T) {
 func Test_DeploymentPayloadWithStateDBArtifacts(t *testing.T) {
 	platform := &Platform{}
 
-	payload, err := platform.GetDeploymentPayload("justledger/examples/chaincode/go/marbles02")
+	payload, err := platform.GetDeploymentPayload("github.com/justledger/fabric/examples/chaincode/go/marbles02")
 	assert.NoError(t, err)
 
 	t.Logf("payload size: %d", len(payload))
@@ -199,7 +199,7 @@ func Test_DeploymentPayloadWithStateDBArtifacts(t *testing.T) {
 }
 
 func Test_decodeUrl(t *testing.T) {
-	path := "http://github.com/hyperledger/fabric/examples/chaincode/go/map"
+	path := "http://github.com/justledger/fabric/examples/chaincode/go/map"
 	if _, err := decodeUrl(path); err != nil {
 		t.Fail()
 		t.Logf("Error to decodeUrl unsuccessfully with valid path: %s, %s", path, err)
@@ -229,11 +229,11 @@ func TestValidatePath(t *testing.T) {
 		path string
 		succ bool
 	}{
-		{path: "http://github.com/hyperledger/fabric/examples/chaincode/go/map", succ: true},
-		{path: "https://github.com/hyperledger/fabric/examples/chaincode/go/map", succ: true},
-		{path: "justledger/examples/chaincode/go/map", succ: true},
-		{path: "justledger/bad/chaincode/go/map", succ: false},
-		{path: ":github.com/hyperledger/fabric/examples/chaincode/go/map", succ: false},
+		{path: "http://github.com/justledger/fabric/examples/chaincode/go/map", succ: true},
+		{path: "https://github.com/justledger/fabric/examples/chaincode/go/map", succ: true},
+		{path: "github.com/justledger/fabric/examples/chaincode/go/map", succ: true},
+		{path: "github.com/justledger/fabric/bad/chaincode/go/map", succ: false},
+		{path: ":github.com/justledger/fabric/examples/chaincode/go/map", succ: false},
 	}
 
 	for _, tst := range tests {
@@ -273,8 +273,8 @@ func TestGetDeploymentPayload(t *testing.T) {
 		path   string
 		succ   bool
 	}{
-		{gopath: defaultGopath, path: "justledger/examples/chaincode/go/map", succ: true},
-		{gopath: defaultGopath, path: "justledger/examples/bad/go/map", succ: false},
+		{gopath: defaultGopath, path: "github.com/justledger/fabric/examples/chaincode/go/map", succ: true},
+		{gopath: defaultGopath, path: "github.com/justledger/fabric/examples/bad/go/map", succ: false},
 		{gopath: testdataPath, path: "chaincodes/BadImport", succ: false},
 		{gopath: testdataPath, path: "chaincodes/BadMetadataInvalidIndex", succ: false},
 		{gopath: testdataPath, path: "chaincodes/BadMetadataUnexpectedFolderContent", succ: false},
@@ -317,9 +317,9 @@ func TestGenerateDockerBuild(t *testing.T) {
 	}{
 		{gopath: defaultGopath, spec: spec{CCName: "NoCode", Path: "path/to/nowhere", File: "/bin/warez", Mode: 0100400, SuccessExpected: false}},
 		{gopath: defaultGopath, spec: spec{CCName: "invalidhttp", Path: "https://not/a/valid/path", SuccessExpected: false, RealGen: true}},
-		{gopath: defaultGopath, spec: spec{CCName: "map", Path: "justledger/examples/chaincode/go/map", SuccessExpected: true, RealGen: true}},
-		{gopath: defaultGopath, spec: spec{CCName: "mapBadPath", Path: "justledger/examples/chaincode/go/map", File: "/src/github.com/hyperledger/fabric/examples/bad/path/to/map.go", Mode: 0100400, SuccessExpected: false}},
-		{gopath: defaultGopath, spec: spec{CCName: "mapBadMode", Path: "justledger/examples/chaincode/go/map", File: "/src/github.com/hyperledger/fabric/examples/chaincode/go/map/map.go", Mode: 0100555, SuccessExpected: false}},
+		{gopath: defaultGopath, spec: spec{CCName: "map", Path: "github.com/justledger/fabric/examples/chaincode/go/map", SuccessExpected: true, RealGen: true}},
+		{gopath: defaultGopath, spec: spec{CCName: "mapBadPath", Path: "github.com/justledger/fabric/examples/chaincode/go/map", File: "/src/github.com/justledger/fabric/examples/bad/path/to/map.go", Mode: 0100400, SuccessExpected: false}},
+		{gopath: defaultGopath, spec: spec{CCName: "mapBadMode", Path: "github.com/justledger/fabric/examples/chaincode/go/map", File: "/src/github.com/justledger/fabric/examples/chaincode/go/map/map.go", Mode: 0100555, SuccessExpected: false}},
 		{gopath: testdataPath, spec: spec{CCName: "AutoVendor", Path: "chaincodes/AutoVendor/chaincode", SuccessExpected: true, RealGen: true}},
 	}
 

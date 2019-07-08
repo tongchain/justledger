@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/common/sysccprovider"
+	"github.com/justledger/fabric/core/common/sysccprovider"
 )
 
 // IsChaincodeDeployed returns true if the chaincode with given name and version is deployed

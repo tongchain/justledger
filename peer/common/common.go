@@ -16,19 +16,19 @@ import (
 	"strings"
 	"time"
 
-	"justledger/bccsp/factory"
-	"justledger/common/channelconfig"
-	"justledger/common/flogging"
-	"justledger/common/viperutil"
-	"justledger/core/comm"
-	"justledger/core/config"
-	"justledger/core/scc/cscc"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/peer/common/api"
-	pcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
-	putils "justledger/protos/utils"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/viperutil"
+	"github.com/justledger/fabric/core/comm"
+	"github.com/justledger/fabric/core/config"
+	"github.com/justledger/fabric/core/scc/cscc"
+	"github.com/justledger/fabric/msp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/peer/common/api"
+	pcommon "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	putils "github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -108,7 +108,7 @@ func InitConfig(cmdRoot string) error {
 		// Display a more helpful message to avoid confusing the user.
 		if strings.Contains(fmt.Sprint(err), "Unsupported Config Type") {
 			return errors.New(fmt.Sprintf("Could not find config file. "+
-				"Please make sure that FABRIC_CFG_PATH or --configPath is set to a path "+
+				"Please make sure that FABRIC_CFG_PATH is set to a path "+
 				"which contains %s.yaml", cmdRoot))
 		} else {
 			return errors.WithMessage(err, fmt.Sprintf("error when reading %s config file", cmdRoot))
@@ -222,26 +222,6 @@ func GetOrdererEndpointOfChain(chainID string, signer msp.SigningIdentity, endor
 	return bundle.ChannelConfig().OrdererAddresses(), nil
 }
 
-// SetLogLevelFromViper sets the log level for 'module' logger to the value in
-// core.yaml
-func SetLogLevelFromViper(module string) error {
-	var err error
-	if module == "" {
-		return errors.New("log level not set, no module name provided")
-	}
-	logLevelFromViper := viper.GetString("logging." + module)
-	err = CheckLogLevel(logLevelFromViper)
-	if err != nil {
-		return err
-	}
-	// replace period in module name with forward slash to allow override
-	// of logging submodules
-	module = strings.Replace(module, ".", "/", -1)
-	// only set logging modules that begin with the supplied module name here
-	err = flogging.SetModuleLevels("^"+module, logLevelFromViper)
-	return err
-}
-
 // CheckLogLevel checks that a given log level string is valid
 func CheckLogLevel(level string) error {
 	if !flogging.IsValidLevel(level) {
@@ -298,18 +278,23 @@ func InitCmd(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	// check for --logging-level pflag first, which should override all other
-	// log settings. if --logging-level is not set, use CORE_LOGGING_LEVEL
-	// (environment variable takes priority; otherwise, the value set in
-	// core.yaml)
-	var loggingSpec string
+	// read in the legacy logging level settings and, if set,
+	// notify users of the FABRIC_LOGGING_SPEC env variable
+	var loggingLevel string
 	if viper.GetString("logging_level") != "" {
-		loggingSpec = viper.GetString("logging_level")
+		loggingLevel = viper.GetString("logging_level")
 	} else {
-		loggingSpec = viper.GetString("logging.level")
+		loggingLevel = viper.GetString("logging.level")
 	}
+	if loggingLevel != "" {
+		mainLogger.Warning("CORE_LOGGING_LEVEL is no longer supported, please use the FABRIC_LOGGING_SPEC environment variable")
+	}
+
+	loggingSpec := os.Getenv("FABRIC_LOGGING_SPEC")
+	loggingFormat := os.Getenv("FABRIC_LOGGING_FORMAT")
+
 	flogging.Init(flogging.Config{
-		Format:  viper.GetString("logging.format"),
+		Format:  loggingFormat,
 		Writer:  logOutput,
 		LogSpec: loggingSpec,
 	})

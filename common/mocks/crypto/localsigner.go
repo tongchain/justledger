@@ -17,7 +17,7 @@ limitations under the License.
 package crypto
 
 import (
-	cb "justledger/protos/common"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 // FakeLocalSigner is a signer which already has identity an nonce set to fake values

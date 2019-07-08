@@ -9,10 +9,9 @@ package statebased_test
 import (
 	"testing"
 
-	"justledger/common/cauthdsl"
-
 	"github.com/golang/protobuf/proto"
-	"justledger/core/chaincode/shim/ext/statebased"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/core/chaincode/shim/ext/statebased"
 	"github.com/stretchr/testify/assert"
 )
 

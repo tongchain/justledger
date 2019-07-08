@@ -17,17 +17,14 @@ package sw
 
 import (
 	"crypto/rsa"
-	"crypto/x509"
-	"fmt"
-
 	"crypto/sha256"
-
-	"errors"
-
+	"crypto/x509"
 	"encoding/asn1"
+	"errors"
+	"fmt"
 	"math/big"
 
-	"justledger/bccsp"
+	"github.com/justledger/fabric/bccsp"
 )
 
 // rsaPublicKey reflects the ASN.1 structure of a PKCS#1 public key.

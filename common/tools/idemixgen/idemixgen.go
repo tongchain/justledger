@@ -12,21 +12,19 @@ package main
 // the Identity Mixer MSP
 
 import (
+	"crypto/ecdsa"
 	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 
-	"crypto/ecdsa"
-
-	"encoding/pem"
-
 	"github.com/golang/protobuf/proto"
-	"justledger/common/tools/idemixgen/idemixca"
-	"justledger/common/tools/idemixgen/metadata"
-	"justledger/idemix"
-	"justledger/msp"
+	"github.com/justledger/fabric/common/tools/idemixgen/idemixca"
+	"github.com/justledger/fabric/common/tools/idemixgen/metadata"
+	"github.com/justledger/fabric/idemix"
+	"github.com/justledger/fabric/msp"
 	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -39,7 +37,7 @@ const (
 
 // command line flags
 var (
-	app = kingpin.New("idemixgen", "Utility for generating key material to be used with the Identity Mixer MSP in Hyperledger Fabric")
+	app = kingpin.New("idemixgen", "Utility for generating key material to be used with the Identity Mixer MSP in justledger Fabric")
 
 	outputDir = app.Flag("output", "The output directory in which to place artifacts").Default("idemix-config").String()
 

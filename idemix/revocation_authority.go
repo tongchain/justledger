@@ -8,16 +8,14 @@ package idemix
 
 import (
 	"crypto/ecdsa"
-
+	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
 
-	"crypto/elliptic"
-
 	"github.com/golang/protobuf/proto"
-	"github.com/hyperledger/fabric-amcl/amcl"
-	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
-	"justledger/bccsp/utils"
+	"github.com/justledger/fabric-amcl/amcl"
+	"github.com/justledger/fabric-amcl/amcl/FP256BN"
+	"github.com/justledger/fabric/bccsp/utils"
 	"github.com/pkg/errors"
 )
 

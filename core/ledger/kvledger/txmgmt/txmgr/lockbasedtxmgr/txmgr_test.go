@@ -11,33 +11,27 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 
-	"justledger/common/flogging"
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/txmgr"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/pvtdatapolicy"
-	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
-	ledgertestutil "justledger/core/ledger/testutil"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/queryresult"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	btltestutil "github.com/justledger/fabric/core/ledger/pvtdatapolicy/testutil"
+	ledgertestutil "github.com/justledger/fabric/core/ledger/testutil"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
 	ledgertestutil.SetupCoreYAMLConfig()
-	flogging.SetModuleLevel("lockbasedtxmgr", "debug")
-	flogging.SetModuleLevel("statevalidator", "debug")
-	flogging.SetModuleLevel("statebasedval", "debug")
-	flogging.SetModuleLevel("statecouchdb", "debug")
-	flogging.SetModuleLevel("valimpl", "debug")
-	flogging.SetModuleLevel("pvtstatepurgemgmt", "debug")
-	flogging.SetModuleLevel("valinternal", "debug")
-
+	flogging.ActivateSpec("lockbasedtxmgr,statevalidator,statebasedval,statecouchdb,valimpl,pvtstatepurgemgmt,valinternal=debug")
 	viper.Set("peer.fileSystemPath", "/tmp/fabric/ledgertests/kvledger/txmgmt/txmgr/lockbasedtxmgr")
 	os.Exit(m.Run())
 }
@@ -99,21 +93,21 @@ func TestTxSimulatorGetResults(t *testing.T) {
 	// get simulation results and verify that this contains rwset only for one namespace
 	simulationResults1, err := simulator.GetTxSimulationResults()
 	assert.NoError(t, err)
-	assert.Len(t, simulationResults1.PubSimulationResults.NsRwset, 2)
+	assert.Len(t, simulationResults1.PubSimulationResults.NsRwset, 1)
 	// clone freeze simulationResults1
 	buff1 := new(bytes.Buffer)
 	assert.NoError(t, gob.NewEncoder(buff1).Encode(simulationResults1))
 	frozenSimulationResults1 := &ledger.TxSimulationResults{}
 	assert.NoError(t, gob.NewDecoder(buff1).Decode(&frozenSimulationResults1))
 
-	// use the same simulator after obtaining the simulaiton results by get/set keys in one more namespace "ns2"
+	// use the same simulator after obtaining the simulation results by get/set keys in one more namespace "ns2"
 	simulator.GetState("ns2", "key2")
 	simulator.GetPrivateData("ns2", "coll2", "key2")
 	simulator.SetState("ns2", "key2", []byte("value2"))
 	// get simulation results and verify that an error is raised when obtaining the simulation results more than once
 	_, err = simulator.GetTxSimulationResults()
 	assert.Error(t, err) // calling 'GetTxSimulationResults()' more than once should raise error
-	// Now, verify that the simulator operations did not have an effect on privously obtained results
+	// Now, verify that the simulator operations did not have an effect on previously obtained results
 	assert.Equal(t, frozenSimulationResults1, simulationResults1)
 
 	// Call 'Done' and all the data get/set operations after calling 'Done' should fail.
@@ -956,6 +950,244 @@ func testTxSimulatorQueryUnsupportedTx(t *testing.T, env testEnv) {
 
 }
 
+func TestConstructUniquePvtData(t *testing.T) {
+	v1 := []byte{1}
+	// ns1-coll1-key1 should be rejected as it is updated in the future by Blk2Tx1
+	pvtDataBlk1Tx1 := producePvtdata(t, 1, []string{"ns1:coll1"}, []string{"key1"}, [][]byte{v1})
+	// ns1-coll2-key3 should be accepted but ns1-coll1-key2 as it is updated in the future by Blk2Tx2
+	pvtDataBlk1Tx2 := producePvtdata(t, 2, []string{"ns1:coll1", "ns1:coll2"}, []string{"key2", "key3"}, [][]byte{v1, v1})
+	// ns1-coll2-key4 should be accepted
+	pvtDataBlk1Tx3 := producePvtdata(t, 3, []string{"ns1:coll2"}, []string{"key4"}, [][]byte{v1})
+
+	v2 := []byte{2}
+	// ns1-coll1-key1 should be rejected as it is updated in the future by Blk3Tx1
+	pvtDataBlk2Tx1 := producePvtdata(t, 1, []string{"ns1:coll1"}, []string{"key1"}, [][]byte{v2})
+	// ns1-coll1-key2 should be accepted
+	pvtDataBlk2Tx2 := producePvtdata(t, 2, []string{"ns1:coll1"}, []string{"key2"}, [][]byte{nil})
+
+	v3 := []byte{3}
+	// ns1-coll1-key1 should be accepted
+	pvtDataBlk3Tx1 := producePvtdata(t, 1, []string{"ns1:coll1"}, []string{"key1"}, [][]byte{v3})
+
+	blocksPvtData := map[uint64][]*ledger.TxPvtData{
+		1: {
+			pvtDataBlk1Tx1,
+			pvtDataBlk1Tx2,
+			pvtDataBlk1Tx3,
+		},
+		2: {
+			pvtDataBlk2Tx1,
+			pvtDataBlk2Tx2,
+		},
+		3: {
+			pvtDataBlk3Tx1,
+		},
+	}
+
+	hashedCompositeKeyNs1Coll2Key3 := privacyenabledstate.HashedCompositeKey{Namespace: "ns1", CollectionName: "coll2", KeyHash: string(util.ComputeStringHash("key3"))}
+	pvtKVWriteNs1Coll2Key3 := &privacyenabledstate.PvtKVWrite{Key: "key3", IsDelete: false, Value: v1, Version: version.NewHeight(1, 2)}
+
+	hashedCompositeKeyNs1Coll2Key4 := privacyenabledstate.HashedCompositeKey{Namespace: "ns1", CollectionName: "coll2", KeyHash: string(util.ComputeStringHash("key4"))}
+	pvtKVWriteNs1Coll2Key4 := &privacyenabledstate.PvtKVWrite{Key: "key4", IsDelete: false, Value: v1, Version: version.NewHeight(1, 3)}
+
+	hashedCompositeKeyNs1Coll1Key2 := privacyenabledstate.HashedCompositeKey{Namespace: "ns1", CollectionName: "coll1", KeyHash: string(util.ComputeStringHash("key2"))}
+	pvtKVWriteNs1Coll1Key2 := &privacyenabledstate.PvtKVWrite{Key: "key2", IsDelete: true, Value: nil, Version: version.NewHeight(2, 2)}
+
+	hashedCompositeKeyNs1Coll1Key1 := privacyenabledstate.HashedCompositeKey{Namespace: "ns1", CollectionName: "coll1", KeyHash: string(util.ComputeStringHash("key1"))}
+	pvtKVWriteNs1Coll1Key1 := &privacyenabledstate.PvtKVWrite{Key: "key1", IsDelete: false, Value: v3, Version: version.NewHeight(3, 1)}
+
+	expectedUniquePvtData := uniquePvtDataMap{
+		hashedCompositeKeyNs1Coll2Key3: pvtKVWriteNs1Coll2Key3,
+		hashedCompositeKeyNs1Coll2Key4: pvtKVWriteNs1Coll2Key4,
+		hashedCompositeKeyNs1Coll1Key2: pvtKVWriteNs1Coll1Key2,
+		hashedCompositeKeyNs1Coll1Key1: pvtKVWriteNs1Coll1Key1,
+	}
+
+	uniquePvtData, err := constructUniquePvtData(blocksPvtData)
+	assert.NoError(t, err)
+	assert.Equal(t, expectedUniquePvtData, uniquePvtData)
+}
+
+func TestFindAndRemoveStalePvtData(t *testing.T) {
+	ledgerid := "TestFindAndRemoveStalePvtData"
+	testEnv := testEnvs[0]
+	testEnv.init(t, ledgerid, nil)
+	defer testEnv.cleanup()
+	db := testEnv.getVDB()
+
+	batch := privacyenabledstate.NewUpdateBatch()
+	batch.HashUpdates.Put("ns1", "coll1", util.ComputeStringHash("key1"), util.ComputeStringHash("value_1_1_1"), version.NewHeight(1, 1))
+	batch.HashUpdates.Put("ns1", "coll2", util.ComputeStringHash("key2"), util.ComputeStringHash("value_1_2_2"), version.NewHeight(1, 2))
+	batch.HashUpdates.Put("ns2", "coll1", util.ComputeStringHash("key2"), util.ComputeStringHash("value_2_1_2"), version.NewHeight(2, 1))
+	batch.HashUpdates.Put("ns2", "coll2", util.ComputeStringHash("key3"), util.ComputeStringHash("value_2_2_3"), version.NewHeight(10, 10))
+
+	// all pvt data associated with the hash updates are missing
+	db.ApplyPrivacyAwareUpdates(batch, version.NewHeight(11, 1))
+
+	// construct pvt data for some of the above missing data. note that no
+	// duplicate entries are expected
+	// old value and hence should not get accepted
+	hashedCompositeKeyNs1Coll1Key1 := privacyenabledstate.HashedCompositeKey{Namespace: "ns1", CollectionName: "coll1", KeyHash: string(util.ComputeStringHash("key1"))}
+	pvtKVWriteNs1Coll1Key1 := &privacyenabledstate.PvtKVWrite{Key: "key1", IsDelete: false, Value: []byte("old_value_1_1_1"), Version: version.NewHeight(1, 0)}
+
+	// new value and hence should get accepted
+	hashedCompositeKeyNs2Coll1Key2 := privacyenabledstate.HashedCompositeKey{Namespace: "ns2", CollectionName: "coll1", KeyHash: string(util.ComputeStringHash("key2"))}
+	pvtKVWriteNs2Coll1Key2 := &privacyenabledstate.PvtKVWrite{Key: "key2", IsDelete: false, Value: []byte("value_2_1_2"), Version: version.NewHeight(2, 1)}
+
+	// delete -- should get accepted
+	hashedCompositeKeyNs1Coll3Key3 := privacyenabledstate.HashedCompositeKey{Namespace: "ns1", CollectionName: "coll3", KeyHash: string(util.ComputeStringHash("key3"))}
+	pvtKVWriteNs1Coll3Key3 := &privacyenabledstate.PvtKVWrite{Key: "key3", IsDelete: true, Value: nil, Version: version.NewHeight(2, 3)}
+
+	// there would be a version mismatch but the hash value must be the same. hence,
+	// this should be accepted too
+	hashedCompositeKeyNs2Coll2Key3 := privacyenabledstate.HashedCompositeKey{Namespace: "ns2", CollectionName: "coll2", KeyHash: string(util.ComputeStringHash("key3"))}
+	pvtKVWriteNs2Coll2Key3 := &privacyenabledstate.PvtKVWrite{Key: "key3", IsDelete: false, Value: []byte("value_2_2_3"), Version: version.NewHeight(9, 9)}
+
+	uniquePvtData := uniquePvtDataMap{
+		hashedCompositeKeyNs1Coll1Key1: pvtKVWriteNs1Coll1Key1,
+		hashedCompositeKeyNs2Coll1Key2: pvtKVWriteNs2Coll1Key2,
+		hashedCompositeKeyNs1Coll3Key3: pvtKVWriteNs1Coll3Key3,
+		hashedCompositeKeyNs2Coll2Key3: pvtKVWriteNs2Coll2Key3,
+	}
+
+	// created the expected batch from ValidateAndPrepareBatchForPvtDataofOldBlocks
+	expectedBatch := privacyenabledstate.NewUpdateBatch()
+	expectedBatch.PvtUpdates.Put("ns2", "coll1", "key2", []byte("value_2_1_2"), version.NewHeight(2, 1))
+	expectedBatch.PvtUpdates.Delete("ns1", "coll3", "key3", version.NewHeight(2, 3))
+	expectedBatch.PvtUpdates.Put("ns2", "coll2", "key3", []byte("value_2_2_3"), version.NewHeight(10, 10))
+
+	err := uniquePvtData.findAndRemoveStalePvtData(db)
+	assert.NoError(t, err, "uniquePvtData.findAndRemoveStatePvtData resulted in an error")
+	batch = uniquePvtData.transformToUpdateBatch()
+	assert.Equal(t, expectedBatch.PvtUpdates, batch.PvtUpdates)
+}
+
+func producePvtdata(t *testing.T, txNum uint64, nsColls []string, keys []string, values [][]byte) *ledger.TxPvtData {
+	builder := rwsetutil.NewRWSetBuilder()
+	for index, nsColl := range nsColls {
+		nsCollSplit := strings.Split(nsColl, ":")
+		ns := nsCollSplit[0]
+		coll := nsCollSplit[1]
+		key := keys[index]
+		value := values[index]
+		builder.AddToPvtAndHashedWriteSet(ns, coll, key, value)
+	}
+	simRes, err := builder.GetTxSimulationResults()
+	assert.NoError(t, err)
+	return &ledger.TxPvtData{
+		SeqInBlock: txNum,
+		WriteSet:   simRes.PvtSimulationResults,
+	}
+}
+
+func TestRemoveStaleAndCommitPvtDataOfOldBlocks(t *testing.T) {
+	for _, testEnv := range testEnvs {
+		t.Logf("Running test for TestEnv = %s", testEnv.getName())
+		testLedgerID := "testvalidationandcommitofoldpvtdata"
+		testEnv.init(t, testLedgerID, nil)
+		testValidationAndCommitOfOldPvtData(t, testEnv)
+		testEnv.cleanup()
+	}
+}
+
+func testValidationAndCommitOfOldPvtData(t *testing.T, env testEnv) {
+	ledgerid := "testvalidationandcommitofoldpvtdata"
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns1", "coll1"}: 0,
+			{"ns1", "coll2"}: 0,
+		},
+	)
+	env.init(t, ledgerid, btlPolicy)
+	txMgr := env.getTxMgr()
+	populateCollConfigForTest(t, txMgr.(*LockBasedTxMgr),
+		[]collConfigkey{
+			{"ns1", "coll1"},
+			{"ns1", "coll2"},
+		},
+		version.NewHeight(1, 1),
+	)
+
+	db := env.getVDB()
+	updateBatch := privacyenabledstate.NewUpdateBatch()
+	// all pvt data are missing
+	updateBatch.HashUpdates.Put("ns1", "coll1", util.ComputeStringHash("key1"), util.ComputeStringHash("value1"), version.NewHeight(1, 1)) // E1
+	updateBatch.HashUpdates.Put("ns1", "coll1", util.ComputeStringHash("key2"), util.ComputeStringHash("value2"), version.NewHeight(1, 2)) // E2
+	updateBatch.HashUpdates.Put("ns1", "coll2", util.ComputeStringHash("key3"), util.ComputeStringHash("value3"), version.NewHeight(1, 2)) // E3
+	updateBatch.HashUpdates.Put("ns1", "coll2", util.ComputeStringHash("key4"), util.ComputeStringHash("value4"), version.NewHeight(1, 3)) // E4
+	db.ApplyPrivacyAwareUpdates(updateBatch, version.NewHeight(1, 2))
+
+	updateBatch = privacyenabledstate.NewUpdateBatch()
+	updateBatch.HashUpdates.Put("ns1", "coll1", util.ComputeStringHash("key1"), util.ComputeStringHash("new-value1"), version.NewHeight(2, 1)) // E1 is updated
+	updateBatch.HashUpdates.Delete("ns1", "coll1", util.ComputeStringHash("key2"), version.NewHeight(2, 2))                                    // E2 is being deleted
+	db.ApplyPrivacyAwareUpdates(updateBatch, version.NewHeight(2, 2))
+
+	updateBatch = privacyenabledstate.NewUpdateBatch()
+	updateBatch.HashUpdates.Put("ns1", "coll1", util.ComputeStringHash("key1"), util.ComputeStringHash("another-new-value1"), version.NewHeight(3, 1)) // E1 is again updated
+	updateBatch.HashUpdates.Put("ns1", "coll2", util.ComputeStringHash("key3"), util.ComputeStringHash("value3"), version.NewHeight(3, 2))             // E3 gets only metadata update
+	db.ApplyPrivacyAwareUpdates(updateBatch, version.NewHeight(3, 2))
+
+	v1 := []byte("value1")
+	// ns1-coll1-key1 should be rejected as it is updated in the future by Blk2Tx1
+	pvtDataBlk1Tx1 := producePvtdata(t, 1, []string{"ns1:coll1"}, []string{"key1"}, [][]byte{v1})
+	// ns1-coll2-key3 should be accepted but ns1-coll1-key2
+	// should be rejected as it is updated in the future by Blk2Tx2
+	v2 := []byte("value2")
+	v3 := []byte("value3")
+	pvtDataBlk1Tx2 := producePvtdata(t, 2, []string{"ns1:coll1", "ns1:coll2"}, []string{"key2", "key3"}, [][]byte{v2, v3})
+	// ns1-coll2-key4 should be accepted
+	v4 := []byte("value4")
+	pvtDataBlk1Tx3 := producePvtdata(t, 3, []string{"ns1:coll2"}, []string{"key4"}, [][]byte{v4})
+
+	nv1 := []byte("new-value1")
+	// ns1-coll1-key1 should be rejected as it is updated in the future by Blk3Tx1
+	pvtDataBlk2Tx1 := producePvtdata(t, 1, []string{"ns1:coll1"}, []string{"key1"}, [][]byte{nv1})
+	// ns1-coll1-key2 should be accepted -- a delete operation
+	pvtDataBlk2Tx2 := producePvtdata(t, 2, []string{"ns1:coll1"}, []string{"key2"}, [][]byte{nil})
+
+	anv1 := []byte("another-new-value1")
+	// ns1-coll1-key1 should be accepted
+	pvtDataBlk3Tx1 := producePvtdata(t, 1, []string{"ns1:coll1"}, []string{"key1"}, [][]byte{anv1})
+	// ns1-coll2-key3 should be accepted -- assume that only metadata is being updated
+	pvtDataBlk3Tx2 := producePvtdata(t, 2, []string{"ns1:coll2"}, []string{"key3"}, [][]byte{v3})
+
+	blocksPvtData := map[uint64][]*ledger.TxPvtData{
+		1: {
+			pvtDataBlk1Tx1,
+			pvtDataBlk1Tx2,
+			pvtDataBlk1Tx3,
+		},
+		2: {
+			pvtDataBlk2Tx1,
+			pvtDataBlk2Tx2,
+		},
+		3: {
+			pvtDataBlk3Tx1,
+			pvtDataBlk3Tx2,
+		},
+	}
+
+	err := txMgr.RemoveStaleAndCommitPvtDataOfOldBlocks(blocksPvtData)
+	assert.NoError(t, err)
+
+	vv, err := db.GetPrivateData("ns1", "coll1", "key1")
+	assert.NoError(t, err)
+	assert.Equal(t, anv1, vv.Value) // last updated value
+
+	vv, err = db.GetPrivateData("ns1", "coll1", "key2")
+	assert.NoError(t, err)
+	assert.Equal(t, nil, nil) // deleted
+
+	vv, err = db.GetPrivateData("ns1", "coll2", "key3")
+	assert.NoError(t, err)
+	assert.Equal(t, v3, vv.Value)
+	assert.Equal(t, version.NewHeight(3, 2), vv.Version) // though we passed with version {1,2}, we should get {3,2} due to metadata update
+
+	vv, err = db.GetPrivateData("ns1", "coll2", "key4")
+	assert.NoError(t, err)
+	assert.Equal(t, v4, vv.Value)
+}
+
 func TestTxSimulatorMissingPvtdata(t *testing.T) {
 	testEnv := testEnvs[0]
 	testEnv.init(t, "TestTxSimulatorUnsupportedTxQueries", nil)
@@ -978,10 +1210,7 @@ func TestTxSimulatorMissingPvtdata(t *testing.T) {
 	updateBatch.PvtUpdates.Put("ns1", "coll1", "key1", []byte("value1"), version.NewHeight(1, 1))
 	db.ApplyPrivacyAwareUpdates(updateBatch, version.NewHeight(1, 1))
 
-	simulator, _ := txMgr.NewTxSimulator("testTxid1")
-	val, _ := simulator.GetPrivateData("ns1", "coll1", "key1")
-	assert.Equal(t, []byte("value1"), val)
-	simulator.Done()
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns1", "coll1", "key1", []byte("value1")))
 
 	updateBatch = privacyenabledstate.NewUpdateBatch()
 	updateBatch.HashUpdates.Put("ns1", "coll1", util.ComputeStringHash("key1"), util.ComputeStringHash("value1"), version.NewHeight(2, 1))
@@ -989,23 +1218,127 @@ func TestTxSimulatorMissingPvtdata(t *testing.T) {
 	updateBatch.HashUpdates.Put("ns1", "coll3", util.ComputeStringHash("key3"), util.ComputeStringHash("value3"), version.NewHeight(2, 1))
 	updateBatch.PvtUpdates.Put("ns1", "coll3", "key3", []byte("value3"), version.NewHeight(2, 1))
 	db.ApplyPrivacyAwareUpdates(updateBatch, version.NewHeight(2, 1))
-	simulator, _ = txMgr.NewTxSimulator("testTxid2")
-	defer simulator.Done()
 
-	val, err := simulator.GetPrivateData("ns1", "coll1", "key1")
-	_, ok := err.(*txmgr.ErrPvtdataNotAvailable)
-	assert.True(t, ok)
+	assert.False(t, testPvtKeyExist(t, txMgr, "ns1", "coll1", "key1"))
 
-	val, err = simulator.GetPrivateData("ns1", "coll2", "key2")
-	_, ok = err.(*txmgr.ErrPvtdataNotAvailable)
-	assert.True(t, ok)
+	assert.False(t, testPvtKeyExist(t, txMgr, "ns1", "coll2", "key2"))
 
-	val, err = simulator.GetPrivateData("ns1", "coll3", "key3")
-	assert.Equal(t, []byte("value3"), val)
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns1", "coll3", "key3", []byte("value3")))
 
-	val, err = simulator.GetPrivateData("ns1", "coll4", "key4")
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns1", "coll4", "key4", nil))
+}
+
+func TestRemoveStaleAndCommitPvtDataOfOldBlocksWithExpiry(t *testing.T) {
+	ledgerid := "TestTxSimulatorMissingPvtdataExpiry"
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns", "coll"}: 1,
+		},
+	)
+	testEnv := testEnvs[0]
+	testEnv.init(t, ledgerid, btlPolicy)
+	defer testEnv.cleanup()
+
+	txMgr := testEnv.getTxMgr()
+	populateCollConfigForTest(t, txMgr.(*LockBasedTxMgr),
+		[]collConfigkey{
+			{"ns", "coll"},
+		},
+		version.NewHeight(1, 1),
+	)
+
+	bg, _ := testutil.NewBlockGenerator(t, ledgerid, false)
+
+	// storing hashed data but the pvt key is missing
+	// stored pvt key would get expired and purged while committing block 3
+	blkAndPvtdata := prepareNextBlockForTest(t, txMgr, bg, "txid-1",
+		map[string]string{"pubkey1": "pub-value1"}, map[string]string{"pvtkey1": "pvt-value1"}, true)
+	_, _, err := txMgr.ValidateAndPrepare(blkAndPvtdata, true)
 	assert.NoError(t, err)
-	assert.Nil(t, val)
+	// committing block 1
+	assert.NoError(t, txMgr.Commit())
+
+	// pvt data should not exist
+	assert.False(t, testPvtKeyExist(t, txMgr, "ns", "coll", "pvtkey1"))
+
+	// committing pvt data of block 1
+	v1 := []byte("pvt-value1")
+	pvtDataBlk1Tx1 := producePvtdata(t, 1, []string{"ns:coll"}, []string{"pvtkey1"}, [][]byte{v1})
+	blocksPvtData := map[uint64][]*ledger.TxPvtData{
+		1: {
+			pvtDataBlk1Tx1,
+		},
+	}
+	err = txMgr.RemoveStaleAndCommitPvtDataOfOldBlocks(blocksPvtData)
+	assert.NoError(t, err)
+
+	// pvt data should exist
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns", "coll", "pvtkey1", v1))
+
+	// storing hashed data but the pvt key is missing
+	// stored pvt key would get expired and purged while committing block 4
+	blkAndPvtdata = prepareNextBlockForTest(t, txMgr, bg, "txid-2",
+		map[string]string{"pubkey2": "pub-value2"}, map[string]string{"pvtkey2": "pvt-value2"}, true)
+	_, _, err = txMgr.ValidateAndPrepare(blkAndPvtdata, true)
+	assert.NoError(t, err)
+	// committing block 2
+	assert.NoError(t, txMgr.Commit())
+
+	// pvt data should not exist
+	assert.False(t, testPvtKeyExist(t, txMgr, "ns", "coll", "pvtkey2"))
+
+	blkAndPvtdata = prepareNextBlockForTest(t, txMgr, bg, "txid-3",
+		map[string]string{"pubkey3": "pub-value3"}, nil, false)
+	_, _, err = txMgr.ValidateAndPrepare(blkAndPvtdata, true)
+	assert.NoError(t, err)
+	// committing block 3
+	assert.NoError(t, txMgr.Commit())
+
+	// prepareForExpiringKey must have selected the pvtkey2 as it would
+	// get expired during next block commit
+
+	// committing pvt data of block 2
+	v2 := []byte("pvt-value2")
+	pvtDataBlk2Tx1 := producePvtdata(t, 1, []string{"ns:coll"}, []string{"pvtkey2"}, [][]byte{v2})
+	blocksPvtData = map[uint64][]*ledger.TxPvtData{
+		2: {
+			pvtDataBlk2Tx1,
+		},
+	}
+
+	err = txMgr.RemoveStaleAndCommitPvtDataOfOldBlocks(blocksPvtData)
+	assert.NoError(t, err)
+
+	// pvt data should exist
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns", "coll", "pvtkey2", v2))
+
+	blkAndPvtdata = prepareNextBlockForTest(t, txMgr, bg, "txid-4",
+		map[string]string{"pubkey4": "pub-value4"}, nil, false)
+	_, _, err = txMgr.ValidateAndPrepare(blkAndPvtdata, true)
+	assert.NoError(t, err)
+	// committing block 4 and should purge pvtkey2
+	assert.NoError(t, txMgr.Commit())
+
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns", "coll", "pvtkey2", nil))
+}
+
+func testPvtKeyExist(t *testing.T, txMgr txmgr.TxMgr, ns, coll, key string) bool {
+	simulator, _ := txMgr.NewTxSimulator("tx-tmp")
+	defer simulator.Done()
+	_, err := simulator.GetPrivateData(ns, coll, key)
+	_, ok := err.(*txmgr.ErrPvtdataNotAvailable)
+	return !ok
+}
+
+func testPvtValueEqual(t *testing.T, txMgr txmgr.TxMgr, ns, coll, key string, value []byte) bool {
+	simulator, _ := txMgr.NewTxSimulator("tx-tmp")
+	defer simulator.Done()
+	pvtValue, err := simulator.GetPrivateData(ns, coll, key)
+	assert.NoError(t, err)
+	if bytes.Compare(pvtValue, value) == 0 {
+		return true
+	}
+	return false
 }
 
 func TestDeleteOnCursor(t *testing.T) {
@@ -1059,9 +1392,12 @@ func TestDeleteOnCursor(t *testing.T) {
 func TestTxSimulatorMissingPvtdataExpiry(t *testing.T) {
 	ledgerid := "TestTxSimulatorMissingPvtdataExpiry"
 	testEnv := testEnvs[0]
-	cs := btltestutil.NewMockCollectionStore()
-	cs.SetBTL("ns", "coll", 1)
-	testEnv.init(t, ledgerid, pvtdatapolicy.ConstructBTLPolicy(cs))
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns", "coll"}: 1,
+		},
+	)
+	testEnv.init(t, ledgerid, btlPolicy)
 	defer testEnv.cleanup()
 
 	txMgr := testEnv.getTxMgr()
@@ -1071,35 +1407,29 @@ func TestTxSimulatorMissingPvtdataExpiry(t *testing.T) {
 	bg, _ := testutil.NewBlockGenerator(t, ledgerid, false)
 
 	blkAndPvtdata := prepareNextBlockForTest(t, txMgr, bg, "txid-1",
-		map[string]string{"pubkey1": "pub-value1"}, map[string]string{"pvtkey1": "pvt-value1"})
-	assert.NoError(t, txMgr.ValidateAndPrepare(blkAndPvtdata, true))
-	assert.NoError(t, txMgr.Commit())
-
-	simulator, _ := txMgr.NewTxSimulator("tx-tmp")
-	pvtval, err := simulator.GetPrivateData("ns", "coll", "pvtkey1")
+		map[string]string{"pubkey1": "pub-value1"}, map[string]string{"pvtkey1": "pvt-value1"}, false)
+	_, _, err := txMgr.ValidateAndPrepare(blkAndPvtdata, true)
 	assert.NoError(t, err)
-	assert.Equal(t, []byte("pvt-value1"), pvtval)
-	simulator.Done()
-
-	blkAndPvtdata = prepareNextBlockForTest(t, txMgr, bg, "txid-2",
-		map[string]string{"pubkey1": "pub-value2"}, map[string]string{"pvtkey2": "pvt-value2"})
-	assert.NoError(t, txMgr.ValidateAndPrepare(blkAndPvtdata, true))
 	assert.NoError(t, txMgr.Commit())
 
-	simulator, _ = txMgr.NewTxSimulator("tx-tmp")
-	pvtval, _ = simulator.GetPrivateData("ns", "coll", "pvtkey1")
-	assert.Equal(t, []byte("pvt-value1"), pvtval)
-	simulator.Done()
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns", "coll", "pvtkey1", []byte("pvt-value1")))
 
 	blkAndPvtdata = prepareNextBlockForTest(t, txMgr, bg, "txid-2",
-		map[string]string{"pubkey1": "pub-value3"}, map[string]string{"pvtkey3": "pvt-value3"})
-	assert.NoError(t, txMgr.ValidateAndPrepare(blkAndPvtdata, true))
+
+		map[string]string{"pubkey1": "pub-value2"}, map[string]string{"pvtkey2": "pvt-value2"}, false)
+	_, _, err = txMgr.ValidateAndPrepare(blkAndPvtdata, true)
+	assert.NoError(t, err)
 	assert.NoError(t, txMgr.Commit())
 
-	simulator, _ = txMgr.NewTxSimulator("tx-tmp")
-	pvtval, _ = simulator.GetPrivateData("ns", "coll", "pvtkey1")
-	assert.Nil(t, pvtval)
-	simulator.Done()
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns", "coll", "pvtkey1", []byte("pvt-value1")))
+
+	blkAndPvtdata = prepareNextBlockForTest(t, txMgr, bg, "txid-2",
+		map[string]string{"pubkey1": "pub-value3"}, map[string]string{"pvtkey3": "pvt-value3"}, false)
+	_, _, err = txMgr.ValidateAndPrepare(blkAndPvtdata, true)
+	assert.NoError(t, err)
+	assert.NoError(t, txMgr.Commit())
+
+	assert.True(t, testPvtValueEqual(t, txMgr, "ns", "coll", "pvtkey1", nil))
 }
 
 func TestTxWithPubMetadata(t *testing.T) {
@@ -1157,9 +1487,11 @@ func testTxWithPubMetadata(t *testing.T, env testEnv) {
 
 func TestTxWithPvtdataMetadata(t *testing.T) {
 	ledgerid, ns, coll := "testtxwithpvtdatametadata", "ns", "coll"
-	cs := btltestutil.NewMockCollectionStore()
-	cs.SetBTL("ns", "coll", 1000)
-	btlPolicy := pvtdatapolicy.ConstructBTLPolicy(cs)
+	btlPolicy := btltestutil.SampleBTLPolicy(
+		map[[2]string]uint64{
+			{"ns", "coll"}: 1000,
+		},
+	)
 	for _, testEnv := range testEnvs {
 		t.Logf("Running test for TestEnv = %s", testEnv.getName())
 		testEnv.init(t, ledgerid, btlPolicy)
@@ -1188,7 +1520,8 @@ func testTxWithPvtdataMetadata(t *testing.T, env testEnv, ns, coll string) {
 	s1.Done()
 
 	blkAndPvtdata1 := prepareNextBlockForTestFromSimulator(t, bg, s1)
-	assert.NoError(t, txMgr.ValidateAndPrepare(blkAndPvtdata1, true))
+	_, _, err := txMgr.ValidateAndPrepare(blkAndPvtdata1, true)
+	assert.NoError(t, err)
 	assert.NoError(t, txMgr.Commit())
 
 	// Run query - key1 and key2 should return both value and metadata. Key3 should still be non-exsting in db
@@ -1206,7 +1539,8 @@ func testTxWithPvtdataMetadata(t *testing.T, env testEnv, ns, coll string) {
 	s2.Done()
 
 	blkAndPvtdata2 := prepareNextBlockForTestFromSimulator(t, bg, s2)
-	assert.NoError(t, txMgr.ValidateAndPrepare(blkAndPvtdata2, true))
+	_, _, err = txMgr.ValidateAndPrepare(blkAndPvtdata2, true)
+	assert.NoError(t, err)
 	assert.NoError(t, txMgr.Commit())
 
 	// Run query - key1 should return updated metadata. Key2 should return 'nil' metadata
@@ -1217,7 +1551,7 @@ func testTxWithPvtdataMetadata(t *testing.T, env testEnv, ns, coll string) {
 }
 
 func prepareNextBlockForTest(t *testing.T, txMgr txmgr.TxMgr, bg *testutil.BlockGenerator,
-	txid string, pubKVs map[string]string, pvtKVs map[string]string) *ledger.BlockAndPvtData {
+	txid string, pubKVs map[string]string, pvtKVs map[string]string, isMissing bool) *ledger.BlockAndPvtData {
 	simulator, _ := txMgr.NewTxSimulator(txid)
 	//simulating transaction
 	for k, v := range pubKVs {
@@ -1227,6 +1561,9 @@ func prepareNextBlockForTest(t *testing.T, txMgr txmgr.TxMgr, bg *testutil.Block
 		simulator.SetPrivateData("ns", "coll", k, []byte(v))
 	}
 	simulator.Done()
+	if isMissing {
+		return prepareNextBlockForTestFromSimulatorWithMissingData(t, bg, simulator, txid, 1, "ns", "coll", true)
+	}
 	return prepareNextBlockForTestFromSimulator(t, bg, simulator)
 }
 
@@ -1235,8 +1572,18 @@ func prepareNextBlockForTestFromSimulator(t *testing.T, bg *testutil.BlockGenera
 	pubSimBytes, _ := simRes.GetPubSimulationBytes()
 	block := bg.NextBlock([][]byte{pubSimBytes})
 	return &ledger.BlockAndPvtData{Block: block,
-		BlockPvtData: map[uint64]*ledger.TxPvtData{0: {SeqInBlock: 0, WriteSet: simRes.PvtSimulationResults}},
+		PvtData: ledger.TxPvtDataMap{0: {SeqInBlock: 0, WriteSet: simRes.PvtSimulationResults}},
 	}
+}
+
+func prepareNextBlockForTestFromSimulatorWithMissingData(t *testing.T, bg *testutil.BlockGenerator, simulator ledger.TxSimulator,
+	txid string, txNum uint64, ns, coll string, isEligible bool) *ledger.BlockAndPvtData {
+	simRes, _ := simulator.GetTxSimulationResults()
+	pubSimBytes, _ := simRes.GetPubSimulationBytes()
+	block := bg.NextBlock([][]byte{pubSimBytes})
+	missingData := make(ledger.TxMissingPvtDataMap)
+	missingData.Add(txNum, ns, coll, isEligible)
+	return &ledger.BlockAndPvtData{Block: block, MissingPvtData: missingData}
 }
 
 func checkTestQueryResults(t *testing.T, qe ledger.QueryExecutor, ns, key string,

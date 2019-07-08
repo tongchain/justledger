@@ -28,7 +28,7 @@ import (
 	"testing"
 	"time"
 
-	"justledger/bccsp/utils"
+	"github.com/justledger/fabric/bccsp/utils"
 	"github.com/stretchr/testify/assert"
 )
 

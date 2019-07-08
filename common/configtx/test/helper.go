@@ -7,21 +7,21 @@ SPDX-License-Identifier: Apache-2.0
 package test
 
 import (
-	"justledger/common/channelconfig"
-	"justledger/common/flogging"
-	"justledger/common/genesis"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/core/ledger/util"
-	cb "justledger/protos/common"
-	mspproto "justledger/protos/msp"
-	"justledger/protos/peer"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/genesis"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/core/ledger/util"
+	cb "github.com/justledger/fabric/protos/common"
+	mspproto "github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/peer"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 )
 
-var logger = flogging.MustGetLogger("common/configtx/test")
+var logger = flogging.MustGetLogger("common.configtx.test")
 
 // MakeGenesisBlock creates a genesis block using the test templates for the given chainID
 func MakeGenesisBlock(chainID string) (*cb.Block, error) {
@@ -31,9 +31,9 @@ func MakeGenesisBlock(chainID string) (*cb.Block, error) {
 		logger.Panicf("Error creating channel config: %s", err)
 	}
 
-	gb, err := genesis.NewFactoryImpl(channelGroup).Block(chainID)
-	if err != nil || gb == nil {
-		return gb, err
+	gb := genesis.NewFactoryImpl(channelGroup).Block(chainID)
+	if gb == nil {
+		return gb, nil
 	}
 
 	txsFilter := util.NewTxValidationFlagsSetValue(len(gb.Data.Data), peer.TxValidationCode_VALID)
@@ -72,5 +72,5 @@ func MakeGenesisBlockFromMSPs(chainID string, appMSPConf, ordererMSPConf *msppro
 	channelGroup.Groups[channelconfig.OrdererGroupKey].Groups[ordererOrgID] = ordererOrg
 	channelGroup.Groups[channelconfig.ApplicationGroupKey].Groups[appOrgID] = applicationOrg
 
-	return genesis.NewFactoryImpl(channelGroup).Block(chainID)
+	return genesis.NewFactoryImpl(channelGroup).Block(chainID), nil
 }

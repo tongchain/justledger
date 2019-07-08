@@ -4,9 +4,9 @@ package mock
 import (
 	"sync"
 
-	"justledger/peer/chaincode/api"
-	pcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/peer/chaincode/api"
+	pcommon "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 type Deliver struct {

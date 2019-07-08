@@ -12,7 +12,7 @@ import (
 	"errors"
 	"net"
 
-	"justledger/common/flogging"
+	"github.com/justledger/fabric/common/flogging"
 	"google.golang.org/grpc/credentials"
 )
 

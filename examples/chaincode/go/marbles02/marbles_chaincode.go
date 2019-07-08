@@ -27,7 +27,7 @@
 // INDEXES TO SUPPORT COUCHDB RICH QUERIES
 //
 // Indexes in CouchDB are required in order to make JSON queries efficient and are required for
-// any JSON query with a sort. As of Hyperledger Fabric 1.1, indexes may be packaged alongside
+// any JSON query with a sort. As of justledger Fabric 1.1, indexes may be packaged alongside
 // chaincode in a META-INF/statedb/couchdb/indexes directory. Each index must be defined in its own
 // text file with extension *.json with the index definition formatted in JSON following the
 // CouchDB index JSON syntax as documented at:
@@ -38,7 +38,7 @@
 // For deployment of chaincode to production environments, it is recommended
 // to define any indexes alongside chaincode so that the chaincode and supporting indexes
 // are deployed automatically as a unit, once the chaincode has been installed on a peer and
-// instantiated on a channel. See Hyperledger Fabric documentation for more details.
+// instantiated on a channel. See justledger Fabric documentation for more details.
 //
 // If you have access to the your peer's CouchDB state database in a development environment,
 // you may want to iteratively test various indexes in support of your chaincode queries.  You
@@ -87,8 +87,8 @@ import (
 	"strings"
 	"time"
 
-	"justledger/core/chaincode/shim"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 // SimpleChaincode example simple Chaincode implementation

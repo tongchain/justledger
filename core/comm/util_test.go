@@ -8,18 +8,19 @@ package comm_test
 
 import (
 	"context"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"net"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/util"
-	"justledger/core/comm"
-	grpc_testdata "justledger/core/comm/testdata/grpc"
-	"justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/core/comm"
+	grpc_testdata "github.com/justledger/fabric/core/comm/testdata/grpc"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -50,7 +51,9 @@ func TestExtractCertificateHashFromContext(t *testing.T) {
 		},
 	}
 	ctx = peer.NewContext(context.Background(), p)
-	assert.Equal(t, util.ComputeSHA256([]byte{1, 2, 3}), comm.ExtractCertificateHashFromContext(ctx))
+	h := sha256.New()
+	h.Write([]byte{1, 2, 3})
+	assert.Equal(t, h.Sum(nil), comm.ExtractCertificateHashFromContext(ctx))
 }
 
 type nonTLSConnection struct {
@@ -80,7 +83,11 @@ func TestNoopBindingInspector(t *testing.T) {
 
 func TestBindingInspector(t *testing.T) {
 	t.Parallel()
-	testAddress := "localhost:25000"
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("failed to create listener for test server: %v", err)
+	}
+
 	extract := func(msg proto.Message) []byte {
 		env, isEnvelope := msg.(*common.Envelope)
 		if !isEnvelope || env == nil {
@@ -92,13 +99,13 @@ func TestBindingInspector(t *testing.T) {
 		}
 		return ch.TlsCertHash
 	}
-	srv := newInspectingServer(testAddress, comm.NewBindingInspector(true, extract))
+	srv := newInspectingServer(lis, comm.NewBindingInspector(true, extract))
 	go srv.Start()
 	defer srv.Stop()
 	time.Sleep(time.Second)
 
 	// Scenario I: Invalid header sent
-	err := srv.newInspection(t).inspectBinding(nil)
+	err = srv.newInspection(t).inspectBinding(nil)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "client didn't include its TLS cert hash")
 
@@ -119,7 +126,9 @@ func TestBindingInspector(t *testing.T) {
 
 	// Scenario IV: Client sends its TLS cert hash as needed, but doesn't use mutual TLS
 	cert, _ := tls.X509KeyPair([]byte(selfSignedCertPEM), []byte(selfSignedKeyPEM))
-	chanHdr.TlsCertHash = util.ComputeSHA256([]byte(cert.Certificate[0]))
+	h := sha256.New()
+	h.Write([]byte(cert.Certificate[0]))
+	chanHdr.TlsCertHash = h.Sum(nil)
 	ch, _ = proto.Marshal(chanHdr)
 	err = srv.newInspection(t).inspectBinding(envelopeWithChannelHeader(ch))
 	assert.Error(t, err)
@@ -153,8 +162,8 @@ func (is *inspectingServer) inspect(envelope *common.Envelope) error {
 	return is.inspector(is.lastContext.Load().(context.Context), envelope)
 }
 
-func newInspectingServer(addr string, inspector comm.BindingInspector) *inspectingServer {
-	srv, err := comm.NewGRPCServer(addr, comm.ServerConfig{
+func newInspectingServer(listener net.Listener, inspector comm.BindingInspector) *inspectingServer {
+	srv, err := comm.NewGRPCServerFromListener(listener, comm.ServerConfig{
 		ConnectionTimeout: 250 * time.Millisecond,
 		SecOpts: &comm.SecureOptions{
 			UseTLS:      true,
@@ -165,7 +174,7 @@ func newInspectingServer(addr string, inspector comm.BindingInspector) *inspecti
 		panic(err)
 	}
 	is := &inspectingServer{
-		addr:       addr,
+		addr:       listener.Addr().String(),
 		GRPCServer: srv,
 		inspector:  inspector,
 	}

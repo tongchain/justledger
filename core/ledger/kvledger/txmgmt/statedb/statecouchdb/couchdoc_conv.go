@@ -11,9 +11,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util/couchdb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util/couchdb"
 	"github.com/pkg/errors"
 )
 
@@ -215,6 +215,9 @@ func validateKey(key string) error {
 	}
 	if strings.HasPrefix(key, "_") {
 		return errors.Errorf("invalid key [%s], cannot begin with \"_\"", key)
+	}
+	if key == "" {
+		return errors.New("invalid key. Empty string is not supported as a key by couchdb")
 	}
 	return nil
 }

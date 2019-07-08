@@ -10,9 +10,8 @@ import (
 	"fmt"
 	"strings"
 
-	cb "justledger/protos/common"
-
 	"github.com/golang/protobuf/proto"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 const (

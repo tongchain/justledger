@@ -8,11 +8,11 @@ package stateleveldb
 import (
 	"bytes"
 
-	"justledger/common/flogging"
-	"justledger/common/ledger/util/leveldbhelper"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/ledgerconfig"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
 	"github.com/pkg/errors"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 )
@@ -73,8 +73,8 @@ func (vdb *versionedDB) ValidateKeyValue(key string, value []byte) error {
 	return nil
 }
 
-// BytesKeySuppoted implements method in VersionedDB interface
-func (vdb *versionedDB) BytesKeySuppoted() bool {
+// BytesKeySupported implements method in VersionedDB interface
+func (vdb *versionedDB) BytesKeySupported() bool {
 	return true
 }
 
@@ -185,7 +185,13 @@ func (vdb *versionedDB) ApplyUpdates(batch *statedb.UpdateBatch, height *version
 			}
 		}
 	}
-	dbBatch.Put(savePointKey, height.ToBytes())
+	// Record a savepoint at a given height
+	// If a given height is nil, it denotes that we are committing pvt data of old blocks.
+	// In this case, we should not store a savepoint for recovery. The lastUpdatedOldBlockList
+	// in the pvtstore acts as a savepoint for pvt data.
+	if height != nil {
+		dbBatch.Put(savePointKey, height.ToBytes())
+	}
 	// Setting snyc to true as a precaution, false may be an ok optimization after further testing.
 	if err := vdb.db.WriteBatch(dbBatch, true); err != nil {
 		return err

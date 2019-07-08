@@ -21,8 +21,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
-	cb "justledger/protos/common"
-	pb "justledger/protos/peer"
+	cb "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
 	grpc "google.golang.org/grpc"
 )
 
@@ -102,4 +102,14 @@ func (m *mockAdminClient) SetModuleLogLevel(ctx context.Context, env *cb.Envelop
 
 func (m *mockAdminClient) RevertLogLevels(ctx context.Context, in *cb.Envelope, opts ...grpc.CallOption) (*empty.Empty, error) {
 	return &empty.Empty{}, m.err
+}
+
+func (m *mockAdminClient) GetLogSpec(ctx context.Context, in *cb.Envelope, opts ...grpc.CallOption) (*pb.LogSpecResponse, error) {
+	response := &pb.LogSpecResponse{LogSpec: "info"}
+	return response, m.err
+}
+
+func (m *mockAdminClient) SetLogSpec(ctx context.Context, in *cb.Envelope, opts ...grpc.CallOption) (*pb.LogSpecResponse, error) {
+	response := &pb.LogSpecResponse{LogSpec: "info"}
+	return response, m.err
 }

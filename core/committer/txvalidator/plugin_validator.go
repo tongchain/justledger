@@ -10,15 +10,15 @@ import (
 	"fmt"
 	"sync"
 
-	"justledger/common/cauthdsl"
-	ledger2 "justledger/common/ledger"
-	"justledger/core/handlers/validation/api"
-	. "justledger/core/handlers/validation/api/capabilities"
-	. "justledger/core/handlers/validation/api/identities"
-	. "justledger/core/handlers/validation/api/state"
-	"justledger/core/ledger"
-	"justledger/msp"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/common/cauthdsl"
+	ledger2 "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/core/handlers/validation/api"
+	. "github.com/justledger/fabric/core/handlers/validation/api/capabilities"
+	. "github.com/justledger/fabric/core/handlers/validation/api/identities"
+	. "github.com/justledger/fabric/core/handlers/validation/api/state"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 )
 
@@ -238,7 +238,7 @@ type ResultsIteratorImpl struct {
 }
 
 func (it *ResultsIteratorImpl) Next() (QueryResult, error) {
-	return it.Next()
+	return it.ResultsIterator.Next()
 }
 
 // SerializedPolicy defines a marshaled policy

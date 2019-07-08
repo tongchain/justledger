@@ -17,16 +17,15 @@ limitations under the License.
 package sw
 
 import (
-	"errors"
-	"fmt"
-
 	"crypto/ecdsa"
 	"crypto/rsa"
 	"crypto/x509"
+	"errors"
+	"fmt"
 	"reflect"
 
-	"justledger/bccsp"
-	"justledger/bccsp/utils"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/utils"
 )
 
 type aes256ImportKeyOptsKeyImporter struct{}
@@ -149,11 +148,11 @@ func (ki *x509PublicKeyImportOptsKeyImporter) KeyImport(raw interface{}, opts bc
 
 	switch pk.(type) {
 	case *ecdsa.PublicKey:
-		return ki.bccsp.keyImporters[reflect.TypeOf(&bccsp.ECDSAGoPublicKeyImportOpts{})].KeyImport(
+		return ki.bccsp.KeyImporters[reflect.TypeOf(&bccsp.ECDSAGoPublicKeyImportOpts{})].KeyImport(
 			pk,
 			&bccsp.ECDSAGoPublicKeyImportOpts{Temporary: opts.Ephemeral()})
 	case *rsa.PublicKey:
-		return ki.bccsp.keyImporters[reflect.TypeOf(&bccsp.RSAGoPublicKeyImportOpts{})].KeyImport(
+		return ki.bccsp.KeyImporters[reflect.TypeOf(&bccsp.RSAGoPublicKeyImportOpts{})].KeyImport(
 			pk,
 			&bccsp.RSAGoPublicKeyImportOpts{Temporary: opts.Ephemeral()})
 	default:

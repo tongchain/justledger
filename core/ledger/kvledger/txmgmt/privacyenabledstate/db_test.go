@@ -11,17 +11,15 @@ import (
 	"os"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/ledger/cceventmgmt"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
-
-	"justledger/common/ledger/testutil"
-	"justledger/core/common/ccprovider"
-	"justledger/core/ledger/cceventmgmt"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/common"
 )
 
 func TestMain(m *testing.M) {
@@ -446,11 +444,7 @@ func testHandleChainCodeDeploy(t *testing.T, env TestEnv) {
 
 	coll1 := createCollectionConfig("collectionMarbles")
 	ccp := &common.CollectionConfigPackage{Config: []*common.CollectionConfig{coll1}}
-	ccpBytes, err := proto.Marshal(ccp)
-	assert.NoError(t, err)
-	assert.NotNil(t, ccpBytes)
-
-	chaincodeDef := &cceventmgmt.ChaincodeDefinition{Name: "ns1", Hash: nil, Version: "", CollectionConfigs: ccpBytes}
+	chaincodeDef := &cceventmgmt.ChaincodeDefinition{Name: "ns1", Hash: nil, Version: "", CollectionConfigs: ccp}
 
 	commonStorageDB := db.(*CommonStorageDB)
 
@@ -489,11 +483,7 @@ func testHandleChainCodeDeploy(t *testing.T, env TestEnv) {
 
 	coll2 := createCollectionConfig("collectionMarblesPrivateDetails")
 	ccp = &common.CollectionConfigPackage{Config: []*common.CollectionConfig{coll1, coll2}}
-	ccpBytes, err = proto.Marshal(ccp)
-	assert.NoError(t, err)
-	assert.NotNil(t, ccpBytes)
-
-	chaincodeDef = &cceventmgmt.ChaincodeDefinition{Name: "ns1", Hash: nil, Version: "", CollectionConfigs: ccpBytes}
+	chaincodeDef = &cceventmgmt.ChaincodeDefinition{Name: "ns1", Hash: nil, Version: "", CollectionConfigs: ccp}
 
 	// The collection config is added to the chaincodeDef and it contains all collections
 	// including collectionMarblesPrivateDetails which was missing earlier.

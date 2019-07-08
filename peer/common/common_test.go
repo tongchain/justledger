@@ -12,11 +12,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/common/flogging"
-	"justledger/common/util"
-	"justledger/core/config/configtest"
-	"justledger/msp"
-	"justledger/peer/common"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/peer/common"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -107,80 +107,6 @@ func TestSetBCCSPKeystorePath(t *testing.T) {
 	os.Unsetenv("FABRIC_CFG_PATH")
 }
 
-func TestSetLogLevelFromViper(t *testing.T) {
-	viper.Reset()
-	cleanup := configtest.SetDevFabricConfigPath(t)
-	defer cleanup()
-
-	common.InitConfig("core")
-	type args struct {
-		module string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		{
-			name:    "Empty module name",
-			args:    args{module: ""},
-			wantErr: true,
-		},
-		{
-			name:    "Invalid module name",
-			args:    args{module: "policy"},
-			wantErr: true,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "cauthdsl"},
-			wantErr: false,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "level"},
-			wantErr: false,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "gossip"},
-			wantErr: false,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "grpc"},
-			wantErr: false,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "msp"},
-			wantErr: false,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "ledger"},
-			wantErr: false,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "policies"},
-			wantErr: false,
-		},
-		{
-			name:    "Valid module name",
-			args:    args{module: "peer.gossip"},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if err := common.SetLogLevelFromViper(tt.args.module); (err != nil) != tt.wantErr {
-				t.Errorf("SetLogLevelFromViper() args = %v error = %v, wantErr %v", tt.args, err, tt.wantErr)
-			}
-		})
-	}
-}
-
 func TestCheckLogLevel(t *testing.T) {
 	type args struct {
 		level string
@@ -191,27 +117,27 @@ func TestCheckLogLevel(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "Empty module name",
+			name:    "Empty level",
 			args:    args{level: ""},
 			wantErr: true,
 		},
 		{
-			name:    "Valid module name",
+			name:    "Valid level",
 			args:    args{level: "warning"},
 			wantErr: false,
 		},
 		{
-			name:    "Valid module name",
+			name:    "Invalid level",
 			args:    args{level: "foobaz"},
 			wantErr: true,
 		},
 		{
-			name:    "Valid module name",
+			name:    "Valid level",
 			args:    args{level: "error"},
 			wantErr: false,
 		},
 		{
-			name:    "Valid module name",
+			name:    "Valid level",
 			args:    args{level: "info"},
 			wantErr: false,
 		},
@@ -249,17 +175,26 @@ func TestGetDefaultSigner(t *testing.T) {
 }
 
 func TestInitCmd(t *testing.T) {
+	cleanup := configtest.SetDevFabricConfigPath(t)
+	defer cleanup()
 	defer viper.Reset()
 
-	// test that InitCmd doesn't remove existing loggers from the module levels map
+	// test that InitCmd doesn't remove existing loggers from the logger levels map
 	flogging.MustGetLogger("test")
-	flogging.SetModuleLevel("test", "error")
+	flogging.ActivateSpec("test=error")
 	assert.Equal(t, "error", flogging.Global.Level("test").String())
 	flogging.MustGetLogger("chaincode")
 	assert.Equal(t, flogging.Global.DefaultLevel().String(), flogging.Global.Level("chaincode").String())
+	flogging.MustGetLogger("test.test2")
+	flogging.ActivateSpec("test.test2=warn")
+	assert.Equal(t, "warn", flogging.Global.Level("test.test2").String())
 
-	viper.Set("logging_level", "chaincode=debug")
+	origEnvValue := os.Getenv("FABRIC_LOGGING_SPEC")
+	os.Setenv("FABRIC_LOGGING_SPEC", "chaincode=debug:test.test2=fatal:abc=error")
 	common.InitCmd(nil, nil)
 	assert.Equal(t, "debug", flogging.Global.Level("chaincode").String())
-	assert.Equal(t, "error", flogging.Global.Level("test").String())
+	assert.Equal(t, "info", flogging.Global.Level("test").String())
+	assert.Equal(t, "fatal", flogging.Global.Level("test.test2").String())
+	assert.Equal(t, "error", flogging.Global.Level("abc").String())
+	os.Setenv("FABRIC_LOGGING_SPEC", origEnvValue)
 }

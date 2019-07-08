@@ -9,10 +9,11 @@ package chaincode_test
 import (
 	"time"
 
-	"justledger/core/chaincode"
-	"justledger/core/chaincode/fake"
-	"justledger/core/chaincode/mock"
-	"justledger/core/common/ccprovider"
+	"github.com/justledger/fabric/common/metrics/metricsfakes"
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/core/chaincode/fake"
+	"github.com/justledger/fabric/core/chaincode/mock"
+	"github.com/justledger/fabric/core/common/ccprovider"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -24,6 +25,10 @@ var _ = Describe("RuntimeLauncher", func() {
 		fakeRuntime         *mock.Runtime
 		fakeRegistry        *fake.LaunchRegistry
 		launchState         *chaincode.LaunchState
+		fakeLaunchDuration  *metricsfakes.Histogram
+		fakeLaunchFailures  *metricsfakes.Counter
+		fakeLaunchTimeouts  *metricsfakes.Counter
+		exitedCh            chan int
 
 		ccci *ccprovider.ChaincodeContainerInfo
 
@@ -40,10 +45,27 @@ var _ = Describe("RuntimeLauncher", func() {
 			launchState.Notify(nil)
 			return nil
 		}
+		exitedCh = make(chan int)
+		waitExitCh := exitedCh // shadow to avoid race
+		fakeRuntime.WaitStub = func(*ccprovider.ChaincodeContainerInfo) (int, error) {
+			return <-waitExitCh, nil
+		}
 
 		fakePackageProvider = &mock.PackageProvider{}
 		fakePackageProvider.GetChaincodeCodePackageReturns([]byte("code-package"), nil)
 
+		fakeLaunchDuration = &metricsfakes.Histogram{}
+		fakeLaunchDuration.WithReturns(fakeLaunchDuration)
+		fakeLaunchFailures = &metricsfakes.Counter{}
+		fakeLaunchFailures.WithReturns(fakeLaunchFailures)
+		fakeLaunchTimeouts = &metricsfakes.Counter{}
+		fakeLaunchTimeouts.WithReturns(fakeLaunchTimeouts)
+
+		launchMetrics := &chaincode.LaunchMetrics{
+			LaunchDuration: fakeLaunchDuration,
+			LaunchFailures: fakeLaunchFailures,
+			LaunchTimeouts: fakeLaunchTimeouts,
+		}
 		ccci = &ccprovider.ChaincodeContainerInfo{
 			Name:          "chaincode-name",
 			Path:          "chaincode-path",
@@ -57,7 +79,12 @@ var _ = Describe("RuntimeLauncher", func() {
 			Registry:        fakeRegistry,
 			PackageProvider: fakePackageProvider,
 			StartupTimeout:  5 * time.Second,
+			Metrics:         launchMetrics,
 		}
+	})
+
+	AfterEach(func() {
+		close(exitedCh)
 	})
 
 	It("registers the chaincode as launching", func() {
@@ -97,6 +124,20 @@ var _ = Describe("RuntimeLauncher", func() {
 		Expect(fakeRegistry.DeregisterCallCount()).To(Equal(0))
 	})
 
+	It("records launch duration", func() {
+		err := runtimeLauncher.Launch(ccci)
+		Expect(err).NotTo(HaveOccurred())
+
+		Expect(fakeLaunchDuration.WithCallCount()).To(Equal(1))
+		labelValues := fakeLaunchDuration.WithArgsForCall(0)
+		Expect(labelValues).To(Equal([]string{
+			"chaincode", "chaincode-name:chaincode-version",
+			"success", "true",
+		}))
+		Expect(fakeLaunchDuration.ObserveArgsForCall(0)).NotTo(BeZero())
+		Expect(fakeLaunchDuration.ObserveArgsForCall(0)).To(BeNumerically("<", 1.0))
+	})
+
 	Context("when starting the runtime fails", func() {
 		BeforeEach(func() {
 			fakeRuntime.StartReturns(errors.New("banana"))
@@ -113,7 +154,46 @@ var _ = Describe("RuntimeLauncher", func() {
 			Expect(launchState.Err()).To(MatchError("error starting container: banana"))
 		})
 
+		It("records chaincode launch failures", func() {
+			runtimeLauncher.Launch(ccci)
+			Expect(fakeLaunchFailures.WithCallCount()).To(Equal(1))
+			labelValues := fakeLaunchFailures.WithArgsForCall(0)
+			Expect(labelValues).To(Equal([]string{
+				"chaincode", "chaincode-name:chaincode-version",
+			}))
+			Expect(fakeLaunchFailures.AddCallCount()).To(Equal(1))
+			Expect(fakeLaunchFailures.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
+		})
+
 		It("stops the runtime", func() {
+			runtimeLauncher.Launch(ccci)
+
+			Expect(fakeRuntime.StopCallCount()).To(Equal(1))
+			ccciArg := fakeRuntime.StopArgsForCall(0)
+			Expect(ccciArg).To(Equal(ccci))
+		})
+
+		It("deregisters the chaincode", func() {
+			runtimeLauncher.Launch(ccci)
+
+			Expect(fakeRegistry.DeregisterCallCount()).To(Equal(1))
+			cname := fakeRegistry.DeregisterArgsForCall(0)
+			Expect(cname).To(Equal("chaincode-name:chaincode-version"))
+		})
+	})
+
+	Context("when the contaienr terminates before registration", func() {
+		BeforeEach(func() {
+			fakeRuntime.StartReturns(nil)
+			fakeRuntime.WaitReturns(-99, nil)
+		})
+
+		It("returns an error", func() {
+			err := runtimeLauncher.Launch(ccci)
+			Expect(err).To(MatchError("chaincode registration failed: container exited with -99"))
+		})
+
+		It("attempts to stop the runtime", func() {
 			runtimeLauncher.Launch(ccci)
 
 			Expect(fakeRuntime.StopCallCount()).To(Equal(1))
@@ -175,6 +255,17 @@ var _ = Describe("RuntimeLauncher", func() {
 			runtimeLauncher.Launch(ccci)
 			Eventually(launchState.Done()).Should(BeClosed())
 			Expect(launchState.Err()).To(MatchError("timeout expired while starting chaincode chaincode-name:chaincode-version for transaction"))
+		})
+
+		It("records chaincode launch timeouts", func() {
+			runtimeLauncher.Launch(ccci)
+			Expect(fakeLaunchTimeouts.WithCallCount()).To(Equal(1))
+			labelValues := fakeLaunchTimeouts.WithArgsForCall(0)
+			Expect(labelValues).To(Equal([]string{
+				"chaincode", "chaincode-name:chaincode-version",
+			}))
+			Expect(fakeLaunchTimeouts.AddCallCount()).To(Equal(1))
+			Expect(fakeLaunchTimeouts.AddArgsForCall(0)).To(BeNumerically("~", 1.0))
 		})
 
 		It("stops the runtime", func() {

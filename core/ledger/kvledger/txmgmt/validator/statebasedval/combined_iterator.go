@@ -19,7 +19,7 @@ package statebasedval
 import (
 	"strings"
 
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
 )
 
 // combinedIterator implements the interface statedb.ResultsIterator.

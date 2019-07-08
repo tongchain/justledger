@@ -17,12 +17,12 @@ import (
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/protobuf/proto"
-	"justledger/core/aclmgmt/resources"
-	"justledger/integration/nwo"
-	"justledger/integration/nwo/commands"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/integration/nwo"
+	"github.com/justledger/fabric/integration/nwo/commands"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -58,13 +58,13 @@ var _ = Describe("EndToEndACL", func() {
 		soloConfig.RemovePeer("Org2", "peer1")
 		Expect(soloConfig.Peers).To(HaveLen(2))
 
-		network = nwo.New(soloConfig, testDir, client, 32000, components)
+		network = nwo.New(soloConfig, testDir, client, BasePort(), components)
 		network.GenerateConfigTree()
 		network.Bootstrap()
 
 		networkRunner := network.NetworkGroupRunner()
 		process = ifrit.Invoke(networkRunner)
-		Eventually(process.Ready()).Should(BeClosed())
+		Eventually(process.Ready(), network.EventuallyTimeout).Should(BeClosed())
 
 		orderer = network.Orderer("orderer")
 		org1Peer0 = network.Peer("Org1", "peer0")
@@ -73,7 +73,7 @@ var _ = Describe("EndToEndACL", func() {
 		chaincode = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "justledger/integration/chaincode/simple/cmd",
+			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member')`,
 		}
@@ -83,7 +83,7 @@ var _ = Describe("EndToEndACL", func() {
 
 	AfterEach(func() {
 		process.Signal(syscall.SIGTERM)
-		Eventually(process.Wait()).Should(Receive())
+		Eventually(process.Wait(), network.EventuallyTimeout).Should(Receive())
 		network.Cleanup()
 		os.RemoveAll(testDir)
 	})
@@ -110,12 +110,12 @@ var _ = Describe("EndToEndACL", func() {
 		By("setting the filtered block event ACL policy to Org1/Admins")
 		policyName := resources.Event_FilteredBlock
 		policy := "/Channel/Application/Org1/Admins"
-		SetACLPolicy(network, "testchannel", policyName, policy)
+		SetACLPolicy(network, "testchannel", policyName, policy, "orderer")
 
 		By("invoking chaincode as a permitted Org1 Admin identity")
 		sess, err := network.PeerAdminSession(org1Peer0, invokeChaincode)
 		Expect(err).NotTo(HaveOccurred())
-		Eventually(sess.Err, time.Minute).Should(gbytes.Say("Chaincode invoke successful. result: status:200"))
+		Eventually(sess.Err, network.EventuallyTimeout).Should(gbytes.Say("Chaincode invoke successful. result: status:200"))
 
 		//
 		// when the ACL policy for DeliverFiltered is not satisifed
@@ -123,12 +123,12 @@ var _ = Describe("EndToEndACL", func() {
 		By("setting the filtered block event ACL policy to org2/Admins")
 		policyName = resources.Event_FilteredBlock
 		policy = "/Channel/Application/org2/Admins"
-		SetACLPolicy(network, "testchannel", policyName, policy)
+		SetACLPolicy(network, "testchannel", policyName, policy, "orderer")
 
 		By("invoking chaincode as a forbidden Org1 Admin identity")
 		sess, err = network.PeerAdminSession(org1Peer0, invokeChaincode)
 		Expect(err).NotTo(HaveOccurred())
-		Eventually(sess.Err, time.Minute).Should(gbytes.Say(`\Qdeliver completed with status (FORBIDDEN)\E`))
+		Eventually(sess.Err, network.EventuallyTimeout).Should(gbytes.Say(`\Qdeliver completed with status (FORBIDDEN)\E`))
 
 		//
 		// when the ACL policy for Deliver is satisfied
@@ -136,12 +136,12 @@ var _ = Describe("EndToEndACL", func() {
 		By("setting the block event ACL policy to Org1/Admins")
 		policyName = resources.Event_Block
 		policy = "/Channel/Application/Org1/Admins"
-		SetACLPolicy(network, "testchannel", policyName, policy)
+		SetACLPolicy(network, "testchannel", policyName, policy, "orderer")
 
 		By("fetching the latest block from the peer as a permitted Org1 Admin identity")
 		sess, err = network.PeerAdminSession(org1Peer0, fetchNewest)
 		Expect(err).NotTo(HaveOccurred())
-		Eventually(sess, time.Minute).Should(gexec.Exit(0))
+		Eventually(sess, network.EventuallyTimeout).Should(gexec.Exit(0))
 		Expect(sess.Err).To(gbytes.Say("Received block: "))
 
 		//
@@ -150,7 +150,7 @@ var _ = Describe("EndToEndACL", func() {
 		By("fetching the latest block from the peer as a forbidden org2 Admin identity")
 		sess, err = network.PeerAdminSession(org2Peer0, fetchNewest)
 		Expect(err).NotTo(HaveOccurred())
-		Eventually(sess, time.Minute).Should(gexec.Exit())
+		Eventually(sess, network.EventuallyTimeout).Should(gexec.Exit())
 		Expect(sess.Err).To(gbytes.Say("can't read the block: &{FORBIDDEN}"))
 
 		//
@@ -159,14 +159,14 @@ var _ = Describe("EndToEndACL", func() {
 		By("setting the lscc/GetInstantiatedChaincodes ACL policy to Org1/Admins")
 		policyName = resources.Lscc_GetInstantiatedChaincodes
 		policy = "/Channel/Application/Org1/Admins"
-		SetACLPolicy(network, "testchannel", policyName, policy)
+		SetACLPolicy(network, "testchannel", policyName, policy, "orderer")
 
 		By("listing the instantiated chaincodes as a permitted Org1 Admin identity")
 		sess, err = network.PeerAdminSession(org1Peer0, commands.ChaincodeListInstantiated{
 			ChannelID: "testchannel",
 		})
 		Expect(err).NotTo(HaveOccurred())
-		Eventually(sess, time.Minute).Should(gexec.Exit(0))
+		Eventually(sess, network.EventuallyTimeout).Should(gexec.Exit(0))
 		Expect(sess).To(gbytes.Say("Name: mycc, Version: 0.0, Path: .*, Escc: escc, Vscc: vscc"))
 
 		//
@@ -177,7 +177,7 @@ var _ = Describe("EndToEndACL", func() {
 			ChannelID: "testchannel",
 		})
 		Expect(err).NotTo(HaveOccurred())
-		Eventually(sess, time.Minute).Should(gexec.Exit())
+		Eventually(sess, network.EventuallyTimeout).Should(gexec.Exit())
 		Expect(sess).NotTo(gbytes.Say("Name: mycc, Version: 0.0, Path: .*, Escc: escc, Vscc: vscc"))
 		Expect(sess.Err).To(gbytes.Say(`access denied for \[getchaincodes\]\[testchannel\](.*)signature set did not satisfy policy`))
 
@@ -188,7 +188,7 @@ var _ = Describe("EndToEndACL", func() {
 		// getting a transaction id from a block in the ledger
 		sess, err = network.PeerAdminSession(org1Peer0, fetchNewest)
 		Expect(err).NotTo(HaveOccurred())
-		Eventually(sess, time.Minute).Should(gexec.Exit(0))
+		Eventually(sess, network.EventuallyTimeout).Should(gexec.Exit(0))
 		Expect(sess.Err).To(gbytes.Say("Received block: "))
 		txID := GetTxIDFromBlockFile(outputBlock)
 
@@ -196,7 +196,7 @@ var _ = Describe("EndToEndACL", func() {
 			policyName := fmt.Sprintf("%s/%s", scc, operation)
 			policy := "/Channel/Application/Org1/Admins"
 			By("setting " + policyName + " to Org1 Admins")
-			SetACLPolicy(network, "testchannel", policyName, policy)
+			SetACLPolicy(network, "testchannel", policyName, policy, "orderer")
 
 			args = append([]string{operation}, args...)
 			chaincodeQuery := commands.ChaincodeQuery{
@@ -243,12 +243,12 @@ var _ = Describe("EndToEndACL", func() {
 // previously defined ACL policies, generates the config update, signs the
 // configuration with Org2's signer, and then submits the config update using
 // Org1.
-func SetACLPolicy(network *nwo.Network, channel, policyName, policy string) {
-	orderer := network.Orderer("orderer")
+func SetACLPolicy(network *nwo.Network, channel, policyName, policy string, ordererName string) {
+	orderer := network.Orderer(ordererName)
 	submitter := network.Peer("Org1", "peer0")
 	signer := network.Peer("Org2", "peer0")
 
-	config := nwo.GetConfigBlock(network, submitter, orderer, channel)
+	config := nwo.GetConfig(network, submitter, orderer, channel)
 	updatedConfig := proto.Clone(config).(*common.Config)
 
 	// set the policy

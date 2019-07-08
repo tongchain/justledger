@@ -18,19 +18,17 @@ package chaincode
 
 import (
 	"fmt"
-
 	"io/ioutil"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/core/common/ccpackage"
+	"github.com/justledger/fabric/msp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	pcommon "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/cobra"
-
-	"justledger/common/cauthdsl"
-	"justledger/core/common/ccpackage"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	pcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
 )
 
 var chaincodePackageCmd *cobra.Command

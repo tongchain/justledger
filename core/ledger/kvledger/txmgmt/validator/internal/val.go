@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package internal
 
 import (
-	"justledger/common/flogging"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 var logger = flogging.MustGetLogger("valinternal")

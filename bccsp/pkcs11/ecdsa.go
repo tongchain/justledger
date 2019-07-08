@@ -10,8 +10,8 @@ import (
 	"crypto/ecdsa"
 	"fmt"
 
-	"justledger/bccsp"
-	"justledger/bccsp/utils"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/utils"
 )
 
 func (csp *impl) signECDSA(k ecdsaPrivateKey, digest []byte, opts bccsp.SignerOpts) ([]byte, error) {

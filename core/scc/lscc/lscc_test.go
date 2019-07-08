@@ -16,45 +16,47 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/common/mocks/config"
-	mscc "justledger/common/mocks/scc"
-	"justledger/common/policies"
-	"justledger/common/util"
-	"justledger/core/aclmgmt/mocks"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	cutil "justledger/core/container/util"
-	"justledger/core/ledger/cceventmgmt"
-	"justledger/core/mocks/scc/lscc"
-	"justledger/core/policy"
-	policymocks "justledger/core/policy/mocks"
-	"justledger/core/scc/lscc/mock"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	mspmocks "justledger/msp/mocks"
-	"justledger/protos/common"
-	"justledger/protos/ledger/queryresult"
-	mb "justledger/protos/msp"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
-	putils "justledger/protos/utils"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/mocks/config"
+	mscc "github.com/justledger/fabric/common/mocks/scc"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/aclmgmt/mocks"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/golang"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	cutil "github.com/justledger/fabric/core/container/util"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	"github.com/justledger/fabric/core/mocks/scc/lscc"
+	"github.com/justledger/fabric/core/policy"
+	policymocks "github.com/justledger/fabric/core/policy/mocks"
+	"github.com/justledger/fabric/core/scc/lscc/mock"
+	"github.com/justledger/fabric/msp"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
+	mspmocks "github.com/justledger/fabric/msp/mocks"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
+	mb "github.com/justledger/fabric/protos/msp"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
+	putils "github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
-//go:generate counterfeiter -o mock/chaincode_stub.go --fake-name ChaincodeStub . chaincodeStub
-type chaincodeStub interface {
-	shim.ChaincodeStubInterface
-}
-
-//go:generate counterfeiter -o mock/state_query_iterator.go --fake-name StateQueryIterator . stateQueryIterator
-type stateQueryIterator interface {
-	shim.StateQueryIteratorInterface
+// create a valid SignaturePolicyEnvelope to be used in tests
+var testPolicyEnvelope = &common.SignaturePolicyEnvelope{
+	Version: 0,
+	Rule:    cauthdsl.NOutOf(1, []*common.SignaturePolicy{cauthdsl.SignedBy(0)}),
+	Identities: []*mb.MSPPrincipal{
+		{
+			PrincipalClassification: mb.MSPPrincipal_ORGANIZATION_UNIT,
+			Principal:               utils.MarshalOrPanic(&mb.OrganizationUnit{MspIdentifier: "Org1"}),
+		},
+	},
 }
 
 func constructDeploymentSpec(name string, path string, version string, initArgs [][]byte, createInvalidIndex bool, createFS bool, scc *LifeCycleSysCC) (*pb.ChaincodeDeploymentSpec, error) {
@@ -108,10 +110,9 @@ func constructDeploymentSpec(name string, path string, version string, initArgs 
 
 // TestInstall tests the install function with various inputs
 func TestInstall(t *testing.T) {
-	// Initialize cceventmgmt Mgr
-	// TODO cceventmgmt singleton should be refactored out of peer in the future. See CR 16549 for details.
-	cceventmgmt.Initialize(platforms.NewRegistry(&golang.Platform{}))
-
+	// Initialize ledgermgmt that inturn initializes internal components (such as cceventmgmt on which this test depends)
+	ledgermgmt.InitializeTestEnv()
+	defer ledgermgmt.CleanupTestEnv()
 	scc := New(NewMockProvider(), mockAclProvider, platforms.NewRegistry(&golang.Platform{}))
 	scc.Support = &lscc.MockSupport{}
 	stub := shim.NewMockStub("lscc", scc)
@@ -130,7 +131,7 @@ func TestInstall(t *testing.T) {
 	assert.NotEqual(t, int32(shim.OK), res.Status)
 	assert.Equal(t, "invalid number of arguments to lscc: 1", res.Message)
 
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	testInstall(t, "example02", "0", path, false, "", "Alice", scc, stub)
 	testInstall(t, "example02-2", "1.0", path, false, "", "Alice", scc, stub)
@@ -185,7 +186,7 @@ func testInstall(t *testing.T, ccname string, version string, path string, creat
 }
 
 func TestDeploy(t *testing.T) {
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	testDeploy(t, "example02", "0", path, false, false, true, "", nil, nil, nil)
 	testDeploy(t, "example02", "1.0", path, false, false, true, "", nil, nil, nil)
@@ -443,7 +444,7 @@ func testDeploy(t *testing.T, ccname string, version string, path string, forceB
 
 // TestUpgrade tests the upgrade function with various inputs for basic use cases
 func TestUpgrade(t *testing.T) {
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	testUpgrade(t, "example02", "0", "example02", "1", path, "", nil, nil, nil)
 	testUpgrade(t, "example02", "0", "example02", "", path, EmptyVersionErr("example02").Error(), nil, nil, nil)
@@ -511,11 +512,10 @@ func TestUpgrade(t *testing.T) {
 	scc.Support.(*lscc.MockSupport).GetInstantiationPolicyRv = []byte("instantiation policy")
 
 	collName1 := "mycollection1"
-	policyEnvelope := &common.SignaturePolicyEnvelope{}
 	var requiredPeerCount, maximumPeerCount int32
 	requiredPeerCount = 1
 	maximumPeerCount = 2
-	coll1 := createCollectionConfig(collName1, policyEnvelope, requiredPeerCount, maximumPeerCount)
+	coll1 := createCollectionConfig(collName1, testPolicyEnvelope, requiredPeerCount, maximumPeerCount)
 
 	ccp := &common.CollectionConfigPackage{Config: []*common.CollectionConfig{coll1}}
 	ccpBytes, err := proto.Marshal(ccp)
@@ -873,8 +873,7 @@ func TestPutChaincodeCollectionData(t *testing.T) {
 	assert.NoError(t, err)
 
 	collName1 := "mycollection1"
-	policyEnvelope := &common.SignaturePolicyEnvelope{}
-	coll1 := createCollectionConfig(collName1, policyEnvelope, 1, 2)
+	coll1 := createCollectionConfig(collName1, testPolicyEnvelope, 1, 2)
 	ccp := &common.CollectionConfigPackage{Config: []*common.CollectionConfig{coll1}}
 	ccpBytes, err := proto.Marshal(ccp)
 	assert.NoError(t, err)
@@ -900,8 +899,7 @@ func TestGetChaincodeCollectionData(t *testing.T) {
 	cd := &ccprovider.ChaincodeData{Name: "foo"}
 
 	collName1 := "mycollection1"
-	policyEnvelope := &common.SignaturePolicyEnvelope{}
-	coll1 := createCollectionConfig(collName1, policyEnvelope, 1, 2)
+	coll1 := createCollectionConfig(collName1, testPolicyEnvelope, 1, 2)
 	ccp := &common.CollectionConfigPackage{Config: []*common.CollectionConfig{coll1}}
 	ccpBytes, err := proto.Marshal(ccp)
 	assert.NoError(t, err)
@@ -960,25 +958,25 @@ func TestCheckCollectionMemberPolicy(t *testing.T) {
 	mgr := mspmgmt.GetManagerForChain("foochannel")
 
 	// error case: msp manager not set up, no collection config set
-	err = checkCollectionMemberPolicy(nil, mgr)
-	assert.Error(t, err)
+	err = checkCollectionMemberPolicy(nil, nil)
+	assert.EqualError(t, err, "msp manager not set")
 
 	// set up msp manager
 	mgr.Setup([]msp.MSP{mockmsp})
 
 	// error case: no collection config set
 	err = checkCollectionMemberPolicy(nil, mgr)
-	assert.Error(t, err)
+	assert.EqualError(t, err, "collection configuration is not set")
 
 	// error case: empty collection config
 	cc := &common.CollectionConfig{}
 	err = checkCollectionMemberPolicy(cc, mgr)
-	assert.Error(t, err)
+	assert.EqualError(t, err, "collection configuration is empty")
 
 	// error case: no static collection config
 	cc = &common.CollectionConfig{Payload: &common.CollectionConfig_StaticCollectionConfig{}}
 	err = checkCollectionMemberPolicy(cc, mgr)
-	assert.Error(t, err)
+	assert.EqualError(t, err, "collection configuration is empty")
 
 	// error case: member org policy not set
 	cc = &common.CollectionConfig{
@@ -987,7 +985,7 @@ func TestCheckCollectionMemberPolicy(t *testing.T) {
 		},
 	}
 	err = checkCollectionMemberPolicy(cc, mgr)
-	assert.Error(t, err)
+	assert.EqualError(t, err, "collection member policy is not set")
 
 	// error case: member org policy config empty
 	cc = &common.CollectionConfig{
@@ -1001,16 +999,28 @@ func TestCheckCollectionMemberPolicy(t *testing.T) {
 		},
 	}
 	err = checkCollectionMemberPolicy(cc, mgr)
-	assert.Error(t, err)
+	assert.EqualError(t, err, "collection member org policy is empty")
 
-	// valid case: member org policy empty
+	// error case: signd-by index is out of range of signers
+	cc = &common.CollectionConfig{
+		Payload: &common.CollectionConfig_StaticCollectionConfig{
+			StaticCollectionConfig: &common.StaticCollectionConfig{
+				Name:             "mycollection",
+				MemberOrgsPolicy: getBadAccessPolicy([]string{"signer0"}, 1),
+			},
+		},
+	}
+	err = checkCollectionMemberPolicy(cc, mgr)
+	assert.EqualError(t, err, "invalid member org policy for collection 'mycollection': identity index out of range, requested 1, but identities length is 1")
+
+	// valid case: well-formed collection policy config
 	cc = &common.CollectionConfig{
 		Payload: &common.CollectionConfig_StaticCollectionConfig{
 			StaticCollectionConfig: &common.StaticCollectionConfig{
 				Name: "mycollection",
 				MemberOrgsPolicy: &common.CollectionPolicyConfig{
 					Payload: &common.CollectionPolicyConfig_SignaturePolicy{
-						SignaturePolicy: &common.SignaturePolicyEnvelope{},
+						SignaturePolicy: testPolicyEnvelope,
 					},
 				},
 			},
@@ -1038,7 +1048,7 @@ func TestCheckCollectionMemberPolicy(t *testing.T) {
 	}
 	err = checkCollectionMemberPolicy(cc, mgr)
 	assert.NoError(t, err)
-	mockmsp.AssertNumberOfCalls(t, "DeserializeIdentity", 2)
+	mockmsp.AssertNumberOfCalls(t, "DeserializeIdentity", 3)
 
 	// check MSPPrincipal_ROLE type
 	signaturePolicyEnvelope = cauthdsl.SignedByAnyMember([]string{"Org1"})
@@ -1149,4 +1159,19 @@ func TestMain(m *testing.M) {
 	mockAclProvider.Reset()
 
 	os.Exit(m.Run())
+}
+
+// getBadAccessPolicy creates a bad CollectionPolicyConfig with signedby index out of range of signers
+func getBadAccessPolicy(signers []string, badIndex int32) *common.CollectionPolicyConfig {
+	var data [][]byte
+	for _, signer := range signers {
+		data = append(data, []byte(signer))
+	}
+	// use a out of range index to trigger error
+	policyEnvelope := cauthdsl.Envelope(cauthdsl.Or(cauthdsl.SignedBy(0), cauthdsl.SignedBy(badIndex)), data)
+	return &common.CollectionPolicyConfig{
+		Payload: &common.CollectionPolicyConfig_SignaturePolicy{
+			SignaturePolicy: policyEnvelope,
+		},
+	}
 }

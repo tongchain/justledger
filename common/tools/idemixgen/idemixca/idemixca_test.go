@@ -7,18 +7,16 @@ SPDX-License-Identifier: Apache-2.0
 package idemixca
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
 
-	"crypto/x509"
-
-	"encoding/pem"
-
 	"github.com/golang/protobuf/proto"
-	"justledger/idemix"
-	m "justledger/msp"
+	"github.com/justledger/fabric/idemix"
+	m "github.com/justledger/fabric/msp"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

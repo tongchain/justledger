@@ -11,11 +11,11 @@ import (
 	"fmt"
 
 	"github.com/fsouza/go-dockerclient"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/car"
-	"justledger/core/container"
-	cutil "justledger/core/container/util"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/car"
+	"github.com/justledger/fabric/core/container"
+	cutil "github.com/justledger/fabric/core/container/util"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 // VM implementation of VM management functionality.

@@ -8,17 +8,16 @@ package car
 
 import (
 	"archive/tar"
-	"io/ioutil"
-	"strings"
-
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"strings"
 
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/util"
-	cutil "justledger/core/container/util"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/util"
+	cutil "github.com/justledger/fabric/core/container/util"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 // Platform for the CAR type

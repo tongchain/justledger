@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package scc
 
 import (
-	"justledger/core/common/ccprovider"
+	"github.com/justledger/fabric/core/common/ccprovider"
 )
 
 //DeploySysCCs is the hook for system chaincodes where system chaincodes are registered with the fabric

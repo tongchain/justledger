@@ -7,12 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package etcdraft
 
 import (
-	fmt "fmt"
+	"fmt"
 	"io/ioutil"
 
-	"justledger/protos/orderer"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/protos/orderer"
 )
 
 // TypeKey is the string with which this consensus implementation is identified across Fabric.
@@ -28,13 +27,14 @@ type ConsensusTypeMetadataFactory struct{}
 
 // NewMessage implements the Orderer.ConsensusTypeMetadataFactory interface.
 func (dogf ConsensusTypeMetadataFactory) NewMessage() proto.Message {
-	return &Metadata{}
+	return &ConfigMetadata{}
 }
 
 // Marshal serializes this implementation's proto messages. It is called by the encoder package
 // during the creation of the Orderer ConfigGroup.
-func Marshal(md *Metadata) ([]byte, error) {
-	for _, c := range md.Consenters {
+func Marshal(md *ConfigMetadata) ([]byte, error) {
+	copyMd := proto.Clone(md).(*ConfigMetadata)
+	for _, c := range copyMd.Consenters {
 		// Expect the user to set the config value for client/server certs to the
 		// path where they are persisted locally, then load these files to memory.
 		clientCert, err := ioutil.ReadFile(string(c.GetClientTlsCert()))
@@ -49,5 +49,5 @@ func Marshal(md *Metadata) ([]byte, error) {
 		}
 		c.ServerTlsCert = serverCert
 	}
-	return proto.Marshal(md)
+	return proto.Marshal(copyMd)
 }

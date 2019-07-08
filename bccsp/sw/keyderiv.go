@@ -18,14 +18,12 @@ package sw
 
 import (
 	"crypto/ecdsa"
-	"fmt"
-
+	"crypto/hmac"
 	"errors"
+	"fmt"
 	"math/big"
 
-	"crypto/hmac"
-
-	"justledger/bccsp"
+	"github.com/justledger/fabric/bccsp"
 )
 
 type ecdsaPublicKeyKeyDeriver struct{}

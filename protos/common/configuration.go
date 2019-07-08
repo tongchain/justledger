@@ -19,9 +19,8 @@ package common
 import (
 	"fmt"
 
-	"justledger/protos/msp"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/protos/msp"
 )
 
 type DynamicConfigGroupFactory interface {

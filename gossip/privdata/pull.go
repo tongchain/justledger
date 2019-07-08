@@ -14,18 +14,18 @@ import (
 	"sync"
 	"time"
 
-	"justledger/core/common/privdata"
-	"justledger/gossip/api"
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/filter"
-	privdatacommon "justledger/gossip/privdata/common"
-	"justledger/gossip/util"
-	fcommon "justledger/protos/common"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/comm"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/gossip/filter"
+	"github.com/justledger/fabric/gossip/metrics"
+	privdatacommon "github.com/justledger/fabric/gossip/privdata/common"
+	"github.com/justledger/fabric/gossip/util"
+	fcommon "github.com/justledger/fabric/protos/common"
+	proto "github.com/justledger/fabric/protos/gossip"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -33,7 +33,6 @@ const (
 	membershipPollingBackoff    = time.Second
 	responseWaitTime            = time.Second * 5
 	maxMembershipPollIterations = 5
-	btlPullMarginDefault        = 10
 )
 
 // Dig2PvtRWSetWithConfig
@@ -43,7 +42,7 @@ type Dig2PvtRWSetWithConfig map[privdatacommon.DigKey]*util.PrivateRWSetWithConf
 // of retrieving required private data
 type PrivateDataRetriever interface {
 	// CollectionRWSet returns the bytes of CollectionPvtReadWriteSet for a given txID and collection from the transient store
-	CollectionRWSet(dig []*proto.PvtDataDigest, blockNum uint64) (Dig2PvtRWSetWithConfig, error)
+	CollectionRWSet(dig []*proto.PvtDataDigest, blockNum uint64) (Dig2PvtRWSetWithConfig, bool, error)
 }
 
 // gossip defines capabilities that the gossip module gives the Coordinator
@@ -67,6 +66,7 @@ type gossip interface {
 }
 
 type puller struct {
+	metrics       *metrics.PrivdataMetrics
 	pubSub        *util.PubSub
 	stopChan      chan struct{}
 	msgChan       <-chan proto.ReceivedMessage
@@ -79,13 +79,15 @@ type puller struct {
 }
 
 // NewPuller creates new private data puller
-func NewPuller(cs privdata.CollectionStore, g gossip, dataRetriever PrivateDataRetriever, factory CollectionAccessFactory, channel string) *puller {
+func NewPuller(metrics *metrics.PrivdataMetrics, cs privdata.CollectionStore, g gossip,
+	dataRetriever PrivateDataRetriever, factory CollectionAccessFactory, channel string, btlPullMargin uint64) *puller {
 	p := &puller{
+		metrics:                 metrics,
 		pubSub:                  util.NewPubSub(),
 		stopChan:                make(chan struct{}),
 		channel:                 channel,
 		cs:                      cs,
-		btlPullMargin:           getBtlPullMargin(),
+		btlPullMargin:           btlPullMargin,
 		gossip:                  g,
 		PrivateDataRetriever:    dataRetriever,
 		CollectionAccessFactory: factory,
@@ -146,24 +148,23 @@ func (p *puller) createResponse(message proto.ReceivedMessage) []*proto.PvtDataE
 	}()
 
 	msg := message.GetGossipMessage()
-
 	// group all digest by block number
 	block2dig := groupDigestsByBlockNum(msg.GetPrivateReq().Digests)
 
 	for blockNum, digests := range block2dig {
-		dig2rwSets, err := p.CollectionRWSet(digests, blockNum)
+		start := time.Now()
+		dig2rwSets, wasFetchedFromLedger, err := p.CollectionRWSet(digests, blockNum)
+		p.metrics.RetrieveDuration.With("channel", p.channel).Observe(time.Since(start).Seconds())
 		if err != nil {
 			logger.Warningf("could not obtain private collection rwset for block %d, because of %s, continue...", blockNum, err)
 			continue
 		}
-
-		returned = append(returned, p.filterNotEligible(dig2rwSets, fcommon.SignedData{
+		returned = append(returned, p.filterNotEligible(dig2rwSets, wasFetchedFromLedger, fcommon.SignedData{
 			Identity:  message.GetConnectionInfo().Identity,
 			Data:      authInfo.SignedData,
 			Signature: authInfo.Signature,
 		}, connectionEndpoint)...)
 	}
-
 	return returned
 }
 
@@ -301,6 +302,7 @@ func (p *puller) gatherResponses(subscriptions []util.Subscription) []*proto.Pvt
 	privateElements := make(chan *proto.PvtDataElement, len(subscriptions))
 	var wg sync.WaitGroup
 	wg.Add(len(subscriptions))
+	start := time.Now()
 	// Listen for all subscriptions, and add then into a single channel
 	for _, sub := range subscriptions {
 		go func(sub util.Subscription) {
@@ -310,6 +312,7 @@ func (p *puller) gatherResponses(subscriptions []util.Subscription) []*proto.Pvt
 				return
 			}
 			privateElements <- el.(*proto.PvtDataElement)
+			p.metrics.PullDuration.With("channel", p.channel).Observe(time.Since(start).Seconds())
 		}(sub)
 	}
 	// Wait for all subscriptions to either return, or time out
@@ -597,7 +600,7 @@ func (p *puller) purgedFilter(dig privdatacommon.DigKey) (filter.RoutingFilter, 
 	}, nil
 }
 
-func (p *puller) filterNotEligible(dig2rwSets Dig2PvtRWSetWithConfig, signedData fcommon.SignedData, endpoint string) []*proto.PvtDataElement {
+func (p *puller) filterNotEligible(dig2rwSets Dig2PvtRWSetWithConfig, shouldCheckLatestConfig bool, signedData fcommon.SignedData, endpoint string) []*proto.PvtDataElement {
 	var returned []*proto.PvtDataElement
 	for d, rwSets := range dig2rwSets {
 		if rwSets == nil {
@@ -610,17 +613,21 @@ func (p *puller) filterNotEligible(dig2rwSets Dig2PvtRWSetWithConfig, signedData
 			continue
 		}
 
-		colAP, err := p.AccessPolicy(rwSets.CollectionConfig, p.channel)
-		if err != nil {
-			logger.Debug("No policy found for channel", p.channel, ", collection", d.Collection, "txID", d.TxId, ":", err, "skipping...")
-			continue
+		eligibleForCollection := shouldCheckLatestConfig && p.isEligibleByLatestConfig(p.channel, d.Collection, d.Namespace, signedData)
+
+		if !eligibleForCollection {
+			colAP, err := p.AccessPolicy(rwSets.CollectionConfig, p.channel)
+			if err != nil {
+				logger.Debug("No policy found for channel", p.channel, ", collection", d.Collection, "txID", d.TxId, ":", err, "skipping...")
+				continue
+			}
+			colFilter := colAP.AccessFilter()
+			if colFilter == nil {
+				logger.Debug("Collection ", d.Collection, " has no access filter, txID", d.TxId, "skipping...")
+				continue
+			}
+			eligibleForCollection = colFilter(signedData)
 		}
-		colFilter := colAP.AccessFilter()
-		if colFilter == nil {
-			logger.Debug("Collection ", d.Collection, " has no access filter, txID", d.TxId, "skipping...")
-			continue
-		}
-		eligibleForCollection := colFilter(signedData)
 
 		if !eligibleForCollection {
 			logger.Debug("Peer", endpoint, "isn't eligible for txID", d.TxId, "at collection", d.Collection)
@@ -639,6 +646,22 @@ func (p *puller) filterNotEligible(dig2rwSets Dig2PvtRWSetWithConfig, signedData
 		})
 	}
 	return returned
+}
+
+func (p *puller) isEligibleByLatestConfig(channel string, collection string, chaincode string, signedData fcommon.SignedData) bool {
+	cc := fcommon.CollectionCriteria{
+		Channel:    channel,
+		Collection: collection,
+		Namespace:  chaincode,
+	}
+
+	latestCollectionConfig, err := p.cs.RetrieveCollectionAccessPolicy(cc)
+	if err != nil {
+		return false
+	}
+
+	collectionFilter := latestCollectionConfig.AccessFilter()
+	return collectionFilter(signedData)
 }
 
 func randomizeMemberList(members []discovery.NetworkMember) []discovery.NetworkMember {
@@ -672,21 +695,6 @@ func (rp remotePeer) AsRemotePeer() *comm.RemotePeer {
 		PKIID:    common.PKIidType(rp.pkiID),
 		Endpoint: rp.endpoint,
 	}
-}
-
-func getBtlPullMargin() uint64 {
-	var result uint64
-	if viper.IsSet("peer.gossip.pvtData.btlPullMargin") {
-		btlMarginVal := viper.GetInt("peer.gossip.pvtData.btlPullMargin")
-		if btlMarginVal < 0 {
-			result = btlPullMarginDefault
-		} else {
-			result = uint64(btlMarginVal)
-		}
-	} else {
-		result = btlPullMarginDefault
-	}
-	return result
 }
 
 func addWithOverflow(a uint64, b uint64) uint64 {

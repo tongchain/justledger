@@ -9,12 +9,12 @@ package builtin
 import (
 	"testing"
 
-	commonerrors "justledger/common/errors"
-	"justledger/core/committer/txvalidator"
-	. "justledger/core/handlers/validation/api"
-	vmocks "justledger/core/handlers/validation/builtin/mocks"
-	"justledger/core/handlers/validation/builtin/v12/mocks"
-	"justledger/protos/common"
+	commonerrors "github.com/justledger/fabric/common/errors"
+	"github.com/justledger/fabric/core/committer/txvalidator"
+	. "github.com/justledger/fabric/core/handlers/validation/api"
+	vmocks "github.com/justledger/fabric/core/handlers/validation/builtin/mocks"
+	"github.com/justledger/fabric/core/handlers/validation/builtin/v12/mocks"
+	"github.com/justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

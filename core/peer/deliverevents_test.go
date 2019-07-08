@@ -13,14 +13,15 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/deliver"
-	"justledger/common/ledger/blockledger"
-	"justledger/common/policies"
-	"justledger/common/util"
-	"justledger/protos/common"
-	"justledger/protos/orderer"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/deliver"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -98,9 +99,9 @@ type mockChainManager struct {
 	mock.Mock
 }
 
-func (m *mockChainManager) GetChain(chainID string) (deliver.Chain, bool) {
+func (m *mockChainManager) GetChain(chainID string) deliver.Chain {
 	args := m.Called(chainID)
-	return args.Get(0).(deliver.Chain), args.Get(1).(bool)
+	return args.Get(0).(deliver.Chain)
 }
 
 // mockDeliverServer mock implementation of the Deliver_DeliverServer
@@ -157,6 +158,13 @@ type testConfig struct {
 type testCase struct {
 	name    string
 	prepare func(wg *sync.WaitGroup) (deliver.ChainManager, peer.Deliver_DeliverServer)
+}
+
+func TestFilteredBlockResponseSenderIsFiltered(t *testing.T) {
+	var fbrs interface{} = &filteredBlockResponseSender{}
+	filtered, ok := fbrs.(deliver.Filtered)
+	assert.True(t, ok, "should be filtered")
+	assert.True(t, filtered.IsFiltered(), "should return true from IsFiltered")
 }
 
 func TestEventsServer_DeliverFiltered(t *testing.T) {
@@ -371,7 +379,12 @@ func TestEventsServer_DeliverFiltered(t *testing.T) {
 			wg := &sync.WaitGroup{}
 			chainManager, deliverServer := test.prepare(wg)
 
-			server := NewDeliverEventsServer(false, defaultPolicyCheckerProvider, chainManager)
+			server := NewDeliverEventsServer(
+				false,
+				defaultPolicyCheckerProvider,
+				chainManager,
+				&disabled.Provider{},
+			)
 			err := server.DeliverFiltered(deliverServer)
 			wg.Wait()
 			// no error expected

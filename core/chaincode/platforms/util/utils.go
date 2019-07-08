@@ -26,12 +26,12 @@ import (
 	"path/filepath"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"justledger/common/flogging"
-	"justledger/common/util"
-	cutil "justledger/core/container/util"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/util"
+	cutil "github.com/justledger/fabric/core/container/util"
 )
 
-var logger = flogging.MustGetLogger("util")
+var logger = flogging.MustGetLogger("chaincode.platform.util")
 
 //ComputeHash computes contents hash based on previous hash
 func ComputeHash(contents []byte, hash []byte) []byte {

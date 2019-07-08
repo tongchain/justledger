@@ -8,11 +8,13 @@ package pvtdatastorage
 
 import (
 	"bytes"
+	"math"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/rwset"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/ledger/rwset"
+	"github.com/pkg/errors"
 	"github.com/willf/bitset"
 )
 
@@ -23,6 +25,8 @@ var (
 	expiryKeyPrefix                = []byte{3}
 	eligibleMissingDataKeyPrefix   = []byte{4}
 	ineligibleMissingDataKeyPrefix = []byte{5}
+	collElgKeyPrefix               = []byte{6}
+	lastUpdatedOldBlocksKey        = []byte{7}
 
 	nilByte    = byte(0)
 	emptyValue = []byte{}
@@ -125,7 +129,7 @@ func decodeMissingDataKey(keyBytes []byte) *missingDataKey {
 		return key
 	}
 
-	splittedKey := bytes.Split(keyBytes[1:], []byte{nilByte})
+	splittedKey := bytes.SplitN(keyBytes[1:], []byte{nilByte}, 3) //encoded bytes for blknum may contain empty bytes
 	key.ns = string(splittedKey[0])
 	key.coll = string(splittedKey[1])
 	key.blkNum, _ = util.DecodeReverseOrderVarUint64(splittedKey[2])
@@ -145,9 +149,63 @@ func decodeMissingDataValue(bitmapBytes []byte) (*bitset.BitSet, error) {
 	return bitmap, nil
 }
 
+func encodeCollElgKey(blkNum uint64) []byte {
+	return append(collElgKeyPrefix, util.EncodeReverseOrderVarUint64(blkNum)...)
+}
+
+func decodeCollElgKey(b []byte) uint64 {
+	blkNum, _ := util.DecodeReverseOrderVarUint64(b[1:])
+	return blkNum
+}
+
+func encodeCollElgVal(m *CollElgInfo) ([]byte, error) {
+	return proto.Marshal(m)
+}
+
+func decodeCollElgVal(b []byte) (*CollElgInfo, error) {
+	m := &CollElgInfo{}
+	if err := proto.Unmarshal(b, m); err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return m, nil
+}
+
 func createRangeScanKeysForEligibleMissingDataEntries(blkNum uint64) (startKey, endKey []byte) {
 	startKey = append(eligibleMissingDataKeyPrefix, util.EncodeReverseOrderVarUint64(blkNum)...)
 	endKey = append(eligibleMissingDataKeyPrefix, util.EncodeReverseOrderVarUint64(0)...)
 
 	return startKey, endKey
+}
+
+func createRangeScanKeysForIneligibleMissingData(maxBlkNum uint64, ns, coll string) (startKey, endKey []byte) {
+	startKey = encodeMissingDataKey(
+		&missingDataKey{
+			nsCollBlk:  nsCollBlk{ns: ns, coll: coll, blkNum: maxBlkNum},
+			isEligible: false,
+		},
+	)
+	endKey = encodeMissingDataKey(
+		&missingDataKey{
+			nsCollBlk:  nsCollBlk{ns: ns, coll: coll, blkNum: 0},
+			isEligible: false,
+		},
+	)
+	return
+}
+
+func createRangeScanKeysForCollElg() (startKey, endKey []byte) {
+	return encodeCollElgKey(math.MaxUint64),
+		encodeCollElgKey(0)
+}
+
+func datakeyRange(blockNum uint64) (startKey, endKey []byte) {
+	startKey = append(pvtDataKeyPrefix, version.NewHeight(blockNum, 0).ToBytes()...)
+	endKey = append(pvtDataKeyPrefix, version.NewHeight(blockNum, math.MaxUint64).ToBytes()...)
+	return
+}
+
+func eligibleMissingdatakeyRange(blkNum uint64) (startKey, endKey []byte) {
+	startKey = append(eligibleMissingDataKeyPrefix, util.EncodeReverseOrderVarUint64(blkNum)...)
+	endKey = append(eligibleMissingDataKeyPrefix, util.EncodeReverseOrderVarUint64(blkNum-1)...)
+	return
 }

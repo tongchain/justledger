@@ -10,247 +10,288 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/crypto"
-	"justledger/common/flogging"
-	"justledger/common/ledger/blockledger"
-	ramledger "justledger/common/ledger/blockledger/ram"
-	mockchannelconfig "justledger/common/mocks/config"
-	mockcrypto "justledger/common/mocks/crypto"
-	mockpolicies "justledger/common/mocks/policies"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/msp"
-	"justledger/orderer/consensus"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	"justledger/protos/utils"
-
-	mmsp "justledger/common/mocks/msp"
+	"github.com/justledger/fabric/common/crypto"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	"github.com/justledger/fabric/common/ledger/blockledger/ram"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	mockchannelconfig "github.com/justledger/fabric/common/mocks/config"
+	mockcrypto "github.com/justledger/fabric/common/mocks/crypto"
+	mockpolicies "github.com/justledger/fabric/common/mocks/policies"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/orderer/common/blockcutter"
+	"github.com/justledger/fabric/orderer/consensus"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
-
-var conf *genesisconfig.Profile
-var genesisBlock *cb.Block
-var mockSigningIdentity msp.SigningIdentity
-
-const NoConsortiumChain = "no-consortium-chain"
-
-func init() {
-	flogging.SetModuleLevel(pkgLogID, "DEBUG")
-	mockSigningIdentity, _ = mmsp.NewNoopMsp().GetDefaultSigningIdentity()
-
-	conf = configtxgentest.Load(genesisconfig.SampleInsecureSoloProfile)
-	genesisBlock = encoder.New(conf).GenesisBlock()
-}
 
 func mockCrypto() crypto.LocalSigner {
 	return mockcrypto.FakeLocalSigner
 }
 
-func NewRAMLedgerAndFactory(maxSize int) (blockledger.Factory, blockledger.ReadWriter) {
+func newRAMLedgerAndFactory(maxSize int,
+	chainID string, genesisBlockSys *cb.Block) (blockledger.Factory, blockledger.ReadWriter) {
 	rlf := ramledger.New(maxSize)
-	rl, err := rlf.GetOrCreate(genesisconfig.TestChainID)
+	rl, err := rlf.GetOrCreate(chainID)
 	if err != nil {
 		panic(err)
 	}
-	err = rl.Append(genesisBlock)
+	err = rl.Append(genesisBlockSys)
 	if err != nil {
 		panic(err)
 	}
 	return rlf, rl
 }
 
-func NewRAMLedger(maxSize int) blockledger.ReadWriter {
-	_, rl := NewRAMLedgerAndFactory(maxSize)
-	return rl
-}
-
-// Tests for a normal chain which contains 3 config transactions and other normal transactions to make sure the right one returned
-func TestGetConfigTx(t *testing.T) {
-	rl := NewRAMLedger(10)
-	for i := 0; i < 5; i++ {
-		rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, i)}))
+func testMessageOrderAndRetrieval(maxMessageCount uint32, chainID string, chainSupport *ChainSupport, lr blockledger.ReadWriter, t *testing.T) {
+	messages := make([]*cb.Envelope, maxMessageCount)
+	for i := uint32(0); i < maxMessageCount; i++ {
+		messages[i] = makeNormalTx(chainID, int(i))
 	}
-	rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{makeConfigTx(genesisconfig.TestChainID, 5)}))
-	ctx := makeConfigTx(genesisconfig.TestChainID, 6)
-	rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{ctx}))
-
-	block := blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, 7)})
-	block.Metadata.Metadata[cb.BlockMetadataIndex_LAST_CONFIG] = utils.MarshalOrPanic(&cb.Metadata{Value: utils.MarshalOrPanic(&cb.LastConfig{Index: 7})})
-	rl.Append(block)
-
-	pctx := getConfigTx(rl)
-	assert.True(t, proto.Equal(pctx, ctx), "Did not select most recent config transaction")
-}
-
-// Tests a chain which contains blocks with multi-transactions mixed with config txs, and a single tx which is not a config tx, none count as config blocks so nil should return
-func TestGetConfigTxFailure(t *testing.T) {
-	rl := NewRAMLedger(10)
-	for i := 0; i < 10; i++ {
-		rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{
-			makeNormalTx(genesisconfig.TestChainID, i),
-			makeConfigTx(genesisconfig.TestChainID, i),
-		}))
-	}
-	rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, 11)}))
-	assert.Panics(t, func() { getConfigTx(rl) }, "Should have panicked because there was no config tx")
-
-	block := blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, 12)})
-	block.Metadata.Metadata[cb.BlockMetadataIndex_LAST_CONFIG] = []byte("bad metadata")
-	assert.Panics(t, func() { getConfigTx(rl) }, "Should have panicked because of bad last config metadata")
-}
-
-// This test checks to make sure the orderer refuses to come up if it cannot find a system channel
-func TestNoSystemChain(t *testing.T) {
-	lf := ramledger.New(10)
-
-	consenters := make(map[string]consensus.Consenter)
-	consenters[conf.Orderer.OrdererType] = &mockConsenter{}
-
-	assert.Panics(t, func() { NewRegistrar(lf, consenters, mockCrypto()) }, "Should have panicked when starting without a system chain")
-}
-
-// This test checks to make sure that the orderer refuses to come up if there are multiple system channels
-func TestMultiSystemChannel(t *testing.T) {
-	lf := ramledger.New(10)
-
-	for _, id := range []string{"foo", "bar"} {
-		rl, err := lf.GetOrCreate(id)
-		assert.NoError(t, err)
-
-		err = rl.Append(encoder.New(conf).GenesisBlockForChannel(id))
-		assert.NoError(t, err)
-	}
-
-	consenters := make(map[string]consensus.Consenter)
-	consenters[conf.Orderer.OrdererType] = &mockConsenter{}
-
-	assert.Panics(t, func() { NewRegistrar(lf, consenters, mockCrypto()) }, "Two system channels should have caused panic")
-}
-
-// This test essentially brings the entire system up and is ultimately what main.go will replicate
-func TestManagerImpl(t *testing.T) {
-	lf, rl := NewRAMLedgerAndFactory(10)
-
-	consenters := make(map[string]consensus.Consenter)
-	consenters[conf.Orderer.OrdererType] = &mockConsenter{}
-
-	manager := NewRegistrar(lf, consenters, mockCrypto())
-
-	_, ok := manager.GetChain("Fake")
-	assert.False(t, ok, "Should not have found a chain that was not created")
-
-	chainSupport, ok := manager.GetChain(genesisconfig.TestChainID)
-	assert.True(t, ok, "Should have gotten chain which was initialized by ramledger")
-
-	messages := make([]*cb.Envelope, conf.Orderer.BatchSize.MaxMessageCount)
-	for i := 0; i < int(conf.Orderer.BatchSize.MaxMessageCount); i++ {
-		messages[i] = makeNormalTx(genesisconfig.TestChainID, i)
-	}
-
 	for _, message := range messages {
 		chainSupport.Order(message, 0)
 	}
-
-	it, _ := rl.Iterator(&ab.SeekPosition{Type: &ab.SeekPosition_Specified{Specified: &ab.SeekSpecified{Number: 1}}})
+	it, _ := lr.Iterator(&ab.SeekPosition{Type: &ab.SeekPosition_Specified{Specified: &ab.SeekSpecified{Number: 1}}})
 	defer it.Close()
 	block, status := it.Next()
 	assert.Equal(t, cb.Status_SUCCESS, status, "Could not retrieve block")
-	for i := 0; i < int(conf.Orderer.BatchSize.MaxMessageCount); i++ {
-		assert.True(t, proto.Equal(messages[i], utils.ExtractEnvelopeOrPanic(block, i)), "Block contents wrong at index %d", i)
+	for i := uint32(0); i < maxMessageCount; i++ {
+		assert.True(t, proto.Equal(messages[i], utils.ExtractEnvelopeOrPanic(block, int(i))), "Block contents wrong at index %d", i)
 	}
 }
 
-// This test brings up the entire system, with the mock consenter, including the broadcasters etc. and creates a new chain
-func TestNewChain(t *testing.T) {
-	expectedLastConfigBlockNumber := uint64(0)
-	expectedLastConfigSeq := uint64(1)
-	newChainID := "test-new-chain"
+func TestConfigTx(t *testing.T) {
+	// system channel
+	confSys := configtxgentest.Load(genesisconfig.SampleInsecureSoloProfile)
+	genesisBlockSys := encoder.New(confSys).GenesisBlock()
 
-	lf, rl := NewRAMLedgerAndFactory(10)
+	// Tests for a normal chain which contains 3 config transactions and other normal transactions to make
+	// sure the right one returned
+	t.Run("GetConfigTx - ok", func(t *testing.T) {
+		_, rl := newRAMLedgerAndFactory(10, genesisconfig.TestChainID, genesisBlockSys)
+		for i := 0; i < 5; i++ {
+			rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, i)}))
+		}
+		rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{makeConfigTx(genesisconfig.TestChainID, 5)}))
+		ctx := makeConfigTx(genesisconfig.TestChainID, 6)
+		rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{ctx}))
 
-	consenters := make(map[string]consensus.Consenter)
-	consenters[conf.Orderer.OrdererType] = &mockConsenter{}
+		block := blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, 7)})
+		block.Metadata.Metadata[cb.BlockMetadataIndex_LAST_CONFIG] = utils.MarshalOrPanic(&cb.Metadata{Value: utils.MarshalOrPanic(&cb.LastConfig{Index: 7})})
+		rl.Append(block)
 
-	manager := NewRegistrar(lf, consenters, mockCrypto())
-	orglessChannelConf := configtxgentest.Load(genesisconfig.SampleSingleMSPChannelProfile)
-	orglessChannelConf.Application.Organizations = nil
-	envConfigUpdate, err := encoder.MakeChannelCreationTransaction(newChainID, mockCrypto(), orglessChannelConf)
-	assert.NoError(t, err, "Constructing chain creation tx")
+		pctx := configTx(rl)
+		assert.True(t, proto.Equal(pctx, ctx), "Did not select most recent config transaction")
+	})
 
-	res, err := manager.NewChannelConfig(envConfigUpdate)
-	assert.NoError(t, err, "Constructing initial channel config")
+	// Tests a chain which contains blocks with multi-transactions mixed with config txs,
+	// and a single tx which is not a config tx, none count as config blocks so nil should return
+	t.Run("GetConfigTx - failure", func(t *testing.T) {
+		_, rl := newRAMLedgerAndFactory(10, genesisconfig.TestChainID, genesisBlockSys)
+		for i := 0; i < 10; i++ {
+			rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{
+				makeNormalTx(genesisconfig.TestChainID, i),
+				makeConfigTx(genesisconfig.TestChainID, i),
+			}))
+		}
+		rl.Append(blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, 11)}))
+		assert.Panics(t, func() { configTx(rl) }, "Should have panicked because there was no config tx")
 
-	configEnv, err := res.ConfigtxValidator().ProposeConfigUpdate(envConfigUpdate)
-	assert.NoError(t, err, "Proposing initial update")
-	assert.Equal(t, expectedLastConfigSeq, configEnv.GetConfig().Sequence, "Sequence of config envelope for new channel should always be set to %d", expectedLastConfigSeq)
+		block := blockledger.CreateNextBlock(rl, []*cb.Envelope{makeNormalTx(genesisconfig.TestChainID, 12)})
+		block.Metadata.Metadata[cb.BlockMetadataIndex_LAST_CONFIG] = []byte("bad metadata")
+		assert.Panics(t, func() { configTx(rl) }, "Should have panicked because of bad last config metadata")
+	})
+}
 
-	ingressTx, err := utils.CreateSignedEnvelope(cb.HeaderType_CONFIG, newChainID, mockCrypto(), configEnv, msgVersion, epoch)
-	assert.NoError(t, err, "Creating ingresstx")
+func TestNewRegistrar(t *testing.T) {
+	// system channel
+	confSys := configtxgentest.Load(genesisconfig.SampleInsecureSoloProfile)
+	genesisBlockSys := encoder.New(confSys).GenesisBlock()
 
-	wrapped := wrapConfigTx(ingressTx)
+	// This test checks to make sure the orderer refuses to come up if it cannot find a system channel
+	t.Run("No system chain - failure", func(t *testing.T) {
+		lf := ramledger.New(10)
 
-	chainSupport, ok := manager.GetChain(manager.SystemChannelID())
-	assert.True(t, ok, "Could not find system channel")
+		consenters := make(map[string]consensus.Consenter)
+		consenters[confSys.Orderer.OrdererType] = &mockConsenter{}
 
-	chainSupport.Configure(wrapped, 0)
-	func() {
-		it, _ := rl.Iterator(&ab.SeekPosition{Type: &ab.SeekPosition_Specified{Specified: &ab.SeekSpecified{Number: 1}}})
+		assert.Panics(t, func() {
+			NewRegistrar(lf, mockCrypto(), &disabled.Provider{}).Initialize(consenters)
+		}, "Should have panicked when starting without a system chain")
+	})
+
+	// This test checks to make sure that the orderer refuses to come up if there are multiple system channels
+	t.Run("Multiple system chains - failure", func(t *testing.T) {
+		lf := ramledger.New(10)
+
+		for _, id := range []string{"foo", "bar"} {
+			rl, err := lf.GetOrCreate(id)
+			assert.NoError(t, err)
+
+			err = rl.Append(encoder.New(confSys).GenesisBlockForChannel(id))
+			assert.NoError(t, err)
+		}
+
+		consenters := make(map[string]consensus.Consenter)
+		consenters[confSys.Orderer.OrdererType] = &mockConsenter{}
+
+		assert.Panics(t, func() {
+			NewRegistrar(lf, mockCrypto(), &disabled.Provider{}).Initialize(consenters)
+		}, "Two system channels should have caused panic")
+	})
+
+	// This test essentially brings the entire system up and is ultimately what main.go will replicate
+	t.Run("Correct flow", func(t *testing.T) {
+		lf, rl := newRAMLedgerAndFactory(10, genesisconfig.TestChainID, genesisBlockSys)
+
+		consenters := make(map[string]consensus.Consenter)
+		consenters[confSys.Orderer.OrdererType] = &mockConsenter{}
+
+		manager := NewRegistrar(lf, mockCrypto(), &disabled.Provider{})
+		manager.Initialize(consenters)
+
+		chainSupport := manager.GetChain("Fake")
+		assert.Nilf(t, chainSupport, "Should not have found a chain that was not created")
+
+		chainSupport = manager.GetChain(genesisconfig.TestChainID)
+		assert.NotNilf(t, chainSupport, "Should have gotten chain which was initialized by ramledger")
+
+		testMessageOrderAndRetrieval(confSys.Orderer.BatchSize.MaxMessageCount, genesisconfig.TestChainID, chainSupport, rl, t)
+	})
+}
+
+func TestCreateChain(t *testing.T) {
+	// system channel
+	confSys := configtxgentest.Load(genesisconfig.SampleInsecureSoloProfile)
+	genesisBlockSys := encoder.New(confSys).GenesisBlock()
+
+	t.Run("Create chain", func(t *testing.T) {
+		lf, _ := newRAMLedgerAndFactory(10, genesisconfig.TestChainID, genesisBlockSys)
+
+		consenters := make(map[string]consensus.Consenter)
+		consenters[confSys.Orderer.OrdererType] = &mockConsenter{}
+
+		manager := NewRegistrar(lf, mockCrypto(), &disabled.Provider{})
+		manager.Initialize(consenters)
+
+		ledger, err := lf.GetOrCreate("mychannel")
+		assert.NoError(t, err)
+
+		genesisBlock := encoder.New(confSys).GenesisBlockForChannel("mychannel")
+		ledger.Append(genesisBlock)
+
+		// Before creating the chain, it doesn't exist
+		assert.Nil(t, manager.GetChain("mychannel"))
+		// After creating the chain, it exists
+		manager.CreateChain("mychannel")
+		chain := manager.GetChain("mychannel")
+		assert.NotNil(t, chain)
+		// A subsequent creation, replaces the chain.
+		manager.CreateChain("mychannel")
+		chain2 := manager.GetChain("mychannel")
+		assert.NotNil(t, chain2)
+		// They are not the same
+		assert.NotEqual(t, chain, chain2)
+		// The old chain is halted
+		_, ok := <-chain.Chain.(*mockChain).queue
+		assert.False(t, ok)
+		// The new chain is not halted: Close the channel to prove that.
+		close(chain2.Chain.(*mockChain).queue)
+	})
+
+	// This test brings up the entire system, with the mock consenter, including the broadcasters etc. and creates a new chain
+	t.Run("New chain", func(t *testing.T) {
+		expectedLastConfigBlockNumber := uint64(0)
+		expectedLastConfigSeq := uint64(1)
+		newChainID := "test-new-chain"
+
+		lf, rl := newRAMLedgerAndFactory(10, genesisconfig.TestChainID, genesisBlockSys)
+
+		consenters := make(map[string]consensus.Consenter)
+		consenters[confSys.Orderer.OrdererType] = &mockConsenter{}
+
+		manager := NewRegistrar(lf, mockCrypto(), &disabled.Provider{})
+		manager.Initialize(consenters)
+		orglessChannelConf := configtxgentest.Load(genesisconfig.SampleSingleMSPChannelProfile)
+		orglessChannelConf.Application.Organizations = nil
+		envConfigUpdate, err := encoder.MakeChannelCreationTransaction(newChainID, mockCrypto(), orglessChannelConf)
+		assert.NoError(t, err, "Constructing chain creation tx")
+
+		res, err := manager.NewChannelConfig(envConfigUpdate)
+		assert.NoError(t, err, "Constructing initial channel config")
+
+		configEnv, err := res.ConfigtxValidator().ProposeConfigUpdate(envConfigUpdate)
+		assert.NoError(t, err, "Proposing initial update")
+		assert.Equal(t, expectedLastConfigSeq, configEnv.GetConfig().Sequence, "Sequence of config envelope for new channel should always be set to %d", expectedLastConfigSeq)
+
+		ingressTx, err := utils.CreateSignedEnvelope(cb.HeaderType_CONFIG, newChainID, mockCrypto(), configEnv, msgVersion, epoch)
+		assert.NoError(t, err, "Creating ingresstx")
+
+		wrapped := wrapConfigTx(ingressTx)
+
+		chainSupport := manager.GetChain(manager.SystemChannelID())
+		assert.NotNilf(t, chainSupport, "Could not find system channel")
+
+		chainSupport.Configure(wrapped, 0)
+		func() {
+			it, _ := rl.Iterator(&ab.SeekPosition{Type: &ab.SeekPosition_Specified{Specified: &ab.SeekSpecified{Number: 1}}})
+			defer it.Close()
+			block, status := it.Next()
+			if status != cb.Status_SUCCESS {
+				t.Fatalf("Could not retrieve block")
+			}
+			if len(block.Data.Data) != 1 {
+				t.Fatalf("Should have had only one message in the orderer transaction block")
+			}
+
+			assert.True(t, proto.Equal(wrapped, utils.UnmarshalEnvelopeOrPanic(block.Data.Data[0])), "Orderer config block contains wrong transaction")
+		}()
+
+		chainSupport = manager.GetChain(newChainID)
+		if chainSupport == nil {
+			t.Fatalf("Should have gotten new chain which was created")
+		}
+
+		messages := make([]*cb.Envelope, confSys.Orderer.BatchSize.MaxMessageCount)
+		for i := 0; i < int(confSys.Orderer.BatchSize.MaxMessageCount); i++ {
+			messages[i] = makeNormalTx(newChainID, i)
+		}
+
+		for _, message := range messages {
+			chainSupport.Order(message, 0)
+		}
+
+		it, _ := chainSupport.Reader().Iterator(&ab.SeekPosition{Type: &ab.SeekPosition_Specified{Specified: &ab.SeekSpecified{Number: 0}}})
 		defer it.Close()
 		block, status := it.Next()
 		if status != cb.Status_SUCCESS {
-			t.Fatalf("Could not retrieve block")
+			t.Fatalf("Could not retrieve new chain genesis block")
 		}
+		testLastConfigBlockNumber(t, block, expectedLastConfigBlockNumber)
 		if len(block.Data.Data) != 1 {
-			t.Fatalf("Should have had only one message in the orderer transaction block")
+			t.Fatalf("Should have had only one message in the new genesis block")
 		}
 
-		assert.True(t, proto.Equal(wrapped, utils.UnmarshalEnvelopeOrPanic(block.Data.Data[0])), "Orderer config block contains wrong transaction")
-	}()
+		assert.True(t, proto.Equal(ingressTx, utils.UnmarshalEnvelopeOrPanic(block.Data.Data[0])), "Genesis block contains wrong transaction")
 
-	chainSupport, ok = manager.GetChain(newChainID)
-
-	if !ok {
-		t.Fatalf("Should have gotten new chain which was created")
-	}
-
-	messages := make([]*cb.Envelope, conf.Orderer.BatchSize.MaxMessageCount)
-	for i := 0; i < int(conf.Orderer.BatchSize.MaxMessageCount); i++ {
-		messages[i] = makeNormalTx(newChainID, i)
-	}
-
-	for _, message := range messages {
-		chainSupport.Order(message, 0)
-	}
-
-	it, _ := chainSupport.Reader().Iterator(&ab.SeekPosition{Type: &ab.SeekPosition_Specified{Specified: &ab.SeekSpecified{Number: 0}}})
-	defer it.Close()
-	block, status := it.Next()
-	if status != cb.Status_SUCCESS {
-		t.Fatalf("Could not retrieve new chain genesis block")
-	}
-	testLastConfigBlockNumber(t, block, expectedLastConfigBlockNumber)
-	if len(block.Data.Data) != 1 {
-		t.Fatalf("Should have had only one message in the new genesis block")
-	}
-
-	assert.True(t, proto.Equal(ingressTx, utils.UnmarshalEnvelopeOrPanic(block.Data.Data[0])), "Genesis block contains wrong transaction")
-
-	block, status = it.Next()
-	if status != cb.Status_SUCCESS {
-		t.Fatalf("Could not retrieve block on new chain")
-	}
-	testLastConfigBlockNumber(t, block, expectedLastConfigBlockNumber)
-	for i := 0; i < int(conf.Orderer.BatchSize.MaxMessageCount); i++ {
-		if !proto.Equal(utils.ExtractEnvelopeOrPanic(block, i), messages[i]) {
-			t.Errorf("Block contents wrong at index %d in new chain", i)
+		block, status = it.Next()
+		if status != cb.Status_SUCCESS {
+			t.Fatalf("Could not retrieve block on new chain")
 		}
-	}
+		testLastConfigBlockNumber(t, block, expectedLastConfigBlockNumber)
+		for i := 0; i < int(confSys.Orderer.BatchSize.MaxMessageCount); i++ {
+			if !proto.Equal(utils.ExtractEnvelopeOrPanic(block, i), messages[i]) {
+				t.Errorf("Block contents wrong at index %d in new chain", i)
+			}
+		}
 
-	rcs := newChainSupport(manager, chainSupport.ledgerResources, consenters, mockCrypto())
-	assert.Equal(t, expectedLastConfigSeq, rcs.lastConfigSeq, "On restart, incorrect lastConfigSeq")
+		rcs := newChainSupport(manager, chainSupport.ledgerResources, consenters, mockCrypto(), blockcutter.NewMetrics(&disabled.Provider{}))
+		assert.Equal(t, expectedLastConfigSeq, rcs.lastConfigSeq, "On restart, incorrect lastConfigSeq")
+	})
 }
 
 func testLastConfigBlockNumber(t *testing.T, block *cb.Block, expectedBlockNumber uint64) {
@@ -329,11 +370,19 @@ func TestResourcesCheck(t *testing.T) {
 
 // The registrar's BroadcastChannelSupport implementation should reject message types which should not be processed directly.
 func TestBroadcastChannelSupportRejection(t *testing.T) {
-	ledgerFactory, _ := NewRAMLedgerAndFactory(10)
-	mockConsenters := map[string]consensus.Consenter{conf.Orderer.OrdererType: &mockConsenter{}}
-	registrar := NewRegistrar(ledgerFactory, mockConsenters, mockCrypto())
-	randomValue := 1
-	configTx := makeConfigTx(genesisconfig.TestChainID, randomValue)
-	_, _, _, err := registrar.BroadcastChannelSupport(configTx)
-	assert.Error(t, err, "Messages of type HeaderType_CONFIG should return an error.")
+	// system channel
+	confSys := configtxgentest.Load(genesisconfig.SampleInsecureSoloProfile)
+	genesisBlockSys := encoder.New(confSys).GenesisBlock()
+
+	t.Run("Rejection", func(t *testing.T) {
+
+		ledgerFactory, _ := newRAMLedgerAndFactory(10, genesisconfig.TestChainID, genesisBlockSys)
+		mockConsenters := map[string]consensus.Consenter{confSys.Orderer.OrdererType: &mockConsenter{}}
+		registrar := NewRegistrar(ledgerFactory, mockCrypto(), &disabled.Provider{})
+		registrar.Initialize(mockConsenters)
+		randomValue := 1
+		configTx := makeConfigTx(genesisconfig.TestChainID, randomValue)
+		_, _, _, err := registrar.BroadcastChannelSupport(configTx)
+		assert.Error(t, err, "Messages of type HeaderType_CONFIG should return an error.")
+	})
 }

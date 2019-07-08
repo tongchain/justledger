@@ -21,15 +21,15 @@ import (
 	"os"
 	"testing"
 
-	"justledger/common/flogging"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/validator/internal"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/rwset/kvrwset"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/validator/internal"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,9 +44,7 @@ type keyValue struct {
 }
 
 func TestMain(m *testing.M) {
-	flogging.SetModuleLevel("statevalidator", "debug")
-	flogging.SetModuleLevel("statebasedval", "debug")
-	flogging.SetModuleLevel("statecouchdb", "debug")
+	flogging.ActivateSpec("statevalidator,statebasedval,statecouchdb=debug")
 	viper.Set("peer.fileSystemPath", "/tmp/fabric/ledgertests/kvledger/txmgmt/validator/statebasedval")
 	os.Exit(m.Run())
 }

@@ -10,18 +10,18 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/common/channelconfig"
-	"justledger/common/configtx"
-	"justledger/common/crypto"
-	mockconfig "justledger/common/mocks/config"
-	mockconfigtx "justledger/common/mocks/configtx"
-	mockcrypto "justledger/common/mocks/crypto"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
-
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/configtx"
+	"github.com/justledger/fabric/common/crypto"
+	mockconfig "github.com/justledger/fabric/common/mocks/config"
+	mockconfigtx "github.com/justledger/fabric/common/mocks/configtx"
+	mockcrypto "github.com/justledger/fabric/common/mocks/crypto"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -179,6 +179,22 @@ func TestNumChainsExceeded(t *testing.T) {
 
 	assert.NotNil(t, err, "Transaction had created too many channels")
 	assert.Regexp(t, "exceed maximimum number", err)
+}
+
+func TestMaintenanceMode(t *testing.T) {
+	newChainID := "NewChainID"
+
+	mcc := newMockChainCreator()
+	mcc.ms.msc.ConsensusTypeStateVal = orderer.ConsensusType_STATE_MAINTENANCE
+
+	configUpdate, err := encoder.MakeChannelCreationTransaction(newChainID, nil, configtxgentest.Load(genesisconfig.SampleSingleMSPChannelProfile))
+	assert.Nil(t, err, "Error constructing configtx")
+	ingressTx := makeConfigTxFromConfigUpdateTx(configUpdate)
+
+	wrapped := wrapConfigTx(ingressTx)
+
+	err = NewSystemChannelFilter(mcc.ms, mcc).Apply(wrapped)
+	assert.EqualError(t, err, "channel creation is not permitted: maintenance mode")
 }
 
 func TestBadProposal(t *testing.T) {

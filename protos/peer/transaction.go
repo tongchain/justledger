@@ -9,9 +9,8 @@ package peer
 import (
 	"fmt"
 
-	"justledger/protos/common"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/protos/common"
 )
 
 func init() {

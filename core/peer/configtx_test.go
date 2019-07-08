@@ -15,20 +15,21 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/capabilities"
-	"justledger/common/channelconfig"
-	configtxtest "justledger/common/configtx/test"
-	"justledger/common/ledger/testutil"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/core/config/configtest"
-	"justledger/core/ledger"
-	"justledger/core/ledger/ledgermgmt"
-	mspmgmt "justledger/msp/mgmt"
-	ordererconfig "justledger/orderer/common/localconfig"
-	"justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/capabilities"
+	"github.com/justledger/fabric/common/channelconfig"
+	configtxtest "github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/customtx"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	ordererconfig "github.com/justledger/fabric/orderer/common/localconfig"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -48,7 +49,12 @@ func TestConfigTxCreateLedger(t *testing.T) {
 	defer cleanup()
 
 	chainid := "testchain1"
-	ledgermgmt.InitializeTestEnvWithCustomProcessors(ConfigTxProcessors)
+	ledgermgmt.InitializeTestEnvWithInitializer(
+		&ledgermgmt.Initializer{
+			CustomTxProcessors: ConfigTxProcessors,
+		},
+	)
+
 	defer ledgermgmt.CleanupTestEnv()
 
 	chanConf := helper.sampleChannelConfig(1, true)
@@ -67,7 +73,12 @@ func TestConfigTxUpdateChanConfig(t *testing.T) {
 	cleanup := setupPeerFS(t)
 	defer cleanup()
 	chainid := "testchain1"
-	ledgermgmt.InitializeTestEnvWithCustomProcessors(ConfigTxProcessors)
+	ledgermgmt.InitializeTestEnvWithInitializer(
+		&ledgermgmt.Initializer{
+			CustomTxProcessors: ConfigTxProcessors,
+		},
+	)
+
 	defer ledgermgmt.CleanupTestEnv()
 
 	chanConf := helper.sampleChannelConfig(1, true)
@@ -104,7 +115,12 @@ func TestGenesisBlockCreateLedger(t *testing.T) {
 	b, err := configtxtest.MakeGenesisBlock("testchain")
 	assert.NoError(t, err)
 
-	ledgermgmt.InitializeTestEnvWithCustomProcessors(ConfigTxProcessors)
+	ledgermgmt.InitializeTestEnvWithInitializer(
+		&ledgermgmt.Initializer{
+			CustomTxProcessors: ConfigTxProcessors,
+		},
+	)
+
 	defer ledgermgmt.CleanupTestEnv()
 
 	lgr, err := ledgermgmt.CreateLedger(b)
@@ -113,6 +129,21 @@ func TestGenesisBlockCreateLedger(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, chanConf)
 	t.Logf("chanConf = %s", chanConf)
+}
+
+func TestCustomTxProcessors(t *testing.T) {
+	cleanup := setupPeerFS(t)
+	defer cleanup()
+
+	ledgermgmt.InitializeExistingTestEnvWithInitializer(&ledgermgmt.Initializer{
+		CustomTxProcessors: ConfigTxProcessors,
+	})
+	defer ledgermgmt.CleanupTestEnv()
+
+	processor := customtx.GetProcessor(common.HeaderType_CONFIG)
+	assert.NotNil(t, processor)
+	processor = customtx.GetProcessor(common.HeaderType_TOKEN_TRANSACTION)
+	assert.NotNil(t, processor)
 }
 
 type testHelper struct {

@@ -11,16 +11,16 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/flogging"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/rwset"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/ledger/rwset"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
-	flogging.SetModuleLevel("rwsetutil", "debug")
+	flogging.ActivateSpec("rwsetutil=debug")
 	os.Exit(m.Run())
 }
 
@@ -331,8 +331,8 @@ func TestTxSimulationResultWithMetadata(t *testing.T) {
 	}
 	assert.Equal(t, pubAndHashCombinedNs1, actualSimRes.PubSimulationResults.NsRwset[0])
 	pubAndHashCombinedNs2 := &rwset.NsReadWriteSet{
-		Namespace: "ns2",
-		Rwset:     serializeTestProtoMsg(t, pubNs2),
+		Namespace:             "ns2",
+		Rwset:                 serializeTestProtoMsg(t, pubNs2),
 		CollectionHashedRwset: nil,
 	}
 	expectedPubRWSet := &rwset.TxReadWriteSet{

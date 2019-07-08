@@ -19,14 +19,14 @@ package node
 import (
 	"fmt"
 
-	"justledger/common/flogging"
-	"justledger/peer/common"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/peer/common"
 	"github.com/spf13/cobra"
 )
 
 const (
 	nodeFuncName = "node"
-	nodeCmdDes   = "Operate a peer node: start|status."
+	nodeCmdDes   = "Operate a peer node: start|status|reset|rollback."
 )
 
 var logger = flogging.MustGetLogger("nodeCmd")
@@ -35,6 +35,8 @@ var logger = flogging.MustGetLogger("nodeCmd")
 func Cmd() *cobra.Command {
 	nodeCmd.AddCommand(startCmd())
 	nodeCmd.AddCommand(statusCmd())
+	nodeCmd.AddCommand(resetCmd())
+	nodeCmd.AddCommand(rollbackCmd())
 
 	return nodeCmd
 }

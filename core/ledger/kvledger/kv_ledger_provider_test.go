@@ -23,16 +23,18 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	configtxtest "justledger/common/configtx/test"
-	"justledger/common/ledger/blkstorage/fsblkstorage"
-	"justledger/common/ledger/testutil"
-	"justledger/common/util"
-	lgr "justledger/core/ledger"
-	"justledger/core/ledger/ledgerconfig"
-	"justledger/core/ledger/mock"
-	"justledger/protos/common"
-	"justledger/protos/ledger/queryresult"
-	putils "justledger/protos/utils"
+	configtxtest "github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/common/ledger/blkstorage/fsblkstorage"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/ledger"
+	lgr "github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"github.com/justledger/fabric/core/ledger/mock"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
+	putils "github.com/justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -104,7 +106,7 @@ func TestRecovery(t *testing.T) {
 	// now create the genesis block
 	genesisBlock, _ := configtxtest.MakeGenesisBlock(constructTestLedgerID(1))
 	ledger, err := provider.(*Provider).openInternal(constructTestLedgerID(1))
-	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: genesisBlock})
+	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: genesisBlock}, &lgr.CommitOptions{})
 	ledger.Close()
 
 	// Case 1: assume a crash happens, force underconstruction flag to be set to simulate
@@ -156,7 +158,7 @@ func TestMultipleLedgerBasicRW(t *testing.T) {
 		assert.NoError(t, err)
 		pubSimBytes, _ := res.GetPubSimulationBytes()
 		b := bg.NextBlock([][]byte{pubSimBytes})
-		err = l.CommitWithPvtData(&lgr.BlockAndPvtData{Block: b})
+		err = l.CommitWithPvtData(&lgr.BlockAndPvtData{Block: b}, &ledger.CommitOptions{})
 		l.Close()
 		assert.NoError(t, err)
 	}
@@ -204,7 +206,7 @@ func TestLedgerBackup(t *testing.T) {
 	simRes, _ := simulator.GetTxSimulationResults()
 	pubSimBytes, _ := simRes.GetPubSimulationBytes()
 	block1 := bg.NextBlock([][]byte{pubSimBytes})
-	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block1})
+	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block1}, &lgr.CommitOptions{})
 
 	txid = util.GenerateUUID()
 	simulator, _ = ledger.NewTxSimulator(txid)
@@ -215,7 +217,7 @@ func TestLedgerBackup(t *testing.T) {
 	simRes, _ = simulator.GetTxSimulationResults()
 	pubSimBytes, _ = simRes.GetPubSimulationBytes()
 	block2 := bg.NextBlock([][]byte{pubSimBytes})
-	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block2})
+	ledger.CommitWithPvtData(&lgr.BlockAndPvtData{Block: block2}, &lgr.CommitOptions{})
 
 	ledger.Close()
 	provider.Close()
@@ -308,6 +310,38 @@ func testutilNewProvider(t *testing.T) lgr.PeerLedgerProvider {
 	assert.NoError(t, err)
 	provider.Initialize(&lgr.Initializer{
 		DeployedChaincodeInfoProvider: &mock.DeployedChaincodeInfoProvider{},
+		MetricsProvider:               &disabled.Provider{},
 	})
+	return provider
+}
+
+func testutilNewProviderWithCollectionConfig(t *testing.T, namespace string, btlConfigs map[string]uint64) lgr.PeerLedgerProvider {
+	provider := testutilNewProvider(t)
+	mockCCInfoProvider := provider.(*Provider).initializer.DeployedChaincodeInfoProvider.(*mock.DeployedChaincodeInfoProvider)
+	collMap := map[string]*common.StaticCollectionConfig{}
+	var conf []*common.CollectionConfig
+	for collName, btl := range btlConfigs {
+		staticConf := &common.StaticCollectionConfig{Name: collName, BlockToLive: btl}
+		collMap[collName] = staticConf
+		collectionConf := &common.CollectionConfig{}
+		collectionConf.Payload = &common.CollectionConfig_StaticCollectionConfig{StaticCollectionConfig: staticConf}
+		conf = append(conf, collectionConf)
+	}
+	collectionConfPkg := &common.CollectionConfigPackage{Config: conf}
+
+	mockCCInfoProvider.ChaincodeInfoStub = func(ccName string, qe lgr.SimpleQueryExecutor) (*lgr.DeployedChaincodeInfo, error) {
+		if ccName == namespace {
+			return &lgr.DeployedChaincodeInfo{
+				Name: namespace, CollectionConfigPkg: collectionConfPkg}, nil
+		}
+		return nil, nil
+	}
+
+	mockCCInfoProvider.CollectionInfoStub = func(ccName, collName string, qe lgr.SimpleQueryExecutor) (*common.StaticCollectionConfig, error) {
+		if ccName == namespace {
+			return collMap[collName], nil
+		}
+		return nil, nil
+	}
 	return provider
 }

@@ -19,8 +19,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/chaincode/lib/cid"
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/core/chaincode/lib/cid"
+	"github.com/justledger/fabric/protos/msp"
 	"github.com/stretchr/testify/assert"
 )
 

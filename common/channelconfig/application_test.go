@@ -9,11 +9,10 @@ package channelconfig
 import (
 	"testing"
 
-	"justledger/common/capabilities"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/common/capabilities"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	. "github.com/onsi/gomega"
 )
 

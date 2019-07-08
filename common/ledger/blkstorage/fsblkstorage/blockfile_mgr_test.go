@@ -20,13 +20,12 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/ledger/testutil"
-	ledgerutil "justledger/core/ledger/util"
+	"github.com/justledger/fabric/common/ledger/testutil"
+	ledgerutil "github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/peer"
+	putil "github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
-
-	"justledger/protos/common"
-	"justledger/protos/peer"
-	putil "justledger/protos/utils"
 )
 
 func TestBlockfileMgrBlockReadWrite(t *testing.T) {
@@ -36,8 +35,8 @@ func TestBlockfileMgrBlockReadWrite(t *testing.T) {
 	defer blkfileMgrWrapper.close()
 	blocks := testutil.ConstructTestBlocks(t, 10)
 	blkfileMgrWrapper.addBlocks(blocks)
-	blkfileMgrWrapper.testGetBlockByHash(blocks)
-	blkfileMgrWrapper.testGetBlockByNumber(blocks, 0)
+	blkfileMgrWrapper.testGetBlockByHash(blocks, nil)
+	blkfileMgrWrapper.testGetBlockByNumber(blocks, 0, nil)
 }
 
 func TestAddBlockWithWrongHash(t *testing.T) {
@@ -287,7 +286,7 @@ func TestBlockfileMgrRestart(t *testing.T) {
 	blkfileMgrWrapper = newTestBlockfileWrapper(env, ledgerid)
 	defer blkfileMgrWrapper.close()
 	assert.Equal(t, 9, int(blkfileMgrWrapper.blockfileMgr.cpInfo.lastBlockNumber))
-	blkfileMgrWrapper.testGetBlockByHash(blocks)
+	blkfileMgrWrapper.testGetBlockByHash(blocks, nil)
 	assert.Equal(t, expectedHeight, blkfileMgrWrapper.blockfileMgr.getBlockchainInfo().Height)
 }
 
@@ -309,14 +308,14 @@ func TestBlockfileMgrFileRolling(t *testing.T) {
 	blkfileMgrWrapper := newTestBlockfileWrapper(env, ledgerid)
 	blkfileMgrWrapper.addBlocks(blocks[:100])
 	assert.Equal(t, 1, blkfileMgrWrapper.blockfileMgr.cpInfo.latestFileChunkSuffixNum)
-	blkfileMgrWrapper.testGetBlockByHash(blocks[:100])
+	blkfileMgrWrapper.testGetBlockByHash(blocks[:100], nil)
 	blkfileMgrWrapper.close()
 
 	blkfileMgrWrapper = newTestBlockfileWrapper(env, ledgerid)
 	defer blkfileMgrWrapper.close()
 	blkfileMgrWrapper.addBlocks(blocks[100:])
 	assert.Equal(t, 2, blkfileMgrWrapper.blockfileMgr.cpInfo.latestFileChunkSuffixNum)
-	blkfileMgrWrapper.testGetBlockByHash(blocks[100:])
+	blkfileMgrWrapper.testGetBlockByHash(blocks[100:], nil)
 }
 
 func TestBlockfileMgrGetBlockByTxID(t *testing.T) {

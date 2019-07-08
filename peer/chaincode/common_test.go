@@ -17,19 +17,19 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/bccsp/factory"
-	"justledger/common/cauthdsl"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/core/config/configtest"
-	"justledger/peer/chaincode/mock"
-	"justledger/peer/common"
-	"justledger/peer/common/api"
-	cmock "justledger/peer/common/mock"
-	common2 "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/peer/chaincode/mock"
+	"github.com/justledger/fabric/peer/common"
+	"github.com/justledger/fabric/peer/common/api"
+	cmock "github.com/justledger/fabric/peer/common/mock"
+	common2 "github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -182,7 +182,8 @@ const sampleCollectionConfigGood = `[
 		"policy": "OR('A.member', 'B.member')",
 		"requiredPeerCount": 3,
 		"maxPeerCount": 483279847,
-		"blockToLive":10
+		"blockToLive":10,
+		"memberOnlyRead": true
 	}
 ]`
 
@@ -208,6 +209,7 @@ func TestCollectionParsing(t *testing.T) {
 	assert.Equal(t, "foo", conf.Name)
 	assert.Equal(t, pol, conf.MemberOrgsPolicy.GetSignaturePolicy())
 	assert.Equal(t, 10, int(conf.BlockToLive))
+	assert.Equal(t, true, conf.MemberOnlyRead)
 	t.Logf("conf=%s", conf)
 
 	cc, err = getCollectionConfigFromBytes([]byte(sampleCollectionConfigBad))

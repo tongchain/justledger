@@ -13,9 +13,9 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/util"
-	"justledger/gossip/api"
-	"justledger/gossip/common"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/common"
 )
 
 // NewGossipMessageComparator creates a MessageReplacingPolicy given a maximum number of blocks to hold
@@ -440,6 +440,9 @@ func (m *SignedGossipMessage) IsSigned() bool {
 // SignedGossipMessage out of it.
 // Returns an error if un-marshaling fails.
 func (e *Envelope) ToGossipMessage() (*SignedGossipMessage, error) {
+	if e == nil {
+		return nil, errors.New("nil envelope")
+	}
 	msg := &GossipMessage{}
 	err := proto.Unmarshal(e.Payload, msg)
 	if err != nil {

@@ -9,9 +9,9 @@ package privacyenabledstate
 import (
 	"fmt"
 
-	"justledger/core/ledger/cceventmgmt"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/core/ledger/cceventmgmt"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
 )
 
 // DBProvider provides handle to a PvtVersionedDB
@@ -53,6 +53,14 @@ type HashedCompositeKey struct {
 	Namespace      string
 	CollectionName string
 	KeyHash        string
+}
+
+// PvtKVWrite encloses Key, IsDelete, Value, and Version components
+type PvtKVWrite struct {
+	Key      string
+	IsDelete bool
+	Value    []byte
+	Version  *version.Height
 }
 
 // UpdateBatch encapsulates the updates to Public, Private, and Hashed data.
@@ -148,6 +156,18 @@ func (nsb nsBatch) GetCollectionNames() []string {
 	return nsb.GetUpdatedNamespaces()
 }
 
+func (nsb nsBatch) getCollectionUpdates(collName string) map[string]*statedb.VersionedValue {
+	return nsb.GetUpdates(collName)
+}
+
+func (b UpdateMap) getUpdatedNamespaces() []string {
+	namespaces := []string{}
+	for ns := range b {
+		namespaces = append(namespaces, ns)
+	}
+	return namespaces
+}
+
 func (b UpdateMap) getOrCreateNsBatch(ns string) nsBatch {
 	batch, ok := b[ns]
 	if !ok {
@@ -191,9 +211,12 @@ func (h HashedUpdateBatch) ToCompositeKeyMap() map[HashedCompositeKey]*statedb.V
 	return m
 }
 
+// PvtdataCompositeKeyMap is a map of PvtdataCompositeKey to VersionedValue
+type PvtdataCompositeKeyMap map[PvtdataCompositeKey]*statedb.VersionedValue
+
 // ToCompositeKeyMap rearranges the update batch data in the form of a single map
-func (p PvtUpdateBatch) ToCompositeKeyMap() map[PvtdataCompositeKey]*statedb.VersionedValue {
-	m := make(map[PvtdataCompositeKey]*statedb.VersionedValue)
+func (p PvtUpdateBatch) ToCompositeKeyMap() PvtdataCompositeKeyMap {
+	m := make(PvtdataCompositeKeyMap)
 	for ns, nsBatch := range p.UpdateMap {
 		for _, coll := range nsBatch.GetCollectionNames() {
 			for key, vv := range nsBatch.GetUpdates(coll) {

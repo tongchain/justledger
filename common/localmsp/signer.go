@@ -19,9 +19,9 @@ package localmsp
 import (
 	"fmt"
 
-	"justledger/common/crypto"
-	mspmgmt "justledger/msp/mgmt"
-	cb "justledger/protos/common"
+	"github.com/justledger/fabric/common/crypto"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 type mspSigner struct {

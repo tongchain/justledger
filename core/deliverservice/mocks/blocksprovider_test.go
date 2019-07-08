@@ -19,15 +19,14 @@ package mocks
 import (
 	"context"
 	"math"
-	"sync/atomic"
 	"testing"
 	"time"
 
 	pb "github.com/golang/protobuf/proto"
-	"justledger/core/deliverservice/blocksprovider"
-	"justledger/protos/common"
-	proto "justledger/protos/gossip"
-	"justledger/protos/orderer"
+	"github.com/justledger/fabric/core/deliverservice/blocksprovider"
+	"github.com/justledger/fabric/protos/common"
+	proto "github.com/justledger/fabric/protos/gossip"
+	"github.com/justledger/fabric/protos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -100,7 +99,7 @@ func TestMockGossipServiceAdapter(t *testing.T) {
 
 	// Test AddPayload
 	gsa.AddPayload("TEST", msg.GetDataMsg().Payload)
-	assert.Equal(t, int32(1), atomic.LoadInt32(&(gsa.(*MockGossipServiceAdapter).AddPayloadsCnt)))
+	assert.Equal(t, int32(1), gsa.(*MockGossipServiceAdapter).AddPayloadCount())
 
 	// Test PeersOfChannel
 	assert.Len(t, gsa.PeersOfChannel(nil), 0)

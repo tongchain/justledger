@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package msp
 
 import (
-	m "justledger/protos/msp"
+	m "github.com/justledger/fabric/protos/msp"
 )
 
 // Role : Represents a IdemixRole

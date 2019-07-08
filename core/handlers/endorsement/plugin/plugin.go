@@ -10,9 +10,9 @@ import (
 	"errors"
 	"fmt"
 
-	. "justledger/core/handlers/endorsement/api"
-	. "justledger/core/handlers/endorsement/api/identities"
-	"justledger/protos/peer"
+	. "github.com/justledger/fabric/core/handlers/endorsement/api"
+	. "github.com/justledger/fabric/core/handlers/endorsement/api/identities"
+	"github.com/justledger/fabric/protos/peer"
 )
 
 // To build the plugin,

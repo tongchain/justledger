@@ -10,12 +10,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"runtime"
+	"testing"
 
-	"justledger/integration/nwo"
+	"github.com/justledger/fabric/integration/nwo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"testing"
 )
 
 func TestEndToEnd(t *testing.T) {
@@ -27,7 +26,7 @@ var components *nwo.Components
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	nwo.RequiredImages = []string{
-		fmt.Sprintf("hyperledger/fabric-ccenv:%s-latest", runtime.GOARCH),
+		fmt.Sprintf("justledger/fabric-ccenv:%s-latest", runtime.GOARCH),
 	}
 	components = &nwo.Components{}
 	components.Build()

@@ -21,10 +21,10 @@ import (
 	"os"
 	"testing"
 
-	"justledger/core/common/ccpackage"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/core/common/ccpackage"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -258,6 +258,11 @@ func TestValidateSignedCCErrorPaths(t *testing.T) {
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "chaincode deployment spec cannot be nil in a package", "Unexpected error validating package")
 	ccpack.depSpec = depspec
+
+	cd = &ChaincodeData{Name: "\027", Version: "0"}
+	err = ccpack.ValidateCC(cd)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), `invalid chaincode name: "\x17"`)
 }
 
 func TestSigCDSGetCCPackage(t *testing.T) {

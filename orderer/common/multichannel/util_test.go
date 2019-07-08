@@ -9,14 +9,17 @@ package multichannel
 import (
 	"fmt"
 
-	"justledger/common/channelconfig"
-	"justledger/common/configtx"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/orderer/common/blockcutter"
-	"justledger/orderer/common/msgprocessor"
-	"justledger/orderer/consensus"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/capabilities"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/configtx"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/orderer/common/blockcutter"
+	"github.com/justledger/fabric/orderer/common/msgprocessor"
+	"github.com/justledger/fabric/orderer/consensus"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 type mockConsenter struct {
@@ -116,6 +119,42 @@ func makeConfigTx(chainID string, i int) *cb.Envelope {
 	return makeConfigTxFromConfigUpdateEnvelope(chainID, &cb.ConfigUpdateEnvelope{
 		ConfigUpdate: utils.MarshalOrPanic(&cb.ConfigUpdate{
 			WriteSet: group,
+		}),
+	})
+}
+
+func makeConfigTxFull(chainID string, i int) *cb.Envelope {
+	gConf := configtxgentest.Load(genesisconfig.SampleInsecureSoloProfile)
+	gConf.Orderer.Capabilities = map[string]bool{
+		capabilities.OrdererV1_4_2: true,
+	}
+	gConf.Orderer.MaxChannels = 10
+	channelGroup, err := encoder.NewChannelGroup(gConf)
+	if err != nil {
+		return nil
+	}
+
+	return makeConfigTxFromConfigUpdateEnvelope(chainID, &cb.ConfigUpdateEnvelope{
+		ConfigUpdate: utils.MarshalOrPanic(&cb.ConfigUpdate{
+			WriteSet: channelGroup,
+		}),
+	})
+}
+
+func makeConfigTxMig(chainID string, i int) *cb.Envelope {
+	gConf := configtxgentest.Load(genesisconfig.SampleInsecureSoloProfile)
+	gConf.Orderer.Capabilities = map[string]bool{
+		capabilities.OrdererV1_4_2: true,
+	}
+	gConf.Orderer.OrdererType = "kafka"
+	channelGroup, err := encoder.NewChannelGroup(gConf)
+	if err != nil {
+		return nil
+	}
+
+	return makeConfigTxFromConfigUpdateEnvelope(chainID, &cb.ConfigUpdateEnvelope{
+		ConfigUpdate: utils.MarshalOrPanic(&cb.ConfigUpdate{
+			WriteSet: channelGroup,
 		}),
 	})
 }

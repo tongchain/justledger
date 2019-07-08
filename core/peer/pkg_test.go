@@ -18,22 +18,21 @@ import (
 	"testing"
 	"time"
 
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
-
 	"github.com/golang/protobuf/proto"
-	configtxtest "justledger/common/configtx/test"
-	"justledger/core/comm"
-	testpb "justledger/core/comm/testdata/grpc"
-	"justledger/core/ledger/util"
-	"justledger/core/peer"
-	"justledger/msp"
-	cb "justledger/protos/common"
-	mspproto "justledger/protos/msp"
-	pb "justledger/protos/peer"
+	configtxtest "github.com/justledger/fabric/common/configtx/test"
+	"github.com/justledger/fabric/core/comm"
+	testpb "github.com/justledger/fabric/core/comm/testdata/grpc"
+	"github.com/justledger/fabric/core/ledger/util"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/msp"
+	cb "github.com/justledger/fabric/protos/common"
+	mspproto "github.com/justledger/fabric/protos/msp"
+	pb "github.com/justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // default timeout for grpc connections
@@ -210,6 +209,22 @@ func TestUpdateRootsFromConfigBlock(t *testing.T) {
 		RootCAs:      org1CertPool,
 	})
 
+	countTotalCertsInBundle := func(perOrgBundle comm.PerOrgCertificateBundle) int {
+		var count int
+		for _, bundle := range perOrgBundle {
+			count = count + len(bundle)
+		}
+		return count
+	}
+
+	countTotalCertsAcrossChannels := func(orgRootCAs comm.OrgRootCAs) int {
+		var count = 0
+		for _, perOrgBundle := range orgRootCAs {
+			count = count + countTotalCertsInBundle(perOrgBundle)
+		}
+		return count
+	}
+
 	// basic function tests
 	var tests = []struct {
 		name          string
@@ -313,10 +328,8 @@ func TestUpdateRootsFromConfigBlock(t *testing.T) {
 				// creating channel should update the trusted client roots
 				test.createChannel()
 
-				// make sure we have the expected number of CAs
-				appCAs, ordererCAs := comm.GetCredentialSupport().GetClientRootCAs()
-				assert.Equal(t, test.numAppCAs, len(appCAs), "Did not find expected number of app CAs for channel")
-				assert.Equal(t, test.numOrdererCAs, len(ordererCAs), "Did not find expected number of orderer CAs for channel")
+				assert.Equal(t, test.numAppCAs, countTotalCertsInBundle(comm.GetCredentialSupport().AppRootCAsByChain), "Did not find expected number of app CAs for channel")
+				assert.Equal(t, test.numOrdererCAs, countTotalCertsAcrossChannels(comm.GetCredentialSupport().OrdererRootCAsByChainAndOrg), "Did not find expected number of orderer CAs for channel")
 
 				// invoke the EmptyCall service with good options
 				_, err = invokeEmptyCall(testAddress, test.goodOptions)

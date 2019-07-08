@@ -11,16 +11,14 @@ import (
 	"io/ioutil"
 	"os"
 	"syscall"
-	"time"
 
+	docker "github.com/fsouza/go-dockerclient"
+	"github.com/justledger/fabric/integration/nwo"
+	"github.com/justledger/fabric/integration/nwo/commands"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
-
-	docker "github.com/fsouza/go-dockerclient"
-	"justledger/integration/nwo"
-	"justledger/integration/nwo/commands"
 	"github.com/tedsuo/ifrit"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -70,7 +68,7 @@ var _ = Describe("Network", func() {
 		AfterEach(func() {
 			// Shutodwn processes and cleanup
 			process.Signal(syscall.SIGTERM)
-			Eventually(process.Wait(), time.Minute).Should(Receive())
+			Eventually(process.Wait(), network.EventuallyTimeout).Should(Receive())
 			network.Cleanup()
 		})
 
@@ -81,7 +79,7 @@ var _ = Describe("Network", func() {
 			chaincode := nwo.Chaincode{
 				Name:    "mycc",
 				Version: "0.0",
-				Path:    "justledger/integration/chaincode/simple/cmd",
+				Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
 				Ctor:    `{"Args":["init","a","100","b","200"]}`,
 				Policy:  `AND ('Org1ExampleCom.member','Org2ExampleCom.member')`,
 			}
@@ -120,7 +118,7 @@ var _ = Describe("Network", func() {
 		AfterEach(func() {
 			for _, p := range processes {
 				p.Signal(syscall.SIGTERM)
-				Eventually(p.Wait(), time.Minute).Should(Receive())
+				Eventually(p.Wait(), network.EventuallyTimeout).Should(Receive())
 			}
 			network.Cleanup()
 		})
@@ -168,7 +166,7 @@ var _ = Describe("Network", func() {
 			chaincode := nwo.Chaincode{
 				Name:    "mycc",
 				Version: "0.0",
-				Path:    "justledger/integration/chaincode/simple/cmd",
+				Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
 				Ctor:    `{"Args":["init","a","100","b","200"]}`,
 				Policy:  `AND ('Org1ExampleCom.member','Org2ExampleCom.member')`,
 			}

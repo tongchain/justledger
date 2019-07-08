@@ -9,12 +9,12 @@ package channelconfig
 import (
 	"time"
 
-	"justledger/common/configtx"
-	"justledger/common/policies"
-	"justledger/msp"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/configtx"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/msp"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 // Org stores the common organizational config
@@ -32,6 +32,14 @@ type ApplicationOrg interface {
 
 	// AnchorPeers returns the list of gossip anchor peers
 	AnchorPeers() []*pb.AnchorPeer
+}
+
+// OrdererOrg stores the per org orderer config.
+type OrdererOrg interface {
+	Org
+
+	// Endpoints returns the endpoints of orderer nodes.
+	Endpoints() []string
 }
 
 // Application stores the common shared application config
@@ -86,6 +94,9 @@ type Orderer interface {
 	// ConsensusMetadata returns the metadata associated with the consensus type.
 	ConsensusMetadata() []byte
 
+	// ConsensusState returns the consensus-type state.
+	ConsensusState() ab.ConsensusType_State
+
 	// BatchSize returns the maximum number of messages to include in a block
 	BatchSize() *ab.BatchSize
 
@@ -101,7 +112,7 @@ type Orderer interface {
 	KafkaBrokers() []string
 
 	// Organizations returns the organizations for the ordering service
-	Organizations() map[string]Org
+	Organizations() map[string]OrdererOrg
 
 	// Capabilities defines the capabilities for the orderer portion of a channel
 	Capabilities() OrdererCapabilities
@@ -115,6 +126,12 @@ type ChannelCapabilities interface {
 	// MSPVersion specifies the version of the MSP this channel must understand, including the MSP types
 	// and MSP principal types.
 	MSPVersion() msp.MSPVersion
+
+	// ConsensusTypeMigration return true if consensus-type migration is permitted in both orderer and peer.
+	ConsensusTypeMigration() bool
+
+	// OrgSpecificOrdererEndpoints return true if the channel config processing allows orderer orgs to specify their own endpoints
+	OrgSpecificOrdererEndpoints() bool
 }
 
 // ApplicationCapabilities defines the capabilities for the application portion of a channel
@@ -152,6 +169,10 @@ type ApplicationCapabilities interface {
 	//  - new chaincode lifecycle, as described in FAB-11237
 	V1_3Validation() bool
 
+	// StorePvtDataOfInvalidTx() returns true if the peer needs to store the pvtData of
+	// invalid transactions.
+	StorePvtDataOfInvalidTx() bool
+
 	// MetadataLifecycle indicates whether the peer should use the deprecated and problematic
 	// v1.0/v1.1 lifecycle, or whether it should use the newer per channel peer local chaincode
 	// metadata package approach planned for release with Fabric v1.2
@@ -160,6 +181,9 @@ type ApplicationCapabilities interface {
 	// KeyLevelEndorsement returns true if this channel supports endorsement
 	// policies expressible at a ledger key granularity, as described in FAB-8812
 	KeyLevelEndorsement() bool
+
+	// FabToken returns true if this channel supports FabToken functions
+	FabToken() bool
 }
 
 // OrdererCapabilities defines the capabilities for the orderer portion of a channel
@@ -178,6 +202,9 @@ type OrdererCapabilities interface {
 	// ExpirationCheck specifies whether the orderer checks for identity expiration checks
 	// when validating messages
 	ExpirationCheck() bool
+
+	// ConsensusTypeMigration checks whether the orderer permits a consensus-type migration.
+	ConsensusTypeMigration() bool
 }
 
 // PolicyMapper is an interface for

@@ -33,15 +33,14 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"reflect"
 	"testing"
 	"time"
 
-	"reflect"
-
-	"justledger/bccsp"
-	"justledger/bccsp/signer"
-	"justledger/bccsp/sw/mocks"
-	"justledger/bccsp/utils"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/signer"
+	"github.com/justledger/fabric/bccsp/sw/mocks"
+	"github.com/justledger/fabric/bccsp/utils"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/sha3"
 )
@@ -962,7 +961,7 @@ func TestKeyImportFromX509ECDSAPublicKey(t *testing.T) {
 		UnknownExtKeyUsage: testUnknownExtKeyUsage,
 
 		BasicConstraintsValid: true,
-		IsCA: true,
+		IsCA:                  true,
 
 		OCSPServer:            []string{"http://ocurrentBCCSP.example.com"},
 		IssuingCertificateURL: []string{"http://crt.example.com/ca1.crt"},
@@ -1839,7 +1838,7 @@ func TestKeyImportFromX509RSAPublicKey(t *testing.T) {
 		UnknownExtKeyUsage: testUnknownExtKeyUsage,
 
 		BasicConstraintsValid: true,
-		IsCA: true,
+		IsCA:                  true,
 
 		OCSPServer:            []string{"http://ocurrentBCCSP.example.com"},
 		IssuingCertificateURL: []string{"http://crt.example.com/ca1.crt"},
@@ -1941,14 +1940,14 @@ func TestAddWrapper(t *testing.T) {
 		assert.Equal(t, o, o2)
 	}
 
-	tester(&mocks.KeyGenerator{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.keyGenerators[t]; return o, ok })
-	tester(&mocks.KeyDeriver{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.keyDerivers[t]; return o, ok })
-	tester(&mocks.KeyImporter{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.keyImporters[t]; return o, ok })
-	tester(&mocks.Encryptor{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.encryptors[t]; return o, ok })
-	tester(&mocks.Decryptor{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.decryptors[t]; return o, ok })
-	tester(&mocks.Signer{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.signers[t]; return o, ok })
-	tester(&mocks.Verifier{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.verifiers[t]; return o, ok })
-	tester(&mocks.Hasher{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.hashers[t]; return o, ok })
+	tester(&mocks.KeyGenerator{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.KeyGenerators[t]; return o, ok })
+	tester(&mocks.KeyDeriver{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.KeyDerivers[t]; return o, ok })
+	tester(&mocks.KeyImporter{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.KeyImporters[t]; return o, ok })
+	tester(&mocks.Encryptor{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.Encryptors[t]; return o, ok })
+	tester(&mocks.Decryptor{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.Decryptors[t]; return o, ok })
+	tester(&mocks.Signer{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.Signers[t]; return o, ok })
+	tester(&mocks.Verifier{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.Verifiers[t]; return o, ok })
+	tester(&mocks.Hasher{}, func(t reflect.Type) (interface{}, bool) { o, ok := sw.Hashers[t]; return o, ok })
 
 	// Add invalid wrapper
 	err := sw.AddWrapper(reflect.TypeOf(cleanup), cleanup)

@@ -4,10 +4,10 @@ package mocks
 import (
 	"sync"
 
-	"justledger/common/channelconfig"
-	"justledger/common/configtx"
-	"justledger/common/policies"
-	"justledger/msp"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/configtx"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/msp"
 )
 
 type Resources struct {

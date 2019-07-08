@@ -19,21 +19,21 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/common/chaincode"
-	"justledger/common/policies"
-	"justledger/common/util"
-	"justledger/core/comm"
-	fabricdisc "justledger/discovery"
-	"justledger/discovery/endorsement"
-	"justledger/gossip/api"
-	gossipcommon "justledger/gossip/common"
-	gdisc "justledger/gossip/discovery"
-	"justledger/protos/common"
-	"justledger/protos/discovery"
-	"justledger/protos/gossip"
-	"justledger/protos/msp"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/chaincode"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/comm"
+	fabricdisc "github.com/justledger/fabric/discovery"
+	"github.com/justledger/fabric/discovery/endorsement"
+	"github.com/justledger/fabric/gossip/api"
+	gossipcommon "github.com/justledger/fabric/gossip/common"
+	gdisc "github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/discovery"
+	"github.com/justledger/fabric/protos/gossip"
+	"github.com/justledger/fabric/protos/msp"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -555,7 +555,7 @@ func TestClient(t *testing.T) {
 				used[name] = struct{}{}
 			}
 		}
-		fmt.Printf("Used peers: %#v\n", used)
+		t.Logf("Used peers: %#v\n", used)
 		assert.Equalf(t, len(acceptablePeers), len(used), "expecting each endorser to be returned at least once")
 	})
 }

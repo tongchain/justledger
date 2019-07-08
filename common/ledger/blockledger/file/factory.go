@@ -19,9 +19,10 @@ package fileledger
 import (
 	"sync"
 
-	"justledger/common/ledger/blkstorage"
-	"justledger/common/ledger/blkstorage/fsblkstorage"
-	"justledger/common/ledger/blockledger"
+	"github.com/justledger/fabric/common/ledger/blkstorage"
+	"github.com/justledger/fabric/common/ledger/blkstorage/fsblkstorage"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	"github.com/justledger/fabric/common/metrics"
 )
 
 type fileLedgerFactory struct {
@@ -66,12 +67,13 @@ func (flf *fileLedgerFactory) Close() {
 }
 
 // New creates a new ledger factory
-func New(directory string) blockledger.Factory {
+func New(directory string, metricsProvider metrics.Provider) blockledger.Factory {
 	return &fileLedgerFactory{
 		blkstorageProvider: fsblkstorage.NewProvider(
 			fsblkstorage.NewConf(directory, -1),
 			&blkstorage.IndexConfig{
 				AttrsToIndex: []blkstorage.IndexableAttr{blkstorage.IndexableAttrBlockNum}},
+			metricsProvider,
 		),
 		ledgers: make(map[string]blockledger.ReadWriter),
 	}

@@ -24,10 +24,9 @@ import (
 	"strings"
 	"testing"
 
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
-
 	"github.com/golang/protobuf/proto"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

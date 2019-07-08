@@ -23,7 +23,7 @@ import (
 	"os"
 	"testing"
 
-	"justledger/bccsp/pkcs11"
+	"github.com/justledger/fabric/bccsp/pkcs11"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

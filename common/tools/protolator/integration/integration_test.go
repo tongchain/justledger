@@ -11,16 +11,15 @@ import (
 	"os"
 	"testing"
 
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/common/tools/protolator"
-	cb "justledger/protos/common"
-	"justledger/protos/msp"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	"github.com/justledger/fabric/common/tools/protolator"
+	cb "github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/msp"
+	pb "github.com/justledger/fabric/protos/peer"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -7,15 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package capabilities
 
 import (
-	"justledger/common/flogging"
-	cb "justledger/protos/common"
-
+	"github.com/justledger/fabric/common/flogging"
+	cb "github.com/justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 )
 
-const pkgLogID = "common/capabilities"
-
-var logger = flogging.MustGetLogger(pkgLogID)
+var logger = flogging.MustGetLogger("common.capabilities")
 
 // provider is the 'plugin' parameter for registry.
 type provider interface {

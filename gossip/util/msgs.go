@@ -9,8 +9,8 @@ package util
 import (
 	"sync"
 
-	"justledger/gossip/common"
-	proto "justledger/protos/gossip"
+	"github.com/justledger/fabric/gossip/common"
+	proto "github.com/justledger/fabric/protos/gossip"
 )
 
 // MembershipStore struct which encapsulates

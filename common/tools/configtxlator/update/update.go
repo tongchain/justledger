@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	cb "justledger/protos/common"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 func computePoliciesMapUpdate(original, updated map[string]*cb.ConfigPolicy) (readSet, writeSet, sameSet map[string]*cb.ConfigPolicy, updatedMembers bool) {

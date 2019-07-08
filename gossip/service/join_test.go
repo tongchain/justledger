@@ -11,16 +11,16 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/channelconfig"
-	"justledger/gossip/api"
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/filter"
-	"justledger/gossip/gossip"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/gossip/api"
+	"github.com/justledger/fabric/gossip/comm"
+	"github.com/justledger/fabric/gossip/common"
+	"github.com/justledger/fabric/gossip/discovery"
+	"github.com/justledger/fabric/gossip/filter"
+	"github.com/justledger/fabric/gossip/gossip"
+	"github.com/justledger/fabric/gossip/util"
+	proto "github.com/justledger/fabric/protos/gossip"
+	"github.com/justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -132,6 +132,14 @@ type configMock struct {
 	orgs2AppOrgs map[string]channelconfig.ApplicationOrg
 }
 
+func (c *configMock) OrdererAddressesByOrgs() map[string][]string {
+	return nil
+}
+
+func (c *configMock) OrdererOrgs() []string {
+	return nil
+}
+
 func (c *configMock) OrdererAddresses() []string {
 	return []string{"localhost:7050"}
 }
@@ -140,7 +148,7 @@ func (*configMock) ChainID() string {
 	return "A"
 }
 
-func (c *configMock) Organizations() map[string]channelconfig.ApplicationOrg {
+func (c *configMock) ApplicationOrgs() ApplicationOrgs {
 	return c.orgs2AppOrgs
 }
 

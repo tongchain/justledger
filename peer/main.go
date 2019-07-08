@@ -11,12 +11,12 @@ import (
 	"os"
 	"strings"
 
-	"justledger/peer/chaincode"
-	"justledger/peer/channel"
-	"justledger/peer/clilogging"
-	"justledger/peer/common"
-	"justledger/peer/node"
-	"justledger/peer/version"
+	"github.com/justledger/fabric/peer/chaincode"
+	"github.com/justledger/fabric/peer/channel"
+	"github.com/justledger/fabric/peer/clilogging"
+	"github.com/justledger/fabric/peer/common"
+	"github.com/justledger/fabric/peer/node"
+	"github.com/justledger/fabric/peer/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -38,8 +38,9 @@ func main() {
 	// subcommands.
 	mainFlags := mainCmd.PersistentFlags()
 
-	mainFlags.String("logging-level", "", "Default logging level and overrides, see core.yaml for full syntax")
+	mainFlags.String("logging-level", "", "Legacy logging level flag")
 	viper.BindPFlag("logging_level", mainFlags.Lookup("logging-level"))
+	mainFlags.MarkHidden("logging-level")
 
 	mainCmd.AddCommand(version.Cmd())
 	mainCmd.AddCommand(node.Cmd())

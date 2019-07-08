@@ -14,9 +14,9 @@ import (
 	"path/filepath"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/bccsp"
-	"justledger/bccsp/factory"
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/bccsp"
+	"github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
@@ -337,11 +337,11 @@ func getMspConfig(dir string, ID string, sigid *msp.SigningIdentityInfo) (*msp.M
 
 	// Compose FabricMSPConfig
 	fmspconf := &msp.FabricMSPConfig{
-		Admins:            admincert,
-		RootCerts:         cacerts,
-		IntermediateCerts: intermediatecerts,
-		SigningIdentity:   sigid,
-		Name:              ID,
+		Admins:                        admincert,
+		RootCerts:                     cacerts,
+		IntermediateCerts:             intermediatecerts,
+		SigningIdentity:               sigid,
+		Name:                          ID,
 		OrganizationalUnitIdentifiers: ouis,
 		RevocationList:                crls,
 		CryptoConfig:                  cryptoConfig,

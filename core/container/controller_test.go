@@ -9,11 +9,15 @@ package container_test
 import (
 	"testing"
 
-	"justledger/common/util"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/container"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/golang"
+	"github.com/justledger/fabric/core/container"
+	"github.com/justledger/fabric/core/container/ccintf"
+	"github.com/justledger/fabric/core/container/mock"
+	pb "github.com/justledger/fabric/protos/peer"
+	. "github.com/onsi/gomega"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -31,4 +35,33 @@ func TestVM_GetChaincodePackageBytes(t *testing.T) {
 	_, err = container.GetChaincodePackageBytes(platforms.NewRegistry(&golang.Platform{}), spec)
 	assert.Error(t, err,
 		"GetChaincodePackageBytes did not return error when chaincode ID is nil")
+}
+
+func TestWaitContainerReq(t *testing.T) {
+	gt := NewGomegaWithT(t)
+
+	exited := &mock.ExitedFunc{}
+	done := make(chan struct{})
+	exited.Stub = func(int, error) { close(done) }
+
+	req := container.WaitContainerReq{
+		CCID:   ccintf.CCID{Name: "the-name", Version: "the-version"},
+		Exited: exited.Spy,
+	}
+	gt.Expect(req.GetCCID()).To(Equal(ccintf.CCID{Name: "the-name", Version: "the-version"}))
+
+	fakeVM := &mock.VM{}
+	fakeVM.WaitReturns(99, errors.New("boing-boing"))
+
+	err := req.Do(fakeVM)
+	gt.Expect(err).NotTo(HaveOccurred())
+	gt.Eventually(done).Should(BeClosed())
+
+	gt.Expect(fakeVM.WaitCallCount()).To(Equal(1))
+	ccid := fakeVM.WaitArgsForCall(0)
+	gt.Expect(ccid).To(Equal(ccintf.CCID{Name: "the-name", Version: "the-version"}))
+
+	ec, exitErr := exited.ArgsForCall(0)
+	gt.Expect(ec).To(Equal(99))
+	gt.Expect(exitErr).To(MatchError("boing-boing"))
 }

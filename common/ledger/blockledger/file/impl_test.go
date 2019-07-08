@@ -13,13 +13,14 @@ import (
 	"os"
 	"testing"
 
-	"justledger/common/flogging"
-	cl "justledger/common/ledger"
-	"justledger/common/ledger/blockledger"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	"justledger/protos/peer"
+	"github.com/justledger/fabric/common/flogging"
+	cl "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/common/ledger/blockledger"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
+	cb "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	"github.com/justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -27,7 +28,7 @@ import (
 var genesisBlock = cb.NewBlock(0, nil)
 
 func init() {
-	flogging.SetModuleLevel(pkgLogID, "DEBUG")
+	flogging.ActivateSpec("common.ledger.blockledger.file=DEBUG")
 }
 
 type testEnv struct {
@@ -37,10 +38,10 @@ type testEnv struct {
 }
 
 func initialize(t *testing.T) (*testEnv, *FileLedger) {
-	name, err := ioutil.TempDir("", "hyperledger_fabric")
+	name, err := ioutil.TempDir("", "justledger_fabric")
 	assert.NoError(t, err, "Error creating temp dir: %s", err)
 
-	flf := New(name).(*fileLedgerFactory)
+	flf := New(name, &disabled.Provider{}).(*fileLedgerFactory)
 	fl, err := flf.GetOrCreate(genesisconfig.TestChainID)
 	assert.NoError(t, err, "Error GetOrCreate chain")
 
@@ -154,7 +155,7 @@ func TestReinitialization(t *testing.T) {
 	tev.shutDown()
 
 	// re-initialize the ledger provider (not the test ledger itself!)
-	provider2 := New(tev.location)
+	provider2 := New(tev.location, &disabled.Provider{})
 
 	// assert expected ledgers exist
 	chains := provider2.ChainIDs()

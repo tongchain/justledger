@@ -19,7 +19,7 @@ package ramledger
 import (
 	"testing"
 
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
 )
 
 func TestGetOrCreate(t *testing.T) {

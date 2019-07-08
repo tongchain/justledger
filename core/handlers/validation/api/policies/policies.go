@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package validation
 
 import (
-	"justledger/core/handlers/validation/api"
-	"justledger/protos/common"
+	"github.com/justledger/fabric/core/handlers/validation/api"
+	"github.com/justledger/fabric/protos/common"
 )
 
 // PolicyEvaluator evaluates policies

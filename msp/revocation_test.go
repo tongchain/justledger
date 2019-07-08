@@ -20,8 +20,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/bccsp/sw"
-	"justledger/protos/msp"
+	"github.com/justledger/fabric/bccsp/sw"
+	"github.com/justledger/fabric/protos/msp"
 	"github.com/stretchr/testify/assert"
 )
 

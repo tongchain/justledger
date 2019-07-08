@@ -8,9 +8,8 @@ package shim
 
 import (
 	"github.com/golang/protobuf/ptypes/timestamp"
-
-	"justledger/protos/ledger/queryresult"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/protos/ledger/queryresult"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 // Chaincode interface must be implemented by all chaincodes. The fabric runs
@@ -26,9 +25,6 @@ type Chaincode interface {
 	// transaction is committed.
 	Invoke(stub ChaincodeStubInterface) pb.Response
 }
-
-//go:generate counterfeiter -o ../../scc/lscc/mock/chaincode_stub.go --fake-name ChaincodeStub . ChaincodeStubInterface
-//go:generate counterfeiter -o ../../chaincode/lifecycle/mock/chaincode_stub.go --fake-name ChaincodeStub . ChaincodeStubInterface
 
 // ChaincodeStubInterface is used by deployable chaincode apps to access and
 // modify their ledgers

@@ -17,20 +17,20 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/common/localmsp"
-	"justledger/common/util"
-	"justledger/core/chaincode"
-	"justledger/core/chaincode/shim"
-	"justledger/core/container"
-	"justledger/msp"
-	ccapi "justledger/peer/chaincode/api"
-	"justledger/peer/common"
-	"justledger/peer/common/api"
-	pcommon "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	pb "justledger/protos/peer"
-	putils "justledger/protos/utils"
+	"github.com/justledger/fabric/common/cauthdsl"
+	"github.com/justledger/fabric/common/localmsp"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/chaincode"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/container"
+	"github.com/justledger/fabric/msp"
+	ccapi "github.com/justledger/fabric/peer/chaincode/api"
+	"github.com/justledger/fabric/peer/common"
+	"github.com/justledger/fabric/peer/common/api"
+	pcommon "github.com/justledger/fabric/protos/common"
+	ab "github.com/justledger/fabric/protos/orderer"
+	pb "github.com/justledger/fabric/protos/peer"
+	putils "github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -153,11 +153,12 @@ func chaincodeInvokeOrQuery(cmd *cobra.Command, invoke bool, cf *ChaincodeCmdFac
 }
 
 type collectionConfigJson struct {
-	Name          string `json:"name"`
-	Policy        string `json:"policy"`
-	RequiredCount int32  `json:"requiredPeerCount"`
-	MaxPeerCount  int32  `json:"maxPeerCount"`
-	BlockToLive   uint64 `json:"blockToLive"`
+	Name           string `json:"name"`
+	Policy         string `json:"policy"`
+	RequiredCount  int32  `json:"requiredPeerCount"`
+	MaxPeerCount   int32  `json:"maxPeerCount"`
+	BlockToLive    uint64 `json:"blockToLive"`
+	MemberOnlyRead bool   `json:"memberOnlyRead"`
 }
 
 // getCollectionConfig retrieves the collection configuration
@@ -203,6 +204,7 @@ func getCollectionConfigFromBytes(cconfBytes []byte) ([]byte, error) {
 					RequiredPeerCount: cconfitem.RequiredCount,
 					MaximumPeerCount:  cconfitem.MaxPeerCount,
 					BlockToLive:       cconfitem.BlockToLive,
+					MemberOnlyRead:    cconfitem.MemberOnlyRead,
 				},
 			},
 		}

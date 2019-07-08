@@ -11,17 +11,17 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/ledger/util/leveldbhelper"
-	"justledger/core/ledger"
-	"justledger/core/ledger/confighistory"
-	"justledger/core/ledger/kvledger/bookkeeping"
-	"justledger/core/ledger/kvledger/history/historydb"
-	"justledger/core/ledger/kvledger/history/historydb/historyleveldb"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/ledgerconfig"
-	"justledger/core/ledger/ledgerstorage"
-	"justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/confighistory"
+	"github.com/justledger/fabric/core/ledger/kvledger/bookkeeping"
+	"github.com/justledger/fabric/core/ledger/kvledger/history/historydb"
+	"github.com/justledger/fabric/core/ledger/kvledger/history/historydb/historyleveldb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"github.com/justledger/fabric/core/ledger/ledgerstorage"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/syndtr/goleveldb/leveldb"
 )
@@ -48,6 +48,8 @@ type Provider struct {
 	stateListeners      []ledger.StateListener
 	bookkeepingProvider bookkeeping.Provider
 	initializer         *ledger.Initializer
+	collElgNotifier     *collElgNotifier
+	stats               *stats
 }
 
 // NewProvider instantiates a new Provider.
@@ -56,27 +58,40 @@ func NewProvider() (ledger.PeerLedgerProvider, error) {
 	logger.Info("Initializing ledger provider")
 	// Initialize the ID store (inventory of chainIds/ledgerIds)
 	idStore := openIDStore(ledgerconfig.GetLedgerProviderPath())
-	ledgerStoreProvider := ledgerstorage.NewProvider()
-	bookkeepingProvider := bookkeeping.NewProvider()
-	// Initialize the versioned database (state database)
-	vdbProvider, err := privacyenabledstate.NewCommonStorageDBProvider(bookkeepingProvider)
-	if err != nil {
-		return nil, err
-	}
 	// Initialize the history database (index for history of values by key)
 	historydbProvider := historyleveldb.NewHistoryDBProvider()
 	logger.Info("ledger provider Initialized")
-	provider := &Provider{idStore, ledgerStoreProvider,
-		vdbProvider, historydbProvider, nil, nil, bookkeepingProvider, nil}
+	provider := &Provider{idStore, nil,
+		nil, historydbProvider, nil, nil, nil, nil, nil, nil}
 	return provider, nil
 }
 
 // Initialize implements the corresponding method from interface ledger.PeerLedgerProvider
-func (provider *Provider) Initialize(initializer *ledger.Initializer) {
+func (provider *Provider) Initialize(initializer *ledger.Initializer) error {
+	var err error
+	configHistoryMgr := confighistory.NewMgr(initializer.DeployedChaincodeInfoProvider)
+	collElgNotifier := &collElgNotifier{
+		initializer.DeployedChaincodeInfoProvider,
+		initializer.MembershipInfoProvider,
+		make(map[string]collElgListener),
+	}
+	stateListeners := initializer.StateListeners
+	stateListeners = append(stateListeners, collElgNotifier)
+	stateListeners = append(stateListeners, configHistoryMgr)
+
 	provider.initializer = initializer
-	provider.configHistoryMgr = confighistory.NewMgr()
-	provider.stateListeners = initializer.StateListeners
+	provider.ledgerStoreProvider = ledgerstorage.NewProvider(initializer.MetricsProvider)
+	provider.configHistoryMgr = configHistoryMgr
+	provider.stateListeners = stateListeners
+	provider.collElgNotifier = collElgNotifier
+	provider.bookkeepingProvider = bookkeeping.NewProvider()
+	provider.vdbProvider, err = privacyenabledstate.NewCommonStorageDBProvider(provider.bookkeepingProvider, initializer.MetricsProvider, initializer.HealthCheckRegistry)
+	if err != nil {
+		return err
+	}
+	provider.stats = newStats(initializer.MetricsProvider)
 	provider.recoverUnderConstructionLedger()
+	return nil
 }
 
 // Create implements the corresponding method from interface ledger.PeerLedgerProvider
@@ -106,9 +121,7 @@ func (provider *Provider) Create(genesisBlock *common.Block) (ledger.PeerLedger,
 		panicOnErr(provider.idStore.unsetUnderConstructionFlag(), "Error while unsetting under construction flag")
 		return nil, err
 	}
-	if err := lgr.CommitWithPvtData(&ledger.BlockAndPvtData{
-		Block: genesisBlock,
-	}); err != nil {
+	if err := lgr.CommitWithPvtData(&ledger.BlockAndPvtData{Block: genesisBlock}, &ledger.CommitOptions{}); err != nil {
 		lgr.Close()
 		return nil, err
 	}
@@ -136,6 +149,7 @@ func (provider *Provider) openInternal(ledgerID string) (ledger.PeerLedger, erro
 	if err != nil {
 		return nil, err
 	}
+	provider.collElgNotifier.registerListener(ledgerID, blockStore)
 
 	// Get the versioned database (state database) for a chain/ledger
 	vDB, err := provider.vdbProvider.GetDBHandle(ledgerID)
@@ -151,8 +165,12 @@ func (provider *Provider) openInternal(ledgerID string) (ledger.PeerLedger, erro
 
 	// Create a kvLedger for this chain/ledger, which encasulates the underlying data stores
 	// (id store, blockstore, state database, history database)
-	l, err := newKVLedger(ledgerID, blockStore, vDB, historyDB, provider.configHistoryMgr,
-		provider.stateListeners, provider.bookkeepingProvider, provider.initializer.DeployedChaincodeInfoProvider)
+	l, err := newKVLedger(
+		ledgerID, blockStore, vDB, historyDB, provider.configHistoryMgr,
+		provider.stateListeners, provider.bookkeepingProvider,
+		provider.initializer.DeployedChaincodeInfoProvider,
+		provider.stats.ledgerStats(ledgerID),
+	)
 	if err != nil {
 		return nil, err
 	}

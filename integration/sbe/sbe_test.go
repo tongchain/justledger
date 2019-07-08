@@ -10,18 +10,19 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"strings"
 	"syscall"
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
+	"github.com/justledger/fabric/integration/nwo"
+	"github.com/justledger/fabric/integration/nwo/commands"
+	"github.com/justledger/fabric/protos/common"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/tedsuo/ifrit"
-
-	"justledger/integration/nwo"
-	"justledger/integration/nwo/commands"
 )
 
 var _ = Describe("SBE_E2E", func() {
@@ -44,7 +45,7 @@ var _ = Describe("SBE_E2E", func() {
 		chaincode = nwo.Chaincode{
 			Name:              "mycc",
 			Version:           "0.0",
-			Path:              "justledger/integration/chaincode/keylevelep/cmd",
+			Path:              "github.com/justledger/fabric/integration/chaincode/keylevelep/cmd",
 			Ctor:              `{"Args":["init"]}`,
 			CollectionsConfig: "testdata/collection_config.json",
 		}
@@ -53,7 +54,7 @@ var _ = Describe("SBE_E2E", func() {
 	AfterEach(func() {
 		if process != nil {
 			process.Signal(syscall.SIGTERM)
-			Eventually(process.Wait(), time.Minute).Should(Receive())
+			Eventually(process.Wait(), network.EventuallyTimeout).Should(Receive())
 		}
 		if network != nil {
 			network.Cleanup()
@@ -113,6 +114,8 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 	Expect(err).NotTo(HaveOccurred())
 	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 
+	syncLedgerHeights(n, peerOrg1, peerOrg2)
+
 	By("org2 checks that setting the value was successful by reading it")
 	sess, err = n.PeerUserSession(peerOrg2, "User1", commands.ChaincodeQuery{
 		ChannelID: "testchannel",
@@ -161,6 +164,8 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 	Expect(err).NotTo(HaveOccurred())
 	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 
+	syncLedgerHeights(n, peerOrg1, peerOrg2)
+
 	By("org2 checks that setting the value was successful by reading it")
 	sess, err = n.PeerUserSession(peerOrg2, "User1", commands.ChaincodeQuery{
 		ChannelID: "testchannel",
@@ -195,6 +200,8 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("val1"))
 
+	syncLedgerHeights(n, peerOrg2, peerOrg1)
+
 	By("org1 adds org2 to the ep of the key")
 	sess, err = n.PeerUserSession(peerOrg1, "User1", commands.ChaincodeInvoke{
 		ChannelID: "testchannel",
@@ -222,6 +229,8 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 	Expect(err).NotTo(HaveOccurred())
 	Expect(sess).To(gbytes.Say(string(orgsList)))
 
+	syncLedgerHeights(n, peerOrg1, peerOrg2)
+
 	By("org2 sets the value of the key")
 	sess, err = n.PeerUserSession(peerOrg2, "User1", commands.ChaincodeInvoke{
 		ChannelID: "testchannel",
@@ -245,6 +254,8 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 	Expect(err).NotTo(HaveOccurred())
 	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("val1"))
+
+	syncLedgerHeights(n, peerOrg2, peerOrg1)
 
 	By("org1 and org2 set the value of the key")
 	sess, err = n.PeerUserSession(peerOrg1, "User1", commands.ChaincodeInvoke{
@@ -271,6 +282,8 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("val4"))
 
+	syncLedgerHeights(n, peerOrg1, peerOrg2)
+
 	By("org2 deletes org1 from the ep of the key")
 	sess, err = n.PeerUserSession(peerOrg2, "User1", commands.ChaincodeInvoke{
 		ChannelID: "testchannel",
@@ -294,6 +307,8 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 	Expect(err).NotTo(HaveOccurred())
 	Eventually(sess, time.Minute).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say(string(orgsList)))
+
+	syncLedgerHeights(n, peerOrg2, peerOrg1)
 
 	By("org1 and org2 delete org1 from the ep of the key")
 	sess, err = n.PeerUserSession(peerOrg2, "User1", commands.ChaincodeInvoke{
@@ -341,8 +356,10 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 		Ctor:      `{"Args":["getval", "` + mode + `"]}`,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, time.Minute).Should(gexec.Exit(0))
+	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("cc2cc_org2"))
+
+	syncLedgerHeights(n, peerOrg2, peerOrg1)
 
 	By("org1 uses cc2cc to set the value of the key")
 	sess, err = n.PeerUserSession(peerOrg1, "User1", commands.ChaincodeInvoke{
@@ -356,7 +373,7 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 		WaitForEvent: true,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, time.Minute).Should(gexec.Exit(0))
+	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
 
 	By("org1 reads the value of the key to check that setting it was not successful")
 	sess, err = n.PeerUserSession(peerOrg1, "User1", commands.ChaincodeQuery{
@@ -365,6 +382,29 @@ func RunSBE(n *nwo.Network, orderer *nwo.Orderer, mode string) {
 		Ctor:      `{"Args":["getval", "` + mode + `"]}`,
 	})
 	Expect(err).NotTo(HaveOccurred())
-	Eventually(sess, time.Minute).Should(gexec.Exit(0))
+	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
 	Expect(sess).To(gbytes.Say("cc2cc_org2"))
+}
+
+func getLedgerHeight(n *nwo.Network, peer *nwo.Peer, channelName string) int {
+	sess, err := n.PeerUserSession(peer, "User1", commands.ChannelInfo{
+		ChannelID: channelName,
+	})
+	Expect(err).NotTo(HaveOccurred())
+	Eventually(sess, n.EventuallyTimeout).Should(gexec.Exit(0))
+
+	channelInfoStr := strings.TrimPrefix(string(sess.Buffer().Contents()[:]), "Blockchain info:")
+	var channelInfo = common.BlockchainInfo{}
+	json.Unmarshal([]byte(channelInfoStr), &channelInfo)
+	return int(channelInfo.Height)
+}
+
+func syncLedgerHeights(n *nwo.Network, peer1 *nwo.Peer, peer2 *nwo.Peer) {
+	// get height from peer1
+	height := getLedgerHeight(n, peer1, "testchannel")
+	// wait for same height on peer2
+	Eventually(func() int {
+		return getLedgerHeight(n, peer2, "testchannel")
+	}, n.EventuallyTimeout).Should(Equal(height))
+
 }

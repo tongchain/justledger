@@ -9,10 +9,9 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
 	"github.com/stretchr/testify/assert"
-
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
 )
 
 func TestEncodeDecodeOldAndNewFormat(t *testing.T) {

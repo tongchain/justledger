@@ -20,7 +20,7 @@ import (
 	"errors"
 	"fmt"
 
-	pb "justledger/protos/peer"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 //SendPanicFailure

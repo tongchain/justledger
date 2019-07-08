@@ -9,8 +9,8 @@ package main
 import (
 	"fmt"
 
-	"justledger/core/chaincode/shim"
-	"justledger/examples/chaincode/go/example02"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/examples/chaincode/go/example02"
 )
 
 func main() {

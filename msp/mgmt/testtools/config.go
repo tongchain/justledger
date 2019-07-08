@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package msptesttools
 
 import (
-	"justledger/common/util"
-	"justledger/core/config/configtest"
-	"justledger/msp"
-	"justledger/msp/mgmt"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/config/configtest"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/msp/mgmt"
 )
 
 // LoadTestMSPSetup sets up the local MSP

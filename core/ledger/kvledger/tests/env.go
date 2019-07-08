@@ -11,11 +11,18 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/common/ledger/blkstorage/fsblkstorage"
-	"justledger/common/ledger/util"
-	"justledger/core/ledger/ledgerconfig"
-	"justledger/core/ledger/ledgermgmt"
-	"justledger/core/peer"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	"github.com/justledger/fabric/msp"
+	"github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/protos/common"
+
+	"github.com/justledger/fabric/common/ledger/blkstorage/fsblkstorage"
+	"github.com/justledger/fabric/common/ledger/util"
+	"github.com/justledger/fabric/core/common/privdata"
+	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/core/scc/lscc"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,6 +35,7 @@ const (
 	rebuildableBlockIndex    rebuildable = 2
 	rebuildableConfigHistory rebuildable = 4
 	rebuildableHistoryDB     rebuildable = 8
+	rebuildableBookkeeper    rebuildable = 16
 )
 
 var (
@@ -72,22 +80,44 @@ func (e *env) closeAllLedgersAndDrop(flags rebuildable) {
 	}
 
 	if flags&rebuildableConfigHistory == rebuildableConfigHistory {
-		configHistory := getConfigHistoryDBPath()
-		logger.Infof("Deleting configHistory db path [%s]", configHistory)
-		e.verifyNonEmptyDirExists(configHistory)
-		e.assert.NoError(os.RemoveAll(configHistory))
+		configHistoryPath := getConfigHistoryDBPath()
+		logger.Infof("Deleting configHistory db path [%s]", configHistoryPath)
+		e.verifyNonEmptyDirExists(configHistoryPath)
+		e.assert.NoError(os.RemoveAll(configHistoryPath))
 	}
+
+	if flags&rebuildableBookkeeper == rebuildableBookkeeper {
+		bookkeeperPath := getBookkeeperDBPath()
+		logger.Infof("Deleting bookkeeper db path [%s]", bookkeeperPath)
+		e.verifyNonEmptyDirExists(bookkeeperPath)
+		e.assert.NoError(os.RemoveAll(bookkeeperPath))
+	}
+
+	if flags&rebuildableHistoryDB == rebuildableHistoryDB {
+		historyPath := getHistoryDBPath()
+		logger.Infof("Deleting history db path [%s]", historyPath)
+		e.verifyNonEmptyDirExists(historyPath)
+		e.assert.NoError(os.RemoveAll(historyPath))
+	}
+
+	e.verifyRebuilableDoesNotExist(flags)
 }
 
 func (e *env) verifyRebuilablesExist(flags rebuildable) {
-	if flags&rebuildableStatedb == rebuildableBlockIndex {
+	if flags&rebuildableBlockIndex == rebuildableBlockIndex {
 		e.verifyNonEmptyDirExists(getBlockIndexDBPath())
 	}
-	if flags&rebuildableBlockIndex == rebuildableStatedb {
+	if flags&rebuildableStatedb == rebuildableStatedb {
 		e.verifyNonEmptyDirExists(getLevelstateDBPath())
 	}
 	if flags&rebuildableConfigHistory == rebuildableConfigHistory {
 		e.verifyNonEmptyDirExists(getConfigHistoryDBPath())
+	}
+	if flags&rebuildableBookkeeper == rebuildableBookkeeper {
+		e.verifyNonEmptyDirExists(getBookkeeperDBPath())
+	}
+	if flags&rebuildableHistoryDB == rebuildableHistoryDB {
+		e.verifyNonEmptyDirExists(getHistoryDBPath())
 	}
 }
 
@@ -95,11 +125,17 @@ func (e *env) verifyRebuilableDoesNotExist(flags rebuildable) {
 	if flags&rebuildableStatedb == rebuildableStatedb {
 		e.verifyDirDoesNotExist(getLevelstateDBPath())
 	}
-	if flags&rebuildableStatedb == rebuildableBlockIndex {
+	if flags&rebuildableBlockIndex == rebuildableBlockIndex {
 		e.verifyDirDoesNotExist(getBlockIndexDBPath())
 	}
 	if flags&rebuildableConfigHistory == rebuildableConfigHistory {
 		e.verifyDirDoesNotExist(getConfigHistoryDBPath())
+	}
+	if flags&rebuildableBookkeeper == rebuildableBookkeeper {
+		e.verifyDirDoesNotExist(getBookkeeperDBPath())
+	}
+	if flags&rebuildableHistoryDB == rebuildableHistoryDB {
+		e.verifyDirDoesNotExist(getHistoryDBPath())
 	}
 }
 
@@ -127,7 +163,37 @@ func setupConfigs(conf config) {
 }
 
 func initLedgerMgmt() {
-	ledgermgmt.InitializeExistingTestEnvWithCustomProcessors(peer.ConfigTxProcessors)
+	identityDeserializerFactory := func(chainID string) msp.IdentityDeserializer {
+		return mgmt.GetManagerForChain(chainID)
+	}
+	membershipInfoProvider := privdata.NewMembershipInfoProvider(createSelfSignedData(), identityDeserializerFactory)
+
+	ledgermgmt.InitializeExistingTestEnvWithInitializer(
+		&ledgermgmt.Initializer{
+			CustomTxProcessors:            peer.ConfigTxProcessors,
+			DeployedChaincodeInfoProvider: &lscc.DeployedCCInfoProvider{},
+			MembershipInfoProvider:        membershipInfoProvider,
+			MetricsProvider:               &disabled.Provider{},
+		},
+	)
+}
+
+func createSelfSignedData() common.SignedData {
+	sID := mgmt.GetLocalSigningIdentityOrPanic()
+	msg := make([]byte, 32)
+	sig, err := sID.Sign(msg)
+	if err != nil {
+		logger.Panicf("Failed creating self signed data because message signing failed: %v", err)
+	}
+	peerIdentity, err := sID.Serialize()
+	if err != nil {
+		logger.Panicf("Failed creating self signed data because peer identity couldn't be serialized: %v", err)
+	}
+	return common.SignedData{
+		Data:      msg,
+		Signature: sig,
+		Identity:  peerIdentity,
+	}
 }
 
 func closeLedgerMgmt() {
@@ -148,4 +214,12 @@ func getBlockIndexDBPath() string {
 
 func getConfigHistoryDBPath() string {
 	return ledgerconfig.GetConfigHistoryPath()
+}
+
+func getHistoryDBPath() string {
+	return ledgerconfig.GetHistoryLevelDBPath()
+}
+
+func getBookkeeperDBPath() string {
+	return ledgerconfig.GetInternalBookkeeperPath()
 }

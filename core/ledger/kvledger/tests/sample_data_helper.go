@@ -12,8 +12,8 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/core/ledger"
-	protopeer "justledger/protos/peer"
+	"github.com/justledger/fabric/core/ledger"
+	protopeer "github.com/justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -117,7 +117,7 @@ func (d *sampleDataHelper) populateLedger(h *testhelper) {
 		s.getState("cc1", "key1")
 		s.setState("cc1", "key1", d.sampleVal("value15", lgrid))
 	})
-	blk7 := h.committer.cutBlockAndCommitWithPvtdata(txdata7)
+	blk7 := h.committer.cutBlockAndCommitWithPvtdata([]*txAndPvtdata{txdata7}, nil)
 	blk8 := h.cutBlockAndCommitWithPvtdata()
 
 	d.submittedData.recordSubmittedBlks(lgrid,
@@ -152,6 +152,7 @@ func (d *sampleDataHelper) verifyLedgerContent(h *testhelper) {
 	d.verifyConfigHistory(h)
 	d.verifyBlockAndPvtdata(h)
 	d.verifyGetTransactionByID(h)
+	// TODO: add verifyHistory() -- FAB-15733
 
 	// the submitted data could not be available if the test ledger is loaded from disk in a fresh run
 	// (e.g., a backup of a test lesger from a previous fabric version)
@@ -249,17 +250,17 @@ func (d *sampleDataHelper) sampleVal(val, ledgerid string) string {
 
 func (d *sampleDataHelper) sampleCollConf1(ledgerid, ccName string) []*collConf {
 	return []*collConf{
-		{name: "coll1"},
-		{name: ledgerid},
-		{name: ccName},
+		{name: "coll1", members: []string{"org1", "org2"}},
+		{name: ledgerid, members: []string{"org1", "org2"}},
+		{name: ccName, members: []string{"org1", "org2"}},
 	}
 }
 
 func (d *sampleDataHelper) sampleCollConf2(ledgerid string, ccName string) []*collConf {
 	return []*collConf{
-		{name: "coll1"},
-		{name: "coll2"},
-		{name: ledgerid},
-		{name: ccName},
+		{name: "coll1", members: []string{"org1", "org2"}},
+		{name: "coll2", members: []string{"org1", "org2"}},
+		{name: ledgerid, members: []string{"org1", "org2"}},
+		{name: ccName, members: []string{"org1", "org2"}},
 	}
 }

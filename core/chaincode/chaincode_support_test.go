@@ -21,36 +21,36 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/crypto/tlsgen"
-	"justledger/common/flogging"
-	commonledger "justledger/common/ledger"
-	mc "justledger/common/mocks/config"
-	mocklgr "justledger/common/mocks/ledger"
-	mockpeer "justledger/common/mocks/peer"
-	"justledger/common/util"
-	"justledger/core/aclmgmt/mocks"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/chaincode/accesscontrol"
-	"justledger/core/chaincode/mock"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	"justledger/core/config"
-	"justledger/core/container"
-	"justledger/core/container/dockercontroller"
-	"justledger/core/container/inproccontroller"
-	"justledger/core/ledger"
-	"justledger/core/ledger/ledgermgmt"
-	cmp "justledger/core/mocks/peer"
-	"justledger/core/peer"
-	"justledger/core/policy"
-	"justledger/core/scc"
-	"justledger/core/scc/lscc"
-	mspmgmt "justledger/msp/mgmt"
-	plgr "justledger/protos/ledger/queryresult"
-	pb "justledger/protos/peer"
-	putils "justledger/protos/utils"
+	"github.com/justledger/fabric/common/crypto/tlsgen"
+	commonledger "github.com/justledger/fabric/common/ledger"
+	"github.com/justledger/fabric/common/metrics/disabled"
+	mc "github.com/justledger/fabric/common/mocks/config"
+	mocklgr "github.com/justledger/fabric/common/mocks/ledger"
+	mockpeer "github.com/justledger/fabric/common/mocks/peer"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/core/aclmgmt/mocks"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/chaincode/accesscontrol"
+	"github.com/justledger/fabric/core/chaincode/mock"
+	"github.com/justledger/fabric/core/chaincode/platforms"
+	"github.com/justledger/fabric/core/chaincode/platforms/golang"
+	"github.com/justledger/fabric/core/chaincode/shim"
+	"github.com/justledger/fabric/core/common/ccprovider"
+	"github.com/justledger/fabric/core/config"
+	"github.com/justledger/fabric/core/container"
+	"github.com/justledger/fabric/core/container/dockercontroller"
+	"github.com/justledger/fabric/core/container/inproccontroller"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/ledgermgmt"
+	cmp "github.com/justledger/fabric/core/mocks/peer"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/core/policy"
+	"github.com/justledger/fabric/core/scc"
+	"github.com/justledger/fabric/core/scc/lscc"
+	mspmgmt "github.com/justledger/fabric/msp/mgmt"
+	plgr "github.com/justledger/fabric/protos/ledger/queryresult"
+	pb "github.com/justledger/fabric/protos/peer"
+	putils "github.com/justledger/fabric/protos/utils"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
 )
@@ -186,13 +186,14 @@ func initMockPeer(chainIDs ...string) (*ChaincodeSupport, error) {
 		mockAclProvider,
 		container.NewVMController(
 			map[string]container.VMProvider{
-				dockercontroller.ContainerType: dockercontroller.NewProvider("", ""),
+				dockercontroller.ContainerType: dockercontroller.NewProvider("", "", &disabled.Provider{}),
 				inproccontroller.ContainerType: ipRegistry,
 			},
 		),
 		sccp,
 		pr,
 		peer.DefaultSupport,
+		&disabled.Provider{},
 	)
 	ipRegistry.ChaincodeSupport = chaincodeSupport
 
@@ -228,7 +229,7 @@ func finitMockPeer(chainIDs ...string) {
 	ledgermgmt.CleanupTestEnv()
 	ledgerPath := config.GetPath("peer.fileSystemPath")
 	os.RemoveAll(ledgerPath)
-	os.RemoveAll(filepath.Join(os.TempDir(), "hyperledger"))
+	os.RemoveAll(filepath.Join(os.TempDir(), "justledger"))
 }
 
 //store the stream CC mappings here
@@ -338,7 +339,7 @@ func execCC(t *testing.T, txParams *ccprovider.TransactionParams, ccSide *mockpe
 func startCC(t *testing.T, channelID string, ccname string, chaincodeSupport *ChaincodeSupport) (*mockpeer.MockCCComm, *mockpeer.MockCCComm) {
 	peerSide, ccSide := setupcc(ccname)
 	defer mockPeerCCSupport.RemoveCC(ccname)
-	flogging.SetModuleLevel("chaincode", "debug")
+
 	//register peer side with ccsupport
 	go func() {
 		chaincodeSupport.HandleChaincodeStream(peerSide)
@@ -460,7 +461,20 @@ func initializeCC(t *testing.T, chainID, ccname string, ccSide *mockpeer.MockCCC
 	execCC(t, txParams, ccSide, cccid, false, true, done, cis, respSet, chaincodeSupport)
 
 	//set the right TxID in response now
-	resp.RespMsg.(*pb.ChaincodeMessage).Txid = txid
+	resp = &mockpeer.MockResponse{
+		RecvMsg: &pb.ChaincodeMessage{Type: pb.ChaincodeMessage_TRANSACTION},
+		RespMsg: &pb.ChaincodeMessage{
+			Type:      pb.ChaincodeMessage_COMPLETED,
+			Payload:   putils.MarshalOrPanic(&pb.Response{Status: shim.OK, Payload: []byte("init succeeded")}),
+			Txid:      txid,
+			ChannelId: chainID,
+		},
+	}
+	respSet = &mockpeer.MockResponseSet{
+		DoneFunc:  errorFunc,
+		ErrorFunc: nil,
+		Responses: []*mockpeer.MockResponse{resp},
+	}
 
 	badcccid := &ccprovider.CCContext{
 		Name:    ccname,
@@ -1031,9 +1045,9 @@ func getLaunchConfigs(t *testing.T, cr *ContainerRuntime) {
 	gt.Expect(envs).To(ContainElement("CORE_CHAINCODE_LOGGING_SHIM=warning"))
 	gt.Expect(envs).To(ContainElement("CORE_CHAINCODE_ID_NAME=mycc:v0"))
 	gt.Expect(envs).To(ContainElement("CORE_PEER_TLS_ENABLED=true"))
-	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_KEY_PATH=/etc/hyperledger/fabric/client.key"))
-	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_CERT_PATH=/etc/hyperledger/fabric/client.crt"))
-	gt.Expect(envs).To(ContainElement("CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer.crt"))
+	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_KEY_PATH=/etc/justledger/fabric/client.key"))
+	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_CERT_PATH=/etc/justledger/fabric/client.crt"))
+	gt.Expect(envs).To(ContainElement("CORE_PEER_TLS_ROOTCERT_FILE=/etc/justledger/fabric/peer.crt"))
 
 	if len(filesToUpload) != 3 {
 		t.Fatalf("calling getLaunchConfigs() with TLS enabled should have returned an array of 3 elements for filesToUpload, but got %v", len(filesToUpload))
@@ -1083,6 +1097,7 @@ func TestStartAndWaitSuccess(t *testing.T) {
 		Registry:        handlerRegistry,
 		StartupTimeout:  10 * time.Second,
 		PackageProvider: fakePackageProvider,
+		Metrics:         NewLaunchMetrics(&disabled.Provider{}),
 	}
 
 	ccci := &ccprovider.ChaincodeContainerInfo{
@@ -1116,6 +1131,7 @@ func TestStartAndWaitTimeout(t *testing.T) {
 		Registry:        NewHandlerRegistry(false),
 		StartupTimeout:  500 * time.Millisecond,
 		PackageProvider: fakePackageProvider,
+		Metrics:         NewLaunchMetrics(&disabled.Provider{}),
 	}
 
 	ccci := &ccprovider.ChaincodeContainerInfo{
@@ -1148,6 +1164,7 @@ func TestStartAndWaitLaunchError(t *testing.T) {
 		Registry:        NewHandlerRegistry(false),
 		StartupTimeout:  10 * time.Second,
 		PackageProvider: fakePackageProvider,
+		Metrics:         NewLaunchMetrics(&disabled.Provider{}),
 	}
 
 	ccci := &ccprovider.ChaincodeContainerInfo{

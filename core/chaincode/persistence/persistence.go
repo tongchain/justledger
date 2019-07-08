@@ -15,13 +15,13 @@ import (
 	"path/filepath"
 	"strings"
 
-	"justledger/common/chaincode"
-	"justledger/common/flogging"
-	"justledger/common/util"
+	"github.com/justledger/fabric/common/chaincode"
+	"github.com/justledger/fabric/common/flogging"
+	"github.com/justledger/fabric/common/util"
 	"github.com/pkg/errors"
 )
 
-var logger = flogging.MustGetLogger("chaincode/persistence")
+var logger = flogging.MustGetLogger("chaincode.persistence")
 
 // IOReadWriter defines the interface needed for reading, writing, removing, and
 // checking for existence of a specified file

@@ -22,11 +22,10 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"justledger/common/tools/configtxlator/sanitycheck"
-	"justledger/common/tools/configtxlator/update"
-	cb "justledger/protos/common"
-
 	"github.com/golang/protobuf/proto"
+	"github.com/justledger/fabric/common/tools/configtxlator/sanitycheck"
+	"github.com/justledger/fabric/common/tools/configtxlator/update"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 func fieldBytes(fieldName string, r *http.Request) ([]byte, error) {

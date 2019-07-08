@@ -11,7 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/config/configtest"
+	"github.com/justledger/fabric/common/viperutil"
+	"github.com/justledger/fabric/core/config/configtest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,6 +22,27 @@ func TestLoadGoodConfig(t *testing.T) {
 	cfg, err := Load()
 	assert.NotNil(t, cfg, "Could not load config")
 	assert.Nil(t, err, "Load good config returned unexpected error")
+}
+
+func TestMissingConfigValueOverridden(t *testing.T) {
+	t.Run("when the value is missing and not overridden", func(t *testing.T) {
+		cleanup := configtest.SetDevFabricConfigPath(t)
+		defer cleanup()
+		cfg, err := Load()
+		assert.NotNil(t, cfg, "Could not load config")
+		assert.NoError(t, err, "Load good config returned unexpected error")
+		assert.Nil(t, cfg.Kafka.TLS.ClientRootCAs)
+	})
+
+	t.Run("when the value is missing and is overridden", func(t *testing.T) {
+		os.Setenv("ORDERER_KAFKA_TLS_CLIENTROOTCAS", "msp/tlscacerts/tlsroot.pem")
+		cleanup := configtest.SetDevFabricConfigPath(t)
+		defer cleanup()
+		cfg, err := Load()
+		assert.NotNil(t, cfg, "Could not load config")
+		assert.NoError(t, err, "Load good config returned unexpected error")
+		assert.NotNil(t, cfg.Kafka.TLS.ClientRootCAs)
+	})
 }
 
 func TestLoadMissingConfigFile(t *testing.T) {
@@ -35,7 +57,7 @@ func TestLoadMissingConfigFile(t *testing.T) {
 }
 
 func TestLoadMalformedConfigFile(t *testing.T) {
-	name, err := ioutil.TempDir("", "hyperledger_fabric")
+	name, err := ioutil.TempDir("", "justledger_fabric")
 	assert.Nil(t, err, "Error creating temp dir: %s", err)
 	defer func() {
 		err = os.RemoveAll(name)
@@ -131,10 +153,63 @@ func TestKafkaSASLPlain(t *testing.T) {
 	}
 }
 
+func TestClusterDefaults(t *testing.T) {
+	cleanup := configtest.SetDevFabricConfigPath(t)
+	defer cleanup()
+	cfg, err := Load()
+
+	assert.NoError(t, err)
+	assert.Equal(t, cfg.General.Cluster.ReplicationMaxRetries, Defaults.General.Cluster.ReplicationMaxRetries)
+}
+
 func TestSystemChannel(t *testing.T) {
 	cleanup := configtest.SetDevFabricConfigPath(t)
 	defer cleanup()
 	conf, _ := Load()
 	assert.Equal(t, Defaults.General.SystemChannel, conf.General.SystemChannel,
 		"Expected default system channel ID to be '%s', got '%s' instead", Defaults.General.SystemChannel, conf.General.SystemChannel)
+}
+
+func TestConsensusConfig(t *testing.T) {
+	name, err := ioutil.TempDir("", "justledger_fabric")
+	assert.Nil(t, err, "Error creating temp dir: %s", err)
+	defer func() {
+		err = os.RemoveAll(name)
+		assert.Nil(t, os.RemoveAll(name), "Error removing temp dir: %s", err)
+	}()
+
+	content := `---
+Consensus:
+  Foo: bar
+  Hello:
+    World: 42
+`
+
+	f, err := os.OpenFile(filepath.Join(name, "orderer.yaml"), os.O_RDWR|os.O_CREATE|os.O_EXCL, 0600)
+	assert.Nil(t, err, "Error creating file: %s", err)
+	f.WriteString(content)
+	assert.NoError(t, f.Close(), "Error closing file")
+
+	envVar1 := "FABRIC_CFG_PATH"
+	envVal1 := name
+	os.Setenv(envVar1, envVal1)
+	defer os.Unsetenv(envVar1)
+
+	conf, err := Load()
+	assert.NoError(t, err, "Load good config returned unexpected error")
+	assert.NotNil(t, conf, "Could not load config")
+
+	consensus := conf.Consensus
+	assert.IsType(t, map[string]interface{}{}, consensus, "Expected Consensus to be of type map[string]interface{}")
+
+	foo := &struct {
+		Foo   string
+		Hello struct {
+			World int
+		}
+	}{}
+	err = viperutil.Decode(consensus, foo)
+	assert.NoError(t, err, "Failed to decode Consensus to struct")
+	assert.Equal(t, foo.Foo, "bar")
+	assert.Equal(t, foo.Hello.World, 42)
 }

@@ -9,13 +9,13 @@ package aclmgmt
 import (
 	"fmt"
 
-	"justledger/common/policies"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/peer"
-	"justledger/core/policy"
-	"justledger/msp/mgmt"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
+	"github.com/justledger/fabric/common/policies"
+	"github.com/justledger/fabric/core/aclmgmt/resources"
+	"github.com/justledger/fabric/core/peer"
+	"github.com/justledger/fabric/core/policy"
+	"github.com/justledger/fabric/msp/mgmt"
+	"github.com/justledger/fabric/protos/common"
+	pb "github.com/justledger/fabric/protos/peer"
 )
 
 const (
@@ -90,6 +90,9 @@ func (d *defaultACLProvider) initialize() {
 	//Peer resources
 	d.cResourcePolicyMap[resources.Peer_Propose] = CHANNELWRITERS
 	d.cResourcePolicyMap[resources.Peer_ChaincodeToChaincode] = CHANNELWRITERS
+	d.cResourcePolicyMap[resources.Token_Issue] = CHANNELWRITERS
+	d.cResourcePolicyMap[resources.Token_Transfer] = CHANNELWRITERS
+	d.cResourcePolicyMap[resources.Token_List] = CHANNELREADERS
 
 	//Event resources
 	d.cResourcePolicyMap[resources.Event_Block] = CHANNELREADERS
@@ -115,15 +118,17 @@ func (d *defaultACLProvider) CheckACL(resName string, channelID string, idinfo i
 		return fmt.Errorf("Unmapped policy for %s", resName)
 	}
 
-	switch idinfo.(type) {
+	switch typedData := idinfo.(type) {
 	case *pb.SignedProposal:
-		return d.policyChecker.CheckPolicy(channelID, policy, idinfo.(*pb.SignedProposal))
+		return d.policyChecker.CheckPolicy(channelID, policy, typedData)
 	case *common.Envelope:
-		sd, err := idinfo.(*common.Envelope).AsSignedData()
+		sd, err := typedData.AsSignedData()
 		if err != nil {
 			return err
 		}
 		return d.policyChecker.CheckPolicyBySignedData(channelID, policy, sd)
+	case []*common.SignedData:
+		return d.policyChecker.CheckPolicyBySignedData(channelID, policy, typedData)
 	default:
 		aclLogger.Errorf("Unmapped id on checkACL %s", resName)
 		return fmt.Errorf("Unknown id on checkACL %s", resName)

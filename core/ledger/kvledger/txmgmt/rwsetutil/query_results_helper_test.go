@@ -17,14 +17,13 @@ limitations under the License.
 package rwsetutil
 
 import (
+	"fmt"
 	"testing"
 
-	"fmt"
-
 	"github.com/golang/protobuf/proto"
-	bccspfactory "justledger/bccsp/factory"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/protos/ledger/rwset/kvrwset"
+	bccspfactory "github.com/justledger/fabric/bccsp/factory"
+	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 

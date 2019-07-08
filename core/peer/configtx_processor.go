@@ -9,10 +9,10 @@ package peer
 import (
 	"fmt"
 
-	"justledger/core/ledger"
-	"justledger/core/ledger/customtx"
-	"justledger/protos/common"
-	"justledger/protos/utils"
+	"github.com/justledger/fabric/core/ledger"
+	"github.com/justledger/fabric/core/ledger/customtx"
+	"github.com/justledger/fabric/protos/common"
+	"github.com/justledger/fabric/protos/utils"
 )
 
 const (
@@ -20,7 +20,7 @@ const (
 	peerNamespace    = ""
 )
 
-// txProcessor implements the interface 'github.com/hyperledger/fabric/core/ledger/customtx/Processor'
+// txProcessor implements the interface 'github.com/justledger/fabric/core/ledger/customtx/Processor'
 type configtxProcessor struct {
 }
 
@@ -29,7 +29,7 @@ func newConfigTxProcessor() customtx.Processor {
 	return &configtxProcessor{}
 }
 
-// GenerateSimulationResults implements function in the interface 'github.com/hyperledger/fabric/core/ledger/customtx/Processor'
+// GenerateSimulationResults implements function in the interface 'github.com/justledger/fabric/core/ledger/customtx/Processor'
 // This implemantation processes following two types of transactions.
 // CONFIG  - simply stores the config in the statedb. Additionally, stores the resource config seed if the transaction is from the genesis block.
 // PEER_RESOURCE_UPDATE - In a normal course, this validates the transaction against the current resource bundle,
@@ -40,20 +40,19 @@ func newConfigTxProcessor() customtx.Processor {
 func (tp *configtxProcessor) GenerateSimulationResults(txEnv *common.Envelope, simulator ledger.TxSimulator, initializingLedger bool) error {
 	payload := utils.UnmarshalPayloadOrPanic(txEnv.Payload)
 	channelHdr := utils.UnmarshalChannelHeaderOrPanic(payload.Header.ChannelHeader)
-	chainid := channelHdr.ChannelId
 	txType := common.HeaderType(channelHdr.GetType())
 
 	switch txType {
 	case common.HeaderType_CONFIG:
 		peerLogger.Debugf("Processing CONFIG")
-		return processChannelConfigTx(chainid, txEnv, simulator)
+		return processChannelConfigTx(txEnv, simulator)
 
 	default:
 		return fmt.Errorf("tx type [%s] is not expected", txType)
 	}
 }
 
-func processChannelConfigTx(chainid string, txEnv *common.Envelope, simulator ledger.TxSimulator) error {
+func processChannelConfigTx(txEnv *common.Envelope, simulator ledger.TxSimulator) error {
 	configEnvelope := &common.ConfigEnvelope{}
 	if _, err := utils.UnmarshalEnvelopeOfType(txEnv, common.HeaderType_CONFIG, configEnvelope); err != nil {
 		return err

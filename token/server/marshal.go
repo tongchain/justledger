@@ -11,8 +11,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"justledger/common/util"
-	"justledger/protos/token"
+	"github.com/justledger/fabric/common/util"
+	"github.com/justledger/fabric/protos/token"
 	"github.com/pkg/errors"
 )
 
@@ -91,6 +91,8 @@ func commandResponseFromPayload(payload interface{}) (*token.CommandResponse, er
 	case *token.CommandResponse_TokenTransaction:
 		return &token.CommandResponse{Payload: t}, nil
 	case *token.CommandResponse_Err:
+		return &token.CommandResponse{Payload: t}, nil
+	case *token.CommandResponse_UnspentTokens:
 		return &token.CommandResponse{Payload: t}, nil
 	default:
 		return nil, errors.Errorf("command type not recognized: %T", t)

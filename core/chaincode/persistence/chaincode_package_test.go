@@ -9,7 +9,7 @@ package persistence_test
 import (
 	"io/ioutil"
 
-	"justledger/core/chaincode/persistence"
+	"github.com/justledger/fabric/core/chaincode/persistence"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

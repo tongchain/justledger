@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package consensus
 
 import (
-	"justledger/common/channelconfig"
-	"justledger/common/crypto"
-	"justledger/orderer/common/blockcutter"
-	"justledger/orderer/common/msgprocessor"
-	cb "justledger/protos/common"
+	"github.com/justledger/fabric/common/channelconfig"
+	"github.com/justledger/fabric/common/crypto"
+	"github.com/justledger/fabric/orderer/common/blockcutter"
+	"github.com/justledger/fabric/orderer/common/msgprocessor"
+	cb "github.com/justledger/fabric/protos/common"
 )
 
 // Consenter defines the backing ordering mechanism.
@@ -20,8 +20,8 @@ type Consenter interface {
 	// It will only be invoked for a given chain once per process.  In general, errors will be treated
 	// as irrecoverable and cause system shutdown.  See the description of Chain for more details
 	// The second argument to HandleChain is a pointer to the metadata stored on the `ORDERER` slot of
-	// the last block committed to the ledger of this Chain.  For a new chain, this metadata will be
-	// nil, as this field is not set on the genesis block
+	// the last block committed to the ledger of this Chain. For a new chain, or one which is migrated,
+	// this metadata will be nil (or contain a zero-length Value), as there is no prior metadata to report.
 	HandleChain(support ConsenterSupport, metadata *cb.Metadata) (Chain, error)
 }
 
@@ -74,15 +74,26 @@ type ConsenterSupport interface {
 	crypto.LocalSigner
 	msgprocessor.Processor
 
+	// VerifyBlockSignature verifies a signature of a block with a given optional
+	// configuration (can be nil).
+	VerifyBlockSignature([]*cb.SignedData, *cb.ConfigEnvelope) error
+
 	// BlockCutter returns the block cutting helper for this channel.
 	BlockCutter() blockcutter.Receiver
 
 	// SharedConfig provides the shared config from the channel's current config block.
 	SharedConfig() channelconfig.Orderer
 
+	// ChannelConfig provides the channel config from the channel's current config block.
+	ChannelConfig() channelconfig.Channel
+
 	// CreateNextBlock takes a list of messages and creates the next block based on the block with highest block number committed to the ledger
 	// Note that either WriteBlock or WriteConfigBlock must be called before invoking this method a second time.
 	CreateNextBlock(messages []*cb.Envelope) *cb.Block
+
+	// Block returns a block with the given number,
+	// or nil if such a block doesn't exist.
+	Block(number uint64) *cb.Block
 
 	// WriteBlock commits a block to the ledger.
 	WriteBlock(block *cb.Block, encodedMetadataValue []byte)
@@ -98,4 +109,8 @@ type ConsenterSupport interface {
 
 	// Height returns the number of blocks in the chain this channel is associated with.
 	Height() uint64
+
+	// Append appends a new block to the ledger in its raw form,
+	// unlike WriteBlock that also mutates its metadata.
+	Append(block *cb.Block) error
 }
