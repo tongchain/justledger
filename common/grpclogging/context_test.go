@@ -10,7 +10,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/justledger/fabric/common/grpclogging"
+	"justledger/fabric/common/grpclogging"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"go.uber.org/zap"

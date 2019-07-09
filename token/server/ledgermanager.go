@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package server
 
 import (
-	"github.com/justledger/fabric/core/peer"
-	"github.com/justledger/fabric/token/ledger"
+	"justledger/fabric/core/peer"
+	"justledger/fabric/token/ledger"
 	"github.com/pkg/errors"
 )
 

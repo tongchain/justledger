@@ -10,12 +10,12 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/common/crypto"
-	mockconfig "github.com/justledger/fabric/common/mocks/config"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/common/crypto"
+	mockconfig "justledger/fabric/common/mocks/config"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

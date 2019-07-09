@@ -8,10 +8,10 @@ package msgprocessor
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/channelconfig"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/channelconfig"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 

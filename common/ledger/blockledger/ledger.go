@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package blockledger
 
 import (
-	cb "github.com/justledger/fabric/protos/common"
-	ab "github.com/justledger/fabric/protos/orderer"
+	cb "justledger/fabric/protos/common"
+	ab "justledger/fabric/protos/orderer"
 )
 
 // Factory retrieves or creates new ledgers by chainID

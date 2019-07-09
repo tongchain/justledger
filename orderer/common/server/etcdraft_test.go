@@ -36,11 +36,11 @@ func TestSpawnEtcdRaft(t *testing.T) {
 	gt.Expect(err).NotTo(HaveOccurred())
 
 	// Build the configtxgen binary
-	configtxgen, err := gexec.Build("github.com/justledger/fabric/common/tools/configtxgen")
+	configtxgen, err := gexec.Build("justledger/fabric/common/tools/configtxgen")
 	gt.Expect(err).NotTo(HaveOccurred())
 
 	// Build the orderer binary
-	orderer, err := gexec.Build("github.com/justledger/fabric/orderer")
+	orderer, err := gexec.Build("justledger/fabric/orderer")
 	gt.Expect(err).NotTo(HaveOccurred())
 
 	defer gexec.CleanupBuildArtifacts()

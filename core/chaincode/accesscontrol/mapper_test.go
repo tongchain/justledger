@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/factory"
-	"github.com/justledger/fabric/common/crypto/tlsgen"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/factory"
+	"justledger/fabric/common/crypto/tlsgen"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -10,12 +10,12 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/core/handlers/validation/api"
-	. "github.com/justledger/fabric/core/handlers/validation/api/capabilities"
-	. "github.com/justledger/fabric/core/handlers/validation/api/identities"
-	. "github.com/justledger/fabric/core/handlers/validation/api/policies"
-	. "github.com/justledger/fabric/core/handlers/validation/api/state"
-	"github.com/justledger/fabric/protos/common"
+	"justledger/fabric/core/handlers/validation/api"
+	. "justledger/fabric/core/handlers/validation/api/capabilities"
+	. "justledger/fabric/core/handlers/validation/api/identities"
+	. "justledger/fabric/core/handlers/validation/api/policies"
+	. "justledger/fabric/core/handlers/validation/api/state"
+	"justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

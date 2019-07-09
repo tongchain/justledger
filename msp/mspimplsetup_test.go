@@ -10,7 +10,7 @@ import (
 	"crypto/x509"
 	"testing"
 
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/protos/msp"
 
 	"github.com/onsi/gomega"
 )

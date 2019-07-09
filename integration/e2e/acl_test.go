@@ -17,12 +17,12 @@ import (
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/core/aclmgmt/resources"
-	"github.com/justledger/fabric/integration/nwo"
-	"github.com/justledger/fabric/integration/nwo/commands"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/core/aclmgmt/resources"
+	"justledger/fabric/integration/nwo"
+	"justledger/fabric/integration/nwo/commands"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -73,7 +73,7 @@ var _ = Describe("EndToEndACL", func() {
 		chaincode = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
+			Path:    "justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member')`,
 		}

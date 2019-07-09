@@ -8,7 +8,7 @@ package main
 import (
 	"hash"
 
-	"github.com/justledger/fabric/bccsp"
+	"justledger/fabric/bccsp"
 )
 
 type impl struct{}

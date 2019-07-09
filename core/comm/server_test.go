@@ -23,9 +23,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/common/crypto/tlsgen"
-	"github.com/justledger/fabric/core/comm"
-	testpb "github.com/justledger/fabric/core/comm/testdata/grpc"
+	"justledger/fabric/common/crypto/tlsgen"
+	"justledger/fabric/core/comm"
+	testpb "justledger/fabric/core/comm/testdata/grpc"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"

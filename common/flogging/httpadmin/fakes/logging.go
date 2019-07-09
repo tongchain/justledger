@@ -4,7 +4,7 @@ package fakes
 import (
 	sync "sync"
 
-	httpadmin "github.com/justledger/fabric/common/flogging/httpadmin"
+	httpadmin "justledger/fabric/common/flogging/httpadmin"
 )
 
 type Logging struct {

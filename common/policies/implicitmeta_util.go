@@ -17,8 +17,8 @@ limitations under the License.
 package policies
 
 import (
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/utils"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/utils"
 )
 
 // ImplicitMetaPolicyWithSubPolicy creates an implicitmeta policy

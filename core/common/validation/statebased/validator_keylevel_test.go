@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justledger/fabric/common/errors"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/errors"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"github.com/justledger/fabric/core/handlers/validation/api"
-	"github.com/justledger/fabric/core/handlers/validation/builtin"
-	"github.com/justledger/fabric/integration/pluggable"
+	"justledger/fabric/core/handlers/validation/api"
+	"justledger/fabric/core/handlers/validation/builtin"
+	"justledger/fabric/integration/pluggable"
 )
 
 // go build -buildmode=plugin -o plugin.so

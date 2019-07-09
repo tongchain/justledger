@@ -28,8 +28,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/utils"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/utils"
 )
 
 // NewFileBasedKeyStore instantiated a file-based key store at a given position.

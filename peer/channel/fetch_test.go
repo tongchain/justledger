@@ -14,12 +14,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/core/config/configtest"
-	"github.com/justledger/fabric/peer/common"
-	"github.com/justledger/fabric/peer/common/mock"
-	cb "github.com/justledger/fabric/protos/common"
-	ab "github.com/justledger/fabric/protos/orderer"
-	putils "github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/core/config/configtest"
+	"justledger/fabric/peer/common"
+	"justledger/fabric/peer/common/mock"
+	cb "justledger/fabric/protos/common"
+	ab "justledger/fabric/protos/orderer"
+	putils "justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

@@ -11,8 +11,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/justledger/fabric/integration/helpers"
-	"github.com/justledger/fabric/integration/runner"
+	"justledger/fabric/integration/helpers"
+	"justledger/fabric/integration/runner"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )
@@ -34,27 +34,27 @@ func (c *Components) Build(args ...string) {
 	if c.Paths == nil {
 		c.Paths = map[string]string{}
 	}
-	cryptogen, err := gexec.Build("github.com/justledger/fabric/common/tools/cryptogen", args...)
+	cryptogen, err := gexec.Build("justledger/fabric/common/tools/cryptogen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["cryptogen"] = cryptogen
 
-	idemixgen, err := gexec.Build("github.com/justledger/fabric/common/tools/idemixgen", args...)
+	idemixgen, err := gexec.Build("justledger/fabric/common/tools/idemixgen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["idemixgen"] = idemixgen
 
-	configtxgen, err := gexec.Build("github.com/justledger/fabric/common/tools/configtxgen", args...)
+	configtxgen, err := gexec.Build("justledger/fabric/common/tools/configtxgen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["configtxgen"] = configtxgen
 
-	orderer, err := gexec.Build("github.com/justledger/fabric/orderer", args...)
+	orderer, err := gexec.Build("justledger/fabric/orderer", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["orderer"] = orderer
 
-	peer, err := gexec.Build("github.com/justledger/fabric/peer", args...)
+	peer, err := gexec.Build("justledger/fabric/peer", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["peer"] = peer
 
-	discover, err := gexec.Build("github.com/justledger/fabric/cmd/discover", args...)
+	discover, err := gexec.Build("justledger/fabric/cmd/discover", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["discover"] = discover
 }

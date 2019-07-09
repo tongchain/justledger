@@ -12,10 +12,10 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/justledger/fabric/gossip/common"
-	"github.com/justledger/fabric/gossip/metrics"
-	"github.com/justledger/fabric/gossip/util"
-	proto "github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/gossip/common"
+	"justledger/fabric/gossip/metrics"
+	"justledger/fabric/gossip/util"
+	proto "justledger/fabric/protos/gossip"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )

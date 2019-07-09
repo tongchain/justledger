@@ -8,7 +8,7 @@ package bridge_test
 import (
 	"testing"
 
-	"github.com/justledger/fabric-amcl/amcl"
+	"justledger/fabric-amcl/amcl"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

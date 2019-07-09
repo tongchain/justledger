@@ -15,37 +15,37 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/capabilities"
-	"github.com/justledger/fabric/common/cauthdsl"
-	"github.com/justledger/fabric/common/channelconfig"
-	mc "github.com/justledger/fabric/common/mocks/config"
-	lm "github.com/justledger/fabric/common/mocks/ledger"
-	"github.com/justledger/fabric/common/mocks/scc"
-	"github.com/justledger/fabric/common/util"
-	aclmocks "github.com/justledger/fabric/core/aclmgmt/mocks"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/golang"
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/committer/txvalidator"
-	mocks2 "github.com/justledger/fabric/core/committer/txvalidator/mocks"
-	"github.com/justledger/fabric/core/common/ccpackage"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/common/privdata"
-	cutils "github.com/justledger/fabric/core/container/util"
-	"github.com/justledger/fabric/core/handlers/validation/api/capabilities"
-	"github.com/justledger/fabric/core/handlers/validation/builtin/v12/mocks"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	corepeer "github.com/justledger/fabric/core/peer"
-	"github.com/justledger/fabric/core/policy"
-	"github.com/justledger/fabric/core/scc/lscc"
-	"github.com/justledger/fabric/msp"
-	mspmgmt "github.com/justledger/fabric/msp/mgmt"
-	"github.com/justledger/fabric/msp/mgmt/testtools"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
-	mspproto "github.com/justledger/fabric/protos/msp"
-	"github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/capabilities"
+	"justledger/fabric/common/cauthdsl"
+	"justledger/fabric/common/channelconfig"
+	mc "justledger/fabric/common/mocks/config"
+	lm "justledger/fabric/common/mocks/ledger"
+	"justledger/fabric/common/mocks/scc"
+	"justledger/fabric/common/util"
+	aclmocks "justledger/fabric/core/aclmgmt/mocks"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/golang"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/committer/txvalidator"
+	mocks2 "justledger/fabric/core/committer/txvalidator/mocks"
+	"justledger/fabric/core/common/ccpackage"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/common/privdata"
+	cutils "justledger/fabric/core/container/util"
+	"justledger/fabric/core/handlers/validation/api/capabilities"
+	"justledger/fabric/core/handlers/validation/builtin/v12/mocks"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	corepeer "justledger/fabric/core/peer"
+	"justledger/fabric/core/policy"
+	"justledger/fabric/core/scc/lscc"
+	"justledger/fabric/msp"
+	mspmgmt "justledger/fabric/msp/mgmt"
+	"justledger/fabric/msp/mgmt/testtools"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/rwset/kvrwset"
+	mspproto "justledger/fabric/protos/msp"
+	"justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -805,7 +805,7 @@ func TestAlreadyDeployed(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "alreadydeployed"
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1183,7 +1183,7 @@ func TestValidateUpgradeOK(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradeok"
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1246,7 +1246,7 @@ func TestInvalidateUpgradeBadVersion(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradebadversion"
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1320,7 +1320,7 @@ func validateUpgradeWithCollection(t *testing.T, ccver string, V1_2Validation bo
 	}
 
 	ccname := "mycc"
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1502,7 +1502,7 @@ func TestValidateUpgradeWithPoliciesOK(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradewithpoliciesok"
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {
@@ -1589,7 +1589,7 @@ func validateUpgradeWithNewFailAllIP(t *testing.T, ccver string, v11capability, 
 	// deploy the chaincode with an accept all policy
 
 	ccname := "mycc"
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {
@@ -1666,7 +1666,7 @@ func TestValidateUpgradeWithPoliciesFail(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradewithpoliciesfail"
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {

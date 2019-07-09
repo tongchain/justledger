@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/gossip/util"
-	proto "github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/gossip/util"
+	proto "justledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

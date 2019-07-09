@@ -23,11 +23,11 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/factory"
-	"github.com/justledger/fabric/core/common/ccpackage"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/factory"
+	"justledger/fabric/core/common/ccpackage"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
 )
 
 //----- SignedCDSData ------

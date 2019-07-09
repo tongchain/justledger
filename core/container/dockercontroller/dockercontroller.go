@@ -21,12 +21,12 @@ import (
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/container"
-	"github.com/justledger/fabric/core/container/ccintf"
-	cutil "github.com/justledger/fabric/core/container/util"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/container"
+	"justledger/fabric/core/container/ccintf"
+	cutil "justledger/fabric/core/container/util"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

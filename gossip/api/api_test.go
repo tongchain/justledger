@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/justledger/fabric/gossip/common"
+	"justledger/fabric/gossip/common"
 	"github.com/stretchr/testify/assert"
 )
 

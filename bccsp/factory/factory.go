@@ -18,8 +18,8 @@ package factory
 import (
 	"sync"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/common/flogging"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/common/flogging"
 	"github.com/pkg/errors"
 )
 

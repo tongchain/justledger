@@ -16,9 +16,9 @@ import (
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/justledger/fabric/integration/nwo"
-	"github.com/justledger/fabric/integration/nwo/commands"
-	"github.com/justledger/fabric/integration/nwo/fabricconfig"
+	"justledger/fabric/integration/nwo"
+	"justledger/fabric/integration/nwo/commands"
+	"justledger/fabric/integration/nwo/fabricconfig"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -84,7 +84,7 @@ var _ = Describe("EndToEnd", func() {
 		chaincode = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
+			Path:    "justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member')`,
 		}
@@ -125,7 +125,7 @@ func compilePlugin(pluginType string) string {
 	cmd := exec.Command(
 		"go", "build", "-buildmode=plugin",
 		"-o", pluginFilePath,
-		fmt.Sprintf("github.com/justledger/fabric/integration/pluggable/testdata/plugins/%s", pluginType),
+		fmt.Sprintf("justledger/fabric/integration/pluggable/testdata/plugins/%s", pluginType),
 	)
 	sess, err := gexec.Start(cmd, GinkgoWriter, GinkgoWriter)
 	Expect(err).NotTo(HaveOccurred())

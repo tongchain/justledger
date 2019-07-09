@@ -11,8 +11,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/flogging/mock"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/flogging/mock"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"

@@ -14,12 +14,12 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/core/ledger/pvtdatapolicy"
-	"github.com/justledger/fabric/protos/ledger/rwset"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/ledger/util/leveldbhelper"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/core/ledger/pvtdatapolicy"
+	"justledger/fabric/protos/ledger/rwset"
 	"github.com/willf/bitset"
 )
 

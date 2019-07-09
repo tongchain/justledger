@@ -16,7 +16,7 @@ limitations under the License.
 package shim
 
 import (
-	pb "github.com/justledger/fabric/protos/peer"
+	pb "justledger/fabric/protos/peer"
 )
 
 const (

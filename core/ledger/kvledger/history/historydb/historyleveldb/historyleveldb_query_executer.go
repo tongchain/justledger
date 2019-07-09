@@ -7,15 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package historyleveldb
 
 import (
-	commonledger "github.com/justledger/fabric/common/ledger"
-	"github.com/justledger/fabric/common/ledger/blkstorage"
-	"github.com/justledger/fabric/common/ledger/util"
-	"github.com/justledger/fabric/core/ledger/kvledger/history/historydb"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/queryresult"
-	putils "github.com/justledger/fabric/protos/utils"
+	commonledger "justledger/fabric/common/ledger"
+	"justledger/fabric/common/ledger/blkstorage"
+	"justledger/fabric/common/ledger/util"
+	"justledger/fabric/core/ledger/kvledger/history/historydb"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/queryresult"
+	putils "justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 )

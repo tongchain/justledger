@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package deliver
 
 import (
-	"github.com/justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics"
 )
 
 var (

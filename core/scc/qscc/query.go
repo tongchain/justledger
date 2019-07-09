@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/aclmgmt"
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/peer"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/aclmgmt"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/peer"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 )
 
 // New returns an instance of QSCC.
@@ -28,7 +28,7 @@ func New(aclProvider aclmgmt.ACLProvider) *LedgerQuerier {
 }
 
 func (e *LedgerQuerier) Name() string              { return "qscc" }
-func (e *LedgerQuerier) Path() string              { return "github.com/justledger/fabric/core/scc/qscc" }
+func (e *LedgerQuerier) Path() string              { return "justledger/fabric/core/scc/qscc" }
 func (e *LedgerQuerier) InitArgs() [][]byte        { return nil }
 func (e *LedgerQuerier) Chaincode() shim.Chaincode { return e }
 func (e *LedgerQuerier) InvokableExternal() bool   { return true }

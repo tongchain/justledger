@@ -9,7 +9,7 @@ package accesscontrol
 import (
 	"fmt"
 
-	pb "github.com/justledger/fabric/protos/peer"
+	pb "justledger/fabric/protos/peer"
 	"google.golang.org/grpc"
 )
 

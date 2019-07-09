@@ -11,8 +11,8 @@ import (
 	"crypto/x509"
 	"time"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/metrics"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/metrics"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 )

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package channelconfig
 
 import (
-	cb "github.com/justledger/fabric/protos/common"
+	cb "justledger/fabric/protos/common"
 )
 
 const (

@@ -11,10 +11,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/msp"
-	cb "github.com/justledger/fabric/protos/common"
-	mspp "github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/msp"
+	cb "justledger/fabric/protos/common"
+	mspp "justledger/fabric/protos/msp"
 )
 
 type Identity interface {

@@ -20,13 +20,13 @@ import (
 	"bytes"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/common/flogging"
-	mspmgmt "github.com/justledger/fabric/msp/mgmt"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/msp"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/common/flogging"
+	mspmgmt "justledger/fabric/msp/mgmt"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/msp"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 

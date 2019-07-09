@@ -12,11 +12,11 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/common/mocks/config"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/msp"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/common/mocks/config"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/msp"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

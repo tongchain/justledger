@@ -12,11 +12,11 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/factory"
-	"github.com/justledger/fabric/common/tools/cryptogen/ca"
-	"github.com/justledger/fabric/common/tools/cryptogen/csp"
-	fabricmsp "github.com/justledger/fabric/msp"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/factory"
+	"justledger/fabric/common/tools/cryptogen/ca"
+	"justledger/fabric/common/tools/cryptogen/csp"
+	fabricmsp "justledger/fabric/msp"
 	"gopkg.in/yaml.v2"
 )
 

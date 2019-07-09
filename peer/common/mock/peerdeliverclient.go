@@ -5,8 +5,8 @@ import (
 	"context"
 	"sync"
 
-	apichaincode "github.com/justledger/fabric/peer/chaincode/api"
-	"github.com/justledger/fabric/peer/common/api"
+	apichaincode "justledger/fabric/peer/chaincode/api"
+	"justledger/fabric/peer/common/api"
 	"google.golang.org/grpc"
 )
 

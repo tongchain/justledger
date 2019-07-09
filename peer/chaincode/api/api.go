@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package api
 
 import (
-	pcommon "github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	pcommon "justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
 )
 
 //go:generate counterfeiter -o ../mock/deliver.go -fake-name Deliver . Deliver

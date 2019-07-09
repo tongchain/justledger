@@ -18,10 +18,10 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/metrics/disabled"
-	ledgertestutil "github.com/justledger/fabric/core/ledger/testutil"
-	"github.com/justledger/fabric/integration/runner"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/metrics/disabled"
+	ledgertestutil "justledger/fabric/core/ledger/testutil"
+	"justledger/fabric/integration/runner"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

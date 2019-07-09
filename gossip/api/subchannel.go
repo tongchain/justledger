@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package api
 
-import "github.com/justledger/fabric/gossip/common"
+import "justledger/fabric/gossip/common"
 
 // RoutingFilter defines which peers should receive a certain message,
 // or which peers are eligible of receiving a certain message

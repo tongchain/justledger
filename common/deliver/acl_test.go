@@ -9,10 +9,10 @@ package deliver_test
 import (
 	"time"
 
-	"github.com/justledger/fabric/common/deliver"
-	"github.com/justledger/fabric/common/deliver/mock"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/deliver"
+	"justledger/fabric/common/deliver/mock"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

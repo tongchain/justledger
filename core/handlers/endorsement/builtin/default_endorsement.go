@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package builtin
 
 import (
-	. "github.com/justledger/fabric/core/handlers/endorsement/api"
-	. "github.com/justledger/fabric/core/handlers/endorsement/api/identities"
-	"github.com/justledger/fabric/protos/peer"
+	. "justledger/fabric/core/handlers/endorsement/api"
+	. "justledger/fabric/core/handlers/endorsement/api/identities"
+	"justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 

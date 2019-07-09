@@ -9,8 +9,8 @@ package main
 import (
 	"context"
 
-	"github.com/justledger/fabric/core/handlers/auth"
-	"github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/handlers/auth"
+	"justledger/fabric/protos/peer"
 )
 
 // NewFilter creates a new Filter

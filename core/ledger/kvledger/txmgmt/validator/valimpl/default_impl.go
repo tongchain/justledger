@@ -7,15 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package valimpl
 
 import (
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/validator"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/validator/internal"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/validator/statebasedval"
-	"github.com/justledger/fabric/core/ledger/util"
-	"github.com/justledger/fabric/protos/common"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/validator"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/validator/internal"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/validator/statebasedval"
+	"justledger/fabric/core/ledger/util"
+	"justledger/fabric/protos/common"
 )
 
 var logger = flogging.MustGetLogger("valimpl")

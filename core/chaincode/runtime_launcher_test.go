@@ -9,11 +9,11 @@ package chaincode_test
 import (
 	"time"
 
-	"github.com/justledger/fabric/common/metrics/metricsfakes"
-	"github.com/justledger/fabric/core/chaincode"
-	"github.com/justledger/fabric/core/chaincode/fake"
-	"github.com/justledger/fabric/core/chaincode/mock"
-	"github.com/justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/common/metrics/metricsfakes"
+	"justledger/fabric/core/chaincode"
+	"justledger/fabric/core/chaincode/fake"
+	"justledger/fabric/core/chaincode/mock"
+	"justledger/fabric/core/common/ccprovider"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

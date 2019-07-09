@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package plain
 
 import (
-	"github.com/justledger/fabric/protos/token"
+	"justledger/fabric/protos/token"
 )
 
 // An Issuer that can import new tokens

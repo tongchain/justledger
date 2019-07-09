@@ -9,8 +9,8 @@ package localconfig
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/config/configtest"
-	"github.com/justledger/fabric/protos/orderer/etcdraft"
+	"justledger/fabric/core/config/configtest"
+	"justledger/fabric/protos/orderer/etcdraft"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	deliver "github.com/justledger/fabric/common/deliver"
+	deliver "justledger/fabric/common/deliver"
 )
 
 type ChainManager struct {

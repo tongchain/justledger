@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"github.com/justledger/fabric/core/container"
+	"justledger/fabric/core/container"
 )
 
 type ExitedFunc struct {

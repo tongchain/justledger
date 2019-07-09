@@ -21,14 +21,14 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justledger/fabric/common/metrics/disabled"
+	"justledger/fabric/common/metrics/disabled"
 
-	"github.com/justledger/fabric/common/configtx/test"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/golang"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/cceventmgmt"
-	"github.com/justledger/fabric/core/ledger/mock"
+	"justledger/fabric/common/configtx/test"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/golang"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/cceventmgmt"
+	"justledger/fabric/core/ledger/mock"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

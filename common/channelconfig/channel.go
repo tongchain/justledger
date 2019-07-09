@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/common/capabilities"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/msp"
-	cb "github.com/justledger/fabric/protos/common"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/common/capabilities"
+	"justledger/fabric/common/util"
+	"justledger/fabric/msp"
+	cb "justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 )
 

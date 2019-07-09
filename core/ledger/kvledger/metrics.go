@@ -8,8 +8,8 @@ package kvledger
 import (
 	"time"
 
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
 )
 
 type stats struct {

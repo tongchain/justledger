@@ -12,12 +12,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/common/viperutil"
-	cf "github.com/justledger/fabric/core/config"
-	"github.com/justledger/fabric/msp"
-	"github.com/justledger/fabric/protos/orderer/etcdraft"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/common/viperutil"
+	cf "justledger/fabric/core/config"
+	"justledger/fabric/msp"
+	"justledger/fabric/protos/orderer/etcdraft"
 	"github.com/spf13/viper"
 )
 

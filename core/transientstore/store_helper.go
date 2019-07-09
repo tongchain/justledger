@@ -11,11 +11,11 @@ import (
 	"errors"
 	"path/filepath"
 
-	"github.com/justledger/fabric/common/ledger/util"
-	"github.com/justledger/fabric/core/config"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/rwset"
+	"justledger/fabric/common/ledger/util"
+	"justledger/fabric/core/config"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/rwset"
 )
 
 var (

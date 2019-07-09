@@ -21,13 +21,13 @@ import (
 	"io/ioutil"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/cauthdsl"
-	"github.com/justledger/fabric/core/common/ccpackage"
-	"github.com/justledger/fabric/msp"
-	mspmgmt "github.com/justledger/fabric/msp/mgmt"
-	pcommon "github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/cauthdsl"
+	"justledger/fabric/core/common/ccpackage"
+	"justledger/fabric/msp"
+	mspmgmt "justledger/fabric/msp/mgmt"
+	pcommon "justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/spf13/cobra"
 )
 

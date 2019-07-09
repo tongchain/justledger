@@ -8,11 +8,11 @@ package chaincode
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/chaincode"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/common/policies/inquire"
-	common2 "github.com/justledger/fabric/protos/common"
+	"justledger/fabric/common/chaincode"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/common/policies/inquire"
+	common2 "justledger/fabric/protos/common"
 )
 
 var logger = flogging.MustGetLogger("discovery.DiscoverySupport")

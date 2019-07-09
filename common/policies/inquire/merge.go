@@ -9,7 +9,7 @@ package inquire
 import (
 	"reflect"
 
-	"github.com/justledger/fabric/common/policies"
+	"justledger/fabric/common/policies"
 )
 
 // ComparablePrincipalSets aggregate ComparablePrincipalSets

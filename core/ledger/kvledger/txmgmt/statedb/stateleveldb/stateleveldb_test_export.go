@@ -20,8 +20,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/fabric/core/ledger/ledgerconfig"
 )
 
 // TestVDBEnv provides a level db backed versioned db for testing

@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package cceventmgmt
 
 import (
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/protos/ledger/rwset/kvrwset"
 )
 
 // KVLedgerLSCCStateListener listens for state changes for chaincode lifecycle

@@ -10,13 +10,13 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric-lib-go/healthz"
-	commonledger "github.com/justledger/fabric/common/ledger"
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/rwset"
-	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
-	"github.com/justledger/fabric/protos/peer"
+	"justledger/fabric-lib-go/healthz"
+	commonledger "justledger/fabric/common/ledger"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/rwset"
+	"justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/fabric/protos/peer"
 )
 
 // Initializer encapsulates dependencies for PeerLedgerProvider
@@ -354,7 +354,7 @@ func (txSim *TxSimulationResults) ContainsPvtWrites() bool {
 // the `stateUpdates` parameter passed to the function captures the state changes caused by the block
 // for the namespace. The actual data type of stateUpdates depends on the data model enabled.
 // For instance, for KV data model, the actual type would be proto message
-// `github.com/justledger/fabric/protos/ledger/rwset/kvrwset.KVWrite`
+// `justledger/fabric/protos/ledger/rwset/kvrwset.KVWrite`
 // Function `HandleStateUpdates` is expected to be invoked before block is committed and if this
 // function returns an error, the ledger implementation is expected to halt block commit operation
 // and result in a panic

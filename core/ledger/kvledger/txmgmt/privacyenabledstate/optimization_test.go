@@ -9,9 +9,9 @@ package privacyenabledstate
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/ledger/kvledger/bookkeeping"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/mock"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/fabric/core/ledger/kvledger/bookkeeping"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb/mock"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
 	"github.com/stretchr/testify/assert"
 )
 

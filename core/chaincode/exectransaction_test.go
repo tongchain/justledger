@@ -26,43 +26,43 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/bccsp/factory"
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/common/crypto/tlsgen"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/metrics/disabled"
-	mc "github.com/justledger/fabric/common/mocks/config"
-	mockpolicies "github.com/justledger/fabric/common/mocks/policies"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/aclmgmt"
-	aclmocks "github.com/justledger/fabric/core/aclmgmt/mocks"
-	"github.com/justledger/fabric/core/chaincode/accesscontrol"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/golang"
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/config"
-	"github.com/justledger/fabric/core/container"
-	"github.com/justledger/fabric/core/container/dockercontroller"
-	"github.com/justledger/fabric/core/container/inproccontroller"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/core/ledger/ledgermgmt"
-	cut "github.com/justledger/fabric/core/ledger/util"
-	"github.com/justledger/fabric/core/ledger/util/couchdb"
-	cmp "github.com/justledger/fabric/core/mocks/peer"
-	"github.com/justledger/fabric/core/peer"
-	"github.com/justledger/fabric/core/policy"
-	"github.com/justledger/fabric/core/policy/mocks"
-	"github.com/justledger/fabric/core/scc"
-	"github.com/justledger/fabric/core/scc/lscc"
-	"github.com/justledger/fabric/msp"
-	mspmgmt "github.com/justledger/fabric/msp/mgmt"
-	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
-	putils "github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/bccsp/factory"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/common/crypto/tlsgen"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/metrics/disabled"
+	mc "justledger/fabric/common/mocks/config"
+	mockpolicies "justledger/fabric/common/mocks/policies"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/aclmgmt"
+	aclmocks "justledger/fabric/core/aclmgmt/mocks"
+	"justledger/fabric/core/chaincode/accesscontrol"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/golang"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/config"
+	"justledger/fabric/core/container"
+	"justledger/fabric/core/container/dockercontroller"
+	"justledger/fabric/core/container/inproccontroller"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/core/ledger/ledgermgmt"
+	cut "justledger/fabric/core/ledger/util"
+	"justledger/fabric/core/ledger/util/couchdb"
+	cmp "justledger/fabric/core/mocks/peer"
+	"justledger/fabric/core/peer"
+	"justledger/fabric/core/policy"
+	"justledger/fabric/core/policy/mocks"
+	"justledger/fabric/core/scc"
+	"justledger/fabric/core/scc/lscc"
+	"justledger/fabric/msp"
+	mspmgmt "justledger/fabric/msp/mgmt"
+	msptesttools "justledger/fabric/msp/mgmt/testtools"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
+	putils "justledger/fabric/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -618,10 +618,10 @@ func checkFinalState(chainID string, cccid *ccprovider.CCContext, a int, b int) 
 }
 
 const (
-	chaincodeExample02GolangPath   = "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
-	chaincodeExample04GolangPath   = "github.com/justledger/fabric/examples/chaincode/go/example04/cmd"
-	chaincodeEventSenderGolangPath = "github.com/justledger/fabric/examples/chaincode/go/eventsender"
-	chaincodePassthruGolangPath    = "github.com/justledger/fabric/examples/chaincode/go/passthru"
+	chaincodeExample02GolangPath   = "justledger/fabric/examples/chaincode/go/example02/cmd"
+	chaincodeExample04GolangPath   = "justledger/fabric/examples/chaincode/go/example04/cmd"
+	chaincodeEventSenderGolangPath = "justledger/fabric/examples/chaincode/go/eventsender"
+	chaincodePassthruGolangPath    = "justledger/fabric/examples/chaincode/go/passthru"
 	chaincodeExample02JavaPath     = "../../examples/chaincode/java/chaincode_example02"
 	chaincodeExample04JavaPath     = "../../examples/chaincode/java/chaincode_example04"
 	chaincodeExample06JavaPath     = "../../examples/chaincode/java/chaincode_example06"
@@ -975,7 +975,7 @@ func TestChaincodeInit(t *testing.T) {
 
 	defer cleanup()
 
-	url := "github.com/justledger/fabric/core/chaincode/testdata/chaincode/init_private_data"
+	url := "justledger/fabric/core/chaincode/testdata/chaincode/init_private_data"
 	cID := &pb.ChaincodeID{Name: "init_pvtdata", Path: url, Version: "0"}
 
 	f := "init"
@@ -1000,7 +1000,7 @@ func TestChaincodeInit(t *testing.T) {
 	_, err = deploy(chainID, cccid, spec, nextBlockNumber, chaincodeSupport)
 	assert.Contains(t, err.Error(), "private data APIs are not allowed in chaincode Init")
 
-	url = "github.com/justledger/fabric/core/chaincode/testdata/chaincode/init_public_data"
+	url = "justledger/fabric/core/chaincode/testdata/chaincode/init_public_data"
 	cID = &pb.ChaincodeID{Name: "init_public_data", Path: url, Version: "0"}
 
 	f = "init"
@@ -1043,7 +1043,7 @@ func TestQueries(t *testing.T) {
 
 	defer cleanup()
 
-	url := "github.com/justledger/fabric/examples/chaincode/go/map"
+	url := "justledger/fabric/examples/chaincode/go/map"
 	cID := &pb.ChaincodeID{Name: "tmap", Path: url, Version: "0"}
 
 	f := "init"

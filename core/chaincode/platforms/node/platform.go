@@ -18,12 +18,12 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/ccmetadata"
-	"github.com/justledger/fabric/core/chaincode/platforms/util"
-	cutil "github.com/justledger/fabric/core/container/util"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/ccmetadata"
+	"justledger/fabric/core/chaincode/platforms/util"
+	cutil "justledger/fabric/core/container/util"
+	pb "justledger/fabric/protos/peer"
 )
 
 var logger = flogging.MustGetLogger("chaincode.platform.node")

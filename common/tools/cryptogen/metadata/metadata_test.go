@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/justledger/fabric/common/tools/cryptogen/metadata"
+	"justledger/fabric/common/tools/cryptogen/metadata"
 	"github.com/stretchr/testify/assert"
 )
 

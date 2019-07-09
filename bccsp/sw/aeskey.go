@@ -19,7 +19,7 @@ import (
 	"crypto/sha256"
 	"errors"
 
-	"github.com/justledger/fabric/bccsp"
+	"justledger/fabric/bccsp"
 )
 
 type aesPrivateKey struct {

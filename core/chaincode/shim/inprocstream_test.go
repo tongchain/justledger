@@ -9,7 +9,7 @@ package shim
 import (
 	"testing"
 
-	pb "github.com/justledger/fabric/protos/peer"
+	pb "justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

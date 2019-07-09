@@ -9,8 +9,8 @@ package library
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/handlers/auth"
-	"github.com/justledger/fabric/core/handlers/decoration"
+	"justledger/fabric/core/handlers/auth"
+	"justledger/fabric/core/handlers/decoration"
 	"github.com/stretchr/testify/assert"
 )
 

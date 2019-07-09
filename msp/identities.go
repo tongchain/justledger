@@ -15,9 +15,9 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )

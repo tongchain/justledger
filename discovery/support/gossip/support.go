@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package gossip
 
 import (
-	"github.com/justledger/fabric/gossip/common"
-	"github.com/justledger/fabric/gossip/discovery"
-	gossip2 "github.com/justledger/fabric/gossip/gossip"
-	"github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/gossip/common"
+	"justledger/fabric/gossip/discovery"
+	gossip2 "justledger/fabric/gossip/gossip"
+	"justledger/fabric/protos/gossip"
 )
 
 // DiscoverySupport implements support that is used for service discovery

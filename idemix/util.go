@@ -10,8 +10,8 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 
-	"github.com/justledger/fabric-amcl/amcl"
-	"github.com/justledger/fabric-amcl/amcl/FP256BN"
+	"justledger/fabric-amcl/amcl"
+	"justledger/fabric-amcl/amcl/FP256BN"
 	"github.com/pkg/errors"
 )
 

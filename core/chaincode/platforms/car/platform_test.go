@@ -11,11 +11,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/car"
-	"github.com/justledger/fabric/core/testutil"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/car"
+	"justledger/fabric/core/testutil"
+	pb "justledger/fabric/protos/peer"
 )
 
 var _ = platforms.Platform(&car.Platform{})

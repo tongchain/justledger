@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"github.com/justledger/fabric/core/handlers/validation/api"
-	"github.com/justledger/fabric/protos/common"
+	"justledger/fabric/core/handlers/validation/api"
+	"justledger/fabric/protos/common"
 )
 
 // NoOpValidator is used to test validation plugin infrastructure

@@ -13,8 +13,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/flogging/fabenc"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/flogging/fabenc"
 	"github.com/onsi/gomega/gbytes"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"

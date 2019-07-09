@@ -14,11 +14,11 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/cmd/common"
-	"github.com/justledger/fabric/discovery/client"
-	. "github.com/justledger/fabric/protos/discovery"
-	"github.com/justledger/fabric/protos/gossip"
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/cmd/common"
+	"justledger/fabric/discovery/client"
+	. "justledger/fabric/protos/discovery"
+	"justledger/fabric/protos/gossip"
+	"justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 )
 

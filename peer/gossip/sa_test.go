@@ -19,8 +19,8 @@ package gossip
 import (
 	"testing"
 
-	"github.com/justledger/fabric/msp"
-	"github.com/justledger/fabric/peer/gossip/mocks"
+	"justledger/fabric/msp"
+	"justledger/fabric/peer/gossip/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

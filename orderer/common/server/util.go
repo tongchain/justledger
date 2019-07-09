@@ -11,13 +11,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/justledger/fabric/common/ledger/blkstorage/fsblkstorage"
-	"github.com/justledger/fabric/common/ledger/blockledger"
-	fileledger "github.com/justledger/fabric/common/ledger/blockledger/file"
-	jsonledger "github.com/justledger/fabric/common/ledger/blockledger/json"
-	ramledger "github.com/justledger/fabric/common/ledger/blockledger/ram"
-	"github.com/justledger/fabric/common/metrics"
-	config "github.com/justledger/fabric/orderer/common/localconfig"
+	"justledger/fabric/common/ledger/blkstorage/fsblkstorage"
+	"justledger/fabric/common/ledger/blockledger"
+	fileledger "justledger/fabric/common/ledger/blockledger/file"
+	jsonledger "justledger/fabric/common/ledger/blockledger/json"
+	ramledger "justledger/fabric/common/ledger/blockledger/ram"
+	"justledger/fabric/common/metrics"
+	config "justledger/fabric/orderer/common/localconfig"
 )
 
 func createLedgerFactory(conf *config.TopLevel, metricsProvider metrics.Provider) (blockledger.Factory, string) {

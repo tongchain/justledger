@@ -20,13 +20,13 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justledger/fabric/common/ledger/blkstorage"
-	"github.com/justledger/fabric/common/ledger/testutil"
-	"github.com/justledger/fabric/common/metrics/disabled"
-	"github.com/justledger/fabric/core/ledger/util"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/peer"
-	putil "github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/ledger/blkstorage"
+	"justledger/fabric/common/ledger/testutil"
+	"justledger/fabric/common/metrics/disabled"
+	"justledger/fabric/core/ledger/util"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/peer"
+	putil "justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

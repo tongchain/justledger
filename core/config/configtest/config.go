@@ -50,7 +50,7 @@ func GetDevConfigDir() (string, error) {
 	}
 
 	for _, p := range filepath.SplitList(gopath) {
-		devPath := filepath.Join(p, "src/github.com/justledger/fabric/sampleconfig")
+		devPath := filepath.Join(p, "src/justledger/fabric/sampleconfig")
 		if !dirExists(devPath) {
 			continue
 		}

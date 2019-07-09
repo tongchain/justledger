@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/msp"
-	cb "github.com/justledger/fabric/protos/common"
-	mb "github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/msp"
+	cb "justledger/fabric/protos/common"
+	mb "justledger/fabric/protos/msp"
 	"go.uber.org/zap/zapcore"
 )
 

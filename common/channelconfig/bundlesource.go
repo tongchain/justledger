@@ -9,9 +9,9 @@ package channelconfig
 import (
 	"sync/atomic"
 
-	"github.com/justledger/fabric/common/configtx"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/msp"
+	"justledger/fabric/common/configtx"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/msp"
 )
 
 // BundleSource stores a reference to the current configuration bundle

@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/core/comm"
+	"justledger/fabric/core/comm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

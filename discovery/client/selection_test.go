@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -12,8 +12,8 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/common/metrics/internal/namer"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics/internal/namer"
 )
 
 // A Field represents data that is included in the reference table for metrics.

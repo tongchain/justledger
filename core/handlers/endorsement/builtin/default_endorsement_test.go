@@ -9,10 +9,10 @@ package builtin_test
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/endorser/mocks"
-	"github.com/justledger/fabric/core/handlers/endorsement/builtin"
-	mocks2 "github.com/justledger/fabric/core/handlers/endorsement/builtin/mocks"
-	"github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/endorser/mocks"
+	"justledger/fabric/core/handlers/endorsement/builtin"
+	mocks2 "justledger/fabric/core/handlers/endorsement/builtin/mocks"
+	"justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

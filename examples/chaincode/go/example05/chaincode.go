@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode/shim"
+	pb "justledger/fabric/protos/peer"
 )
 
 // This chaincode is a test for chaincode querying another chaincode - invokes chaincode_example02 and computes the sum of a and b and stores it as state

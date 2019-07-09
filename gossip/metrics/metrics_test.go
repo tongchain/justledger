@@ -9,7 +9,7 @@ package metrics
 import (
 	"testing"
 
-	"github.com/justledger/fabric/common/metrics/metricsfakes"
+	"justledger/fabric/common/metrics/metricsfakes"
 	"github.com/stretchr/testify/assert"
 )
 

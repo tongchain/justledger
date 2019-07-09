@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package fileledger
 
 import (
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/ledger"
-	"github.com/justledger/fabric/common/ledger/blockledger"
-	cb "github.com/justledger/fabric/protos/common"
-	ab "github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/ledger"
+	"justledger/fabric/common/ledger/blockledger"
+	cb "justledger/fabric/protos/common"
+	ab "justledger/fabric/protos/orderer"
 )
 
 var logger = flogging.MustGetLogger("common.ledger.blockledger.file")

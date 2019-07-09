@@ -10,8 +10,8 @@ import (
 	"encoding/json"
 
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/justledger/fabric/common/grpclogging"
-	"github.com/justledger/fabric/common/grpclogging/testpb"
+	"justledger/fabric/common/grpclogging"
+	"justledger/fabric/common/grpclogging/testpb"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

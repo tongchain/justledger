@@ -7,17 +7,17 @@ SPDX-License-Identifier: Apache-2.0
 package historyleveldb
 
 import (
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/ledger/blkstorage"
-	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/kvledger/history/historydb"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/core/ledger/util"
-	"github.com/justledger/fabric/protos/common"
-	putils "github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/ledger/blkstorage"
+	"justledger/fabric/common/ledger/util/leveldbhelper"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/kvledger/history/historydb"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/core/ledger/util"
+	"justledger/fabric/protos/common"
+	putils "justledger/fabric/protos/utils"
 )
 
 var logger historydbLogger = flogging.MustGetLogger("historyleveldb")

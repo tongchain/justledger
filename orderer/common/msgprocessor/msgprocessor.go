@@ -11,8 +11,8 @@ package msgprocessor
 import (
 	"errors"
 
-	"github.com/justledger/fabric/common/flogging"
-	cb "github.com/justledger/fabric/protos/common"
+	"justledger/fabric/common/flogging"
+	cb "justledger/fabric/protos/common"
 )
 
 const (

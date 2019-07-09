@@ -16,7 +16,7 @@ limitations under the License.
 
 package kvledger
 
-import "github.com/justledger/fabric/core/ledger"
+import "justledger/fabric/core/ledger"
 
 type recoverable interface {
 	// ShouldRecover return whether recovery is need.

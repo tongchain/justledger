@@ -20,14 +20,14 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/justledger/fabric/common/crypto"
-	mmsp "github.com/justledger/fabric/common/mocks/msp"
-	"github.com/justledger/fabric/msp"
-	mspmgmt "github.com/justledger/fabric/msp/mgmt"
-	"github.com/justledger/fabric/msp/mgmt/testtools"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
-	putils "github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/crypto"
+	mmsp "justledger/fabric/common/mocks/msp"
+	"justledger/fabric/msp"
+	mspmgmt "justledger/fabric/msp/mgmt"
+	"justledger/fabric/msp/mgmt/testtools"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
+	putils "justledger/fabric/protos/utils"
 )
 
 var (

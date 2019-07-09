@@ -10,11 +10,11 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/pkg/errors"
 )
 

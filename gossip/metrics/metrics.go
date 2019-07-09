@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package metrics
 
-import "github.com/justledger/fabric/common/metrics"
+import "justledger/fabric/common/metrics"
 
 // GossipMetrics encapsulates all of gossip metrics
 type GossipMetrics struct {

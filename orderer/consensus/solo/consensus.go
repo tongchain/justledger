@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/orderer/consensus"
-	cb "github.com/justledger/fabric/protos/common"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/orderer/consensus"
+	cb "justledger/fabric/protos/common"
 )
 
 var logger = flogging.MustGetLogger("orderer.consensus.solo")

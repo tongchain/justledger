@@ -21,8 +21,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/common/ledger/testutil"
-	"github.com/justledger/fabric/protos/common"
+	"justledger/fabric/common/ledger/testutil"
+	"justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -11,12 +11,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/justledger/fabric/peer/chaincode"
-	"github.com/justledger/fabric/peer/channel"
-	"github.com/justledger/fabric/peer/clilogging"
-	"github.com/justledger/fabric/peer/common"
-	"github.com/justledger/fabric/peer/node"
-	"github.com/justledger/fabric/peer/version"
+	"justledger/fabric/peer/chaincode"
+	"justledger/fabric/peer/channel"
+	"justledger/fabric/peer/clilogging"
+	"justledger/fabric/peer/common"
+	"justledger/fabric/peer/node"
+	"justledger/fabric/peer/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

@@ -9,9 +9,9 @@ package privacyenabledstate
 import (
 	"fmt"
 
-	"github.com/justledger/fabric/core/ledger/cceventmgmt"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/fabric/core/ledger/cceventmgmt"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
 )
 
 // DBProvider provides handle to a PvtVersionedDB

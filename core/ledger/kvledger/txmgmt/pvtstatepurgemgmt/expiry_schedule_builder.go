@@ -9,10 +9,10 @@ package pvtstatepurgemgmt
 import (
 	math "math"
 
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"github.com/justledger/fabric/core/ledger/pvtdatapolicy"
-	"github.com/justledger/fabric/core/ledger/util"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/fabric/core/ledger/pvtdatapolicy"
+	"justledger/fabric/core/ledger/util"
 )
 
 type expiryScheduleBuilder struct {

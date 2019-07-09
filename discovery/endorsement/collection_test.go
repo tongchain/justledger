@@ -11,14 +11,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/gossip/api"
-	gcommon "github.com/justledger/fabric/gossip/common"
-	disc "github.com/justledger/fabric/gossip/discovery"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/discovery"
-	"github.com/justledger/fabric/protos/msp"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/gossip/api"
+	gcommon "justledger/fabric/gossip/common"
+	disc "justledger/fabric/gossip/discovery"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/discovery"
+	"justledger/fabric/protos/msp"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

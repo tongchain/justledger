@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 )
 
@@ -36,7 +36,7 @@ func TestQueriesPrivateData(t *testing.T) {
 
 	defer cleanup()
 
-	url := "github.com/justledger/fabric/examples/chaincode/go/map"
+	url := "justledger/fabric/examples/chaincode/go/map"
 	cID := &pb.ChaincodeID{Name: "tmap", Path: url, Version: "0"}
 
 	f := "init"

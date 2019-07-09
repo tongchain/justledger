@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	persistence "github.com/justledger/fabric/core/chaincode/persistence"
+	persistence "justledger/fabric/core/chaincode/persistence"
 )
 
 type PackageParser struct {

@@ -8,10 +8,10 @@ package pvtstatepurgemgmt
 
 import (
 	proto "github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/ledger/util"
-	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
-	"github.com/justledger/fabric/core/ledger/kvledger/bookkeeping"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/ledger/util"
+	"justledger/fabric/common/ledger/util/leveldbhelper"
+	"justledger/fabric/core/ledger/kvledger/bookkeeping"
 )
 
 var logger = flogging.MustGetLogger("pvtstatepurgemgmt")

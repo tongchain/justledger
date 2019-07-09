@@ -19,7 +19,7 @@ import (
 	"crypto/x509"
 	"testing"
 
-	"github.com/justledger/fabric/common/attrmgr"
+	"justledger/fabric/common/attrmgr"
 	"github.com/stretchr/testify/assert"
 )
 

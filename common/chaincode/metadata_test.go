@@ -9,7 +9,7 @@ package chaincode
 import (
 	"testing"
 
-	"github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/assert"
 )
 

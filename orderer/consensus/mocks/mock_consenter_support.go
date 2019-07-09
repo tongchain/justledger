@@ -4,11 +4,11 @@ package mocks
 import (
 	"sync"
 
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/orderer/common/blockcutter"
-	"github.com/justledger/fabric/orderer/common/msgprocessor"
-	"github.com/justledger/fabric/orderer/consensus"
-	"github.com/justledger/fabric/protos/common"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/orderer/common/blockcutter"
+	"justledger/fabric/orderer/common/msgprocessor"
+	"justledger/fabric/orderer/consensus"
+	"justledger/fabric/protos/common"
 )
 
 type FakeConsenterSupport struct {

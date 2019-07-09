@@ -14,10 +14,10 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"github.com/justledger/fabric/common/tools/cryptogen/ca"
-	"github.com/justledger/fabric/common/tools/cryptogen/csp"
-	"github.com/justledger/fabric/common/tools/cryptogen/metadata"
-	"github.com/justledger/fabric/common/tools/cryptogen/msp"
+	"justledger/fabric/common/tools/cryptogen/ca"
+	"justledger/fabric/common/tools/cryptogen/csp"
+	"justledger/fabric/common/tools/cryptogen/metadata"
+	"justledger/fabric/common/tools/cryptogen/msp"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v2"
 )

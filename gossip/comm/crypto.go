@@ -16,7 +16,7 @@ import (
 	"encoding/pem"
 	"math/big"
 
-	"github.com/justledger/fabric/common/util"
+	"justledger/fabric/common/util"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
 )

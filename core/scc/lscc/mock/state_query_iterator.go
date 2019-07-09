@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	queryresult "github.com/justledger/fabric/protos/ledger/queryresult"
+	queryresult "justledger/fabric/protos/ledger/queryresult"
 )
 
 type StateQueryIterator struct {

@@ -19,10 +19,10 @@ package fileledger
 import (
 	"sync"
 
-	"github.com/justledger/fabric/common/ledger/blkstorage"
-	"github.com/justledger/fabric/common/ledger/blkstorage/fsblkstorage"
-	"github.com/justledger/fabric/common/ledger/blockledger"
-	"github.com/justledger/fabric/common/metrics"
+	"justledger/fabric/common/ledger/blkstorage"
+	"justledger/fabric/common/ledger/blkstorage/fsblkstorage"
+	"justledger/fabric/common/ledger/blockledger"
+	"justledger/fabric/common/metrics"
 )
 
 type fileLedgerFactory struct {

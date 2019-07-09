@@ -15,9 +15,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/justledger/fabric/common/chaincode"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/util"
+	"justledger/fabric/common/chaincode"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/util"
 	"github.com/pkg/errors"
 )
 

@@ -19,12 +19,12 @@ package policy
 import (
 	"testing"
 
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/core/policy/mocks"
-	"github.com/justledger/fabric/msp/mgmt"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/core/policy/mocks"
+	"justledger/fabric/msp/mgmt"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

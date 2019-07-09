@@ -14,9 +14,9 @@ import (
 	"path/filepath"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/factory"
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/factory"
+	"justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )

@@ -4,9 +4,9 @@ package mock
 import (
 	sync "sync"
 
-	deliver "github.com/justledger/fabric/common/deliver"
-	blockledger "github.com/justledger/fabric/common/ledger/blockledger"
-	policies "github.com/justledger/fabric/common/policies"
+	deliver "justledger/fabric/common/deliver"
+	blockledger "justledger/fabric/common/ledger/blockledger"
+	policies "justledger/fabric/common/policies"
 )
 
 type Chain struct {

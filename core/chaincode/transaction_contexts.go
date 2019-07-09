@@ -10,10 +10,10 @@ import (
 	"context"
 	"sync"
 
-	commonledger "github.com/justledger/fabric/common/ledger"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/ledger"
-	pb "github.com/justledger/fabric/protos/peer"
+	commonledger "justledger/fabric/common/ledger"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/ledger"
+	pb "justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 

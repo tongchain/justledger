@@ -10,7 +10,7 @@ import (
 	"encoding/hex"
 	"sync"
 
-	"github.com/justledger/fabric/common/util"
+	"justledger/fabric/common/util"
 )
 
 // MemoizeSigner signs messages with the same signature

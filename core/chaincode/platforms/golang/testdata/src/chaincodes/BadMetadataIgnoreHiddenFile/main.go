@@ -10,7 +10,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/chaincode/shim"
 )
 
 // SimpleChaincode example simple Chaincode implementation

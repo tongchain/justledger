@@ -12,7 +12,7 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/justledger/fabric/common/diag"
+	"justledger/fabric/common/diag"
 )
 
 func addPlatformSignals(sigs map[os.Signal]func()) map[os.Signal]func() {

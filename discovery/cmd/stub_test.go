@@ -12,11 +12,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/justledger/fabric/cmd/common"
-	"github.com/justledger/fabric/cmd/common/comm"
-	"github.com/justledger/fabric/cmd/common/signer"
-	c "github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/discovery/client"
+	"justledger/fabric/cmd/common"
+	"justledger/fabric/cmd/common/comm"
+	"justledger/fabric/cmd/common/signer"
+	c "justledger/fabric/core/comm"
+	"justledger/fabric/discovery/client"
 	"github.com/stretchr/testify/assert"
 )
 

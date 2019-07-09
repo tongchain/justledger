@@ -9,8 +9,8 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/orderer/common/bootstrap"
-	cb "github.com/justledger/fabric/protos/common"
+	"justledger/fabric/orderer/common/bootstrap"
+	cb "justledger/fabric/protos/common"
 	"github.com/pkg/errors"
 )
 

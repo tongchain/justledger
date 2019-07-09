@@ -9,13 +9,13 @@ package aclmgmt
 import (
 	"fmt"
 
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/core/aclmgmt/resources"
-	"github.com/justledger/fabric/core/peer"
-	"github.com/justledger/fabric/core/policy"
-	"github.com/justledger/fabric/msp/mgmt"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/core/aclmgmt/resources"
+	"justledger/fabric/core/peer"
+	"justledger/fabric/core/policy"
+	"justledger/fabric/msp/mgmt"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
 )
 
 const (

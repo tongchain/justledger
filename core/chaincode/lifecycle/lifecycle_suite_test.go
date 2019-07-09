@@ -9,8 +9,8 @@ package lifecycle_test
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/chaincode/lifecycle"
-	"github.com/justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/chaincode/lifecycle"
+	"justledger/fabric/core/chaincode/shim"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

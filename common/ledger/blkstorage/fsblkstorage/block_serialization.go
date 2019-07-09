@@ -18,9 +18,9 @@ package fsblkstorage
 
 import (
 	"github.com/golang/protobuf/proto"
-	ledgerutil "github.com/justledger/fabric/common/ledger/util"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/utils"
+	ledgerutil "justledger/fabric/common/ledger/util"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 

@@ -15,8 +15,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/common/util"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/common/util"
 	"github.com/pkg/errors"
 )
 

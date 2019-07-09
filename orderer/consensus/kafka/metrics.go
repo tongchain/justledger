@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics"
 
 	gometrics "github.com/rcrowley/go-metrics"
 )

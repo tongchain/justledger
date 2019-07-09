@@ -14,10 +14,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/core/deliverservice/blocksprovider"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/core/comm"
+	"justledger/fabric/core/deliverservice/blocksprovider"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
 	"google.golang.org/grpc"
 )
 

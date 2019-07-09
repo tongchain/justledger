@@ -9,10 +9,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric-amcl/amcl"
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/idemix/handlers"
-	cryptolib "github.com/justledger/fabric/idemix"
+	"justledger/fabric-amcl/amcl"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/idemix/handlers"
+	cryptolib "justledger/fabric/idemix"
 	"github.com/pkg/errors"
 )
 

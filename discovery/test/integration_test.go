@@ -24,36 +24,36 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	bccsp "github.com/justledger/fabric/bccsp/utils"
-	"github.com/justledger/fabric/common/cauthdsl"
-	"github.com/justledger/fabric/common/configtx"
-	"github.com/justledger/fabric/common/crypto/tlsgen"
-	policiesmocks "github.com/justledger/fabric/common/mocks/policies"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
-	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/cclifecycle"
-	lifecyclemocks "github.com/justledger/fabric/core/cclifecycle/mocks"
-	"github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/discovery"
-	disc "github.com/justledger/fabric/discovery/client"
-	"github.com/justledger/fabric/discovery/endorsement"
-	discsupport "github.com/justledger/fabric/discovery/support"
-	discacl "github.com/justledger/fabric/discovery/support/acl"
-	ccsupport "github.com/justledger/fabric/discovery/support/chaincode"
-	"github.com/justledger/fabric/discovery/support/config"
-	"github.com/justledger/fabric/discovery/support/mocks"
-	"github.com/justledger/fabric/gossip/api"
-	gcommon "github.com/justledger/fabric/gossip/common"
-	gdisc "github.com/justledger/fabric/gossip/discovery"
-	"github.com/justledger/fabric/msp"
-	"github.com/justledger/fabric/protos/common"
-	. "github.com/justledger/fabric/protos/discovery"
-	"github.com/justledger/fabric/protos/gossip"
-	msprotos "github.com/justledger/fabric/protos/msp"
-	"github.com/justledger/fabric/protos/utils"
+	bccsp "justledger/fabric/bccsp/utils"
+	"justledger/fabric/common/cauthdsl"
+	"justledger/fabric/common/configtx"
+	"justledger/fabric/common/crypto/tlsgen"
+	policiesmocks "justledger/fabric/common/mocks/policies"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/cclifecycle"
+	lifecyclemocks "justledger/fabric/core/cclifecycle/mocks"
+	"justledger/fabric/core/comm"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/discovery"
+	disc "justledger/fabric/discovery/client"
+	"justledger/fabric/discovery/endorsement"
+	discsupport "justledger/fabric/discovery/support"
+	discacl "justledger/fabric/discovery/support/acl"
+	ccsupport "justledger/fabric/discovery/support/chaincode"
+	"justledger/fabric/discovery/support/config"
+	"justledger/fabric/discovery/support/mocks"
+	"justledger/fabric/gossip/api"
+	gcommon "justledger/fabric/gossip/common"
+	gdisc "justledger/fabric/gossip/discovery"
+	"justledger/fabric/msp"
+	"justledger/fabric/protos/common"
+	. "justledger/fabric/protos/discovery"
+	"justledger/fabric/protos/gossip"
+	msprotos "justledger/fabric/protos/msp"
+	"justledger/fabric/protos/utils"
 	"github.com/onsi/gomega/gexec"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -586,12 +586,12 @@ func createPolicyManagerGetter(t *testing.T, mspMgr msp.MSPManager) *mocks.Chann
 
 func buildBinaries() error {
 	var err error
-	cryptogen, err = gexec.Build("github.com/justledger/fabric/common/tools/cryptogen")
+	cryptogen, err = gexec.Build("justledger/fabric/common/tools/cryptogen")
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	idemixgen, err = gexec.Build("github.com/justledger/fabric/common/tools/idemixgen")
+	idemixgen, err = gexec.Build("justledger/fabric/common/tools/idemixgen")
 	if err != nil {
 		return errors.WithStack(err)
 	}

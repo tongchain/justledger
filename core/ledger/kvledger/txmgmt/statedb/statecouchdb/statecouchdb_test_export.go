@@ -8,8 +8,8 @@ package statecouchdb
 import (
 	"testing"
 
-	"github.com/justledger/fabric/common/metrics/disabled"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/fabric/common/metrics/disabled"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
 	"github.com/stretchr/testify/assert"
 )
 

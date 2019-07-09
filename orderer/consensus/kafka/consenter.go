@@ -8,11 +8,11 @@ package kafka
 
 import (
 	"github.com/Shopify/sarama"
-	"github.com/justledger/fabric-lib-go/healthz"
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/orderer/common/localconfig"
-	"github.com/justledger/fabric/orderer/consensus"
-	cb "github.com/justledger/fabric/protos/common"
+	"justledger/fabric-lib-go/healthz"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/orderer/common/localconfig"
+	"justledger/fabric/orderer/consensus"
+	cb "justledger/fabric/protos/common"
 	"github.com/op/go-logging"
 )
 

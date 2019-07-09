@@ -10,8 +10,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"github.com/justledger/fabric/orderer/common/blockcutter"
-	"github.com/justledger/fabric/orderer/common/blockcutter/mock"
+	"justledger/fabric/orderer/common/blockcutter"
+	"justledger/fabric/orderer/common/blockcutter/mock"
 )
 
 var _ = Describe("Metrics", func() {

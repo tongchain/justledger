@@ -9,9 +9,9 @@ package channelconfig
 import (
 	"fmt"
 
-	"github.com/justledger/fabric/msp"
-	cb "github.com/justledger/fabric/protos/common"
-	mspprotos "github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/msp"
+	cb "justledger/fabric/protos/common"
+	mspprotos "justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 )
 

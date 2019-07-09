@@ -9,7 +9,7 @@ package testdata
 import (
 	"time"
 
-	"github.com/justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics"
 )
 
 // These variables should be discovered as valid metric options.

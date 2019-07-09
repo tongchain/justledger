@@ -4,8 +4,8 @@ package fake
 import (
 	sync "sync"
 
-	chaincode "github.com/justledger/fabric/core/chaincode"
-	ccprovider "github.com/justledger/fabric/core/common/ccprovider"
+	chaincode "justledger/fabric/core/chaincode"
+	ccprovider "justledger/fabric/core/common/ccprovider"
 )
 
 type ContextRegistry struct {

@@ -11,10 +11,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justledger/fabric/core/container/inproccontroller"
-	"github.com/justledger/fabric/core/ledger/ledgermgmt"
-	ccprovider2 "github.com/justledger/fabric/core/mocks/ccprovider"
-	"github.com/justledger/fabric/core/peer"
+	"justledger/fabric/core/container/inproccontroller"
+	"justledger/fabric/core/ledger/ledgermgmt"
+	ccprovider2 "justledger/fabric/core/mocks/ccprovider"
+	"justledger/fabric/core/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

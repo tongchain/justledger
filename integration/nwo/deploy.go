@@ -12,9 +12,9 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/integration/nwo/commands"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/integration/nwo/commands"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/utils"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"

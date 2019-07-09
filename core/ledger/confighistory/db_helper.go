@@ -11,7 +11,7 @@ import (
 	"encoding/binary"
 	"math"
 
-	"github.com/justledger/fabric/common/ledger/util/leveldbhelper"
+	"justledger/fabric/common/ledger/util/leveldbhelper"
 	"github.com/pkg/errors"
 )
 

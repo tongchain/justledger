@@ -21,10 +21,10 @@ import (
 	"path/filepath"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/tools/idemixgen/idemixca"
-	"github.com/justledger/fabric/common/tools/idemixgen/metadata"
-	"github.com/justledger/fabric/idemix"
-	"github.com/justledger/fabric/msp"
+	"justledger/fabric/common/tools/idemixgen/idemixca"
+	"justledger/fabric/common/tools/idemixgen/metadata"
+	"justledger/fabric/idemix"
+	"justledger/fabric/msp"
 	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 )

@@ -10,10 +10,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/justledger/fabric/common/crypto"
-	"github.com/justledger/fabric/core/handlers/auth"
-	"github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/crypto"
+	"justledger/fabric/core/handlers/auth"
+	"justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 

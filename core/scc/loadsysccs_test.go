@@ -18,14 +18,14 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/chaincode/shim"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 const (
-	examplePluginPackage = "github.com/justledger/fabric/examples/plugins/scc"
+	examplePluginPackage = "justledger/fabric/examples/plugins/scc"
 	pluginName           = "testscc"
 )
 

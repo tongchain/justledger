@@ -19,7 +19,7 @@ package peer
 import (
 	"encoding/json"
 
-	"github.com/justledger/fabric/common/util"
+	"justledger/fabric/common/util"
 )
 
 type strArgs struct {

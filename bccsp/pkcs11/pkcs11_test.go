@@ -13,7 +13,7 @@ import (
 	"encoding/asn1"
 	"testing"
 
-	"github.com/justledger/fabric/bccsp"
+	"justledger/fabric/bccsp"
 	"github.com/miekg/pkcs11"
 	"github.com/stretchr/testify/assert"
 )

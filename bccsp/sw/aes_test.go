@@ -24,9 +24,9 @@ import (
 	mrand "math/rand"
 	"testing"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/mocks"
-	"github.com/justledger/fabric/bccsp/utils"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/mocks"
+	"justledger/fabric/bccsp/utils"
 	"github.com/stretchr/testify/assert"
 )
 

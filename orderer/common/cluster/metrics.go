@@ -9,7 +9,7 @@ package cluster
 import (
 	"time"
 
-	"github.com/justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics"
 )
 
 var (

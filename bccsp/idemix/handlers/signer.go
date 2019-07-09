@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package handlers
 
 import (
-	"github.com/justledger/fabric/bccsp"
+	"justledger/fabric/bccsp"
 	"github.com/pkg/errors"
 )
 

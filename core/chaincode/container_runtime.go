@@ -12,12 +12,12 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/justledger/fabric/core/chaincode/accesscontrol"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/container"
-	"github.com/justledger/fabric/core/container/ccintf"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode/accesscontrol"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/container"
+	"justledger/fabric/core/container/ccintf"
+	pb "justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 

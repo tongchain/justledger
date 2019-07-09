@@ -17,9 +17,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/config/configtest"
-	"github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/config/configtest"
+	"justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 )
 

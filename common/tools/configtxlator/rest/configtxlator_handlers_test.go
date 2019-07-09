@@ -24,9 +24,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/justledger/fabric/common/tools/configtxlator/sanitycheck"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/tools/configtxlator/sanitycheck"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

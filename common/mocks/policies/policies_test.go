@@ -19,7 +19,7 @@ package policies
 import (
 	"testing"
 
-	"github.com/justledger/fabric/common/policies"
+	"justledger/fabric/common/policies"
 )
 
 func TestPolicyManagerInterface(t *testing.T) {

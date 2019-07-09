@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  *
- * See github.com/justledger/fabric/test/chaincodes/AutoVendor/chaincode/main.go for details
+ * See justledger/fabric/test/chaincodes/AutoVendor/chaincode/main.go for details
  */
 package directdep
 

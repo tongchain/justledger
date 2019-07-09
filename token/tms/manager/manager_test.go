@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package manager_test
 
 import (
-	"github.com/justledger/fabric/token/identity/mock"
-	"github.com/justledger/fabric/token/tms/manager"
-	"github.com/justledger/fabric/token/tms/plain"
+	"justledger/fabric/token/identity/mock"
+	"justledger/fabric/token/tms/manager"
+	"justledger/fabric/token/tms/plain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

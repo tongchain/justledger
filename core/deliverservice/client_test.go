@@ -16,12 +16,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/core/deliverservice/blocksprovider"
-	"github.com/justledger/fabric/core/deliverservice/mocks"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/core/comm"
+	"justledger/fabric/core/deliverservice/blocksprovider"
+	"justledger/fabric/core/deliverservice/mocks"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 )

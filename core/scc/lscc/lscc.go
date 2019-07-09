@@ -11,27 +11,27 @@ import (
 	"regexp"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/cauthdsl"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/aclmgmt"
-	"github.com/justledger/fabric/core/aclmgmt/resources"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/ccmetadata"
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/common/privdata"
-	"github.com/justledger/fabric/core/common/sysccprovider"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/cceventmgmt"
-	"github.com/justledger/fabric/core/peer"
-	"github.com/justledger/fabric/core/policy"
-	"github.com/justledger/fabric/core/policyprovider"
-	"github.com/justledger/fabric/msp"
-	"github.com/justledger/fabric/msp/mgmt"
-	"github.com/justledger/fabric/protos/common"
-	mb "github.com/justledger/fabric/protos/msp"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/cauthdsl"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/aclmgmt"
+	"justledger/fabric/core/aclmgmt/resources"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/ccmetadata"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/common/privdata"
+	"justledger/fabric/core/common/sysccprovider"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/cceventmgmt"
+	"justledger/fabric/core/peer"
+	"justledger/fabric/core/policy"
+	"justledger/fabric/core/policyprovider"
+	"justledger/fabric/msp"
+	"justledger/fabric/msp/mgmt"
+	"justledger/fabric/protos/common"
+	mb "justledger/fabric/protos/msp"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 
@@ -154,7 +154,7 @@ func New(sccp sysccprovider.SystemChaincodeProvider, ACLProvider aclmgmt.ACLProv
 }
 
 func (lscc *LifeCycleSysCC) Name() string              { return "lscc" }
-func (lscc *LifeCycleSysCC) Path() string              { return "github.com/justledger/fabric/core/scc/lscc" }
+func (lscc *LifeCycleSysCC) Path() string              { return "justledger/fabric/core/scc/lscc" }
 func (lscc *LifeCycleSysCC) InitArgs() [][]byte        { return nil }
 func (lscc *LifeCycleSysCC) Chaincode() shim.Chaincode { return lscc }
 func (lscc *LifeCycleSysCC) InvokableExternal() bool   { return true }

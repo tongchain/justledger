@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package grpcmetrics
 
-import "github.com/justledger/fabric/common/metrics"
+import "justledger/fabric/common/metrics"
 
 var (
 	unaryRequestDuration = metrics.HistogramOpts{

@@ -9,8 +9,8 @@ package broadcast_test
 import (
 	"testing"
 
-	"github.com/justledger/fabric/common/metrics"
-	ab "github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/common/metrics"
+	ab "justledger/fabric/protos/orderer"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

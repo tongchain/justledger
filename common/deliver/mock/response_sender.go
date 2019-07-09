@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	deliver "github.com/justledger/fabric/common/deliver"
-	common "github.com/justledger/fabric/protos/common"
+	deliver "justledger/fabric/common/deliver"
+	common "justledger/fabric/protos/common"
 )
 
 type ResponseSender struct {

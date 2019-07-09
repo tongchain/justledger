@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
 )

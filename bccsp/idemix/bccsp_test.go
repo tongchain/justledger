@@ -8,9 +8,9 @@ package idemix_test
 import (
 	"crypto/rand"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/idemix"
-	"github.com/justledger/fabric/bccsp/sw"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/idemix"
+	"justledger/fabric/bccsp/sw"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

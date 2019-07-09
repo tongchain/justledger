@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package blockcutter
 
-import "github.com/justledger/fabric/common/metrics"
+import "justledger/fabric/common/metrics"
 
 var (
 	blockFillDuration = metrics.HistogramOpts{

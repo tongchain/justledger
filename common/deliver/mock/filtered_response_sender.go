@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	common "github.com/justledger/fabric/protos/common"
+	common "justledger/fabric/protos/common"
 )
 
 type FilteredResponseSender struct {

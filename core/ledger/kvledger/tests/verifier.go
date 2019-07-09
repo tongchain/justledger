@@ -11,11 +11,11 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/core/ledger"
-	lgrutil "github.com/justledger/fabric/core/ledger/util"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
-	protopeer "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/ledger"
+	lgrutil "justledger/fabric/core/ledger/util"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/rwset/kvrwset"
+	protopeer "justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

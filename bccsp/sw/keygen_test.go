@@ -22,8 +22,8 @@ import (
 	"reflect"
 	"testing"
 
-	mocks2 "github.com/justledger/fabric/bccsp/mocks"
-	"github.com/justledger/fabric/bccsp/sw/mocks"
+	mocks2 "justledger/fabric/bccsp/mocks"
+	"justledger/fabric/bccsp/sw/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

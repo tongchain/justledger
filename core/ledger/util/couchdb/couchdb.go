@@ -27,8 +27,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/ledger/ledgerconfig"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )
@@ -770,7 +770,7 @@ func (dbclient *CouchDatabase) ReadDoc(id string) (*CouchDoc, string, error) {
 		if couchDBReturn != nil && couchDBReturn.StatusCode == 404 {
 			logger.Debugf("[%s] Document not found (404), returning nil value instead of 404 error", dbclient.DBName)
 			// non-existent document should return nil value instead of a 404 error
-			// for details see https://github.com/justledger-archives/fabric/issues/936
+			// for details see https://justledger-archives/fabric/issues/936
 			return nil, "", nil
 		}
 		logger.Debugf("[%s] couchDBReturn=%v\n", dbclient.DBName, couchDBReturn)
@@ -1022,7 +1022,7 @@ func (dbclient *CouchDatabase) DeleteDoc(id, rev string) error {
 		if couchDBReturn != nil && couchDBReturn.StatusCode == 404 {
 			logger.Debugf("[%s] Document not found (404), returning nil value instead of 404 error", dbclient.DBName)
 			// non-existent document should return nil value instead of a 404 error
-			// for details see https://github.com/justledger-archives/fabric/issues/936
+			// for details see https://justledger-archives/fabric/issues/936
 			return nil
 		}
 		return err

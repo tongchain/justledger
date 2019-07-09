@@ -12,10 +12,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/mock"
-	"github.com/justledger/fabric/protos/common"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/mock"
+	"justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

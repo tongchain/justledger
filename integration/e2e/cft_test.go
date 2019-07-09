@@ -18,8 +18,8 @@ import (
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"github.com/justledger/fabric/integration/nwo"
-	"github.com/justledger/fabric/integration/nwo/commands"
+	"justledger/fabric/integration/nwo"
+	"justledger/fabric/integration/nwo/commands"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -51,7 +51,7 @@ var _ = Describe("EndToEnd Crash Fault Tolerance", func() {
 		chaincode = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
+			Path:    "justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `AND ('Org1MSP.member','Org2MSP.member')`,
 		}

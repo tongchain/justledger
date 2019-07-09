@@ -10,10 +10,10 @@ import (
 	"errors"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/scc/lscc"
-	"github.com/justledger/fabric/core/scc/lscc/mock"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/scc/lscc"
+	"justledger/fabric/core/scc/lscc/mock"
+	pb "justledger/fabric/protos/peer"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

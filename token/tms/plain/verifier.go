@@ -14,12 +14,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/ledger/customtx"
-	"github.com/justledger/fabric/protos/token"
-	"github.com/justledger/fabric/protos/utils"
-	"github.com/justledger/fabric/token/identity"
-	"github.com/justledger/fabric/token/ledger"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/ledger/customtx"
+	"justledger/fabric/protos/token"
+	"justledger/fabric/protos/utils"
+	"justledger/fabric/token/identity"
+	"justledger/fabric/token/ledger"
 	"github.com/pkg/errors"
 )
 

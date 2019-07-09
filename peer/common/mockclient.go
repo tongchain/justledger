@@ -21,8 +21,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
-	cb "github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	cb "justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
 	grpc "google.golang.org/grpc"
 )
 

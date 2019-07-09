@@ -9,8 +9,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode/shim"
+	pb "justledger/fabric/protos/peer"
 )
 
 // SimpleChaincode example simple Chaincode implementation

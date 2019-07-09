@@ -13,11 +13,11 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/handlers/auth"
-	"github.com/justledger/fabric/core/handlers/decoration"
-	endorsement2 "github.com/justledger/fabric/core/handlers/endorsement/api"
-	"github.com/justledger/fabric/core/handlers/validation/api"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/handlers/auth"
+	"justledger/fabric/core/handlers/decoration"
+	endorsement2 "justledger/fabric/core/handlers/endorsement/api"
+	"justledger/fabric/core/handlers/validation/api"
 )
 
 var logger = flogging.MustGetLogger("core.handlers")

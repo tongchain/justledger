@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode/shim"
+	pb "justledger/fabric/protos/peer"
 )
 
 // PassthruChaincode passes thru invoke and query to another chaincode where

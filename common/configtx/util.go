@@ -8,8 +8,8 @@ package configtx
 
 import (
 	"github.com/golang/protobuf/proto"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/utils"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/utils"
 )
 
 // UnmarshalConfig attempts to unmarshal bytes to a *cb.Config

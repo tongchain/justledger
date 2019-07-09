@@ -10,17 +10,17 @@ import (
 	"fmt"
 	"regexp"
 
-	commonerrors "github.com/justledger/fabric/common/errors"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/chaincode/platforms/ccmetadata"
-	. "github.com/justledger/fabric/core/common/validation/statebased"
-	. "github.com/justledger/fabric/core/handlers/validation/api/capabilities"
-	. "github.com/justledger/fabric/core/handlers/validation/api/identities"
-	. "github.com/justledger/fabric/core/handlers/validation/api/policies"
-	. "github.com/justledger/fabric/core/handlers/validation/api/state"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	commonerrors "justledger/fabric/common/errors"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/chaincode/platforms/ccmetadata"
+	. "justledger/fabric/core/common/validation/statebased"
+	. "justledger/fabric/core/handlers/validation/api/capabilities"
+	. "justledger/fabric/core/handlers/validation/api/identities"
+	. "justledger/fabric/core/handlers/validation/api/policies"
+	. "justledger/fabric/core/handlers/validation/api/state"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 )
 
 var logger = flogging.MustGetLogger("vscc")

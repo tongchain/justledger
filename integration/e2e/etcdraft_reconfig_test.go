@@ -19,12 +19,12 @@ import (
 
 	"github.com/fsouza/go-dockerclient"
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/integration/nwo"
-	"github.com/justledger/fabric/integration/nwo/commands"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/msp"
-	"github.com/justledger/fabric/protos/orderer/etcdraft"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/integration/nwo"
+	"justledger/fabric/integration/nwo/commands"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/msp"
+	"justledger/fabric/protos/orderer/etcdraft"
+	"justledger/fabric/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -64,21 +64,21 @@ var _ = Describe("EndToEnd reconfiguration and onboarding", func() {
 		mycc = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
+			Path:    "justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member')`,
 		}
 		mycc2 = nwo.Chaincode{
 			Name:    "mycc2",
 			Version: "0.0",
-			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
+			Path:    "justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member')`,
 		}
 		mycc3 = nwo.Chaincode{
 			Name:    "mycc3",
 			Version: "0.0",
-			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
+			Path:    "justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member')`,
 		}

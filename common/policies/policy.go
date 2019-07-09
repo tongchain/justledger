@@ -11,9 +11,9 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/flogging"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/common/flogging"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )

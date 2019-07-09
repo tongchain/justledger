@@ -18,7 +18,7 @@ package sw
 import (
 	"errors"
 
-	"github.com/justledger/fabric/bccsp"
+	"justledger/fabric/bccsp"
 )
 
 // NewDummyKeyStore instantiate a dummy key store

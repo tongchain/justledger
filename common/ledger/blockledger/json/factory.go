@@ -14,7 +14,7 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/jsonpb"
-	"github.com/justledger/fabric/common/ledger/blockledger"
+	"justledger/fabric/common/ledger/blockledger"
 	"github.com/pkg/errors"
 )
 

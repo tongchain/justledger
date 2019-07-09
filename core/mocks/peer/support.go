@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package peer
 
 import (
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/peer"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/peer"
 )
 
 type MockSupportImpl struct {

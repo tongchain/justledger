@@ -11,7 +11,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	cb "github.com/justledger/fabric/protos/common"
+	cb "justledger/fabric/protos/common"
 	"go.uber.org/zap/zapcore"
 )
 

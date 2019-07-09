@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package tms
 
-import "github.com/justledger/fabric/protos/token"
+import "justledger/fabric/protos/token"
 
 // TransactionData struct contains the token transaction, and the Fabric transaction ID.
 // The TokenTransaction is created by the prover peer, but the transaction ID is only created

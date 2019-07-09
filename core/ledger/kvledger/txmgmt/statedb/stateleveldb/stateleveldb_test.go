@@ -20,9 +20,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/commontests"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb/commontests"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

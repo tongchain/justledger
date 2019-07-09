@@ -10,11 +10,11 @@ import (
 	"io"
 	"time"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/orderer/common/msgprocessor"
-	cb "github.com/justledger/fabric/protos/common"
-	ab "github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/util"
+	"justledger/fabric/orderer/common/msgprocessor"
+	cb "justledger/fabric/protos/common"
+	ab "justledger/fabric/protos/orderer"
 	"github.com/pkg/errors"
 )
 

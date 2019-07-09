@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package endorsement
 
 import (
-	"github.com/justledger/fabric/core/handlers/endorsement/api"
-	"github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/handlers/endorsement/api"
+	"justledger/fabric/protos/peer"
 )
 
 // SigningIdentity signs messages and serializes its public identity to bytes

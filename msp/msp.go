@@ -9,7 +9,7 @@ package msp
 import (
 	"time"
 
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/protos/msp"
 )
 
 // IdentityDeserializer is implemented by both MSPManger and MSP

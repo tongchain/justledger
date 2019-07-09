@@ -4,9 +4,9 @@ package mock
 import (
 	sync "sync"
 
-	token "github.com/justledger/fabric/protos/token"
-	tokena "github.com/justledger/fabric/token"
-	client "github.com/justledger/fabric/token/client"
+	token "justledger/fabric/protos/token"
+	tokena "justledger/fabric/token"
+	client "justledger/fabric/token/client"
 )
 
 type Prover struct {

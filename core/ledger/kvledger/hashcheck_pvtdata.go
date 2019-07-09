@@ -8,12 +8,12 @@ package kvledger
 import (
 	"bytes"
 
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	"github.com/justledger/fabric/core/ledger/ledgerstorage"
-	"github.com/justledger/fabric/protos/ledger/rwset"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/fabric/core/ledger/ledgerstorage"
+	"justledger/fabric/protos/ledger/rwset"
+	"justledger/fabric/protos/utils"
 )
 
 // constructValidAndInvalidPvtData computes the valid pvt data and hash mismatch list

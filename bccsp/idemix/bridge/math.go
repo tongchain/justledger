@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package bridge
 
 import (
-	"github.com/justledger/fabric-amcl/amcl/FP256BN"
-	"github.com/justledger/fabric/idemix"
+	"justledger/fabric-amcl/amcl/FP256BN"
+	"justledger/fabric/idemix"
 )
 
 // Big encapsulate an amcl big integer

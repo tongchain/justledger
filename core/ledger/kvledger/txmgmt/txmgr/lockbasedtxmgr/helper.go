@@ -8,17 +8,17 @@ package lockbasedtxmgr
 import (
 	"fmt"
 
-	commonledger "github.com/justledger/fabric/common/ledger"
-	ledger "github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/storageutil"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/version"
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/core/ledger/util"
-	"github.com/justledger/fabric/protos/ledger/queryresult"
-	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
+	commonledger "justledger/fabric/common/ledger"
+	ledger "justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/storageutil"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/txmgr"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/core/ledger/util"
+	"justledger/fabric/protos/ledger/queryresult"
+	"justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/pkg/errors"
 )
 

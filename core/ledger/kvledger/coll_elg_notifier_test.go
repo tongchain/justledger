@@ -9,10 +9,10 @@ package kvledger
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/mock"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/mock"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 

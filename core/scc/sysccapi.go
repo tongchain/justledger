@@ -10,14 +10,14 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/container/ccintf"
-	"github.com/justledger/fabric/core/container/inproccontroller"
-	"github.com/justledger/fabric/core/peer"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/container/ccintf"
+	"justledger/fabric/core/container/inproccontroller"
+	"justledger/fabric/core/peer"
+	pb "justledger/fabric/protos/peer"
 	"github.com/spf13/viper"
 )
 

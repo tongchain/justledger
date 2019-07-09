@@ -20,8 +20,8 @@ import (
 	"crypto/rand"
 	"fmt"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/utils"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/utils"
 )
 
 func signECDSA(k *ecdsa.PrivateKey, digest []byte, opts bccsp.SignerOpts) ([]byte, error) {

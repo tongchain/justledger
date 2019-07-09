@@ -13,9 +13,9 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/protos/ledger/queryresult"
-	"github.com/justledger/fabric/protos/token"
-	"github.com/justledger/fabric/token/ledger"
+	"justledger/fabric/protos/ledger/queryresult"
+	"justledger/fabric/protos/token"
+	"justledger/fabric/token/ledger"
 	"github.com/pkg/errors"
 )
 

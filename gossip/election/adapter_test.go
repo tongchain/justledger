@@ -14,13 +14,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/common/metrics/disabled"
-	"github.com/justledger/fabric/gossip/common"
-	"github.com/justledger/fabric/gossip/discovery"
-	"github.com/justledger/fabric/gossip/metrics"
-	"github.com/justledger/fabric/gossip/metrics/mocks"
-	"github.com/justledger/fabric/gossip/util"
-	proto "github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/common/metrics/disabled"
+	"justledger/fabric/gossip/common"
+	"justledger/fabric/gossip/discovery"
+	"justledger/fabric/gossip/metrics"
+	"justledger/fabric/gossip/metrics/mocks"
+	"justledger/fabric/gossip/util"
+	proto "justledger/fabric/protos/gossip"
 	"github.com/stretchr/testify/assert"
 )
 

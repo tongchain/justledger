@@ -9,10 +9,10 @@ package privacyenabledstate_test
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
-	"github.com/justledger/fabric/core/ledger/mock"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb/stateleveldb"
+	"justledger/fabric/core/ledger/mock"
 	. "github.com/onsi/gomega"
 )
 

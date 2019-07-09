@@ -8,8 +8,8 @@ package lifecycle_test
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/core/chaincode/lifecycle"
-	lc "github.com/justledger/fabric/protos/peer/lifecycle"
+	"justledger/fabric/core/chaincode/lifecycle"
+	lc "justledger/fabric/protos/peer/lifecycle"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

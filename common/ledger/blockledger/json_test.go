@@ -20,10 +20,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "github.com/justledger/fabric/common/ledger/blockledger"
-	jsonledger "github.com/justledger/fabric/common/ledger/blockledger/json"
-	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
-	cb "github.com/justledger/fabric/protos/common"
+	. "justledger/fabric/common/ledger/blockledger"
+	jsonledger "justledger/fabric/common/ledger/blockledger/json"
+	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
+	cb "justledger/fabric/protos/common"
 )
 
 var genesisBlock = cb.NewBlock(0, nil)

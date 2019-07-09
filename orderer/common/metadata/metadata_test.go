@@ -11,8 +11,8 @@ import (
 	"runtime"
 	"testing"
 
-	common "github.com/justledger/fabric/common/metadata"
-	"github.com/justledger/fabric/orderer/common/metadata"
+	common "justledger/fabric/common/metadata"
+	"justledger/fabric/orderer/common/metadata"
 	"github.com/stretchr/testify/assert"
 )
 

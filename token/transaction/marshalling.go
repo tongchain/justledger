@@ -8,11 +8,11 @@ package transaction
 
 import (
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/protos/common"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/token"
-	"github.com/justledger/fabric/protos/utils"
-	"github.com/justledger/fabric/token/identity"
+	"justledger/fabric/protos/common"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/token"
+	"justledger/fabric/protos/utils"
+	"justledger/fabric/token/identity"
 	"github.com/pkg/errors"
 )
 

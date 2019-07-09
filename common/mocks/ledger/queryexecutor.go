@@ -19,8 +19,8 @@ package ledger
 import (
 	"fmt"
 
-	commonledger "github.com/justledger/fabric/common/ledger"
-	"github.com/justledger/fabric/core/ledger"
+	commonledger "justledger/fabric/common/ledger"
+	"justledger/fabric/core/ledger"
 )
 
 type MockQueryExecutor struct {

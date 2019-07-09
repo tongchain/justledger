@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/handlers/validation/api/state"
-	"github.com/justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/handlers/validation/api/state"
+	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
+	pb "justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 

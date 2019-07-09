@@ -12,9 +12,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/protos/common"
-	ab "github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/core/comm"
+	"justledger/fabric/protos/common"
+	ab "justledger/fabric/protos/orderer"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"

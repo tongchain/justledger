@@ -14,12 +14,12 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/core/common/ccpackage"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/peer/common"
-	pcommon "github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/core/common/ccpackage"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/peer/common"
+	pcommon "justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/spf13/cobra"
 )
 

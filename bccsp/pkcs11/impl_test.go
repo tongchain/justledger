@@ -27,10 +27,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/signer"
-	"github.com/justledger/fabric/bccsp/sw"
-	"github.com/justledger/fabric/bccsp/utils"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/signer"
+	"justledger/fabric/bccsp/sw"
+	"justledger/fabric/bccsp/utils"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/sha3"
 )

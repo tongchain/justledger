@@ -5,8 +5,8 @@ import (
 	"crypto/ecdsa"
 	"sync"
 
-	"github.com/justledger/fabric/bccsp"
-	"github.com/justledger/fabric/bccsp/idemix/handlers"
+	"justledger/fabric/bccsp"
+	"justledger/fabric/bccsp/idemix/handlers"
 )
 
 type Revocation struct {

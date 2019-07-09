@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/protos/msp"
 	"github.com/stretchr/testify/assert"
 )
 

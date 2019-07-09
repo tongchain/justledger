@@ -14,7 +14,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/justledger/fabric/common/flogging"
+	"justledger/fabric/common/flogging"
 	"github.com/pkg/errors"
 	"go.etcd.io/etcd/etcdserver/api/snap"
 	"go.etcd.io/etcd/pkg/fileutil"

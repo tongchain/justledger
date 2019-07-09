@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	ccprovider "github.com/justledger/fabric/core/common/ccprovider"
+	ccprovider "justledger/fabric/core/common/ccprovider"
 )
 
 type Runtime struct {

@@ -5,7 +5,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/justledger/fabric/peer/common/api"
+	"justledger/fabric/peer/common/api"
 	"google.golang.org/grpc"
 )
 

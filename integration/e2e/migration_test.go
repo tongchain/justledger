@@ -16,16 +16,16 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/justledger/fabric/common/capabilities"
+	"justledger/fabric/common/capabilities"
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/integration/nwo"
-	"github.com/justledger/fabric/integration/nwo/commands"
-	"github.com/justledger/fabric/protos/common"
-	protosorderer "github.com/justledger/fabric/protos/orderer"
-	protosraft "github.com/justledger/fabric/protos/orderer/etcdraft"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/integration/nwo"
+	"justledger/fabric/integration/nwo/commands"
+	"justledger/fabric/protos/common"
+	protosorderer "justledger/fabric/protos/orderer"
+	protosraft "justledger/fabric/protos/orderer/etcdraft"
+	"justledger/fabric/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -59,7 +59,7 @@ var _ = Describe("Kafka2RaftMigration", func() {
 		chaincode = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "github.com/justledger/fabric/integration/chaincode/simple/cmd",
+			Path:    "justledger/fabric/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `AND ('Org1MSP.member','Org2MSP.member')`,
 		}

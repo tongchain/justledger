@@ -15,12 +15,12 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/justledger/fabric/common/crypto"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/crypto"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/util"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )

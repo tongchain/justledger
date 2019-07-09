@@ -13,8 +13,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 )

@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	commonmetrics "github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/common/metrics/prometheus"
+	commonmetrics "justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics/prometheus"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	prom "github.com/prometheus/client_golang/prometheus"

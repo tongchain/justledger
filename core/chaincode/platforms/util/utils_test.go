@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/config/configtest"
-	cutil "github.com/justledger/fabric/core/container/util"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/config/configtest"
+	cutil "justledger/fabric/core/container/util"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

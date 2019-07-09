@@ -29,7 +29,7 @@ func buildPlugin(lib string, t *testing.T) {
 		if raceEnabled {
 			cmd.Args = append(cmd.Args, "-race")
 		}
-		cmd.Args = append(cmd.Args, "github.com/justledger/fabric/examples/plugins/bccsp")
+		cmd.Args = append(cmd.Args, "justledger/fabric/examples/plugins/bccsp")
 		err := cmd.Run()
 		if err != nil {
 			t.Fatalf("Could not build plugin: [%s]", err)

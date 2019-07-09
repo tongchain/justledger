@@ -13,9 +13,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/metadata"
-	cutil "github.com/justledger/fabric/core/container/util"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/metadata"
+	cutil "justledger/fabric/core/container/util"
 )
 
 //MetadataProvider is implemented by each platform in a platform specific manner.

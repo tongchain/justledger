@@ -9,7 +9,7 @@ package config
 import (
 	"testing"
 
-	"github.com/justledger/fabric/common/channelconfig"
+	"justledger/fabric/common/channelconfig"
 )
 
 func TestOrdererConfigInterface(t *testing.T) {

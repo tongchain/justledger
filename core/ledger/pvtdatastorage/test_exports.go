@@ -10,8 +10,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justledger/fabric/core/ledger/ledgerconfig"
-	"github.com/justledger/fabric/core/ledger/pvtdatapolicy"
+	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/fabric/core/ledger/pvtdatapolicy"
 	"github.com/stretchr/testify/assert"
 )
 

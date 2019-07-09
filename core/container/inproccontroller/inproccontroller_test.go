@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/container/ccintf"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/container/ccintf"
+	pb "justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

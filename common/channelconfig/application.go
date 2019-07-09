@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package channelconfig
 
 import (
-	"github.com/justledger/fabric/common/capabilities"
-	cb "github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/capabilities"
+	cb "justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 )
 

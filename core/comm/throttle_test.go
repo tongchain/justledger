@@ -11,8 +11,8 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/core/comm/mock"
+	"justledger/fabric/core/comm"
+	"justledger/fabric/core/comm/mock"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"

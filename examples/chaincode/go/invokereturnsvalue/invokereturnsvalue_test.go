@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/chaincode/shim"
 )
 
 func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte, retval []byte) {

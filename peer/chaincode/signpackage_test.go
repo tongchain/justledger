@@ -23,8 +23,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/peer/common"
-	pcommon "github.com/justledger/fabric/protos/common"
+	"justledger/fabric/peer/common"
+	pcommon "justledger/fabric/protos/common"
 )
 
 //helper to sign an existing package

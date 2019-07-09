@@ -17,8 +17,8 @@ limitations under the License.
 package common
 
 import (
-	cb "github.com/justledger/fabric/protos/common"
-	ab "github.com/justledger/fabric/protos/orderer"
+	cb "justledger/fabric/protos/common"
+	ab "justledger/fabric/protos/orderer"
 	"github.com/pkg/errors"
 )
 

@@ -10,7 +10,7 @@ import (
 	"encoding/hex"
 	"sync"
 
-	"github.com/justledger/fabric/bccsp"
+	"justledger/fabric/bccsp"
 	"github.com/pkg/errors"
 )
 

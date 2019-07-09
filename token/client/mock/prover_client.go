@@ -5,7 +5,7 @@ import (
 	context "context"
 	sync "sync"
 
-	token "github.com/justledger/fabric/protos/token"
+	token "justledger/fabric/protos/token"
 	grpc "google.golang.org/grpc"
 )
 

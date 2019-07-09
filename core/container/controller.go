@@ -12,10 +12,10 @@ import (
 	"io"
 	"sync"
 
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/container/ccintf"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/container/ccintf"
+	pb "justledger/fabric/protos/peer"
 )
 
 type VMProvider interface {

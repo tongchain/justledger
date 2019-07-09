@@ -8,8 +8,8 @@ package statsd
 
 import (
 	"github.com/go-kit/kit/metrics/statsd"
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/common/metrics/internal/namer"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics/internal/namer"
 )
 
 const defaultFormat = "%{#fqname}"

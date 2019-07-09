@@ -9,11 +9,11 @@ package lscc_test
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/common/sysccprovider"
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/scc/lscc"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/common/sysccprovider"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/scc/lscc"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

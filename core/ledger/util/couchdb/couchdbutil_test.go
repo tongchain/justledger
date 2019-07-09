@@ -9,8 +9,8 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/justledger/fabric/common/metrics/disabled"
-	"github.com/justledger/fabric/common/util"
+	"justledger/fabric/common/metrics/disabled"
+	"justledger/fabric/common/util"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -21,7 +21,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/justledger/fabric/common/tools/configtxgen/metadata"
+	"justledger/fabric/common/tools/configtxgen/metadata"
 	"github.com/stretchr/testify/assert"
 )
 

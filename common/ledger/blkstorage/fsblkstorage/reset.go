@@ -12,7 +12,7 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/justledger/fabric/common/ledger/util"
+	"justledger/fabric/common/ledger/util"
 )
 
 func ResetBlockStore(blockStorageDir string) error {

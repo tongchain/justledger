@@ -4,13 +4,13 @@ package mocks
 import (
 	"sync"
 
-	"github.com/justledger/fabric/gossip/api"
-	"github.com/justledger/fabric/gossip/comm"
-	"github.com/justledger/fabric/gossip/common"
-	"github.com/justledger/fabric/gossip/discovery"
-	"github.com/justledger/fabric/gossip/filter"
-	"github.com/justledger/fabric/gossip/gossip"
-	proto "github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/gossip/api"
+	"justledger/fabric/gossip/comm"
+	"justledger/fabric/gossip/common"
+	"justledger/fabric/gossip/discovery"
+	"justledger/fabric/gossip/filter"
+	"justledger/fabric/gossip/gossip"
+	proto "justledger/fabric/protos/gossip"
 )
 
 type Gossip struct {

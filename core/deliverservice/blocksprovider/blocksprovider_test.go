@@ -12,12 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/core/deliverservice/mocks"
-	"github.com/justledger/fabric/gossip/api"
-	common2 "github.com/justledger/fabric/gossip/common"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/core/comm"
+	"justledger/fabric/core/deliverservice/mocks"
+	"justledger/fabric/gossip/api"
+	common2 "justledger/fabric/gossip/common"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

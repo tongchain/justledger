@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/justledger/fabric/common/metadata"
+	"justledger/fabric/common/metadata"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

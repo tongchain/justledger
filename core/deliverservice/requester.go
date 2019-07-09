@@ -19,13 +19,13 @@ package deliverclient
 import (
 	"math"
 
-	"github.com/justledger/fabric/common/localmsp"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/comm"
-	"github.com/justledger/fabric/core/deliverservice/blocksprovider"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/orderer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/localmsp"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/comm"
+	"justledger/fabric/core/deliverservice/blocksprovider"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/orderer"
+	"justledger/fabric/protos/utils"
 )
 
 type blocksRequester struct {

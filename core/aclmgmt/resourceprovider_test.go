@@ -21,11 +21,11 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/localmsp"
-	"github.com/justledger/fabric/msp/mgmt/testtools"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/localmsp"
+	"justledger/fabric/msp/mgmt/testtools"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

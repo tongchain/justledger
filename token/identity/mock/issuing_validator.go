@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"github.com/justledger/fabric/token/identity"
+	"justledger/fabric/token/identity"
 )
 
 type IssuingValidator struct {

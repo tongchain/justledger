@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package channelconfig
 
 import (
-	"github.com/justledger/fabric/common/policies"
+	"justledger/fabric/common/policies"
 )
 
 func LogSanityChecks(res Resources) {

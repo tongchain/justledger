@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode/shim"
+	pb "justledger/fabric/protos/peer"
 )
 
 // This chaincode implements a simple map that is stored in the state.

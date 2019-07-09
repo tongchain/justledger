@@ -15,17 +15,17 @@ import (
 	"reflect"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/tools/configtxlator/metadata"
-	"github.com/justledger/fabric/common/tools/configtxlator/rest"
-	"github.com/justledger/fabric/common/tools/configtxlator/update"
-	"github.com/justledger/fabric/common/tools/protolator"
-	_ "github.com/justledger/fabric/protos/common"
-	cb "github.com/justledger/fabric/protos/common" // Import these to register the proto types
-	_ "github.com/justledger/fabric/protos/msp"
-	_ "github.com/justledger/fabric/protos/orderer"
-	_ "github.com/justledger/fabric/protos/orderer/etcdraft"
-	_ "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/tools/configtxlator/metadata"
+	"justledger/fabric/common/tools/configtxlator/rest"
+	"justledger/fabric/common/tools/configtxlator/update"
+	"justledger/fabric/common/tools/protolator"
+	_ "justledger/fabric/protos/common"
+	cb "justledger/fabric/protos/common" // Import these to register the proto types
+	_ "justledger/fabric/protos/msp"
+	_ "justledger/fabric/protos/orderer"
+	_ "justledger/fabric/protos/orderer/etcdraft"
+	_ "justledger/fabric/protos/peer"
 
 	"github.com/gorilla/handlers"
 	"github.com/pkg/errors"

@@ -13,7 +13,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/justledger/fabric/common/metrics/gendoc"
+	"justledger/fabric/common/metrics/gendoc"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -32,7 +32,7 @@ func main() {
 
 	patterns := flag.Args()
 	if len(patterns) == 0 {
-		patterns = []string{"github.com/justledger/fabric/..."}
+		patterns = []string{"justledger/fabric/..."}
 	}
 
 	pkgs, err := packages.Load(&packages.Config{Mode: packages.LoadSyntax}, patterns...)

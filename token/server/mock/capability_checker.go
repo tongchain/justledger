@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"github.com/justledger/fabric/token/server"
+	"justledger/fabric/token/server"
 )
 
 type CapabilityChecker struct {

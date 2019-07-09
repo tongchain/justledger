@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"github.com/justledger/fabric/msp"
-	"github.com/justledger/fabric/token/identity"
+	"justledger/fabric/msp"
+	"justledger/fabric/token/identity"
 )
 
 type Deserializer struct {

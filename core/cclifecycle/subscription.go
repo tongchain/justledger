@@ -10,8 +10,8 @@ import (
 	"bytes"
 	"sync"
 
-	"github.com/justledger/fabric/common/chaincode"
-	"github.com/justledger/fabric/core/ledger/cceventmgmt"
+	"justledger/fabric/common/chaincode"
+	"justledger/fabric/core/ledger/cceventmgmt"
 )
 
 // Subscription channels information flow

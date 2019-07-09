@@ -9,9 +9,9 @@ package lifecycle
 import (
 	"fmt"
 
-	"github.com/justledger/fabric/core/chaincode/shim"
-	pb "github.com/justledger/fabric/protos/peer"
-	lb "github.com/justledger/fabric/protos/peer/lifecycle"
+	"justledger/fabric/core/chaincode/shim"
+	pb "justledger/fabric/protos/peer"
+	lb "justledger/fabric/protos/peer/lifecycle"
 	"github.com/pkg/errors"
 )
 
@@ -45,9 +45,9 @@ func (scc *SCC) Name() string {
 	return "+lifecycle"
 }
 
-// Path returns "github.com/justledger/fabric/core/chaincode/lifecycle"
+// Path returns "justledger/fabric/core/chaincode/lifecycle"
 func (scc *SCC) Path() string {
-	return "github.com/justledger/fabric/core/chaincode/lifecycle"
+	return "justledger/fabric/core/chaincode/lifecycle"
 }
 
 // InitArgs returns nil

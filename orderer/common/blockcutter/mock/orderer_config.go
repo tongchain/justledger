@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/protos/orderer"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/protos/orderer"
 )
 
 type OrdererConfig struct {

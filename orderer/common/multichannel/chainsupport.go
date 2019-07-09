@@ -7,15 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package multichannel
 
 import (
-	"github.com/justledger/fabric/common/channelconfig"
-	"github.com/justledger/fabric/common/crypto"
-	"github.com/justledger/fabric/common/ledger/blockledger"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/orderer/common/blockcutter"
-	"github.com/justledger/fabric/orderer/common/msgprocessor"
-	"github.com/justledger/fabric/orderer/consensus"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/channelconfig"
+	"justledger/fabric/common/crypto"
+	"justledger/fabric/common/ledger/blockledger"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/orderer/common/blockcutter"
+	"justledger/fabric/orderer/common/msgprocessor"
+	"justledger/fabric/orderer/consensus"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 )
 

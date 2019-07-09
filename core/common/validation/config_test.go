@@ -19,14 +19,14 @@ package validation
 import (
 	"testing"
 
-	"github.com/justledger/fabric/common/mocks/config"
-	"github.com/justledger/fabric/common/tools/configtxgen/configtxgentest"
-	"github.com/justledger/fabric/common/tools/configtxgen/encoder"
-	genesisconfig "github.com/justledger/fabric/common/tools/configtxgen/localconfig"
-	"github.com/justledger/fabric/common/util"
-	cb "github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/mocks/config"
+	"justledger/fabric/common/tools/configtxgen/configtxgentest"
+	"justledger/fabric/common/tools/configtxgen/encoder"
+	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
+	"justledger/fabric/common/util"
+	cb "justledger/fabric/protos/common"
+	"justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
 )
 
 func TestValidateConfigTx(t *testing.T) {

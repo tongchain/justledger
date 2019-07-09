@@ -8,10 +8,10 @@ package client_test
 import (
 	"io"
 
-	"github.com/justledger/fabric/protos/common"
-	ab "github.com/justledger/fabric/protos/orderer"
-	"github.com/justledger/fabric/token/client"
-	"github.com/justledger/fabric/token/client/mock"
+	"justledger/fabric/protos/common"
+	ab "justledger/fabric/protos/orderer"
+	"justledger/fabric/token/client"
+	"justledger/fabric/token/client/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

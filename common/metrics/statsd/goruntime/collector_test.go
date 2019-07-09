@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/justledger/fabric/common/metrics"
-	"github.com/justledger/fabric/common/metrics/metricsfakes"
-	"github.com/justledger/fabric/common/metrics/statsd/goruntime"
+	"justledger/fabric/common/metrics"
+	"justledger/fabric/common/metrics/metricsfakes"
+	"justledger/fabric/common/metrics/statsd/goruntime"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

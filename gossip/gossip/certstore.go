@@ -10,12 +10,12 @@ import (
 	"bytes"
 	"encoding/hex"
 
-	"github.com/justledger/fabric/gossip/api"
-	"github.com/justledger/fabric/gossip/common"
-	"github.com/justledger/fabric/gossip/gossip/pull"
-	"github.com/justledger/fabric/gossip/identity"
-	"github.com/justledger/fabric/gossip/util"
-	proto "github.com/justledger/fabric/protos/gossip"
+	"justledger/fabric/gossip/api"
+	"justledger/fabric/gossip/common"
+	"justledger/fabric/gossip/gossip/pull"
+	"justledger/fabric/gossip/identity"
+	"justledger/fabric/gossip/util"
+	proto "justledger/fabric/protos/gossip"
 	"github.com/pkg/errors"
 )
 

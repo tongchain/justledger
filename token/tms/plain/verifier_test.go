@@ -13,11 +13,11 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/core/ledger/customtx"
-	"github.com/justledger/fabric/protos/token"
-	mockid "github.com/justledger/fabric/token/identity/mock"
-	mockledger "github.com/justledger/fabric/token/ledger/mock"
-	"github.com/justledger/fabric/token/tms/plain"
+	"justledger/fabric/core/ledger/customtx"
+	"justledger/fabric/protos/token"
+	mockid "justledger/fabric/token/identity/mock"
+	mockledger "justledger/fabric/token/ledger/mock"
+	"justledger/fabric/token/tms/plain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

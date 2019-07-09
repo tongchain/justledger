@@ -9,9 +9,9 @@ package privdata
 import (
 	"strings"
 
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/protos/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/protos/common"
+	pb "justledger/fabric/protos/peer"
 )
 
 // Collection defines a common interface for collections

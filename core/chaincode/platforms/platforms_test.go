@@ -13,9 +13,9 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/justledger/fabric/common/metadata"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/mock"
+	"justledger/fabric/common/metadata"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

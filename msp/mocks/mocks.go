@@ -9,8 +9,8 @@ package mocks
 import (
 	"time"
 
-	"github.com/justledger/fabric/msp"
-	pmsp "github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/msp"
+	pmsp "justledger/fabric/protos/msp"
 	"github.com/stretchr/testify/mock"
 )
 

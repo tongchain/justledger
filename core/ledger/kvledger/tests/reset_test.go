@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/justledger/fabric/core/ledger"
-	"github.com/justledger/fabric/core/ledger/kvledger"
-	"github.com/justledger/fabric/protos/common"
+	"justledger/fabric/core/ledger"
+	"justledger/fabric/core/ledger/kvledger"
+	"justledger/fabric/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

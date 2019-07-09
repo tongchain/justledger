@@ -16,33 +16,33 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/common/cauthdsl"
-	"github.com/justledger/fabric/common/mocks/config"
-	mscc "github.com/justledger/fabric/common/mocks/scc"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/common/util"
-	"github.com/justledger/fabric/core/aclmgmt/mocks"
-	"github.com/justledger/fabric/core/aclmgmt/resources"
-	"github.com/justledger/fabric/core/chaincode/platforms"
-	"github.com/justledger/fabric/core/chaincode/platforms/golang"
-	"github.com/justledger/fabric/core/chaincode/shim"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	cutil "github.com/justledger/fabric/core/container/util"
-	"github.com/justledger/fabric/core/ledger/ledgermgmt"
-	"github.com/justledger/fabric/core/mocks/scc/lscc"
-	"github.com/justledger/fabric/core/policy"
-	policymocks "github.com/justledger/fabric/core/policy/mocks"
-	"github.com/justledger/fabric/core/scc/lscc/mock"
-	"github.com/justledger/fabric/msp"
-	mspmgmt "github.com/justledger/fabric/msp/mgmt"
-	msptesttools "github.com/justledger/fabric/msp/mgmt/testtools"
-	mspmocks "github.com/justledger/fabric/msp/mocks"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/ledger/queryresult"
-	mb "github.com/justledger/fabric/protos/msp"
-	pb "github.com/justledger/fabric/protos/peer"
-	"github.com/justledger/fabric/protos/utils"
-	putils "github.com/justledger/fabric/protos/utils"
+	"justledger/fabric/common/cauthdsl"
+	"justledger/fabric/common/mocks/config"
+	mscc "justledger/fabric/common/mocks/scc"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/common/util"
+	"justledger/fabric/core/aclmgmt/mocks"
+	"justledger/fabric/core/aclmgmt/resources"
+	"justledger/fabric/core/chaincode/platforms"
+	"justledger/fabric/core/chaincode/platforms/golang"
+	"justledger/fabric/core/chaincode/shim"
+	"justledger/fabric/core/common/ccprovider"
+	cutil "justledger/fabric/core/container/util"
+	"justledger/fabric/core/ledger/ledgermgmt"
+	"justledger/fabric/core/mocks/scc/lscc"
+	"justledger/fabric/core/policy"
+	policymocks "justledger/fabric/core/policy/mocks"
+	"justledger/fabric/core/scc/lscc/mock"
+	"justledger/fabric/msp"
+	mspmgmt "justledger/fabric/msp/mgmt"
+	msptesttools "justledger/fabric/msp/mgmt/testtools"
+	mspmocks "justledger/fabric/msp/mocks"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/ledger/queryresult"
+	mb "justledger/fabric/protos/msp"
+	pb "justledger/fabric/protos/peer"
+	"justledger/fabric/protos/utils"
+	putils "justledger/fabric/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -131,7 +131,7 @@ func TestInstall(t *testing.T) {
 	assert.NotEqual(t, int32(shim.OK), res.Status)
 	assert.Equal(t, "invalid number of arguments to lscc: 1", res.Message)
 
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	testInstall(t, "example02", "0", path, false, "", "Alice", scc, stub)
 	testInstall(t, "example02-2", "1.0", path, false, "", "Alice", scc, stub)
@@ -186,7 +186,7 @@ func testInstall(t *testing.T, ccname string, version string, path string, creat
 }
 
 func TestDeploy(t *testing.T) {
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	testDeploy(t, "example02", "0", path, false, false, true, "", nil, nil, nil)
 	testDeploy(t, "example02", "1.0", path, false, false, true, "", nil, nil, nil)
@@ -444,7 +444,7 @@ func testDeploy(t *testing.T, ccname string, version string, path string, forceB
 
 // TestUpgrade tests the upgrade function with various inputs for basic use cases
 func TestUpgrade(t *testing.T) {
-	path := "github.com/justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
 
 	testUpgrade(t, "example02", "0", "example02", "1", path, "", nil, nil, nil)
 	testUpgrade(t, "example02", "0", "example02", "", path, EmptyVersionErr("example02").Error(), nil, nil, nil)

@@ -9,13 +9,13 @@ package chaincode_test
 import (
 	"testing"
 
-	"github.com/justledger/fabric/core/chaincode"
-	"github.com/justledger/fabric/core/chaincode/accesscontrol"
-	"github.com/justledger/fabric/core/chaincode/mock"
-	"github.com/justledger/fabric/core/common/ccprovider"
-	"github.com/justledger/fabric/core/container"
-	"github.com/justledger/fabric/core/container/ccintf"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/core/chaincode"
+	"justledger/fabric/core/chaincode/accesscontrol"
+	"justledger/fabric/core/chaincode/mock"
+	"justledger/fabric/core/common/ccprovider"
+	"justledger/fabric/core/container"
+	"justledger/fabric/core/container/ccintf"
+	pb "justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

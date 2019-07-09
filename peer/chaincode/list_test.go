@@ -12,8 +12,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/justledger/fabric/peer/common"
-	pb "github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/peer/common"
+	pb "justledger/fabric/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

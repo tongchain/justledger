@@ -9,11 +9,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/justledger/fabric/common/ledger/blkstorage"
-	"github.com/justledger/fabric/common/ledger/testutil"
-	"github.com/justledger/fabric/common/metrics/disabled"
-	"github.com/justledger/fabric/protos/common"
-	"github.com/justledger/fabric/protos/peer"
+	"justledger/fabric/common/ledger/blkstorage"
+	"justledger/fabric/common/ledger/testutil"
+	"justledger/fabric/common/metrics/disabled"
+	"justledger/fabric/protos/common"
+	"justledger/fabric/protos/peer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

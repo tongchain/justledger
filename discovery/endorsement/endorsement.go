@@ -9,16 +9,16 @@ package endorsement
 import (
 	"fmt"
 
-	"github.com/justledger/fabric/common/chaincode"
-	"github.com/justledger/fabric/common/flogging"
-	"github.com/justledger/fabric/common/graph"
-	"github.com/justledger/fabric/common/policies"
-	"github.com/justledger/fabric/common/policies/inquire"
-	"github.com/justledger/fabric/gossip/api"
-	"github.com/justledger/fabric/gossip/common"
-	. "github.com/justledger/fabric/gossip/discovery"
-	"github.com/justledger/fabric/protos/discovery"
-	"github.com/justledger/fabric/protos/msp"
+	"justledger/fabric/common/chaincode"
+	"justledger/fabric/common/flogging"
+	"justledger/fabric/common/graph"
+	"justledger/fabric/common/policies"
+	"justledger/fabric/common/policies/inquire"
+	"justledger/fabric/gossip/api"
+	"justledger/fabric/gossip/common"
+	. "justledger/fabric/gossip/discovery"
+	"justledger/fabric/protos/discovery"
+	"justledger/fabric/protos/msp"
 	"github.com/pkg/errors"
 )
 
