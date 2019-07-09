@@ -16,17 +16,17 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/configtx"
-	"justledger/fabric/common/configtx/test"
-	"justledger/fabric/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
-	"justledger/fabric/discovery/support/config"
-	"justledger/fabric/discovery/support/mocks"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/discovery"
-	"justledger/fabric/protos/msp"
-	"justledger/fabric/protos/utils"
+	"justledger/common/channelconfig"
+	"justledger/common/configtx"
+	"justledger/common/configtx/test"
+	"justledger/common/tools/configtxgen/encoder"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	"justledger/discovery/support/config"
+	"justledger/discovery/support/mocks"
+	"justledger/protos/common"
+	"justledger/protos/discovery"
+	"justledger/protos/msp"
+	"justledger/protos/utils"
 	"github.com/onsi/gomega/gexec"
 	"github.com/stretchr/testify/assert"
 )
@@ -70,11 +70,11 @@ func TestMSPIDMapping(t *testing.T) {
 	os.Mkdir(dir, 0700)
 	defer os.RemoveAll(dir)
 
-	cryptogen, err := gexec.Build(filepath.Join("github.com", "justledger", "fabric", "common", "tools", "cryptogen"))
+	cryptogen, err := gexec.Build(filepath.Join("github.com", "hyperledger", "fabric", "common", "tools", "cryptogen"))
 	assert.NoError(t, err)
 	defer os.Remove(cryptogen)
 
-	idemixgen, err := gexec.Build(filepath.Join("github.com", "justledger", "fabric", "common", "tools", "idemixgen"))
+	idemixgen, err := gexec.Build(filepath.Join("github.com", "hyperledger", "fabric", "common", "tools", "idemixgen"))
 	assert.NoError(t, err)
 	defer os.Remove(idemixgen)
 

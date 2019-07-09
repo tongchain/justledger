@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package privdata
 
 import (
-	"justledger/fabric/common/cauthdsl"
-	"justledger/fabric/common/policies"
-	"justledger/fabric/msp"
-	"justledger/fabric/protos/common"
+	"justledger/common/cauthdsl"
+	"justledger/common/policies"
+	"justledger/msp"
+	"justledger/protos/common"
 	"github.com/pkg/errors"
 )
 

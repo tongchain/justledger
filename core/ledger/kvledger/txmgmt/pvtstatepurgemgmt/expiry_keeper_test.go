@@ -12,7 +12,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/core/ledger/kvledger/bookkeeping"
+	"justledger/core/ledger/kvledger/bookkeeping"
 	"github.com/stretchr/testify/assert"
 )
 

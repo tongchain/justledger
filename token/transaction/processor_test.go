@@ -7,10 +7,10 @@ package transaction_test
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/token"
-	"justledger/fabric/token/transaction"
-	"justledger/fabric/token/transaction/mock"
+	"justledger/protos/common"
+	"justledger/protos/token"
+	"justledger/token/transaction"
+	"justledger/token/transaction/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

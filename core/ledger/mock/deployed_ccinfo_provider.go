@@ -4,9 +4,9 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	"justledger/protos/ledger/rwset/kvrwset"
 )
 
 type DeployedChaincodeInfoProvider struct {

@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
 )
 
 type VersionedDB struct {

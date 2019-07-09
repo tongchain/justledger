@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/fsouza/go-dockerclient"
-	"justledger/fabric/integration/runner"
+	"justledger/integration/runner"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -176,7 +176,7 @@ var _ = Describe("CouchDB Runner", func() {
 		Expect(container.Name).To(Equal("/" + containerName))
 		Expect(container.State.Status).To(Equal("running"))
 		Expect(container.Config).NotTo(BeNil())
-		Expect(container.Config.Image).To(Equal("justledger/fabric-couchdb:latest"))
+		Expect(container.Config.Image).To(Equal("hyperledger/fabric-couchdb:latest"))
 		Expect(container.ID).To(Equal(couchDB.ContainerID()))
 		portBindings := container.NetworkSettings.Ports[docker.Port("5984/tcp")]
 		Expect(portBindings).To(HaveLen(1))
@@ -230,7 +230,7 @@ var _ = Describe("CouchDB Runner", func() {
 				HostConfig *docker.HostConfig
 			}{
 				Config: &docker.Config{
-					Image: "justledger/fabric-couchdb:latest",
+					Image: "hyperledger/fabric-couchdb:latest",
 				},
 				HostConfig: &docker.HostConfig{
 					AutoRemove: true,

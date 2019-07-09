@@ -15,12 +15,12 @@ import (
 
 	"github.com/Shopify/sarama"
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/orderer/common/localconfig"
-	"justledger/fabric/orderer/common/msgprocessor"
-	"justledger/fabric/orderer/consensus"
-	cb "justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
-	"justledger/fabric/protos/utils"
+	"justledger/orderer/common/localconfig"
+	"justledger/orderer/common/msgprocessor"
+	"justledger/orderer/consensus"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

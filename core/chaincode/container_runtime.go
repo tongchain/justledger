@@ -12,12 +12,12 @@ import (
 	"sort"
 	"strings"
 
-	"justledger/fabric/core/chaincode/accesscontrol"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/container"
-	"justledger/fabric/core/container/ccintf"
-	pb "justledger/fabric/protos/peer"
+	"justledger/core/chaincode/accesscontrol"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/common/ccprovider"
+	"justledger/core/container"
+	"justledger/core/container/ccintf"
+	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
 )
 
@@ -128,9 +128,9 @@ func (c *ContainerRuntime) Wait(ccci *ccprovider.ChaincodeContainerInfo) (int, e
 
 const (
 	// Mutual TLS auth client key and cert paths in the chaincode container
-	TLSClientKeyPath      string = "/etc/justledger/fabric/client.key"
-	TLSClientCertPath     string = "/etc/justledger/fabric/client.crt"
-	TLSClientRootCertPath string = "/etc/justledger/fabric/peer.crt"
+	TLSClientKeyPath      string = "/etc/hyperledger/fabric/client.key"
+	TLSClientCertPath     string = "/etc/hyperledger/fabric/client.crt"
+	TLSClientRootCertPath string = "/etc/hyperledger/fabric/peer.crt"
 )
 
 func (c *ContainerRuntime) getTLSFiles(keyPair *accesscontrol.CertAndPrivKeyPair) map[string][]byte {

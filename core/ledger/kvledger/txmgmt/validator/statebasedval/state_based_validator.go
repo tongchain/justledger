@@ -6,14 +6,14 @@ SPDX-License-Identifier: Apache-2.0
 package statebasedval
 
 import (
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/validator/internal"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
-	"justledger/fabric/protos/ledger/rwset/kvrwset"
-	"justledger/fabric/protos/peer"
+	"justledger/common/flogging"
+	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/validator/internal"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/protos/ledger/rwset/kvrwset"
+	"justledger/protos/peer"
 )
 
 var logger = flogging.MustGetLogger("statebasedval")

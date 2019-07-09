@@ -9,7 +9,7 @@ package ledgerconfig
 import (
 	"path/filepath"
 
-	"justledger/fabric/core/config"
+	"justledger/core/config"
 	"github.com/spf13/viper"
 )
 

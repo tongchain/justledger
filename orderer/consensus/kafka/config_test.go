@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"github.com/Shopify/sarama"
-	localconfig "justledger/fabric/orderer/common/localconfig"
-	"justledger/fabric/orderer/mocks/util"
+	localconfig "justledger/orderer/common/localconfig"
+	"justledger/orderer/mocks/util"
 	"github.com/stretchr/testify/assert"
 )
 

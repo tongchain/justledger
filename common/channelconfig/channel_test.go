@@ -11,9 +11,9 @@ import (
 	"reflect"
 	"testing"
 
-	"justledger/fabric/bccsp"
-	"justledger/fabric/common/util"
-	cb "justledger/fabric/protos/common"
+	"justledger/bccsp"
+	"justledger/common/util"
+	cb "justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -10,9 +10,9 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"justledger/fabric/core/chaincode/shim"
-	"justledger/fabric/core/chaincode/shim/ext/statebased"
-	pb "justledger/fabric/protos/peer"
+	"justledger/core/chaincode/shim"
+	"justledger/core/chaincode/shim/ext/statebased"
+	pb "justledger/protos/peer"
 )
 
 /*

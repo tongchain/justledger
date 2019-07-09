@@ -12,9 +12,9 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
+	"justledger/common/flogging"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

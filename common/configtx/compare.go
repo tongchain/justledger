@@ -9,7 +9,7 @@ package configtx
 import (
 	"bytes"
 
-	cb "justledger/fabric/protos/common"
+	cb "justledger/protos/common"
 )
 
 type comparable struct {

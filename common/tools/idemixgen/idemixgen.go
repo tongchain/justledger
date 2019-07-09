@@ -21,10 +21,10 @@ import (
 	"path/filepath"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/tools/idemixgen/idemixca"
-	"justledger/fabric/common/tools/idemixgen/metadata"
-	"justledger/fabric/idemix"
-	"justledger/fabric/msp"
+	"justledger/common/tools/idemixgen/idemixca"
+	"justledger/common/tools/idemixgen/metadata"
+	"justledger/idemix"
+	"justledger/msp"
 	"github.com/pkg/errors"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
@@ -37,7 +37,7 @@ const (
 
 // command line flags
 var (
-	app = kingpin.New("idemixgen", "Utility for generating key material to be used with the Identity Mixer MSP in justledger Fabric")
+	app = kingpin.New("idemixgen", "Utility for generating key material to be used with the Identity Mixer MSP in Hyperledger Fabric")
 
 	outputDir = app.Flag("output", "The output directory in which to place artifacts").Default("idemix-config").String()
 

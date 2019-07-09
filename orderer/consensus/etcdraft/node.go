@@ -15,10 +15,10 @@ import (
 
 	"code.cloudfoundry.org/clock"
 	"github.com/gogo/protobuf/proto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/protos/orderer"
-	"justledger/fabric/protos/orderer/etcdraft"
-	"justledger/fabric/protos/utils"
+	"justledger/common/flogging"
+	"justledger/protos/orderer"
+	"justledger/protos/orderer/etcdraft"
+	"justledger/protos/utils"
 	"go.etcd.io/etcd/raft"
 	"go.etcd.io/etcd/raft/raftpb"
 )

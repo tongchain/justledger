@@ -8,7 +8,7 @@ package storageutil
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/protos/ledger/rwset/kvrwset"
 )
 
 // SerializeMetadata serializes metadata entries for stroing in statedb

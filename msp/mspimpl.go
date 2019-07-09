@@ -15,10 +15,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/bccsp"
-	"justledger/fabric/bccsp/factory"
-	"justledger/fabric/bccsp/signer"
-	m "justledger/fabric/protos/msp"
+	"justledger/bccsp"
+	"justledger/bccsp/factory"
+	"justledger/bccsp/signer"
+	m "justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

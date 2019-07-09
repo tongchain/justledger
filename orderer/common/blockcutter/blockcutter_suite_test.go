@@ -9,9 +9,9 @@ package blockcutter_test
 import (
 	"testing"
 
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/orderer/common/blockcutter"
+	"justledger/common/channelconfig"
+	"justledger/common/metrics"
+	"justledger/orderer/common/blockcutter"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

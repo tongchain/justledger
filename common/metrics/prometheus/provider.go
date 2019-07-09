@@ -9,7 +9,7 @@ package prometheus
 import (
 	kitmetrics "github.com/go-kit/kit/metrics"
 	"github.com/go-kit/kit/metrics/prometheus"
-	"justledger/fabric/common/metrics"
+	"justledger/common/metrics"
 	prom "github.com/prometheus/client_golang/prometheus"
 )
 

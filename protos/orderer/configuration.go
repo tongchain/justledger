@@ -11,8 +11,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/empty"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/msp"
+	"justledger/protos/common"
+	"justledger/protos/msp"
 )
 
 func init() {

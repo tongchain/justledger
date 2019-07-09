@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/fabric/common/tools/cryptogen/ca"
-	"justledger/fabric/common/tools/cryptogen/csp"
+	"justledger/common/tools/cryptogen/ca"
+	"justledger/common/tools/cryptogen/csp"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -29,7 +29,7 @@ const (
 	testCountry            = "US"
 	testProvince           = "California"
 	testLocality           = "San Francisco"
-	testOrganizationalUnit = "justledger Fabric"
+	testOrganizationalUnit = "Hyperledger Fabric"
 	testStreetAddress      = "testStreetAddress"
 	testPostalCode         = "123456"
 )

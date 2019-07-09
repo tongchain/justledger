@@ -19,7 +19,7 @@ package ledgerconfig
 import (
 	"testing"
 
-	ledgertestutil "justledger/fabric/core/ledger/testutil"
+	ledgertestutil "justledger/core/ledger/testutil"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -48,26 +48,26 @@ func TestIsCouchDBEnabled(t *testing.T) {
 
 func TestLedgerConfigPathDefault(t *testing.T) {
 	setUpCoreYAMLConfig()
-	assert.Equal(t, "/var/justledger/production/ledgersData", GetRootPath())
-	assert.Equal(t, "/var/justledger/production/ledgersData/ledgerProvider", GetLedgerProviderPath())
-	assert.Equal(t, "/var/justledger/production/ledgersData/stateLeveldb", GetStateLevelDBPath())
-	assert.Equal(t, "/var/justledger/production/ledgersData/historyLeveldb", GetHistoryLevelDBPath())
-	assert.Equal(t, "/var/justledger/production/ledgersData/chains", GetBlockStorePath())
-	assert.Equal(t, "/var/justledger/production/ledgersData/pvtdataStore", GetPvtdataStorePath())
-	assert.Equal(t, "/var/justledger/production/ledgersData/bookkeeper", GetInternalBookkeeperPath())
+	assert.Equal(t, "/var/hyperledger/production/ledgersData", GetRootPath())
+	assert.Equal(t, "/var/hyperledger/production/ledgersData/ledgerProvider", GetLedgerProviderPath())
+	assert.Equal(t, "/var/hyperledger/production/ledgersData/stateLeveldb", GetStateLevelDBPath())
+	assert.Equal(t, "/var/hyperledger/production/ledgersData/historyLeveldb", GetHistoryLevelDBPath())
+	assert.Equal(t, "/var/hyperledger/production/ledgersData/chains", GetBlockStorePath())
+	assert.Equal(t, "/var/hyperledger/production/ledgersData/pvtdataStore", GetPvtdataStorePath())
+	assert.Equal(t, "/var/hyperledger/production/ledgersData/bookkeeper", GetInternalBookkeeperPath())
 }
 
 func TestLedgerConfigPath(t *testing.T) {
 	setUpCoreYAMLConfig()
 	defer ledgertestutil.ResetConfigToDefaultValues()
-	viper.Set("peer.fileSystemPath", "/tmp/justledger/production")
-	assert.Equal(t, "/tmp/justledger/production/ledgersData", GetRootPath())
-	assert.Equal(t, "/tmp/justledger/production/ledgersData/ledgerProvider", GetLedgerProviderPath())
-	assert.Equal(t, "/tmp/justledger/production/ledgersData/stateLeveldb", GetStateLevelDBPath())
-	assert.Equal(t, "/tmp/justledger/production/ledgersData/historyLeveldb", GetHistoryLevelDBPath())
-	assert.Equal(t, "/tmp/justledger/production/ledgersData/chains", GetBlockStorePath())
-	assert.Equal(t, "/tmp/justledger/production/ledgersData/pvtdataStore", GetPvtdataStorePath())
-	assert.Equal(t, "/tmp/justledger/production/ledgersData/bookkeeper", GetInternalBookkeeperPath())
+	viper.Set("peer.fileSystemPath", "/tmp/hyperledger/production")
+	assert.Equal(t, "/tmp/hyperledger/production/ledgersData", GetRootPath())
+	assert.Equal(t, "/tmp/hyperledger/production/ledgersData/ledgerProvider", GetLedgerProviderPath())
+	assert.Equal(t, "/tmp/hyperledger/production/ledgersData/stateLeveldb", GetStateLevelDBPath())
+	assert.Equal(t, "/tmp/hyperledger/production/ledgersData/historyLeveldb", GetHistoryLevelDBPath())
+	assert.Equal(t, "/tmp/hyperledger/production/ledgersData/chains", GetBlockStorePath())
+	assert.Equal(t, "/tmp/hyperledger/production/ledgersData/pvtdataStore", GetPvtdataStorePath())
+	assert.Equal(t, "/tmp/hyperledger/production/ledgersData/bookkeeper", GetInternalBookkeeperPath())
 }
 
 func TestGetTotalLimitDefault(t *testing.T) {

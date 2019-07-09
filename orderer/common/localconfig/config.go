@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	bccsp "justledger/fabric/bccsp/factory"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/viperutil"
-	coreconfig "justledger/fabric/core/config"
+	bccsp "justledger/bccsp/factory"
+	"justledger/common/flogging"
+	"justledger/common/viperutil"
+	coreconfig "justledger/core/config"
 	"github.com/spf13/viper"
 )
 
@@ -243,8 +243,8 @@ var Defaults = TopLevel{
 		HistorySize: 10000,
 	},
 	FileLedger: FileLedger{
-		Location: "/var/justledger/production/orderer",
-		Prefix:   "justledger-fabric-ordererledger",
+		Location: "/var/hyperledger/production/orderer",
+		Prefix:   "hyperledger-fabric-ordererledger",
 	},
 	Kafka: Kafka{
 		Retry: Retry{

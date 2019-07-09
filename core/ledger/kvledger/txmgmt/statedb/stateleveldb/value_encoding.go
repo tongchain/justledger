@@ -8,9 +8,9 @@ package stateleveldb
 
 import (
 	proto "github.com/golang/protobuf/proto"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb/stateleveldb/msgs"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/statedb/stateleveldb/msgs"
+	"justledger/core/ledger/kvledger/txmgmt/version"
 )
 
 // encode value encodes the versioned value. starting in v1.3 the encoding begins with a nil

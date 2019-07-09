@@ -4,9 +4,9 @@ package mock
 import (
 	sync "sync"
 
-	broadcast "justledger/fabric/orderer/common/broadcast"
-	msgprocessor "justledger/fabric/orderer/common/msgprocessor"
-	common "justledger/fabric/protos/common"
+	broadcast "justledger/orderer/common/broadcast"
+	msgprocessor "justledger/orderer/common/msgprocessor"
+	common "justledger/protos/common"
 )
 
 type ChannelSupport struct {

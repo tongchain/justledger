@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package kvledger
 
 import (
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	"justledger/protos/ledger/rwset/kvrwset"
 )
 
 // collElgNotifier listens for the chaincode events and determines whether the peer has become eligible for one or more existing

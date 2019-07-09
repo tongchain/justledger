@@ -9,7 +9,7 @@ package runner
 import (
 	"time"
 
-	"justledger/fabric/integration/helpers"
+	"justledger/integration/helpers"
 )
 
 const DefaultStartTimeout = 30 * time.Second

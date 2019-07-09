@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/ledger/blockledger"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
-	cb "justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
+	"justledger/common/flogging"
+	"justledger/common/ledger/blockledger"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +32,7 @@ type testEnv struct {
 }
 
 func initialize(t *testing.T) (*testEnv, *jsonLedger) {
-	name, err := ioutil.TempDir("", "justledger_fabric")
+	name, err := ioutil.TempDir("", "hyperledger_fabric")
 	if err != nil {
 		t.Fatalf("Error creating temp dir: %s", err)
 	}

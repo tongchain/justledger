@@ -4,7 +4,7 @@ package fake
 import (
 	sync "sync"
 
-	chaincode "justledger/fabric/core/chaincode"
+	chaincode "justledger/core/chaincode"
 )
 
 type LaunchRegistry struct {

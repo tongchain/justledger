@@ -9,10 +9,10 @@ package mocks
 import (
 	"testing"
 
-	"justledger/fabric/gossip/api"
-	"justledger/fabric/gossip/common"
-	"justledger/fabric/gossip/discovery"
-	proto "justledger/fabric/protos/gossip"
+	"justledger/gossip/api"
+	"justledger/gossip/common"
+	"justledger/gossip/discovery"
+	proto "justledger/protos/gossip"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	channelconfig "justledger/fabric/common/channelconfig"
+	channelconfig "justledger/common/channelconfig"
 )
 
 type OrdererConfigFetcher struct {

@@ -19,8 +19,8 @@ package ramledger
 import (
 	"sync"
 
-	"justledger/fabric/common/ledger/blockledger"
-	cb "justledger/fabric/protos/common"
+	"justledger/common/ledger/blockledger"
+	cb "justledger/protos/common"
 )
 
 type ramLedgerFactory struct {

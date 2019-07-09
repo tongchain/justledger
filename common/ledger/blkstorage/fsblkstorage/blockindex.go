@@ -11,12 +11,12 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/ledger/blkstorage"
-	"justledger/fabric/common/ledger/util"
-	"justledger/fabric/common/ledger/util/leveldbhelper"
-	ledgerUtil "justledger/fabric/core/ledger/util"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/peer"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/util"
+	"justledger/common/ledger/util/leveldbhelper"
+	ledgerUtil "justledger/core/ledger/util"
+	"justledger/protos/common"
+	"justledger/protos/peer"
 	"github.com/pkg/errors"
 )
 

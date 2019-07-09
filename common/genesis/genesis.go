@@ -17,8 +17,8 @@ limitations under the License.
 package genesis
 
 import (
-	cb "justledger/fabric/protos/common"
-	"justledger/fabric/protos/utils"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 )
 
 const (

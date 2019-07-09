@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"testing"
 
-	"justledger/fabric/integration/nwo"
+	"justledger/integration/nwo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -26,7 +26,7 @@ var components *nwo.Components
 
 var _ = SynchronizedBeforeSuite(func() []byte {
 	nwo.RequiredImages = []string{
-		fmt.Sprintf("justledger/fabric-ccenv:%s-latest", runtime.GOARCH),
+		fmt.Sprintf("hyperledger/fabric-ccenv:%s-latest", runtime.GOARCH),
 	}
 	components = &nwo.Components{}
 	components.Build()

@@ -22,12 +22,12 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"justledger/fabric/bccsp/factory"
-	commonledger "justledger/fabric/common/ledger"
-	"justledger/fabric/core/comm"
-	"justledger/fabric/protos/ledger/queryresult"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/bccsp/factory"
+	commonledger "justledger/common/ledger"
+	"justledger/core/comm"
+	"justledger/protos/ledger/queryresult"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	logging "github.com/op/go-logging"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -1029,7 +1029,7 @@ func (stub *ChaincodeStub) SetEvent(name string, payload []byte) error {
 // As independent programs, Go language chaincodes can use any logging
 // methodology they choose, from simple fmt.Printf() to os.Stdout, to
 // decorated logs created by the author's favorite logging package. The
-// chaincode "shim" interface, however, is defined by the justledger fabric
+// chaincode "shim" interface, however, is defined by the Hyperledger fabric
 // and implements its own logging methodology. This methodology currently
 // includes severity-based logging control and a standard way of decorating
 // the logs.
@@ -1041,7 +1041,7 @@ func (stub *ChaincodeStub) SetEvent(name string, payload []byte) error {
 // other package requirements. The lack of package requirements is especially
 // important because even if the chaincode happened to explicitly use the same
 // logging package as the shim, unless the chaincode is physically included as
-// part of the justledger fabric source code tree it could actually end up
+// part of the hyperledger fabric source code tree it could actually end up
 // using a distinct binary instance of the logging package, with different
 // formats and severity levels than the binary package used by the shim.
 //

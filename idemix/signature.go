@@ -10,9 +10,9 @@ import (
 	"crypto/ecdsa"
 	"sort"
 
-	"justledger/fabric-amcl/amcl"
-	"justledger/fabric-amcl/amcl/FP256BN"
-	"justledger/fabric/common/flogging"
+	"justledger-amcl/amcl"
+	"justledger-amcl/amcl/FP256BN"
+	"justledger/common/flogging"
 	"github.com/pkg/errors"
 )
 

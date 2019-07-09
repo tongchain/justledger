@@ -11,11 +11,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/fabric/common/util"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/chaincode/platforms/car"
-	"justledger/fabric/core/testutil"
-	pb "justledger/fabric/protos/peer"
+	"justledger/common/util"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/car"
+	"justledger/core/testutil"
+	pb "justledger/protos/peer"
 )
 
 var _ = platforms.Platform(&car.Platform{})
@@ -32,7 +32,7 @@ func TestCar_BuildImage(t *testing.T) {
 		return
 	}
 
-	chaincodePath := filepath.Join("testdata", "/org.justledger.chaincode.example02-0.1-SNAPSHOT.car")
+	chaincodePath := filepath.Join("testdata", "/org.hyperledger.chaincode.example02-0.1-SNAPSHOT.car")
 	spec := &pb.ChaincodeSpec{
 		Type: pb.ChaincodeSpec_CAR,
 		ChaincodeId: &pb.ChaincodeID{

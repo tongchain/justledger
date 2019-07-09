@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package idemix
 
 import (
-	"justledger/fabric-amcl/amcl/FP256BN"
+	"justledger-amcl/amcl/FP256BN"
 	"github.com/pkg/errors"
 )
 

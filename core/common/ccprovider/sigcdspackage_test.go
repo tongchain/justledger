@@ -21,10 +21,10 @@ import (
 	"os"
 	"testing"
 
-	"justledger/fabric/core/common/ccpackage"
-	"justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/core/common/ccpackage"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -6,7 +6,7 @@ import (
 	"crypto/tls"
 	"sync"
 
-	"justledger/fabric/token/client"
+	"justledger/token/client"
 	"google.golang.org/grpc"
 )
 

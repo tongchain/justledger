@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/common/metrics"
+	"justledger/common/metrics"
 )
 
 type MetricsCounter struct {

@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	container "justledger/fabric/core/container"
-	ccintf "justledger/fabric/core/container/ccintf"
+	container "justledger/core/container"
+	ccintf "justledger/core/container/ccintf"
 )
 
 type VMCReq struct {

@@ -12,8 +12,8 @@ import (
 	"plugin"
 	"sync"
 
-	"justledger/fabric/common/viperutil"
-	"justledger/fabric/core/chaincode/shim"
+	"justledger/common/viperutil"
+	"justledger/core/chaincode/shim"
 	"github.com/pkg/errors"
 )
 

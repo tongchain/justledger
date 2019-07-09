@@ -20,10 +20,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "justledger/fabric/common/ledger/blockledger"
-	fileledger "justledger/fabric/common/ledger/blockledger/file"
-	"justledger/fabric/common/metrics/disabled"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
+	. "justledger/common/ledger/blockledger"
+	fileledger "justledger/common/ledger/blockledger/file"
+	"justledger/common/metrics/disabled"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
 )
 
 func init() {
@@ -39,7 +39,7 @@ type fileLedgerTestEnv struct {
 
 func (env *fileLedgerTestEnv) Initialize() (ledgerTestFactory, error) {
 	var err error
-	location, err := ioutil.TempDir("", "justledger")
+	location, err := ioutil.TempDir("", "hyperledger")
 	if err != nil {
 		return nil, err
 	}

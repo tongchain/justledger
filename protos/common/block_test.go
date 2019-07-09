@@ -21,7 +21,7 @@ import (
 	"math"
 	"testing"
 
-	"justledger/fabric/common/util"
+	"justledger/common/util"
 	"github.com/stretchr/testify/assert"
 )
 

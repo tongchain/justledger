@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package lockbasedtxmgr
 
 import (
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
+	"justledger/core/ledger"
+	"justledger/protos/common"
 )
 
 // collNameValidator validates the presence of a collection in a namespace

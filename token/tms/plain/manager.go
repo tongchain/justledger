@@ -9,8 +9,8 @@ package plain
 import (
 	"sync"
 
-	"justledger/fabric/token/identity"
-	"justledger/fabric/token/transaction"
+	"justledger/token/identity"
+	"justledger/token/transaction"
 	"github.com/pkg/errors"
 )
 

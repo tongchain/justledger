@@ -12,7 +12,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"justledger/fabric/common/crypto"
+	"justledger/common/crypto"
 )
 
 //go:generate counterfeiter -o mock/local_signer.go --fake-name LocalSigner . localSigner

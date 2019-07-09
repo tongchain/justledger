@@ -9,15 +9,15 @@ package transaction
 import (
 	"fmt"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
+	"justledger/common/flogging"
+	"justledger/core/ledger"
+	"justledger/protos/common"
 	"github.com/pkg/errors"
 )
 
 var logger = flogging.MustGetLogger("fabtoken-processor")
 
-// Processor implements the interface 'justledger/fabric/core/ledger/customtx/Processor'
+// Processor implements the interface 'justledger/core/ledger/customtx/Processor'
 // for FabToken transactions
 type Processor struct {
 	TMSManager TMSManager

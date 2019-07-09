@@ -17,9 +17,9 @@ limitations under the License.
 package config
 
 import (
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/util"
-	"justledger/fabric/msp"
+	"justledger/common/channelconfig"
+	"justledger/common/util"
+	"justledger/msp"
 )
 
 func nearIdentityHash(input []byte) []byte {

@@ -7,14 +7,14 @@ SPDX-License-Identifier: Apache-2.0
 package common
 
 import (
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/localmsp"
-	"justledger/fabric/common/util"
-	"justledger/fabric/peer/common/api"
-	cb "justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/common/flogging"
+	"justledger/common/localmsp"
+	"justledger/common/util"
+	"justledger/peer/common/api"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

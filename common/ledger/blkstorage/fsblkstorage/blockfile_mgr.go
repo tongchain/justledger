@@ -15,13 +15,13 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/ledger/blkstorage"
-	"justledger/fabric/common/ledger/util"
-	"justledger/fabric/common/ledger/util/leveldbhelper"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/peer"
-	putil "justledger/fabric/protos/utils"
+	"justledger/common/flogging"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/util"
+	"justledger/common/ledger/util/leveldbhelper"
+	"justledger/protos/common"
+	"justledger/protos/peer"
+	putil "justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

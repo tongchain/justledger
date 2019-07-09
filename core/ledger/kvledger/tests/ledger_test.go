@@ -10,7 +10,7 @@ import (
 	"os"
 	"testing"
 
-	"justledger/fabric/common/flogging"
+	"justledger/common/flogging"
 )
 
 func TestMain(m *testing.M) {

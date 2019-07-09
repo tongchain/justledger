@@ -8,7 +8,7 @@ package handlers
 import (
 	"crypto/ecdsa"
 
-	"justledger/fabric/bccsp"
+	"justledger/bccsp"
 )
 
 // IssuerPublicKey is the issuer public key

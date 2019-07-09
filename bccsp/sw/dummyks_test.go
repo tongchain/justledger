@@ -18,7 +18,7 @@ package sw
 import (
 	"testing"
 
-	"justledger/fabric/bccsp/mocks"
+	"justledger/bccsp/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

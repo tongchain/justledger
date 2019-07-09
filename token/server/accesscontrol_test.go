@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package server_test
 
 import (
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/token"
-	"justledger/fabric/token/server"
-	"justledger/fabric/token/server/mock"
+	"justledger/protos/common"
+	"justledger/protos/token"
+	"justledger/token/server"
+	"justledger/token/server/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

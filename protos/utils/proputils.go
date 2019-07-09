@@ -11,13 +11,13 @@ import (
 	"encoding/hex"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/bccsp"
-	"justledger/fabric/bccsp/factory"
-	"justledger/fabric/common/crypto"
-	"justledger/fabric/common/util"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/peer"
+	"justledger/bccsp"
+	"justledger/bccsp/factory"
+	"justledger/common/crypto"
+	"justledger/common/util"
+	"justledger/core/chaincode/platforms"
+	"justledger/protos/common"
+	"justledger/protos/peer"
 	"github.com/pkg/errors"
 )
 

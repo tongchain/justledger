@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"justledger/fabric/peer/common"
-	"justledger/fabric/protos/utils"
+	"justledger/peer/common"
+	"justledger/protos/utils"
 	"github.com/spf13/cobra"
 )
 

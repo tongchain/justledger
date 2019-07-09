@@ -24,7 +24,7 @@ import (
 )
 
 func Test_listDeps(t *testing.T) {
-	_, err := listDeps(nil, "justledger/fabric/peer")
+	_, err := listDeps(nil, "justledger/peer")
 	if err != nil {
 		t.Errorf("list failed: %s", err)
 	}
@@ -36,7 +36,7 @@ func Test_runProgram(t *testing.T) {
 		10*time.Millisecond,
 		"go",
 		"build",
-		"justledger/fabric/peer",
+		"justledger/peer",
 	)
 	assert.Contains(t, err.Error(), "timed out")
 

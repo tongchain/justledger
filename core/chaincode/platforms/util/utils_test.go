@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/common/util"
-	"justledger/fabric/core/config/configtest"
-	cutil "justledger/fabric/core/container/util"
+	"justledger/common/util"
+	"justledger/core/config/configtest"
+	cutil "justledger/core/container/util"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
@@ -353,7 +353,7 @@ func TestDockerPull(t *testing.T) {
 	// Future considerations: publish a known dummy image that is multi-arch and free to randomly
 	// delete, and use that here instead.
 	err := DockerBuild(DockerBuildOptions{
-		Image:        cutil.ParseDockerfileTemplate("justledger/fabric-ccenv:$(ARCH)-1.1.0"),
+		Image:        cutil.ParseDockerfileTemplate("hyperledger/fabric-ccenv:$(ARCH)-1.1.0"),
 		Cmd:          "/bin/true",
 		InputStream:  codepackage,
 		OutputStream: binpackage,

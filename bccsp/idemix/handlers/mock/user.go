@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/bccsp/idemix/handlers"
+	"justledger/bccsp/idemix/handlers"
 )
 
 type User struct {

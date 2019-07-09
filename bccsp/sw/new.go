@@ -11,7 +11,7 @@ import (
 	"crypto/sha512"
 	"reflect"
 
-	"justledger/fabric/bccsp"
+	"justledger/bccsp"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/sha3"
 )

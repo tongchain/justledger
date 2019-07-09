@@ -24,8 +24,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"justledger/fabric/bccsp"
-	"justledger/fabric/bccsp/utils"
+	"justledger/bccsp"
+	"justledger/bccsp/utils"
 )
 
 type aes256ImportKeyOptsKeyImporter struct{}

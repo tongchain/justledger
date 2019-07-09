@@ -9,8 +9,8 @@ package blockcutter
 import (
 	"sync"
 
-	"justledger/fabric/common/flogging"
-	cb "justledger/fabric/protos/common"
+	"justledger/common/flogging"
+	cb "justledger/protos/common"
 )
 
 var logger = flogging.MustGetLogger("orderer.mocks.common.blockcutter")

@@ -9,11 +9,11 @@ package chaincode_test
 import (
 	"testing"
 
-	commonledger "justledger/fabric/common/ledger"
-	"justledger/fabric/core/chaincode"
-	"justledger/fabric/core/common/privdata"
-	"justledger/fabric/core/container/ccintf"
-	"justledger/fabric/core/ledger"
+	commonledger "justledger/common/ledger"
+	"justledger/core/chaincode"
+	"justledger/core/common/privdata"
+	"justledger/core/container/ccintf"
+	"justledger/core/ledger"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/fabric/core/ledger/ledgerconfig"
-	btltestutil "justledger/fabric/core/ledger/pvtdatapolicy/testutil"
+	"justledger/common/flogging"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/ledgerconfig"
+	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	kitstatsd "github.com/go-kit/kit/metrics/statsd"
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/common/metrics/statsd"
+	"justledger/common/metrics"
+	"justledger/common/metrics/statsd"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	container "justledger/fabric/core/container"
+	container "justledger/core/container"
 )
 
 type Processor struct {

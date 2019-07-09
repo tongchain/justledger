@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	ledgercommon "justledger/fabric/common/ledger"
-	"justledger/fabric/token/ledger"
+	ledgercommon "justledger/common/ledger"
+	"justledger/token/ledger"
 )
 
 type LedgerWriter struct {

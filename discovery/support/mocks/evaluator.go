@@ -10,8 +10,8 @@ package mocks
 import (
 	"sync"
 
-	"justledger/fabric/discovery/support/acl"
-	common2 "justledger/fabric/protos/common"
+	"justledger/discovery/support/acl"
+	common2 "justledger/protos/common"
 )
 
 type Evaluator struct {

@@ -23,10 +23,10 @@ import (
 	"time"
 
 	pb "github.com/golang/protobuf/proto"
-	"justledger/fabric/core/deliverservice/blocksprovider"
-	"justledger/fabric/protos/common"
-	proto "justledger/fabric/protos/gossip"
-	"justledger/fabric/protos/orderer"
+	"justledger/core/deliverservice/blocksprovider"
+	"justledger/protos/common"
+	proto "justledger/protos/gossip"
+	"justledger/protos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 

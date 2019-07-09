@@ -14,10 +14,10 @@ import (
 	"strconv"
 	"time"
 
-	"justledger/fabric/common/crypto/tlsgen"
-	"justledger/fabric/core/comm"
-	"justledger/fabric/gossip/api"
-	"justledger/fabric/gossip/common"
+	"justledger/common/crypto/tlsgen"
+	"justledger/core/comm"
+	"justledger/gossip/api"
+	"justledger/gossip/common"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

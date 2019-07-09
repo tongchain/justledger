@@ -5,7 +5,7 @@ import (
 	tar "archive/tar"
 	sync "sync"
 
-	platforms "justledger/fabric/core/chaincode/platforms"
+	platforms "justledger/core/chaincode/platforms"
 )
 
 type Platform struct {

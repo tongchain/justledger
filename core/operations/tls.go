@@ -11,7 +11,7 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 
-	"justledger/fabric/core/comm"
+	"justledger/core/comm"
 )
 
 type TLS struct {

@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/common/viperutil"
-	"justledger/fabric/core/config/configtest"
+	"justledger/common/viperutil"
+	"justledger/core/config/configtest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,7 +57,7 @@ func TestLoadMissingConfigFile(t *testing.T) {
 }
 
 func TestLoadMalformedConfigFile(t *testing.T) {
-	name, err := ioutil.TempDir("", "justledger_fabric")
+	name, err := ioutil.TempDir("", "hyperledger_fabric")
 	assert.Nil(t, err, "Error creating temp dir: %s", err)
 	defer func() {
 		err = os.RemoveAll(name)
@@ -171,7 +171,7 @@ func TestSystemChannel(t *testing.T) {
 }
 
 func TestConsensusConfig(t *testing.T) {
-	name, err := ioutil.TempDir("", "justledger_fabric")
+	name, err := ioutil.TempDir("", "hyperledger_fabric")
 	assert.Nil(t, err, "Error creating temp dir: %s", err)
 	defer func() {
 		err = os.RemoveAll(name)

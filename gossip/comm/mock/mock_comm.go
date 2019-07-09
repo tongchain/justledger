@@ -9,11 +9,11 @@ package mock
 import (
 	"time"
 
-	"justledger/fabric/gossip/api"
-	"justledger/fabric/gossip/comm"
-	"justledger/fabric/gossip/common"
-	"justledger/fabric/gossip/util"
-	proto "justledger/fabric/protos/gossip"
+	"justledger/gossip/api"
+	"justledger/gossip/comm"
+	"justledger/gossip/common"
+	"justledger/gossip/util"
+	proto "justledger/protos/gossip"
 )
 
 // Mock which aims to simulate socket

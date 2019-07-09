@@ -21,7 +21,7 @@ import (
 	"sync"
 	"time"
 
-	pb "justledger/fabric/protos/peer"
+	pb "justledger/protos/peer"
 )
 
 //MockResponseSet is used for processing CC to Peer comm

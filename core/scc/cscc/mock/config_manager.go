@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/common/config"
+	"justledger/common/config"
 )
 
 type ConfigManager struct {

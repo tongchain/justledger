@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"justledger/fabric/gossip/common"
-	"justledger/fabric/gossip/util"
-	proto "justledger/fabric/protos/gossip"
+	"justledger/gossip/common"
+	"justledger/gossip/util"
+	proto "justledger/protos/gossip"
 )
 
 type sendFunc func(peer *RemotePeer, msg *proto.SignedGossipMessage)

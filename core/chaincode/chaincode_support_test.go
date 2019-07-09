@@ -21,36 +21,36 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/crypto/tlsgen"
-	commonledger "justledger/fabric/common/ledger"
-	"justledger/fabric/common/metrics/disabled"
-	mc "justledger/fabric/common/mocks/config"
-	mocklgr "justledger/fabric/common/mocks/ledger"
-	mockpeer "justledger/fabric/common/mocks/peer"
-	"justledger/fabric/common/util"
-	"justledger/fabric/core/aclmgmt/mocks"
-	"justledger/fabric/core/aclmgmt/resources"
-	"justledger/fabric/core/chaincode/accesscontrol"
-	"justledger/fabric/core/chaincode/mock"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/chaincode/platforms/golang"
-	"justledger/fabric/core/chaincode/shim"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/config"
-	"justledger/fabric/core/container"
-	"justledger/fabric/core/container/dockercontroller"
-	"justledger/fabric/core/container/inproccontroller"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/core/ledger/ledgermgmt"
-	cmp "justledger/fabric/core/mocks/peer"
-	"justledger/fabric/core/peer"
-	"justledger/fabric/core/policy"
-	"justledger/fabric/core/scc"
-	"justledger/fabric/core/scc/lscc"
-	mspmgmt "justledger/fabric/msp/mgmt"
-	plgr "justledger/fabric/protos/ledger/queryresult"
-	pb "justledger/fabric/protos/peer"
-	putils "justledger/fabric/protos/utils"
+	"justledger/common/crypto/tlsgen"
+	commonledger "justledger/common/ledger"
+	"justledger/common/metrics/disabled"
+	mc "justledger/common/mocks/config"
+	mocklgr "justledger/common/mocks/ledger"
+	mockpeer "justledger/common/mocks/peer"
+	"justledger/common/util"
+	"justledger/core/aclmgmt/mocks"
+	"justledger/core/aclmgmt/resources"
+	"justledger/core/chaincode/accesscontrol"
+	"justledger/core/chaincode/mock"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/golang"
+	"justledger/core/chaincode/shim"
+	"justledger/core/common/ccprovider"
+	"justledger/core/config"
+	"justledger/core/container"
+	"justledger/core/container/dockercontroller"
+	"justledger/core/container/inproccontroller"
+	"justledger/core/ledger"
+	"justledger/core/ledger/ledgermgmt"
+	cmp "justledger/core/mocks/peer"
+	"justledger/core/peer"
+	"justledger/core/policy"
+	"justledger/core/scc"
+	"justledger/core/scc/lscc"
+	mspmgmt "justledger/msp/mgmt"
+	plgr "justledger/protos/ledger/queryresult"
+	pb "justledger/protos/peer"
+	putils "justledger/protos/utils"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
 )
@@ -229,7 +229,7 @@ func finitMockPeer(chainIDs ...string) {
 	ledgermgmt.CleanupTestEnv()
 	ledgerPath := config.GetPath("peer.fileSystemPath")
 	os.RemoveAll(ledgerPath)
-	os.RemoveAll(filepath.Join(os.TempDir(), "justledger"))
+	os.RemoveAll(filepath.Join(os.TempDir(), "hyperledger"))
 }
 
 //store the stream CC mappings here
@@ -1045,9 +1045,9 @@ func getLaunchConfigs(t *testing.T, cr *ContainerRuntime) {
 	gt.Expect(envs).To(ContainElement("CORE_CHAINCODE_LOGGING_SHIM=warning"))
 	gt.Expect(envs).To(ContainElement("CORE_CHAINCODE_ID_NAME=mycc:v0"))
 	gt.Expect(envs).To(ContainElement("CORE_PEER_TLS_ENABLED=true"))
-	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_KEY_PATH=/etc/justledger/fabric/client.key"))
-	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_CERT_PATH=/etc/justledger/fabric/client.crt"))
-	gt.Expect(envs).To(ContainElement("CORE_PEER_TLS_ROOTCERT_FILE=/etc/justledger/fabric/peer.crt"))
+	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_KEY_PATH=/etc/hyperledger/fabric/client.key"))
+	gt.Expect(envs).To(ContainElement("CORE_TLS_CLIENT_CERT_PATH=/etc/hyperledger/fabric/client.crt"))
+	gt.Expect(envs).To(ContainElement("CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer.crt"))
 
 	if len(filesToUpload) != 3 {
 		t.Fatalf("calling getLaunchConfigs() with TLS enabled should have returned an array of 3 elements for filesToUpload, but got %v", len(filesToUpload))

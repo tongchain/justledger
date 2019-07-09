@@ -10,10 +10,10 @@ import (
 	"errors"
 	"testing"
 
-	"justledger/fabric/core/endorser/mocks"
-	mocks2 "justledger/fabric/core/handlers/endorsement/builtin/mocks"
-	plgn "justledger/fabric/core/handlers/endorsement/plugin"
-	"justledger/fabric/protos/peer"
+	"justledger/core/endorser/mocks"
+	mocks2 "justledger/core/handlers/endorsement/builtin/mocks"
+	plgn "justledger/core/handlers/endorsement/plugin"
+	"justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

@@ -9,9 +9,9 @@ package channelconfig
 import (
 	"testing"
 
-	cc "justledger/fabric/common/capabilities"
-	cb "justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
+	cc "justledger/common/capabilities"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 

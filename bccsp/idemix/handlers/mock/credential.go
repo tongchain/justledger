@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/bccsp"
-	"justledger/fabric/bccsp/idemix/handlers"
+	"justledger/bccsp"
+	"justledger/bccsp/idemix/handlers"
 )
 
 type Credential struct {

@@ -10,11 +10,11 @@ import (
 	"math"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/bccsp"
-	cb "justledger/fabric/protos/common"
-	mspprotos "justledger/fabric/protos/msp"
-	ab "justledger/fabric/protos/orderer"
-	pb "justledger/fabric/protos/peer"
+	"justledger/bccsp"
+	cb "justledger/protos/common"
+	mspprotos "justledger/protos/msp"
+	ab "justledger/protos/orderer"
+	pb "justledger/protos/peer"
 )
 
 const (

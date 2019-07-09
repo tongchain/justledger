@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode_test
 
 import (
-	"justledger/fabric/core/chaincode"
-	"justledger/fabric/core/chaincode/mock"
-	"justledger/fabric/core/common/ccprovider"
-	pb "justledger/fabric/protos/peer"
+	"justledger/core/chaincode"
+	"justledger/core/chaincode/mock"
+	"justledger/core/common/ccprovider"
+	pb "justledger/protos/peer"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

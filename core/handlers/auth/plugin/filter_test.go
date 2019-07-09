@@ -10,7 +10,7 @@ import (
 	"context"
 	"testing"
 
-	"justledger/fabric/protos/peer"
+	"justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

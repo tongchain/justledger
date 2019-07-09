@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package peer
 
 import (
-	"justledger/fabric/common/channelconfig"
+	"justledger/common/channelconfig"
 )
 
 var supportFactory SupportFactory

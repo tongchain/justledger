@@ -8,8 +8,8 @@ package channelconfig
 import (
 	"testing"
 
-	"justledger/fabric/msp"
-	cb "justledger/fabric/protos/common"
+	"justledger/msp"
+	cb "justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

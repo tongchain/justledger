@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package policies
 
 import (
-	cb "justledger/fabric/protos/common"
-	"justledger/fabric/protos/utils"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 )
 
 // ConfigPolicy defines a common representation for different *cb.ConfigPolicy values.

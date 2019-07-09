@@ -20,7 +20,7 @@ import (
 	"reflect"
 	"sort"
 
-	"justledger/fabric/common/util"
+	"justledger/common/util"
 )
 
 // GetSortedKeys returns the keys of the map in a sorted order. This function assumes that the keys are string

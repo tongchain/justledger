@@ -10,9 +10,9 @@ import (
 	"math"
 	"testing"
 
-	"justledger/fabric/core/common/privdata"
-	"justledger/fabric/core/ledger/pvtdatapolicy/mock"
-	"justledger/fabric/protos/common"
+	"justledger/core/common/privdata"
+	"justledger/core/ledger/pvtdatapolicy/mock"
+	"justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

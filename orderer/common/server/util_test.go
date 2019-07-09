@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/fabric/common/metrics/disabled"
-	"justledger/fabric/core/config/configtest"
-	config "justledger/fabric/orderer/common/localconfig"
+	"justledger/common/metrics/disabled"
+	"justledger/core/config/configtest"
+	config "justledger/orderer/common/localconfig"
 	"github.com/stretchr/testify/assert"
 )
 

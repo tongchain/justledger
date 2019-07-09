@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"runtime"
 
-	common "justledger/fabric/common/metadata"
+	common "justledger/common/metadata"
 )
 
 // package-scoped variables

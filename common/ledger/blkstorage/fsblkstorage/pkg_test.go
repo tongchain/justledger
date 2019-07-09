@@ -23,11 +23,11 @@ import (
 	"testing"
 
 	"github.com/gogo/protobuf/proto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/ledger/blkstorage"
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/common/metrics/disabled"
-	"justledger/fabric/protos/common"
+	"justledger/common/flogging"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/metrics"
+	"justledger/common/metrics/disabled"
+	"justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

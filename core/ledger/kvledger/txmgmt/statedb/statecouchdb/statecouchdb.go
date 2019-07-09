@@ -12,13 +12,13 @@ import (
 	"fmt"
 	"sync"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
-	"justledger/fabric/core/ledger/ledgerconfig"
-	"justledger/fabric/core/ledger/util/couchdb"
+	"justledger/common/flogging"
+	"justledger/common/metrics"
+	"justledger/core/common/ccprovider"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/core/ledger/util/couchdb"
 	"github.com/pkg/errors"
 )
 
@@ -517,7 +517,7 @@ func validateQueryMetadata(metadata map[string]interface{}) error {
 
 // ApplyUpdates implements method in VersionedDB interface
 func (vdb *VersionedDB) ApplyUpdates(updates *statedb.UpdateBatch, height *version.Height) error {
-	// TODO a note about https://jira.justledger.org/browse/FAB-8622
+	// TODO a note about https://jira.hyperledger.org/browse/FAB-8622
 	// the function `Apply update can be split into three functions. Each carrying out one of the following three stages`.
 	// The write lock is needed only for the stage 2.
 

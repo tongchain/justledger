@@ -4,7 +4,7 @@ package mocks
 import (
 	sync "sync"
 
-	healthz "justledger/fabric-lib-go/healthz"
+	healthz "justledger-lib-go/healthz"
 )
 
 type HealthChecker struct {

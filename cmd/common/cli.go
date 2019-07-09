@@ -12,8 +12,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"justledger/fabric/cmd/common/comm"
-	"justledger/fabric/cmd/common/signer"
+	"justledger/cmd/common/comm"
+	"justledger/cmd/common/signer"
 	"gopkg.in/alecthomas/kingpin.v2"
 )
 

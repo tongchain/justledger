@@ -10,12 +10,12 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric-amcl/amcl/FP256BN"
-	"justledger/fabric/bccsp"
-	"justledger/fabric/bccsp/idemix/bridge"
-	"justledger/fabric/bccsp/idemix/handlers"
-	"justledger/fabric/bccsp/idemix/handlers/mock"
-	cryptolib "justledger/fabric/idemix"
+	"justledger-amcl/amcl/FP256BN"
+	"justledger/bccsp"
+	"justledger/bccsp/idemix/bridge"
+	"justledger/bccsp/idemix/handlers"
+	"justledger/bccsp/idemix/handlers/mock"
+	cryptolib "justledger/idemix"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

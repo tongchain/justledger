@@ -13,20 +13,20 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/crypto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/common/util"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/chaincode/shim"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/common/validation"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/transientstore"
-	putils "justledger/fabric/protos/utils"
+	"justledger/common/channelconfig"
+	"justledger/common/crypto"
+	"justledger/common/flogging"
+	"justledger/common/metrics"
+	"justledger/common/util"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/shim"
+	"justledger/core/common/ccprovider"
+	"justledger/core/common/validation"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/protos/transientstore"
+	putils "justledger/protos/utils"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
@@ -34,7 +34,7 @@ import (
 var endorserLogger = flogging.MustGetLogger("endorser")
 
 // The Jira issue that documents Endorser flow along with its relationship to
-// the lifecycle chaincode - https://jira.justledger.org/browse/FAB-181
+// the lifecycle chaincode - https://jira.hyperledger.org/browse/FAB-181
 
 type privateDataDistributor func(channel string, txID string, privateData *transientstore.TxPvtReadWriteSetWithConfigInfo, blkHt uint64) error
 

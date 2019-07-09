@@ -9,11 +9,11 @@ package gossip_test
 import (
 	"testing"
 
-	gossipSupport "justledger/fabric/discovery/support/gossip"
-	"justledger/fabric/discovery/support/mocks"
-	"justledger/fabric/gossip/common"
-	"justledger/fabric/gossip/discovery"
-	"justledger/fabric/protos/gossip"
+	gossipSupport "justledger/discovery/support/gossip"
+	"justledger/discovery/support/mocks"
+	"justledger/gossip/common"
+	"justledger/gossip/discovery"
+	"justledger/protos/gossip"
 	"github.com/stretchr/testify/assert"
 )
 

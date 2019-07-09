@@ -23,7 +23,7 @@ import (
 	"crypto/rsa"
 	"fmt"
 
-	"justledger/fabric/bccsp"
+	"justledger/bccsp"
 )
 
 type ecdsaKeyGenerator struct {

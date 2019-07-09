@@ -21,10 +21,10 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"justledger/fabric/common/ledger/blkstorage"
-	"justledger/fabric/common/ledger/blockledger"
-	"justledger/fabric/common/metrics/disabled"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/blockledger"
+	"justledger/common/metrics/disabled"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -72,7 +72,7 @@ func TestBlockstoreProviderError(t *testing.T) {
 func TestMultiReinitialization(t *testing.T) {
 	metricsProvider := &disabled.Provider{}
 
-	dir, err := ioutil.TempDir("", "justledger_fabric")
+	dir, err := ioutil.TempDir("", "hyperledger_fabric")
 	assert.NoError(t, err, "Error creating temp dir: %s", err)
 
 	flf := New(dir, metricsProvider)

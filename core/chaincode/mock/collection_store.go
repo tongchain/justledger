@@ -4,10 +4,10 @@ package mock
 import (
 	sync "sync"
 
-	privdata "justledger/fabric/core/common/privdata"
-	ledger "justledger/fabric/core/ledger"
-	common "justledger/fabric/protos/common"
-	peer "justledger/fabric/protos/peer"
+	privdata "justledger/core/common/privdata"
+	ledger "justledger/core/ledger"
+	common "justledger/protos/common"
+	peer "justledger/protos/peer"
 )
 
 type CollectionStore struct {

@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package capabilities
 
 import (
-	"justledger/fabric/common/flogging"
-	cb "justledger/fabric/protos/common"
+	"justledger/common/flogging"
+	cb "justledger/protos/common"
 	"github.com/pkg/errors"
 )
 

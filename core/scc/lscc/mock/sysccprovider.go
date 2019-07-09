@@ -4,9 +4,9 @@ package mock
 import (
 	sync "sync"
 
-	channelconfig "justledger/fabric/common/channelconfig"
-	policies "justledger/fabric/common/policies"
-	ledger "justledger/fabric/core/ledger"
+	channelconfig "justledger/common/channelconfig"
+	policies "justledger/common/policies"
+	ledger "justledger/core/ledger"
 )
 
 type SystemChaincodeProvider struct {

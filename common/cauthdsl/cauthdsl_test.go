@@ -13,11 +13,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/flogging/floggingtest"
-	"justledger/fabric/msp"
-	cb "justledger/fabric/protos/common"
-	mb "justledger/fabric/protos/msp"
+	"justledger/common/flogging"
+	"justledger/common/flogging/floggingtest"
+	"justledger/msp"
+	cb "justledger/protos/common"
+	mb "justledger/protos/msp"
 	"github.com/stretchr/testify/assert"
 )
 

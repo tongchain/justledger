@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	ccprovider "justledger/fabric/core/common/ccprovider"
-	ledger "justledger/fabric/core/ledger"
+	ccprovider "justledger/core/common/ccprovider"
+	ledger "justledger/core/ledger"
 )
 
 type ChaincodeDefinitionGetter struct {

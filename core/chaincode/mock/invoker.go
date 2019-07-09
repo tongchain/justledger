@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	ccprovider "justledger/fabric/core/common/ccprovider"
-	peer "justledger/fabric/protos/peer"
+	ccprovider "justledger/core/common/ccprovider"
+	peer "justledger/protos/peer"
 )
 
 type Invoker struct {

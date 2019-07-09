@@ -10,8 +10,8 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/core/chaincode"
-	"justledger/fabric/protos/ledger/queryresult"
+	"justledger/core/chaincode"
+	"justledger/protos/ledger/queryresult"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

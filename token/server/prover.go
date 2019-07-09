@@ -9,7 +9,7 @@ package server
 import (
 	"context"
 
-	"justledger/fabric/protos/token"
+	"justledger/protos/token"
 	"github.com/pkg/errors"
 )
 

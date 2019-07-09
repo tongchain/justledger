@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package api
 
 import (
-	"justledger/fabric/gossip/common"
+	"justledger/gossip/common"
 )
 
 func init() {

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package testdata
 
 import (
-	goo "justledger/fabric/common/metrics"
+	goo "justledger/common/metrics"
 )
 
 // These variables should be discovered as valid metric options

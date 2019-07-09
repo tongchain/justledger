@@ -9,13 +9,13 @@ package etcdraft_test
 import (
 	"testing"
 
-	"justledger/fabric/common/metrics/disabled"
-	"justledger/fabric/core/comm"
-	"justledger/fabric/orderer/common/cluster"
-	"justledger/fabric/orderer/common/localconfig"
-	"justledger/fabric/orderer/common/multichannel"
-	"justledger/fabric/orderer/consensus/etcdraft"
-	"justledger/fabric/orderer/consensus/etcdraft/mocks"
+	"justledger/common/metrics/disabled"
+	"justledger/core/comm"
+	"justledger/orderer/common/cluster"
+	"justledger/orderer/common/localconfig"
+	"justledger/orderer/common/multichannel"
+	"justledger/orderer/consensus/etcdraft"
+	"justledger/orderer/consensus/etcdraft/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

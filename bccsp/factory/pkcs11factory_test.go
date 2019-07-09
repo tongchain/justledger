@@ -21,7 +21,7 @@ import (
 	"os"
 	"testing"
 
-	"justledger/fabric/bccsp/pkcs11"
+	"justledger/bccsp/pkcs11"
 	"github.com/stretchr/testify/assert"
 )
 

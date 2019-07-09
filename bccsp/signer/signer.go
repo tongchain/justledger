@@ -19,8 +19,8 @@ import (
 	"crypto"
 	"io"
 
-	"justledger/fabric/bccsp"
-	"justledger/fabric/bccsp/utils"
+	"justledger/bccsp"
+	"justledger/bccsp/utils"
 	"github.com/pkg/errors"
 )
 

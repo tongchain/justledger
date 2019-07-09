@@ -10,9 +10,9 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/gossip/util"
-	proto "justledger/fabric/protos/gossip"
+	"justledger/common/metrics"
+	"justledger/gossip/util"
+	proto "justledger/protos/gossip"
 )
 
 // PayloadsBuffer is used to store payloads into which used to

@@ -9,10 +9,10 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/common/ledger/testutil"
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/common/metrics/metricsfakes"
-	"justledger/fabric/common/util"
+	"justledger/common/ledger/testutil"
+	"justledger/common/metrics"
+	"justledger/common/metrics/metricsfakes"
+	"justledger/common/util"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package discovery
 
 import (
-	"justledger/fabric/gossip/api"
-	"justledger/fabric/gossip/common"
-	"justledger/fabric/gossip/discovery"
-	common2 "justledger/fabric/protos/common"
-	discprotos "justledger/fabric/protos/discovery"
+	"justledger/gossip/api"
+	"justledger/gossip/common"
+	"justledger/gossip/discovery"
+	common2 "justledger/protos/common"
+	discprotos "justledger/protos/discovery"
 )
 
 // AccessControlSupport checks if clients are eligible of being serviced

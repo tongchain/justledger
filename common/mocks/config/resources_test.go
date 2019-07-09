@@ -9,7 +9,7 @@ package config
 import (
 	"testing"
 
-	"justledger/fabric/common/channelconfig"
+	"justledger/common/channelconfig"
 )
 
 func TestConfigtxResourcesInterface(t *testing.T) {

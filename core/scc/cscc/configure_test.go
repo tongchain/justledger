@@ -14,46 +14,46 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/config"
-	"justledger/fabric/common/configtx"
-	configtxtest "justledger/fabric/common/configtx/test"
-	"justledger/fabric/common/crypto/tlsgen"
-	"justledger/fabric/common/genesis"
-	"justledger/fabric/common/localmsp"
-	"justledger/fabric/common/metrics/disabled"
-	"justledger/fabric/common/mocks/scc"
-	"justledger/fabric/common/policies"
-	"justledger/fabric/common/tools/configtxgen/configtxgentest"
-	"justledger/fabric/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
-	"justledger/fabric/core/aclmgmt"
-	aclmocks "justledger/fabric/core/aclmgmt/mocks"
-	"justledger/fabric/core/aclmgmt/resources"
-	"justledger/fabric/core/chaincode"
-	"justledger/fabric/core/chaincode/accesscontrol"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/chaincode/platforms/golang"
-	"justledger/fabric/core/chaincode/shim"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/container"
-	"justledger/fabric/core/container/inproccontroller"
-	deliverclient "justledger/fabric/core/deliverservice"
-	"justledger/fabric/core/deliverservice/blocksprovider"
-	"justledger/fabric/core/ledger/ledgermgmt"
-	ccprovidermocks "justledger/fabric/core/mocks/ccprovider"
-	"justledger/fabric/core/peer"
-	"justledger/fabric/core/policy"
-	policymocks "justledger/fabric/core/policy/mocks"
-	"justledger/fabric/core/scc/cscc/mock"
-	"justledger/fabric/gossip/api"
-	"justledger/fabric/gossip/service"
-	"justledger/fabric/msp/mgmt"
-	msptesttools "justledger/fabric/msp/mgmt/testtools"
-	peergossip "justledger/fabric/peer/gossip"
-	"justledger/fabric/peer/gossip/mocks"
-	cb "justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/common/config"
+	"justledger/common/configtx"
+	configtxtest "justledger/common/configtx/test"
+	"justledger/common/crypto/tlsgen"
+	"justledger/common/genesis"
+	"justledger/common/localmsp"
+	"justledger/common/metrics/disabled"
+	"justledger/common/mocks/scc"
+	"justledger/common/policies"
+	"justledger/common/tools/configtxgen/configtxgentest"
+	"justledger/common/tools/configtxgen/encoder"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	"justledger/core/aclmgmt"
+	aclmocks "justledger/core/aclmgmt/mocks"
+	"justledger/core/aclmgmt/resources"
+	"justledger/core/chaincode"
+	"justledger/core/chaincode/accesscontrol"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/golang"
+	"justledger/core/chaincode/shim"
+	"justledger/core/common/ccprovider"
+	"justledger/core/container"
+	"justledger/core/container/inproccontroller"
+	deliverclient "justledger/core/deliverservice"
+	"justledger/core/deliverservice/blocksprovider"
+	"justledger/core/ledger/ledgermgmt"
+	ccprovidermocks "justledger/core/mocks/ccprovider"
+	"justledger/core/peer"
+	"justledger/core/policy"
+	policymocks "justledger/core/policy/mocks"
+	"justledger/core/scc/cscc/mock"
+	"justledger/gossip/api"
+	"justledger/gossip/service"
+	"justledger/msp/mgmt"
+	msptesttools "justledger/msp/mgmt/testtools"
+	peergossip "justledger/peer/gossip"
+	"justledger/peer/gossip/mocks"
+	cb "justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -159,9 +159,9 @@ func TestConfigerInvokeInvalidParameters(t *testing.T) {
 }
 
 func TestConfigerInvokeJoinChainMissingParams(t *testing.T) {
-	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
-	os.Mkdir("/tmp/justledgertest", 0755)
-	defer os.RemoveAll("/tmp/justledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
+	os.Mkdir("/tmp/hyperledgertest", 0755)
+	defer os.RemoveAll("/tmp/hyperledgertest/")
 
 	e := New(nil, nil, mockAclProvider)
 	stub := shim.NewMockStub("PeerConfiger", e)
@@ -180,9 +180,9 @@ func TestConfigerInvokeJoinChainMissingParams(t *testing.T) {
 
 func TestConfigerInvokeJoinChainWrongParams(t *testing.T) {
 
-	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
-	os.Mkdir("/tmp/justledgertest", 0755)
-	defer os.RemoveAll("/tmp/justledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
+	os.Mkdir("/tmp/hyperledgertest", 0755)
+	defer os.RemoveAll("/tmp/hyperledgertest/")
 
 	e := New(nil, nil, mockAclProvider)
 	stub := shim.NewMockStub("PeerConfiger", e)
@@ -203,14 +203,14 @@ func TestConfigerInvokeJoinChainCorrectParams(t *testing.T) {
 	mp := (&scc.MocksccProviderFactory{}).NewSystemChaincodeProvider()
 	ccp := &ccprovidermocks.MockCcProviderImpl{}
 
-	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
 	viper.Set("chaincode.executetimeout", "3s")
-	os.Mkdir("/tmp/justledgertest", 0755)
+	os.Mkdir("/tmp/hyperledgertest", 0755)
 
 	peer.MockInitialize()
 	ledgermgmt.InitializeTestEnv()
 	defer ledgermgmt.CleanupTestEnv()
-	defer os.RemoveAll("/tmp/justledgertest/")
+	defer os.RemoveAll("/tmp/hyperledgertest/")
 
 	e := New(ccp, mp, mockAclProvider)
 	stub := shim.NewMockStub("PeerConfiger", e)
@@ -509,9 +509,9 @@ func TestSimulateConfigTreeUpdate(t *testing.T) {
 }
 
 func TestPeerConfiger_SubmittingOrdererGenesis(t *testing.T) {
-	viper.Set("peer.fileSystemPath", "/tmp/justledgertest/")
-	os.Mkdir("/tmp/justledgertest", 0755)
-	defer os.RemoveAll("/tmp/justledgertest/")
+	viper.Set("peer.fileSystemPath", "/tmp/hyperledgertest/")
+	os.Mkdir("/tmp/hyperledgertest", 0755)
+	defer os.RemoveAll("/tmp/hyperledgertest/")
 
 	e := New(nil, nil, nil)
 	stub := shim.NewMockStub("PeerConfiger", e)

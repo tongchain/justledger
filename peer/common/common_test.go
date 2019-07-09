@@ -12,11 +12,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/util"
-	"justledger/fabric/core/config/configtest"
-	"justledger/fabric/msp"
-	"justledger/fabric/peer/common"
+	"justledger/common/flogging"
+	"justledger/common/util"
+	"justledger/core/config/configtest"
+	"justledger/msp"
+	"justledger/peer/common"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

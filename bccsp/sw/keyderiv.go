@@ -23,7 +23,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"justledger/fabric/bccsp"
+	"justledger/bccsp"
 )
 
 type ecdsaPublicKeyKeyDeriver struct{}

@@ -9,13 +9,13 @@ package chaincode_test
 import (
 	"testing"
 
-	"justledger/fabric/core/chaincode"
-	"justledger/fabric/core/chaincode/accesscontrol"
-	"justledger/fabric/core/chaincode/mock"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/container"
-	"justledger/fabric/core/container/ccintf"
-	pb "justledger/fabric/protos/peer"
+	"justledger/core/chaincode"
+	"justledger/core/chaincode/accesscontrol"
+	"justledger/core/chaincode/mock"
+	"justledger/core/common/ccprovider"
+	"justledger/core/container"
+	"justledger/core/container/ccintf"
+	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -82,9 +82,9 @@ func TestContainerRuntimeLaunchConfigEnv(t *testing.T) {
 	}
 	enabledTLSEnv := []string{
 		"CORE_PEER_TLS_ENABLED=true",
-		"CORE_TLS_CLIENT_KEY_PATH=/etc/justledger/fabric/client.key",
-		"CORE_TLS_CLIENT_CERT_PATH=/etc/justledger/fabric/client.crt",
-		"CORE_PEER_TLS_ROOTCERT_FILE=/etc/justledger/fabric/peer.crt",
+		"CORE_TLS_CLIENT_KEY_PATH=/etc/hyperledger/fabric/client.key",
+		"CORE_TLS_CLIENT_CERT_PATH=/etc/hyperledger/fabric/client.crt",
+		"CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/peer.crt",
 	}
 
 	certGenerator := &mock.CertGenerator{}
@@ -130,9 +130,9 @@ func TestContainerRuntimeLaunchConfigFiles(t *testing.T) {
 	lc, err := cr.LaunchConfig("chaincode-name", pb.ChaincodeSpec_GOLANG.String())
 	assert.NoError(t, err)
 	assert.Equal(t, map[string][]byte{
-		"/etc/justledger/fabric/client.crt": []byte("certificate"),
-		"/etc/justledger/fabric/client.key": []byte("key"),
-		"/etc/justledger/fabric/peer.crt":   []byte("peer-ca-cert"),
+		"/etc/hyperledger/fabric/client.crt": []byte("certificate"),
+		"/etc/hyperledger/fabric/client.key": []byte("key"),
+		"/etc/hyperledger/fabric/peer.crt":   []byte("peer-ca-cert"),
 	}, lc.Files)
 }
 

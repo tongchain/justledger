@@ -14,12 +14,12 @@ import (
 	"sync"
 	"time"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/comm"
-	"justledger/fabric/core/deliverservice/blocksprovider"
-	"justledger/fabric/gossip/api"
-	"justledger/fabric/gossip/util"
-	"justledger/fabric/protos/orderer"
+	"justledger/common/flogging"
+	"justledger/core/comm"
+	"justledger/core/deliverservice/blocksprovider"
+	"justledger/gossip/api"
+	"justledger/gossip/util"
+	"justledger/protos/orderer"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
 )

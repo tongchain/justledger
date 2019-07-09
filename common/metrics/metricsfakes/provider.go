@@ -4,7 +4,7 @@ package metricsfakes
 import (
 	"sync"
 
-	"justledger/fabric/common/metrics"
+	"justledger/common/metrics"
 )
 
 type Provider struct {

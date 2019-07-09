@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/fabric/common/util"
-	"justledger/fabric/msp/mgmt"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/common/util"
+	"justledger/msp/mgmt"
+	"justledger/protos/common"
+	"justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

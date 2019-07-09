@@ -18,8 +18,8 @@ import (
 	"sync"
 	"time"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/config"
+	"justledger/common/flogging"
+	"justledger/core/config"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )

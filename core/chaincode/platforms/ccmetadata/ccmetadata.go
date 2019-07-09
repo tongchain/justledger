@@ -7,7 +7,7 @@
 package ccmetadata
 
 import (
-	"justledger/fabric/common/flogging"
+	"justledger/common/flogging"
 )
 
 //logger used by this package

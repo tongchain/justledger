@@ -4,9 +4,9 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
-	"justledger/fabric/token/client"
+	"justledger/protos/common"
+	ab "justledger/protos/orderer"
+	"justledger/token/client"
 )
 
 type Broadcast struct {

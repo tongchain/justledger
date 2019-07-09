@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package token
 
 import (
-	"justledger/fabric/core/handlers/validation/api"
-	"justledger/fabric/protos/common"
+	"justledger/core/handlers/validation/api"
+	"justledger/protos/common"
 )
 
 type ValidationFactory struct {

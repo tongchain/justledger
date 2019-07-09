@@ -11,8 +11,8 @@ import (
 	"strings"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"justledger/fabric/common/metadata"
-	"justledger/fabric/core/config"
+	"justledger/common/metadata"
+	"justledger/core/config"
 	"github.com/spf13/viper"
 )
 

@@ -19,7 +19,7 @@ package sw
 import (
 	"hash"
 
-	"justledger/fabric/bccsp"
+	"justledger/bccsp"
 )
 
 // KeyGenerator is a BCCSP-like interface that provides key generation algorithms

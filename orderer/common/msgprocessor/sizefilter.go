@@ -9,8 +9,8 @@ package msgprocessor
 import (
 	"fmt"
 
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/protos/common"
+	"justledger/common/channelconfig"
+	"justledger/protos/common"
 )
 
 // SizeFilterResources defines the subset of the channel resources required to create this filter

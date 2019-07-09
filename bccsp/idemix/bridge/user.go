@@ -6,10 +6,10 @@ SPDX-License-Identifier: Apache-2.0
 package bridge
 
 import (
-	"justledger/fabric-amcl/amcl"
-	"justledger/fabric-amcl/amcl/FP256BN"
-	"justledger/fabric/bccsp/idemix/handlers"
-	cryptolib "justledger/fabric/idemix"
+	"justledger-amcl/amcl"
+	"justledger-amcl/amcl/FP256BN"
+	"justledger/bccsp/idemix/handlers"
+	cryptolib "justledger/idemix"
 	"github.com/pkg/errors"
 )
 

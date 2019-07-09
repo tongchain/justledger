@@ -8,7 +8,7 @@ package utils
 
 import (
 	"github.com/golang/protobuf/proto"
-	cb "justledger/fabric/protos/common"
+	cb "justledger/protos/common"
 	"github.com/pkg/errors"
 )
 

@@ -16,11 +16,11 @@ import (
 	"unicode"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/chaincode"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/common/privdata"
-	"justledger/fabric/core/ledger"
-	pb "justledger/fabric/protos/peer"
+	"justledger/common/chaincode"
+	"justledger/common/flogging"
+	"justledger/core/common/privdata"
+	"justledger/core/ledger"
+	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
 )
 
@@ -268,7 +268,7 @@ func CheckInstantiationPolicy(name, version string, cdLedger *ChaincodeData) err
 	// policy. This check is there to ensure that this will not
 	// happen, i.e. that the peer will refuse to invoke the
 	// chaincode under these conditions. More info on
-	// https://jira.justledger.org/browse/FAB-3156
+	// https://jira.hyperledger.org/browse/FAB-3156
 	if ccdata.InstantiationPolicy != nil {
 		if !bytes.Equal(ccdata.InstantiationPolicy, cdLedger.InstantiationPolicy) {
 			return fmt.Errorf("Instantiation policy mismatch for cc %s/%s", name, version)

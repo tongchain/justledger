@@ -19,8 +19,8 @@ package node
 import (
 	"fmt"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/peer/common"
+	"justledger/common/flogging"
+	"justledger/peer/common"
 	"github.com/spf13/cobra"
 )
 

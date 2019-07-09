@@ -11,13 +11,13 @@ import (
 	"path"
 	"testing"
 
-	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/core/ledger/ledgerconfig"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestResetCmd(t *testing.T) {
-	testPath := "/tmp/justledger/test"
+	testPath := "/tmp/hyperledger/test"
 	os.RemoveAll(testPath)
 	viper.Set("peer.fileSystemPath", testPath)
 	defer os.RemoveAll(testPath)

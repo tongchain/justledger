@@ -23,8 +23,8 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/peer/common"
-	pb "justledger/fabric/protos/peer"
+	"justledger/peer/common"
+	pb "justledger/protos/peer"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

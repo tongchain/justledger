@@ -11,7 +11,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"justledger/fabric/gossip/util"
+	"justledger/gossip/util"
 )
 
 /* PullEngine is an object that performs pull-based gossip, and maintains an internal state of items

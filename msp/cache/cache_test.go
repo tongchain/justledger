@@ -10,9 +10,9 @@ import (
 	"sync"
 	"testing"
 
-	"justledger/fabric/msp"
-	"justledger/fabric/msp/mocks"
-	msp2 "justledger/fabric/protos/msp"
+	"justledger/msp"
+	"justledger/msp/mocks"
+	msp2 "justledger/protos/msp"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

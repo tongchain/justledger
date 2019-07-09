@@ -16,33 +16,33 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/cauthdsl"
-	"justledger/fabric/common/mocks/config"
-	mscc "justledger/fabric/common/mocks/scc"
-	"justledger/fabric/common/policies"
-	"justledger/fabric/common/util"
-	"justledger/fabric/core/aclmgmt/mocks"
-	"justledger/fabric/core/aclmgmt/resources"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/chaincode/platforms/golang"
-	"justledger/fabric/core/chaincode/shim"
-	"justledger/fabric/core/common/ccprovider"
-	cutil "justledger/fabric/core/container/util"
-	"justledger/fabric/core/ledger/ledgermgmt"
-	"justledger/fabric/core/mocks/scc/lscc"
-	"justledger/fabric/core/policy"
-	policymocks "justledger/fabric/core/policy/mocks"
-	"justledger/fabric/core/scc/lscc/mock"
-	"justledger/fabric/msp"
-	mspmgmt "justledger/fabric/msp/mgmt"
-	msptesttools "justledger/fabric/msp/mgmt/testtools"
-	mspmocks "justledger/fabric/msp/mocks"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/ledger/queryresult"
-	mb "justledger/fabric/protos/msp"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
-	putils "justledger/fabric/protos/utils"
+	"justledger/common/cauthdsl"
+	"justledger/common/mocks/config"
+	mscc "justledger/common/mocks/scc"
+	"justledger/common/policies"
+	"justledger/common/util"
+	"justledger/core/aclmgmt/mocks"
+	"justledger/core/aclmgmt/resources"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/golang"
+	"justledger/core/chaincode/shim"
+	"justledger/core/common/ccprovider"
+	cutil "justledger/core/container/util"
+	"justledger/core/ledger/ledgermgmt"
+	"justledger/core/mocks/scc/lscc"
+	"justledger/core/policy"
+	policymocks "justledger/core/policy/mocks"
+	"justledger/core/scc/lscc/mock"
+	"justledger/msp"
+	mspmgmt "justledger/msp/mgmt"
+	msptesttools "justledger/msp/mgmt/testtools"
+	mspmocks "justledger/msp/mocks"
+	"justledger/protos/common"
+	"justledger/protos/ledger/queryresult"
+	mb "justledger/protos/msp"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
+	putils "justledger/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -131,7 +131,7 @@ func TestInstall(t *testing.T) {
 	assert.NotEqual(t, int32(shim.OK), res.Status)
 	assert.Equal(t, "invalid number of arguments to lscc: 1", res.Message)
 
-	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/examples/chaincode/go/example02/cmd"
 
 	testInstall(t, "example02", "0", path, false, "", "Alice", scc, stub)
 	testInstall(t, "example02-2", "1.0", path, false, "", "Alice", scc, stub)
@@ -186,7 +186,7 @@ func testInstall(t *testing.T, ccname string, version string, path string, creat
 }
 
 func TestDeploy(t *testing.T) {
-	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/examples/chaincode/go/example02/cmd"
 
 	testDeploy(t, "example02", "0", path, false, false, true, "", nil, nil, nil)
 	testDeploy(t, "example02", "1.0", path, false, false, true, "", nil, nil, nil)
@@ -444,7 +444,7 @@ func testDeploy(t *testing.T, ccname string, version string, path string, forceB
 
 // TestUpgrade tests the upgrade function with various inputs for basic use cases
 func TestUpgrade(t *testing.T) {
-	path := "justledger/fabric/examples/chaincode/go/example02/cmd"
+	path := "justledger/examples/chaincode/go/example02/cmd"
 
 	testUpgrade(t, "example02", "0", "example02", "1", path, "", nil, nil, nil)
 	testUpgrade(t, "example02", "0", "example02", "", path, EmptyVersionErr("example02").Error(), nil, nil, nil)

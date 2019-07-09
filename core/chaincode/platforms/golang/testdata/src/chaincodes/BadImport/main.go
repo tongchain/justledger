@@ -11,7 +11,7 @@ import (
 	"bogus/package"
 	"fmt"
 
-	"justledger/fabric/core/chaincode/shim"
+	"justledger/core/chaincode/shim"
 )
 
 // SimpleChaincode example simple Chaincode implementation

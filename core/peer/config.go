@@ -26,9 +26,9 @@ import (
 	"net"
 	"path/filepath"
 
-	"justledger/fabric/core/comm"
-	"justledger/fabric/core/config"
-	pb "justledger/fabric/protos/peer"
+	"justledger/core/comm"
+	"justledger/core/config"
+	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

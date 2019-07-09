@@ -9,8 +9,8 @@ package bookkeeping
 import (
 	"fmt"
 
-	"justledger/fabric/common/ledger/util/leveldbhelper"
-	"justledger/fabric/core/ledger/ledgerconfig"
+	"justledger/common/ledger/util/leveldbhelper"
+	"justledger/core/ledger/ledgerconfig"
 )
 
 // Category is an enum type for representing the bookkeeping of different type

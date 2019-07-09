@@ -294,17 +294,15 @@ $(BUILD_DIR)/image/%/Dockerfile: images/%/Dockerfile.in
 $(BUILD_DIR)/image/tools/$(DUMMY): $(BUILD_DIR)/image/tools/Dockerfile
 	$(eval TARGET = ${patsubst $(BUILD_DIR)/image/%/$(DUMMY),%,${@}})
 	@echo "Building docker $(TARGET)-image"
-	$(DBUILD) -t $(DOCKER_NS)/fabric-$(TARGET) -f $(@D)/Dockerfile .
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG)
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(ARCH)-latest
+	$(DBUILD) -t justledger/fabric-$(TARGET) -f $(@D)/Dockerfile .
+	docker tag justledger/fabric-$(TARGET) justledger/fabric-$(TARGET):$(DOCKER_TAG)
 	@touch $@
 
 $(BUILD_DIR)/image/%/$(DUMMY): Makefile $(BUILD_DIR)/image/%/payload $(BUILD_DIR)/image/%/Dockerfile
 	$(eval TARGET = ${patsubst $(BUILD_DIR)/image/%/$(DUMMY),%,${@}})
 	@echo "Building docker $(TARGET)-image"
-	$(DBUILD) -t $(DOCKER_NS)/fabric-$(TARGET) $(@D)
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(DOCKER_TAG)
-	docker tag $(DOCKER_NS)/fabric-$(TARGET) $(DOCKER_NS)/fabric-$(TARGET):$(ARCH)-latest
+	$(DBUILD) -t justledger/fabric-$(TARGET) $(@D)
+	docker tag justledger/fabric-$(TARGET) justledger/fabric-$(TARGET):$(DOCKER_TAG)
 	@touch $@
 
 $(BUILD_DIR)/gotools.tar.bz2: $(BUILD_DIR)/docker/gotools

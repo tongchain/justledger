@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"justledger/fabric/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms"
 )
 
 const (

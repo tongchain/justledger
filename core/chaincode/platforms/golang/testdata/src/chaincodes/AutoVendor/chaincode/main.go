@@ -17,8 +17,8 @@ import (
 	"chaincodes/AutoVendor/directdep"
 	"fmt"
 
-	"justledger/fabric/core/chaincode/shim"
-	pb "justledger/fabric/protos/peer"
+	"justledger/core/chaincode/shim"
+	pb "justledger/protos/peer"
 )
 
 // SimpleChaincode example simple Chaincode implementation

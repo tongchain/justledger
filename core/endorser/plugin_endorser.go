@@ -10,12 +10,12 @@ import (
 	"fmt"
 	"sync"
 
-	"justledger/fabric/core/chaincode/shim"
-	"justledger/fabric/core/handlers/endorsement/api"
-	endorsement3 "justledger/fabric/core/handlers/endorsement/api/identities"
-	"justledger/fabric/core/transientstore"
-	pb "justledger/fabric/protos/peer"
-	putils "justledger/fabric/protos/utils"
+	"justledger/core/chaincode/shim"
+	"justledger/core/handlers/endorsement/api"
+	endorsement3 "justledger/core/handlers/endorsement/api/identities"
+	"justledger/core/transientstore"
+	pb "justledger/protos/peer"
+	putils "justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledger/fabric/discovery/support/acl"
-	cb "justledger/fabric/protos/common"
+	"justledger/discovery/support/acl"
+	cb "justledger/protos/common"
 )
 
 type Verifier struct {

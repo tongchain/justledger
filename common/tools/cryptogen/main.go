@@ -14,10 +14,10 @@ import (
 	"path/filepath"
 	"text/template"
 
-	"justledger/fabric/common/tools/cryptogen/ca"
-	"justledger/fabric/common/tools/cryptogen/csp"
-	"justledger/fabric/common/tools/cryptogen/metadata"
-	"justledger/fabric/common/tools/cryptogen/msp"
+	"justledger/common/tools/cryptogen/ca"
+	"justledger/common/tools/cryptogen/csp"
+	"justledger/common/tools/cryptogen/metadata"
+	"justledger/common/tools/cryptogen/msp"
 	"gopkg.in/alecthomas/kingpin.v2"
 	"gopkg.in/yaml.v2"
 )
@@ -118,7 +118,7 @@ PeerOrgs:
     #    Country: US
     #    Province: California
     #    Locality: San Francisco
-    #    OrganizationalUnit: justledger Fabric
+    #    OrganizationalUnit: Hyperledger Fabric
     #    StreetAddress: address for org # default nil
     #    PostalCode: postalCode for org # default nil
 
@@ -198,7 +198,7 @@ PeerOrgs:
 
 //command line flags
 var (
-	app = kingpin.New("cryptogen", "Utility for generating justledger Fabric key material")
+	app = kingpin.New("cryptogen", "Utility for generating Hyperledger Fabric key material")
 
 	gen           = app.Command("generate", "Generate key material")
 	outputDir     = gen.Flag("output", "The output directory in which to place artifacts").Default("crypto-config").String()

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package config
 
 import (
-	"justledger/fabric/common/channelconfig"
+	"justledger/common/channelconfig"
 )
 
 type MockApplication struct {

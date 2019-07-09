@@ -19,11 +19,11 @@ package fsblkstorage
 import (
 	"time"
 
-	"justledger/fabric/common/ledger"
-	"justledger/fabric/common/ledger/blkstorage"
-	"justledger/fabric/common/ledger/util/leveldbhelper"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/peer"
+	"justledger/common/ledger"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/util/leveldbhelper"
+	"justledger/protos/common"
+	"justledger/protos/peer"
 )
 
 // fsBlockStore - filesystem based implementation for `BlockStore`

@@ -10,12 +10,12 @@ import (
 	"bytes"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/configtx"
-	cb "justledger/fabric/protos/common"
-	"justledger/fabric/protos/orderer"
-	protoetcdraft "justledger/fabric/protos/orderer/etcdraft"
-	"justledger/fabric/protos/utils"
+	"justledger/common/channelconfig"
+	"justledger/common/configtx"
+	cb "justledger/protos/common"
+	"justledger/protos/orderer"
+	protoetcdraft "justledger/protos/orderer/etcdraft"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

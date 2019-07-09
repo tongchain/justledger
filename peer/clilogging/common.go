@@ -8,11 +8,11 @@ package clilogging
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/crypto"
-	"justledger/fabric/peer/common"
-	common2 "justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/common/crypto"
+	"justledger/peer/common"
+	common2 "justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

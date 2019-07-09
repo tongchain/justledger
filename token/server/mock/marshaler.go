@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/protos/token"
-	"justledger/fabric/token/server"
+	"justledger/protos/token"
+	"justledger/token/server"
 )
 
 type Marshaler struct {

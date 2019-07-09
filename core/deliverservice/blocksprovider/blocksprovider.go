@@ -12,13 +12,13 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/gossip/api"
-	gossipcommon "justledger/fabric/gossip/common"
-	"justledger/fabric/gossip/discovery"
-	"justledger/fabric/protos/common"
-	gossip_proto "justledger/fabric/protos/gossip"
-	"justledger/fabric/protos/orderer"
+	"justledger/common/flogging"
+	"justledger/gossip/api"
+	gossipcommon "justledger/gossip/common"
+	"justledger/gossip/discovery"
+	"justledger/protos/common"
+	gossip_proto "justledger/protos/gossip"
+	"justledger/protos/orderer"
 )
 
 // LedgerInfo an adapter to provide the interface to query

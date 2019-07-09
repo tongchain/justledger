@@ -13,14 +13,14 @@ import (
 	"os"
 	"testing"
 
-	"justledger/fabric/common/flogging"
-	cl "justledger/fabric/common/ledger"
-	"justledger/fabric/common/ledger/blockledger"
-	"justledger/fabric/common/metrics/disabled"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
-	cb "justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
-	"justledger/fabric/protos/peer"
+	"justledger/common/flogging"
+	cl "justledger/common/ledger"
+	"justledger/common/ledger/blockledger"
+	"justledger/common/metrics/disabled"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
+	"justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -38,7 +38,7 @@ type testEnv struct {
 }
 
 func initialize(t *testing.T) (*testEnv, *FileLedger) {
-	name, err := ioutil.TempDir("", "justledger_fabric")
+	name, err := ioutil.TempDir("", "hyperledger_fabric")
 	assert.NoError(t, err, "Error creating temp dir: %s", err)
 
 	flf := New(name, &disabled.Provider{}).(*fileLedgerFactory)

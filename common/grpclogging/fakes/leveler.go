@@ -5,7 +5,7 @@ import (
 	context "context"
 	sync "sync"
 
-	grpclogging "justledger/fabric/common/grpclogging"
+	grpclogging "justledger/common/grpclogging"
 	zapcore "go.uber.org/zap/zapcore"
 )
 

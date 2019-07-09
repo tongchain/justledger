@@ -20,10 +20,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "justledger/fabric/common/ledger/blockledger"
-	jsonledger "justledger/fabric/common/ledger/blockledger/json"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
-	cb "justledger/fabric/protos/common"
+	. "justledger/common/ledger/blockledger"
+	jsonledger "justledger/common/ledger/blockledger/json"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	cb "justledger/protos/common"
 )
 
 var genesisBlock = cb.NewBlock(0, nil)
@@ -41,7 +41,7 @@ type jsonLedgerTestEnv struct {
 
 func (env *jsonLedgerTestEnv) Initialize() (ledgerTestFactory, error) {
 	var err error
-	location, err := ioutil.TempDir("", "justledger")
+	location, err := ioutil.TempDir("", "hyperledger")
 	if err != nil {
 		return nil, err
 	}

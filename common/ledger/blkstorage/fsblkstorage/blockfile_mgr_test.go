@@ -20,11 +20,11 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/ledger/testutil"
-	ledgerutil "justledger/fabric/core/ledger/util"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/peer"
-	putil "justledger/fabric/protos/utils"
+	"justledger/common/ledger/testutil"
+	ledgerutil "justledger/core/ledger/util"
+	"justledger/protos/common"
+	"justledger/protos/peer"
+	putil "justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

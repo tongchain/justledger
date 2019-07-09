@@ -12,9 +12,9 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"justledger/fabric/core/comm"
-	"justledger/fabric/peer/common/api"
-	pb "justledger/fabric/protos/peer"
+	"justledger/core/comm"
+	"justledger/peer/common/api"
+	pb "justledger/protos/peer"
 	"github.com/pkg/errors"
 )
 

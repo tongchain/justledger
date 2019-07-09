@@ -26,8 +26,8 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/attrmgr"
-	"justledger/fabric/protos/msp"
+	"justledger/common/attrmgr"
+	"justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

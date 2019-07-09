@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package statecouchdb
 
 import (
-	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/kvledger/txmgmt/version"
 )
 
 type versions map[string]nsVersions

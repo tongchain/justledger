@@ -19,9 +19,9 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/fsouza/go-dockerclient"
-	"justledger/fabric/integration/nwo"
-	"justledger/fabric/integration/nwo/commands"
-	"justledger/fabric/protos/common"
+	"justledger/integration/nwo"
+	"justledger/integration/nwo/commands"
+	"justledger/protos/common"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"github.com/tedsuo/ifrit"
@@ -51,7 +51,7 @@ var _ bool = Describe("PrivateData", func() {
 			chaincode := nwo.Chaincode{
 				Name:              "marblesp",
 				Version:           "1.0",
-				Path:              "justledger/fabric/integration/chaincode/marbles_private/cmd",
+				Path:              "justledger/integration/chaincode/marbles_private/cmd",
 				Ctor:              `{"Args":["init"]}`,
 				Policy:            `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 				CollectionsConfig: filepath.Join("testdata", "collection_configs", "collections_config1.json")}
@@ -80,7 +80,7 @@ var _ bool = Describe("PrivateData", func() {
 			chaincode := nwo.Chaincode{
 				Name:              "marblesp",
 				Version:           "2.0",
-				Path:              "justledger/fabric/integration/chaincode/marbles_private/cmd",
+				Path:              "justledger/integration/chaincode/marbles_private/cmd",
 				Ctor:              `{"Args":["init"]}`,
 				Policy:            `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 				CollectionsConfig: filepath.Join("testdata", "collection_configs", "collections_config2.json")}
@@ -165,7 +165,7 @@ var _ bool = Describe("PrivateData", func() {
 			chaincode := nwo.Chaincode{
 				Name:              "marblesp",
 				Version:           "1.0",
-				Path:              "justledger/fabric/integration/chaincode/marbles_private/cmd",
+				Path:              "justledger/integration/chaincode/marbles_private/cmd",
 				Ctor:              `{"Args":["init"]}`,
 				Policy:            `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 				CollectionsConfig: filepath.Join("testdata", "collection_configs", "collections_config1.json")}
@@ -225,7 +225,7 @@ var _ bool = Describe("PrivateData", func() {
 			chaincode := nwo.Chaincode{
 				Name:              "marblesp",
 				Version:           "1.0",
-				Path:              "justledger/fabric/integration/chaincode/marbles_private/cmd",
+				Path:              "justledger/integration/chaincode/marbles_private/cmd",
 				Ctor:              `{"Args":["init"]}`,
 				Policy:            `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 				CollectionsConfig: filepath.Join("testdata", "collection_configs", "short_btl_config.json")}
@@ -409,7 +409,7 @@ var _ bool = Describe("PrivateData", func() {
 			chaincode := nwo.Chaincode{
 				Name:              "marblesp",
 				Version:           "1.0",
-				Path:              "justledger/fabric/integration/chaincode/marbles_private/cmd",
+				Path:              "justledger/integration/chaincode/marbles_private/cmd",
 				Ctor:              `{"Args":["init"]}`,
 				Policy:            `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 				CollectionsConfig: filepath.Join("testdata", "collection_configs", "collections_config3.json")}
@@ -495,7 +495,7 @@ var _ bool = Describe("PrivateData", func() {
 			chaincode := nwo.Chaincode{
 				Name:              "marblesp",
 				Version:           "1.0",
-				Path:              "justledger/fabric/integration/chaincode/marbles_private/cmd",
+				Path:              "justledger/integration/chaincode/marbles_private/cmd",
 				Ctor:              `{"Args":["init"]}`,
 				Policy:            `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 				CollectionsConfig: filepath.Join("testdata", "collection_configs", "collections_config1.json")}
@@ -535,7 +535,7 @@ var _ bool = Describe("PrivateData", func() {
 			chaincode := nwo.Chaincode{
 				Name:              "marblesp",
 				Version:           "2.0",
-				Path:              "justledger/fabric/integration/chaincode/marbles_private/cmd",
+				Path:              "justledger/integration/chaincode/marbles_private/cmd",
 				Ctor:              `{"Args":["init"]}`,
 				Policy:            `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 				CollectionsConfig: filepath.Join("testdata", "collection_configs", "collections_config4.json")}

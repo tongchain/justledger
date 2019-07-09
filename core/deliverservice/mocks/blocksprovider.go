@@ -11,12 +11,12 @@ import (
 	"sync/atomic"
 
 	"github.com/golang/protobuf/proto"
-	gossip_common "justledger/fabric/gossip/common"
-	"justledger/fabric/gossip/discovery"
-	"justledger/fabric/protos/common"
-	gossip_proto "justledger/fabric/protos/gossip"
-	"justledger/fabric/protos/orderer"
-	"justledger/fabric/protos/utils"
+	gossip_common "justledger/gossip/common"
+	"justledger/gossip/discovery"
+	"justledger/protos/common"
+	gossip_proto "justledger/protos/gossip"
+	"justledger/protos/orderer"
+	"justledger/protos/utils"
 	"google.golang.org/grpc"
 )
 

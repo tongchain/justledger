@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package etcdraft
 
 import (
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/protos/orderer"
+	"justledger/common/flogging"
+	"justledger/protos/orderer"
 	"github.com/pkg/errors"
 )
 

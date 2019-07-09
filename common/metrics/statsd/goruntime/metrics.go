@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package goruntime
 
 import (
-	"justledger/fabric/common/metrics"
+	"justledger/common/metrics"
 )
 
 //gendoc:ignore

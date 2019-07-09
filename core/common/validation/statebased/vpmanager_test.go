@@ -15,12 +15,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/common/cauthdsl"
-	"justledger/fabric/core/handlers/validation/api/state"
-	"justledger/fabric/protos/ledger/rwset"
-	"justledger/fabric/protos/ledger/rwset/kvrwset"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/common/cauthdsl"
+	"justledger/core/handlers/validation/api/state"
+	"justledger/protos/ledger/rwset"
+	"justledger/protos/ledger/rwset/kvrwset"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

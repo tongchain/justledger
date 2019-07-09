@@ -4,10 +4,10 @@ package mock
 import (
 	"sync"
 
-	ledgera "justledger/fabric/common/ledger"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/peer"
+	ledgera "justledger/common/ledger"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	"justledger/protos/peer"
 )
 
 type PeerLedger struct {

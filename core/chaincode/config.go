@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"justledger/fabric/common/flogging"
+	"justledger/common/flogging"
 	logging "github.com/op/go-logging"
 	"github.com/spf13/viper"
 )

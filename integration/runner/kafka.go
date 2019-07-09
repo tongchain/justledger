@@ -21,7 +21,7 @@ import (
 	"github.com/tedsuo/ifrit"
 )
 
-const KafkaDefaultImage = "justledger/fabric-kafka:latest"
+const KafkaDefaultImage = "hyperledger/fabric-kafka:latest"
 
 // Kafka manages the execution of an instance of a dockerized CouchDB
 // for tests.

@@ -21,9 +21,9 @@ import (
 	"reflect"
 	"testing"
 
-	"justledger/fabric/bccsp"
-	"justledger/fabric/bccsp/mocks"
-	mocks2 "justledger/fabric/bccsp/sw/mocks"
+	"justledger/bccsp"
+	"justledger/bccsp/mocks"
+	mocks2 "justledger/bccsp/sw/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

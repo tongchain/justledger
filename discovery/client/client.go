@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/protos/discovery"
-	"justledger/fabric/protos/gossip"
-	"justledger/fabric/protos/msp"
+	"justledger/protos/discovery"
+	"justledger/protos/gossip"
+	"justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

@@ -10,10 +10,10 @@ import (
 	"reflect"
 	"sync"
 
-	"justledger/fabric/bccsp/factory"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/msp"
-	"justledger/fabric/msp/cache"
+	"justledger/bccsp/factory"
+	"justledger/common/flogging"
+	"justledger/msp"
+	"justledger/msp/cache"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

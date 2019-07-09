@@ -11,7 +11,7 @@ import (
 	"strings"
 	"time"
 
-	"justledger/fabric/common/metrics"
+	"justledger/common/metrics"
 	"google.golang.org/grpc"
 )
 

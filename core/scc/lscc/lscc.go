@@ -11,27 +11,27 @@ import (
 	"regexp"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/cauthdsl"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/aclmgmt"
-	"justledger/fabric/core/aclmgmt/resources"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/chaincode/platforms/ccmetadata"
-	"justledger/fabric/core/chaincode/shim"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/common/privdata"
-	"justledger/fabric/core/common/sysccprovider"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/core/ledger/cceventmgmt"
-	"justledger/fabric/core/peer"
-	"justledger/fabric/core/policy"
-	"justledger/fabric/core/policyprovider"
-	"justledger/fabric/msp"
-	"justledger/fabric/msp/mgmt"
-	"justledger/fabric/protos/common"
-	mb "justledger/fabric/protos/msp"
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	"justledger/common/cauthdsl"
+	"justledger/common/flogging"
+	"justledger/core/aclmgmt"
+	"justledger/core/aclmgmt/resources"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/ccmetadata"
+	"justledger/core/chaincode/shim"
+	"justledger/core/common/ccprovider"
+	"justledger/core/common/privdata"
+	"justledger/core/common/sysccprovider"
+	"justledger/core/ledger"
+	"justledger/core/ledger/cceventmgmt"
+	"justledger/core/peer"
+	"justledger/core/policy"
+	"justledger/core/policyprovider"
+	"justledger/msp"
+	"justledger/msp/mgmt"
+	"justledger/protos/common"
+	mb "justledger/protos/msp"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 
@@ -154,7 +154,7 @@ func New(sccp sysccprovider.SystemChaincodeProvider, ACLProvider aclmgmt.ACLProv
 }
 
 func (lscc *LifeCycleSysCC) Name() string              { return "lscc" }
-func (lscc *LifeCycleSysCC) Path() string              { return "justledger/fabric/core/scc/lscc" }
+func (lscc *LifeCycleSysCC) Path() string              { return "justledger/core/scc/lscc" }
 func (lscc *LifeCycleSysCC) InitArgs() [][]byte        { return nil }
 func (lscc *LifeCycleSysCC) Chaincode() shim.Chaincode { return lscc }
 func (lscc *LifeCycleSysCC) InvokableExternal() bool   { return true }

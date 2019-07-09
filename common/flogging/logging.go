@@ -12,7 +12,7 @@ import (
 	"os"
 	"sync"
 
-	"justledger/fabric/common/flogging/fabenc"
+	"justledger/common/flogging/fabenc"
 	logging "github.com/op/go-logging"
 	zaplogfmt "github.com/sykesm/zap-logfmt"
 	"go.uber.org/zap"

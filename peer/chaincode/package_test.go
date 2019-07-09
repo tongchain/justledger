@@ -23,11 +23,11 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/msp"
-	msptesttools "justledger/fabric/msp/mgmt/testtools"
-	"justledger/fabric/peer/common"
-	pcommon "justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
+	"justledger/msp"
+	msptesttools "justledger/msp/mgmt/testtools"
+	"justledger/peer/common"
+	pcommon "justledger/protos/common"
+	pb "justledger/protos/peer"
 )
 
 func TestMain(m *testing.M) {

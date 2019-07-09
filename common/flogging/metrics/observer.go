@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package metrics
 
 import (
-	"justledger/fabric/common/metrics"
+	"justledger/common/metrics"
 	"go.uber.org/zap/zapcore"
 )
 

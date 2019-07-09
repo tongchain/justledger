@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"justledger/fabric/core/config/configtest"
+	"justledger/core/config/configtest"
 	"github.com/spf13/viper"
 )
 
@@ -80,7 +80,7 @@ func ResetConfigToDefaultValues() {
 	viper.Set("ledger.history.enableHistoryDatabase", false)
 	viper.Set("ledger.state.couchDBConfig.autoWarmIndexes", true)
 	viper.Set("ledger.state.couchDBConfig.warmIndexesAfterNBlocks", 1)
-	viper.Set("peer.fileSystemPath", "/var/justledger/production")
+	viper.Set("peer.fileSystemPath", "/var/hyperledger/production")
 }
 
 // ParseTestParams parses tests params

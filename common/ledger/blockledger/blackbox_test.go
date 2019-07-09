@@ -11,9 +11,9 @@ import (
 	"reflect"
 	"testing"
 
-	"justledger/fabric/common/ledger/blockledger"
-	cb "justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
+	"justledger/common/ledger/blockledger"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 )
 
 type ledgerTestable interface {

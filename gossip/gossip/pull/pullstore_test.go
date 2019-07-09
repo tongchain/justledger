@@ -15,11 +15,11 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/gossip/comm"
-	"justledger/fabric/gossip/discovery"
-	"justledger/fabric/gossip/gossip/algo"
-	"justledger/fabric/gossip/util"
-	proto "justledger/fabric/protos/gossip"
+	"justledger/gossip/comm"
+	"justledger/gossip/discovery"
+	"justledger/gossip/gossip/algo"
+	"justledger/gossip/util"
+	proto "justledger/protos/gossip"
 	"github.com/stretchr/testify/assert"
 )
 

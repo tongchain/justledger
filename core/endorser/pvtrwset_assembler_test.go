@@ -13,9 +13,9 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/core/common/privdata"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/ledger/rwset"
+	"justledger/core/common/privdata"
+	"justledger/protos/common"
+	"justledger/protos/ledger/rwset"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

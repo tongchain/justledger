@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package gendoc_test
 
 import (
-	"justledger/fabric/common/metrics/gendoc"
+	"justledger/common/metrics/gendoc"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

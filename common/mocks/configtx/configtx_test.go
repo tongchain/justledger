@@ -9,7 +9,7 @@ package configtx
 import (
 	"testing"
 
-	"justledger/fabric/common/configtx"
+	"justledger/common/configtx"
 )
 
 func TestConfigtxValidatorInterface(t *testing.T) {

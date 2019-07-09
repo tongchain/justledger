@@ -7,16 +7,16 @@
 package peer
 
 import (
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/metrics"
-	"justledger/fabric/common/policies"
-	"justledger/fabric/core/chaincode/platforms"
-	"justledger/fabric/core/committer/txvalidator"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/common/sysccprovider"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
+	"justledger/common/channelconfig"
+	"justledger/common/metrics"
+	"justledger/common/policies"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/committer/txvalidator"
+	"justledger/core/common/ccprovider"
+	"justledger/core/common/sysccprovider"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
 )
 
 // Operations exposes an interface to the package level functions that operated

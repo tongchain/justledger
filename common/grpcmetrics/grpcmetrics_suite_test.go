@@ -9,12 +9,12 @@ package grpcmetrics_test
 import (
 	"testing"
 
-	"justledger/fabric/common/grpcmetrics/testpb"
+	"justledger/common/grpcmetrics/testpb"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-//go:generate protoc --proto_path=$GOPATH/src/justledger/fabric/common/grpcmetrics/testpb --go_out=plugins=grpc:$GOPATH/src $GOPATH/src/justledger/fabric/common/grpcmetrics/testpb/echo.proto
+//go:generate protoc --proto_path=$GOPATH/src/justledger/common/grpcmetrics/testpb --go_out=plugins=grpc:$GOPATH/src $GOPATH/src/justledger/common/grpcmetrics/testpb/echo.proto
 
 func TestGrpcmetrics(t *testing.T) {
 	RegisterFailHandler(Fail)

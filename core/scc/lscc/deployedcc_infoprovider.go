@@ -8,11 +8,11 @@ package lscc
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/common/privdata"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
-	"justledger/fabric/protos/ledger/rwset/kvrwset"
+	"justledger/core/common/ccprovider"
+	"justledger/core/common/privdata"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	"justledger/protos/ledger/rwset/kvrwset"
 	"github.com/pkg/errors"
 )
 

@@ -5,7 +5,7 @@ import (
 	context "context"
 	sync "sync"
 
-	comm "justledger/fabric/core/comm"
+	comm "justledger/core/comm"
 )
 
 type Semaphore struct {

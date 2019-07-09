@@ -9,9 +9,9 @@ package blockledger_test
 import (
 	"testing"
 
-	"justledger/fabric/common/deliver/mock"
-	"justledger/fabric/common/ledger/blockledger"
-	"justledger/fabric/protos/common"
+	"justledger/common/deliver/mock"
+	"justledger/common/ledger/blockledger"
+	"justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

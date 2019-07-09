@@ -15,17 +15,17 @@ import (
 	"reflect"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/common/tools/configtxlator/metadata"
-	"justledger/fabric/common/tools/configtxlator/rest"
-	"justledger/fabric/common/tools/configtxlator/update"
-	"justledger/fabric/common/tools/protolator"
-	_ "justledger/fabric/protos/common"
-	cb "justledger/fabric/protos/common" // Import these to register the proto types
-	_ "justledger/fabric/protos/msp"
-	_ "justledger/fabric/protos/orderer"
-	_ "justledger/fabric/protos/orderer/etcdraft"
-	_ "justledger/fabric/protos/peer"
+	"justledger/common/flogging"
+	"justledger/common/tools/configtxlator/metadata"
+	"justledger/common/tools/configtxlator/rest"
+	"justledger/common/tools/configtxlator/update"
+	"justledger/common/tools/protolator"
+	_ "justledger/protos/common"
+	cb "justledger/protos/common" // Import these to register the proto types
+	_ "justledger/protos/msp"
+	_ "justledger/protos/orderer"
+	_ "justledger/protos/orderer/etcdraft"
+	_ "justledger/protos/peer"
 
 	"github.com/gorilla/handlers"
 	"github.com/pkg/errors"
@@ -34,7 +34,7 @@ import (
 
 // command line flags
 var (
-	app = kingpin.New("configtxlator", "Utility for generating justledger Fabric channel configurations")
+	app = kingpin.New("configtxlator", "Utility for generating Hyperledger Fabric channel configurations")
 
 	start    = app.Command("start", "Start the configtxlator REST server")
 	hostname = start.Flag("hostname", "The hostname or IP on which the REST server will listen").Default("0.0.0.0").String()

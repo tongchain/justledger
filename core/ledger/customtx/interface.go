@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package customtx
 
 import (
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
+	"justledger/core/ledger"
+	"justledger/protos/common"
 )
 
 // InvalidTxError is expected to be thrown by a custom transaction processor (an implementation of interface `Processor`)

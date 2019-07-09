@@ -12,9 +12,9 @@ import (
 	"math"
 	"testing"
 
-	"justledger/fabric/core/chaincode"
-	"justledger/fabric/core/chaincode/mock"
-	"justledger/fabric/protos/ledger/queryresult"
+	"justledger/core/chaincode"
+	"justledger/core/chaincode/mock"
+	"justledger/protos/ledger/queryresult"
 	"github.com/stretchr/testify/assert"
 )
 

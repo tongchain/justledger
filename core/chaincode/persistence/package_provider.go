@@ -9,8 +9,8 @@ package persistence
 import (
 	"io/ioutil"
 
-	"justledger/fabric/common/chaincode"
-	"justledger/fabric/core/common/ccprovider"
+	"justledger/common/chaincode"
+	"justledger/core/common/ccprovider"
 	"github.com/pkg/errors"
 )
 

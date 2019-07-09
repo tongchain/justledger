@@ -8,9 +8,9 @@ package fsblkstorage
 import (
 	"os"
 
-	"justledger/fabric/common/ledger/blkstorage"
-	"justledger/fabric/common/ledger/util"
-	"justledger/fabric/common/ledger/util/leveldbhelper"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/util"
+	"justledger/common/ledger/util/leveldbhelper"
 	"github.com/pkg/errors"
 )
 

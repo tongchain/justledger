@@ -9,10 +9,10 @@ package scc
 import (
 	"fmt"
 
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/policies"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/core/peer"
+	"justledger/common/channelconfig"
+	"justledger/common/policies"
+	"justledger/core/ledger"
+	"justledger/core/peer"
 )
 
 // NewProvider creates a new Provider instance

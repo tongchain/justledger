@@ -12,12 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/fabric/common/metrics/disabled"
-	"justledger/fabric/core/ledger/kvledger/bookkeeping"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
-	"justledger/fabric/core/ledger/ledgerconfig"
-	"justledger/fabric/core/ledger/mock"
-	"justledger/fabric/integration/runner"
+	"justledger/common/metrics/disabled"
+	"justledger/core/ledger/kvledger/bookkeeping"
+	"justledger/core/ledger/kvledger/txmgmt/statedb/statecouchdb"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/core/ledger/mock"
+	"justledger/integration/runner"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

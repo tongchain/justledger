@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/capabilities"
-	cb "justledger/fabric/protos/common"
-	"justledger/fabric/protos/utils"
+	"justledger/common/capabilities"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 	. "github.com/onsi/gomega"
 )
 

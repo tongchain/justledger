@@ -13,10 +13,10 @@ import (
 	"runtime"
 	"strings"
 
-	"justledger/fabric/bccsp/factory"
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/core/config/configtest"
-	"justledger/fabric/msp"
+	"justledger/bccsp/factory"
+	"justledger/common/flogging"
+	"justledger/core/config/configtest"
+	"justledger/msp"
 	"github.com/spf13/viper"
 )
 

@@ -9,10 +9,10 @@ package etcdraft_test
 import (
 	"testing"
 
-	"justledger/fabric/common/flogging"
-	"justledger/fabric/orderer/consensus/etcdraft"
-	"justledger/fabric/orderer/consensus/etcdraft/mocks"
-	"justledger/fabric/protos/orderer"
+	"justledger/common/flogging"
+	"justledger/orderer/consensus/etcdraft"
+	"justledger/orderer/consensus/etcdraft/mocks"
+	"justledger/protos/orderer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

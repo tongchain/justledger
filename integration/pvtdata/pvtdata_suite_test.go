@@ -9,7 +9,7 @@ package e2e
 import (
 	"encoding/json"
 
-	"justledger/fabric/integration/nwo"
+	"justledger/integration/nwo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 

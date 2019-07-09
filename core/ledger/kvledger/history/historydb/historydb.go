@@ -17,10 +17,10 @@ limitations under the License.
 package historydb
 
 import (
-	"justledger/fabric/common/ledger/blkstorage"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
-	"justledger/fabric/protos/common"
+	"justledger/common/ledger/blkstorage"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/protos/common"
 )
 
 // HistoryDBProvider provides an instance of a history DB

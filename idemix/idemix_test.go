@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"testing"
 
-	"justledger/fabric-amcl/amcl/FP256BN"
+	"justledger-amcl/amcl/FP256BN"
 	"github.com/stretchr/testify/assert"
 )
 

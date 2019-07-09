@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/fabric/protos/common"
+	"justledger/protos/common"
 )
 
 type CollectionInfoProvider struct {

@@ -5,7 +5,7 @@ import (
 	context "context"
 	sync "sync"
 
-	testpb "justledger/fabric/common/grpclogging/testpb"
+	testpb "justledger/common/grpclogging/testpb"
 )
 
 type EchoServiceServer struct {

@@ -8,8 +8,8 @@ package idemix
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric-amcl/amcl"
-	"justledger/fabric-amcl/amcl/FP256BN"
+	"justledger-amcl/amcl"
+	"justledger-amcl/amcl/FP256BN"
 	"github.com/pkg/errors"
 )
 

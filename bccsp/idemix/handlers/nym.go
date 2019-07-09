@@ -8,7 +8,7 @@ package handlers
 import (
 	"crypto/sha256"
 
-	"justledger/fabric/bccsp"
+	"justledger/bccsp"
 	"github.com/pkg/errors"
 )
 

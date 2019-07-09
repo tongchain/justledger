@@ -19,7 +19,7 @@ package multichannel
 import (
 	"testing"
 
-	"justledger/fabric/orderer/consensus"
+	"justledger/orderer/consensus"
 )
 
 func TestConsenterSupportInterface(t *testing.T) {

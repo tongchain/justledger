@@ -11,7 +11,7 @@ import (
 	"os"
 	"testing"
 
-	"justledger/fabric/core/config/configtest"
+	"justledger/core/config/configtest"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

@@ -23,9 +23,9 @@ import (
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/tools/configtxlator/sanitycheck"
-	"justledger/fabric/common/tools/configtxlator/update"
-	cb "justledger/fabric/protos/common"
+	"justledger/common/tools/configtxlator/sanitycheck"
+	"justledger/common/tools/configtxlator/update"
+	cb "justledger/protos/common"
 )
 
 func fieldBytes(fieldName string, r *http.Request) ([]byte, error) {

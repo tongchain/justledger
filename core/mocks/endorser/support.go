@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package endorser
 
 import (
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/core/common/ccprovider"
-	"justledger/fabric/core/endorser"
-	"justledger/fabric/core/ledger"
-	mc "justledger/fabric/core/mocks/ccprovider"
-	"justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
+	"justledger/common/channelconfig"
+	"justledger/core/common/ccprovider"
+	"justledger/core/endorser"
+	"justledger/core/ledger"
+	mc "justledger/core/mocks/ccprovider"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
 	"github.com/stretchr/testify/mock"
 )
 

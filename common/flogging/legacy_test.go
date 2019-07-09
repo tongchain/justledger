@@ -9,7 +9,7 @@ package flogging_test
 import (
 	"testing"
 
-	"justledger/fabric/common/flogging"
+	"justledger/common/flogging"
 	"github.com/stretchr/testify/assert"
 )
 

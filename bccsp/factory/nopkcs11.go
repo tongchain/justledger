@@ -18,7 +18,7 @@ limitations under the License.
 package factory
 
 import (
-	"justledger/fabric/bccsp"
+	"justledger/bccsp"
 	"github.com/pkg/errors"
 )
 

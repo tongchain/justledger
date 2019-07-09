@@ -17,8 +17,8 @@ limitations under the License.
 package committer
 
 import (
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
+	"justledger/core/ledger"
+	"justledger/protos/common"
 )
 
 // Committer is the interface supported by committers

@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package consensus
 
 import (
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/common/crypto"
-	"justledger/fabric/orderer/common/blockcutter"
-	"justledger/fabric/orderer/common/msgprocessor"
-	cb "justledger/fabric/protos/common"
+	"justledger/common/channelconfig"
+	"justledger/common/crypto"
+	"justledger/orderer/common/blockcutter"
+	"justledger/orderer/common/msgprocessor"
+	cb "justledger/protos/common"
 )
 
 // Consenter defines the backing ordering mechanism.

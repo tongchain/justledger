@@ -4,12 +4,12 @@ package mocks
 import (
 	"sync"
 
-	"justledger/fabric/common/channelconfig"
-	"justledger/fabric/core/common/ccprovider"
-	endorser_test "justledger/fabric/core/endorser"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/protos/common"
-	pb "justledger/fabric/protos/peer"
+	"justledger/common/channelconfig"
+	"justledger/core/common/ccprovider"
+	endorser_test "justledger/core/endorser"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
 )
 
 type Support struct {

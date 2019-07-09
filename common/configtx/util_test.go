@@ -10,8 +10,8 @@ import (
 	"math/rand"
 	"testing"
 
-	cb "justledger/fabric/protos/common"
-	"justledger/fabric/protos/utils"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

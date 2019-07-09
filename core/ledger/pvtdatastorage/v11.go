@@ -8,10 +8,10 @@ package pvtdatastorage
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/ledger/util/leveldbhelper"
-	"justledger/fabric/core/ledger"
-	"justledger/fabric/core/ledger/kvledger/txmgmt/version"
-	"justledger/fabric/protos/ledger/rwset"
+	"justledger/common/ledger/util/leveldbhelper"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/protos/ledger/rwset"
 )
 
 func v11Format(datakeyBytes []byte) bool {

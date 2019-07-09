@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	peer "justledger/fabric/protos/peer"
+	peer "justledger/protos/peer"
 )
 
 type ChaincodeStream struct {

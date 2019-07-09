@@ -22,8 +22,8 @@ import (
 	"os"
 	"testing"
 
-	pb "justledger/fabric/protos/peer"
-	"justledger/fabric/protos/utils"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

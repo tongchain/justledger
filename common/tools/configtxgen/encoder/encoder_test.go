@@ -13,15 +13,15 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/fabric/common/tools/configtxgen/encoder"
-	"justledger/fabric/common/tools/configtxgen/encoder/mock"
-	genesisconfig "justledger/fabric/common/tools/configtxgen/localconfig"
-	"justledger/fabric/common/util"
-	cb "justledger/fabric/protos/common"
-	"justledger/fabric/protos/msp"
-	ab "justledger/fabric/protos/orderer"
-	"justledger/fabric/protos/orderer/etcdraft"
-	"justledger/fabric/protos/utils"
+	"justledger/common/tools/configtxgen/encoder"
+	"justledger/common/tools/configtxgen/encoder/mock"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	"justledger/common/util"
+	cb "justledger/protos/common"
+	"justledger/protos/msp"
+	ab "justledger/protos/orderer"
+	"justledger/protos/orderer/etcdraft"
+	"justledger/protos/utils"
 )
 
 var _ = Describe("Encoder", func() {

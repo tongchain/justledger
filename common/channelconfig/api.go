@@ -9,12 +9,12 @@ package channelconfig
 import (
 	"time"
 
-	"justledger/fabric/common/configtx"
-	"justledger/fabric/common/policies"
-	"justledger/fabric/msp"
-	cb "justledger/fabric/protos/common"
-	ab "justledger/fabric/protos/orderer"
-	pb "justledger/fabric/protos/peer"
+	"justledger/common/configtx"
+	"justledger/common/policies"
+	"justledger/msp"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
+	pb "justledger/protos/peer"
 )
 
 // Org stores the common organizational config
