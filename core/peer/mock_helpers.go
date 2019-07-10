@@ -7,12 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package peer
 
 import (
-	configtxtest "justledger/common/configtx/test"
-	mockchannelconfig "justledger/common/mocks/config"
-	mockconfigtx "justledger/common/mocks/configtx"
-	mockpolicies "justledger/common/mocks/policies"
-	"justledger/core/ledger"
-	"justledger/core/ledger/ledgermgmt"
+	configtxtest "justledgercommon/configtx/test"
+	mockchannelconfig "justledgercommon/mocks/config"
+	mockconfigtx "justledgercommon/mocks/configtx"
+	mockpolicies "justledgercommon/mocks/policies"
+	"justledgercore/ledger"
+	"justledgercore/ledger/ledgermgmt"
 )
 
 //MockInitialize resets chains for test env

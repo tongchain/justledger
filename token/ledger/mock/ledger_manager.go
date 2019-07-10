@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/token/ledger"
+	"justledgertoken/ledger"
 )
 
 type LedgerManager struct {

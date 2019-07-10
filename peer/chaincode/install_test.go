@@ -12,8 +12,8 @@ import (
 	"os"
 	"testing"
 
-	"justledger/peer/common"
-	pb "justledger/protos/peer"
+	"justledgerpeer/common"
+	pb "justledgerprotos/peer"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -53,7 +53,7 @@ func TestBadVersion(t *testing.T) {
 	cmd, _ := initInstallTest(fsPath, t)
 	defer cleanupInstallTest(fsPath)
 
-	args := []string{"-n", "example02", "-p", "justledger/examples/chaincode/go/example02/cmd"}
+	args := []string{"-n", "example02", "-p", "justledgerexamples/chaincode/go/example02/cmd"}
 	cmd.SetArgs(args)
 
 	if err := cmd.Execute(); err == nil {
@@ -68,7 +68,7 @@ func TestNonExistentCC(t *testing.T) {
 	cmd, _ := initInstallTest(fsPath, t)
 	defer cleanupInstallTest(fsPath)
 
-	args := []string{"-n", "badexample02", "-p", "justledger/examples/chaincode/go/bad_example02", "-v", "testversion"}
+	args := []string{"-n", "badexample02", "-p", "justledgerexamples/chaincode/go/bad_example02", "-v", "testversion"}
 	cmd.SetArgs(args)
 
 	if err := cmd.Execute(); err == nil {
@@ -157,7 +157,7 @@ func installEx02(t *testing.T) error {
 	mockEndorserClient := common.GetMockEndorserClient(mockResponse, nil)
 	mockCF.EndorserClients = []pb.EndorserClient{mockEndorserClient}
 
-	args := []string{"-n", "example02", "-p", "justledger/examples/chaincode/go/example02/cmd", "-v", "anotherversion"}
+	args := []string{"-n", "example02", "-p", "justledgerexamples/chaincode/go/example02/cmd", "-v", "anotherversion"}
 	cmd.SetArgs(args)
 
 	if err := cmd.Execute(); err != nil {

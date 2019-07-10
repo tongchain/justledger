@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"testing"
 
-	mockpolicies "justledger/common/mocks/policies"
-	"justledger/common/policies"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	mockpolicies "justledgercommon/mocks/policies"
+	"justledgercommon/policies"
+	cb "justledgerprotos/common"
+	"justledgerprotos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -9,11 +9,11 @@ package kvledger
 import (
 	"testing"
 
-	"justledger/common/ledger/testutil"
-	"justledger/common/metrics/disabled"
-	"justledger/core/ledger"
-	"justledger/core/ledger/mock"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"justledgercommon/ledger/testutil"
+	"justledgercommon/metrics/disabled"
+	"justledgercore/ledger"
+	"justledgercore/ledger/mock"
+	"justledgerprotos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 

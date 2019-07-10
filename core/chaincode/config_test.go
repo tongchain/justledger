@@ -9,7 +9,7 @@ package chaincode_test
 import (
 	"time"
 
-	"justledger/core/chaincode"
+	"justledgercore/chaincode"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/spf13/viper"

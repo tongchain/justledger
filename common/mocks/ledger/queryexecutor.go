@@ -19,8 +19,8 @@ package ledger
 import (
 	"fmt"
 
-	commonledger "justledger/common/ledger"
-	"justledger/core/ledger"
+	commonledger "justledgercommon/ledger"
+	"justledgercore/ledger"
 )
 
 type MockQueryExecutor struct {

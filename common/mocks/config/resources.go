@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package config
 
 import (
-	"justledger/common/channelconfig"
-	"justledger/common/configtx"
-	"justledger/common/policies"
-	"justledger/msp"
+	"justledgercommon/channelconfig"
+	"justledgercommon/configtx"
+	"justledgercommon/policies"
+	"justledgermsp"
 )
 
 type Resources struct {

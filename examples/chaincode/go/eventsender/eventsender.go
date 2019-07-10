@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"justledger/core/chaincode/shim"
-	pb "justledger/protos/peer"
+	"justledgercore/chaincode/shim"
+	pb "justledgerprotos/peer"
 )
 
 // EventSender example simple Chaincode implementation

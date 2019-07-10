@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package kvledger
 
 import (
-	"justledger/core/ledger/ledgerconfig"
-	"justledger/core/ledger/ledgerstorage"
+	"justledgercore/ledger/ledgerconfig"
+	"justledgercore/ledger/ledgerstorage"
 )
 
 // RollbackKVLedger rollbacks a ledger to a specified block number

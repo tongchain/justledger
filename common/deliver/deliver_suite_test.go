@@ -9,7 +9,7 @@ package deliver_test
 import (
 	"testing"
 
-	"justledger/common/deliver"
+	"justledgercommon/deliver"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

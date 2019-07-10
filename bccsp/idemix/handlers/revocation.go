@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"justledger/bccsp"
+	"justledgerbccsp"
 	"github.com/pkg/errors"
 )
 

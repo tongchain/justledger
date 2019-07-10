@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"math"
 
-	"justledger/common/util"
+	"justledgercommon/util"
 )
 
 // NewBlock construct a block with no data and no metadata.

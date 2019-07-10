@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"sync"
 
-	"justledger/common/flogging"
-	"justledger/core/handlers/validation/api/state"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	pb "justledger/protos/peer"
+	"justledgercommon/flogging"
+	"justledgercore/handlers/validation/api/state"
+	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

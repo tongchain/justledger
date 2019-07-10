@@ -8,7 +8,7 @@ package container_test
 import (
 	"testing"
 
-	"justledger/core/container"
+	"justledgercore/container"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

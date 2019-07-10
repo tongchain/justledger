@@ -11,9 +11,9 @@ import (
 	"errors"
 	"fmt"
 
-	protcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	protcommon "justledgerprotos/common"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/spf13/cobra"
 )
 

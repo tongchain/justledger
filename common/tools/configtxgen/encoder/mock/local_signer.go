@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	cb "justledger/protos/common"
+	cb "justledgerprotos/common"
 )
 
 type LocalSigner struct {

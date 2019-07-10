@@ -22,11 +22,11 @@ import (
 	"fmt"
 	"time"
 
-	mockpolicies "justledger/common/mocks/policies"
-	"justledger/common/policies"
-	"justledger/msp"
-	"justledger/protos/common"
-	mspproto "justledger/protos/msp"
+	mockpolicies "justledgercommon/mocks/policies"
+	"justledgercommon/policies"
+	"justledgermsp"
+	"justledgerprotos/common"
+	mspproto "justledgerprotos/msp"
 	"github.com/stretchr/testify/mock"
 )
 

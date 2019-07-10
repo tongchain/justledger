@@ -12,11 +12,11 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/scc/qscc"
-	"justledger/peer/common"
-	cb "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercore/scc/qscc"
+	"justledgerpeer/common"
+	cb "justledgerprotos/common"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

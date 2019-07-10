@@ -20,8 +20,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/ledger/testutil"
-	"justledger/protos/common"
+	"justledgercommon/ledger/testutil"
+	"justledgerprotos/common"
 	"github.com/stretchr/testify/assert"
 )
 

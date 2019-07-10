@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-	"justledger/protos/common"
+	"justledgerprotos/common"
 	"github.com/pkg/errors"
 )
 

@@ -12,10 +12,10 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/cauthdsl"
-	"justledger/msp"
-	pb "justledger/protos/common"
-	mb "justledger/protos/msp"
+	"justledgercommon/cauthdsl"
+	"justledgermsp"
+	pb "justledgerprotos/common"
+	mb "justledgerprotos/msp"
 	"github.com/stretchr/testify/assert"
 )
 

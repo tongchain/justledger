@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode
 
 import (
-	"justledger/core/common/sysccprovider"
-	"justledger/core/container/ccintf"
-	pb "justledger/protos/peer"
+	"justledgercore/common/sysccprovider"
+	"justledgercore/container/ccintf"
+	pb "justledgerprotos/peer"
 )
 
 // Helpers to access unexported state.

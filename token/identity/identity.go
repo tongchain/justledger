@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package identity
 
 import (
-	"justledger/msp"
+	"justledgermsp"
 )
 
 // IssuingValidator is used to establish if the creator can issue tokens of the passed type.

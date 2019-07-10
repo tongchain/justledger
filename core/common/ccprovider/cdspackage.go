@@ -23,9 +23,9 @@ import (
 	"os"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/bccsp"
-	"justledger/bccsp/factory"
-	pb "justledger/protos/peer"
+	"justledgerbccsp"
+	"justledgerbccsp/factory"
+	pb "justledgerprotos/peer"
 )
 
 //----- CDSData ------

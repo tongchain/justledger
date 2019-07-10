@@ -9,7 +9,7 @@ package inproccontroller
 import (
 	"testing"
 
-	pb "justledger/protos/peer"
+	pb "justledgerprotos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

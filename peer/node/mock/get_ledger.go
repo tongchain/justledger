@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/core/ledger"
+	"justledgercore/ledger"
 )
 
 type GetLedger struct {

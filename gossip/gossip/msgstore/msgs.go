@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"justledger/gossip/common"
+	"justledgergossip/common"
 )
 
 var noopLock = func() {}

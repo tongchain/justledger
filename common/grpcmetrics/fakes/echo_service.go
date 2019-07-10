@@ -4,7 +4,7 @@ package fakes
 import (
 	"sync"
 
-	"justledger/common/grpcmetrics/testpb"
+	"justledgercommon/grpcmetrics/testpb"
 	"golang.org/x/net/context"
 )
 

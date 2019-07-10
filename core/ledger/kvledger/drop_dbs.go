@@ -9,7 +9,7 @@ package kvledger
 import (
 	"os"
 
-	"justledger/core/ledger/ledgerconfig"
+	"justledgercore/ledger/ledgerconfig"
 	"github.com/pkg/errors"
 )
 

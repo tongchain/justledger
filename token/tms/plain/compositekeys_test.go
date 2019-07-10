@@ -9,7 +9,7 @@ package plain
 import (
 	"strconv"
 
-	"justledger/core/chaincode/shim"
+	"justledgercore/chaincode/shim"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

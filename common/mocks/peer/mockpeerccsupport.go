@@ -19,7 +19,7 @@ package peer
 import (
 	"fmt"
 
-	pb "justledger/protos/peer"
+	pb "justledgerprotos/peer"
 )
 
 //MockPeerCCSupport provides CC support for peer interfaces.

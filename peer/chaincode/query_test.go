@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/peer/common"
+	"justledgerpeer/common"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 )

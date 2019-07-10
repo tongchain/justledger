@@ -15,9 +15,9 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/chaincode"
-	"justledger/core/common/ccprovider"
-	"justledger/protos/peer"
+	"justledgercommon/chaincode"
+	"justledgercore/common/ccprovider"
+	"justledgerprotos/peer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

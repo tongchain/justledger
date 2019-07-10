@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/comm"
+	"justledgercore/comm"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

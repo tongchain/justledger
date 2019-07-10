@@ -8,8 +8,8 @@ package blockledger
 
 import (
 	"github.com/golang/protobuf/proto"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
 )
 
 var closedChan chan struct{}

@@ -20,7 +20,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/bccsp/sw"
+	"justledgerbccsp/sw"
 	"github.com/stretchr/testify/assert"
 )
 

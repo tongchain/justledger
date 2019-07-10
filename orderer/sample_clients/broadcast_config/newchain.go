@@ -4,10 +4,10 @@
 package main
 
 import (
-	"justledger/common/localmsp"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	cb "justledger/protos/common"
+	"justledgercommon/localmsp"
+	"justledgercommon/tools/configtxgen/encoder"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
+	cb "justledgerprotos/common"
 )
 
 func newChainRequest(consensusType, creationPolicy, newChannelID string) *cb.Envelope {

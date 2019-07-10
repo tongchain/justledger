@@ -20,7 +20,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/util"
+	"justledgercommon/util"
 )
 
 // SignedData is used to represent the general triplet required to verify a signature

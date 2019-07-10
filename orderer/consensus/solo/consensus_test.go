@@ -11,12 +11,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/flogging"
-	mockconfig "justledger/common/mocks/config"
-	mockblockcutter "justledger/orderer/mocks/common/blockcutter"
-	mockmultichannel "justledger/orderer/mocks/common/multichannel"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	"justledgercommon/flogging"
+	mockconfig "justledgercommon/mocks/config"
+	mockblockcutter "justledgerorderer/mocks/common/blockcutter"
+	mockmultichannel "justledgerorderer/mocks/common/multichannel"
+	cb "justledgerprotos/common"
+	"justledgerprotos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -18,9 +18,9 @@ limitations under the License.
 package factory
 
 import (
-	"justledger/bccsp"
-	"justledger/bccsp/pkcs11"
-	"justledger/bccsp/sw"
+	"justledgerbccsp"
+	"justledgerbccsp/pkcs11"
+	"justledgerbccsp/sw"
 	"github.com/pkg/errors"
 )
 

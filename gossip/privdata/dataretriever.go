@@ -7,12 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package privdata
 
 import (
-	"justledger/core/ledger"
-	"justledger/core/transientstore"
-	"justledger/gossip/privdata/common"
-	"justledger/gossip/util"
-	gossip2 "justledger/protos/gossip"
-	"justledger/protos/ledger/rwset"
+	"justledgercore/ledger"
+	"justledgercore/transientstore"
+	"justledgergossip/privdata/common"
+	"justledgergossip/util"
+	gossip2 "justledgerprotos/gossip"
+	"justledgerprotos/ledger/rwset"
 	"github.com/pkg/errors"
 )
 

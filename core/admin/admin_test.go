@@ -11,10 +11,10 @@ import (
 	"strings"
 	"testing"
 
-	"justledger/common/flogging"
-	"justledger/core/testutil"
-	"justledger/protos/common"
-	pb "justledger/protos/peer"
+	"justledgercommon/flogging"
+	"justledgercore/testutil"
+	"justledgerprotos/common"
+	pb "justledgerprotos/peer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

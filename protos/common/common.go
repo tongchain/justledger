@@ -10,7 +10,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/msp"
+	"justledgerprotos/msp"
 )
 
 func (e *Envelope) StaticallyOpaqueFields() []string {

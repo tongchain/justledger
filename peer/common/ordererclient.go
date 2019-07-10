@@ -10,8 +10,8 @@ import (
 	"crypto/tls"
 	"fmt"
 
-	"justledger/core/comm"
-	ab "justledger/protos/orderer"
+	"justledgercore/comm"
+	ab "justledgerprotos/orderer"
 	"github.com/pkg/errors"
 )
 

@@ -24,36 +24,36 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	bccsp "justledger/bccsp/utils"
-	"justledger/common/cauthdsl"
-	"justledger/common/configtx"
-	"justledger/common/crypto/tlsgen"
-	policiesmocks "justledger/common/mocks/policies"
-	"justledger/common/policies"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/common/util"
-	"justledger/core/cclifecycle"
-	lifecyclemocks "justledger/core/cclifecycle/mocks"
-	"justledger/core/comm"
-	"justledger/core/common/ccprovider"
-	"justledger/discovery"
-	disc "justledger/discovery/client"
-	"justledger/discovery/endorsement"
-	discsupport "justledger/discovery/support"
-	discacl "justledger/discovery/support/acl"
-	ccsupport "justledger/discovery/support/chaincode"
-	"justledger/discovery/support/config"
-	"justledger/discovery/support/mocks"
-	"justledger/gossip/api"
-	gcommon "justledger/gossip/common"
-	gdisc "justledger/gossip/discovery"
-	"justledger/msp"
-	"justledger/protos/common"
-	. "justledger/protos/discovery"
-	"justledger/protos/gossip"
-	msprotos "justledger/protos/msp"
-	"justledger/protos/utils"
+	bccsp "justledgerbccsp/utils"
+	"justledgercommon/cauthdsl"
+	"justledgercommon/configtx"
+	"justledgercommon/crypto/tlsgen"
+	policiesmocks "justledgercommon/mocks/policies"
+	"justledgercommon/policies"
+	"justledgercommon/tools/configtxgen/encoder"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
+	"justledgercommon/util"
+	"justledgercore/cclifecycle"
+	lifecyclemocks "justledgercore/cclifecycle/mocks"
+	"justledgercore/comm"
+	"justledgercore/common/ccprovider"
+	"justledgerdiscovery"
+	disc "justledgerdiscovery/client"
+	"justledgerdiscovery/endorsement"
+	discsupport "justledgerdiscovery/support"
+	discacl "justledgerdiscovery/support/acl"
+	ccsupport "justledgerdiscovery/support/chaincode"
+	"justledgerdiscovery/support/config"
+	"justledgerdiscovery/support/mocks"
+	"justledgergossip/api"
+	gcommon "justledgergossip/common"
+	gdisc "justledgergossip/discovery"
+	"justledgermsp"
+	"justledgerprotos/common"
+	. "justledgerprotos/discovery"
+	"justledgerprotos/gossip"
+	msprotos "justledgerprotos/msp"
+	"justledgerprotos/utils"
 	"github.com/onsi/gomega/gexec"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
@@ -586,12 +586,12 @@ func createPolicyManagerGetter(t *testing.T, mspMgr msp.MSPManager) *mocks.Chann
 
 func buildBinaries() error {
 	var err error
-	cryptogen, err = gexec.Build("justledger/common/tools/cryptogen")
+	cryptogen, err = gexec.Build("justledgercommon/tools/cryptogen")
 	if err != nil {
 		return errors.WithStack(err)
 	}
 
-	idemixgen, err = gexec.Build("justledger/common/tools/idemixgen")
+	idemixgen, err = gexec.Build("justledgercommon/tools/idemixgen")
 	if err != nil {
 		return errors.WithStack(err)
 	}

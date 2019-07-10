@@ -9,9 +9,9 @@ package inquire
 import (
 	"testing"
 
-	"justledger/common/policies"
-	"justledger/protos/msp"
-	"justledger/protos/utils"
+	"justledgercommon/policies"
+	"justledgerprotos/msp"
+	"justledgerprotos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -9,9 +9,9 @@ package server_test
 import (
 	"errors"
 
-	"justledger/token/ledger/mock"
-	"justledger/token/server"
-	"justledger/token/tms/plain"
+	"justledgertoken/ledger/mock"
+	"justledgertoken/server"
+	"justledgertoken/tms/plain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

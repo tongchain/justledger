@@ -9,11 +9,11 @@ package main
 import (
 	"fmt"
 
-	"justledger/bccsp"
-	"justledger/bccsp/factory"
-	"justledger/core/chaincode/shim"
-	"justledger/core/chaincode/shim/ext/entities"
-	pb "justledger/protos/peer"
+	"justledgerbccsp"
+	"justledgerbccsp/factory"
+	"justledgercore/chaincode/shim"
+	"justledgercore/chaincode/shim/ext/entities"
+	pb "justledgerprotos/peer"
 )
 
 const DECKEY = "DECKEY"

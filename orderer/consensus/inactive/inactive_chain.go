@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package inactive
 
 import (
-	"justledger/protos/common"
+	"justledgerprotos/common"
 )
 
 // Chain implements an inactive consenter.Chain

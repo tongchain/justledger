@@ -10,10 +10,10 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/golang/protobuf/proto"
-	"justledger-amcl/amcl/FP256BN"
-	"justledger/idemix"
-	"justledger/msp"
-	m "justledger/protos/msp"
+	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
+	"justledgeridemix"
+	"justledgermsp"
+	m "justledgerprotos/msp"
 	"github.com/pkg/errors"
 )
 

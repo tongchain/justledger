@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledger/discovery/support/config"
-	"justledger/protos/common"
+	"justledgerdiscovery/support/config"
+	"justledgerprotos/common"
 )
 
 type ConfigBlockGetter struct {

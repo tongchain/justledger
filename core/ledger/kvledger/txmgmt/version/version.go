@@ -19,7 +19,7 @@ package version
 import (
 	"fmt"
 
-	"justledger/common/ledger/util"
+	"justledgercommon/ledger/util"
 )
 
 // Height represents the height of a transaction in blockchain

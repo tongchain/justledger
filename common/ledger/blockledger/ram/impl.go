@@ -10,10 +10,10 @@ import (
 	"bytes"
 	"sync"
 
-	"justledger/common/flogging"
-	"justledger/common/ledger/blockledger"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	"justledgercommon/flogging"
+	"justledgercommon/ledger/blockledger"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
 	"github.com/pkg/errors"
 )
 

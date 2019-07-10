@@ -9,7 +9,7 @@ package policies
 import (
 	"strings"
 
-	cb "justledger/protos/common"
+	cb "justledgerprotos/common"
 	"github.com/pkg/errors"
 )
 

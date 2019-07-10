@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package privacyenabledstate
 
 import (
-	"justledger/common/ledger/util/leveldbhelper"
+	"justledgercommon/ledger/util/leveldbhelper"
 )
 
 type metadataHint struct {

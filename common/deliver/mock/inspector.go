@@ -6,7 +6,7 @@ import (
 	sync "sync"
 
 	proto "github.com/golang/protobuf/proto"
-	deliver "justledger/common/deliver"
+	deliver "justledgercommon/deliver"
 )
 
 type Inspector struct {

@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"justledger/protos/token"
-	"justledger/token/client"
-	"justledger/token/client/mock"
+	"justledgerprotos/token"
+	"justledgertoken/client"
+	"justledgertoken/client/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

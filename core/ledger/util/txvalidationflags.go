@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package util
 
 import (
-	"justledger/protos/peer"
+	"justledgerprotos/peer"
 )
 
 // TxValidationFlags is array of transaction validation codes. It is used when committer validates block.

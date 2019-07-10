@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package manager
 
 import (
-	"justledger/msp/mgmt"
-	"justledger/token/identity"
-	"justledger/token/tms/plain"
-	"justledger/token/transaction"
+	"justledgermsp/mgmt"
+	"justledgertoken/identity"
+	"justledgertoken/tms/plain"
+	"justledgertoken/transaction"
 	"github.com/pkg/errors"
 )
 

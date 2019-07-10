@@ -13,9 +13,9 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
-	"justledger/common/ledger/blkstorage"
-	"justledger/common/ledger/testutil"
-	"justledger/protos/common"
+	"justledgercommon/ledger/blkstorage"
+	"justledgercommon/ledger/testutil"
+	"justledgerprotos/common"
 	"github.com/stretchr/testify/assert"
 )
 

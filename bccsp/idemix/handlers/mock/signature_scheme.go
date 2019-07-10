@@ -5,8 +5,8 @@ import (
 	"crypto/ecdsa"
 	"sync"
 
-	"justledger/bccsp"
-	"justledger/bccsp/idemix/handlers"
+	"justledgerbccsp"
+	"justledgerbccsp/idemix/handlers"
 )
 
 type SignatureScheme struct {

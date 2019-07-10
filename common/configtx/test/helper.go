@@ -7,18 +7,18 @@ SPDX-License-Identifier: Apache-2.0
 package test
 
 import (
-	"justledger/common/channelconfig"
-	"justledger/common/flogging"
-	"justledger/common/genesis"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/core/ledger/util"
-	cb "justledger/protos/common"
-	mspproto "justledger/protos/msp"
-	"justledger/protos/peer"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercommon/channelconfig"
+	"justledgercommon/flogging"
+	"justledgercommon/genesis"
+	"justledgercommon/tools/configtxgen/configtxgentest"
+	"justledgercommon/tools/configtxgen/encoder"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
+	"justledgercore/ledger/util"
+	cb "justledgerprotos/common"
+	mspproto "justledgerprotos/msp"
+	"justledgerprotos/peer"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 )
 
 var logger = flogging.MustGetLogger("common.configtx.test")

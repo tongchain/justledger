@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/comm"
+	"justledgercore/comm"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

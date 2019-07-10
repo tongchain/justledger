@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"justledger/common/flogging"
+	"justledgercommon/flogging"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.etcd.io/etcd/pkg/fileutil"

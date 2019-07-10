@@ -9,7 +9,7 @@ package decorator
 import (
 	"testing"
 
-	"justledger/protos/peer"
+	"justledgerprotos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -14,12 +14,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/config/configtest"
-	"justledger/peer/common"
-	"justledger/peer/common/mock"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	putils "justledger/protos/utils"
+	"justledgercore/config/configtest"
+	"justledgerpeer/common"
+	"justledgerpeer/common/mock"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
+	putils "justledgerprotos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

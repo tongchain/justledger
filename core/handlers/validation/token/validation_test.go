@@ -9,7 +9,7 @@ package token_test
 import (
 	"testing"
 
-	"justledger/core/handlers/validation/token"
+	"justledgercore/handlers/validation/token"
 	"github.com/stretchr/testify/assert"
 )
 

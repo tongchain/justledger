@@ -10,10 +10,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/chaincode/lifecycle"
-	"justledger/core/chaincode/lifecycle/mock"
-	"justledger/core/chaincode/shim"
-	lb "justledger/protos/peer/lifecycle"
+	"justledgercore/chaincode/lifecycle"
+	"justledgercore/chaincode/lifecycle/mock"
+	"justledgercore/chaincode/shim"
+	lb "justledgerprotos/peer/lifecycle"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -42,7 +42,7 @@ var _ = Describe("SCC", func() {
 
 	Describe("Path", func() {
 		It("returns the path", func() {
-			Expect(scc.Path()).To(Equal("justledger/core/chaincode/lifecycle"))
+			Expect(scc.Path()).To(Equal("justledgercore/chaincode/lifecycle"))
 		})
 	})
 

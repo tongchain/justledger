@@ -11,13 +11,13 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"justledger/gossip/api"
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/gossip/channel"
-	"justledger/gossip/metrics"
-	proto "justledger/protos/gossip"
+	"justledgergossip/api"
+	"justledgergossip/comm"
+	"justledgergossip/common"
+	"justledgergossip/discovery"
+	"justledgergossip/gossip/channel"
+	"justledgergossip/metrics"
+	proto "justledgerprotos/gossip"
 )
 
 type channelState struct {

@@ -8,14 +8,14 @@ package lockbasedtxmgr
 import (
 	"testing"
 
-	commonledger "justledger/common/ledger"
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/queryresult"
+	commonledger "justledgercommon/ledger"
+	"justledgercommon/ledger/testutil"
+	"justledgercore/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
+	"justledgercore/ledger/kvledger/txmgmt/version"
+	btltestutil "justledgercore/ledger/pvtdatapolicy/testutil"
+	"justledgercore/ledger/util"
+	"justledgerprotos/ledger/queryresult"
 	"github.com/stretchr/testify/assert"
 )
 

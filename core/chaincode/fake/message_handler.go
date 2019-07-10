@@ -4,8 +4,8 @@ package fake
 import (
 	sync "sync"
 
-	chaincode "justledger/core/chaincode"
-	peer "justledger/protos/peer"
+	chaincode "justledgercore/chaincode"
+	peer "justledgerprotos/peer"
 )
 
 type MessageHandler struct {

@@ -11,8 +11,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/bccsp/utils"
-	"justledger/common/util"
+	"justledgerbccsp/utils"
+	"justledgercommon/util"
 	"github.com/stretchr/testify/assert"
 )
 

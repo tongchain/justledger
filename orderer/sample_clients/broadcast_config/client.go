@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"os"
 
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/orderer/common/localconfig"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
+	mspmgmt "justledgermsp/mgmt"
+	"justledgerorderer/common/localconfig"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
 	"google.golang.org/grpc"
 )
 

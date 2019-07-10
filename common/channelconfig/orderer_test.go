@@ -9,7 +9,7 @@ package channelconfig
 import (
 	"testing"
 
-	ab "justledger/protos/orderer"
+	ab "justledgerprotos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -12,12 +12,12 @@ import (
 	"strconv"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/channelconfig"
-	"justledger/common/flogging"
-	mspconstants "justledger/msp"
-	"justledger/protos/common"
-	"justledger/protos/discovery"
-	"justledger/protos/msp"
+	"justledgercommon/channelconfig"
+	"justledgercommon/flogging"
+	mspconstants "justledgermsp"
+	"justledgerprotos/common"
+	"justledgerprotos/discovery"
+	"justledgerprotos/msp"
 	"github.com/pkg/errors"
 )
 

@@ -9,11 +9,11 @@ package channelconfig_test
 import (
 	"testing"
 
-	"justledger/common/channelconfig"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/protos/utils"
+	"justledgercommon/channelconfig"
+	"justledgercommon/tools/configtxgen/configtxgentest"
+	"justledgercommon/tools/configtxgen/encoder"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
+	"justledgerprotos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

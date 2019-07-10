@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"justledger/gossip/common"
-	"justledger/gossip/util"
+	"justledgergossip/common"
+	"justledgergossip/util"
 	"github.com/stretchr/testify/assert"
 )
 

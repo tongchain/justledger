@@ -6,11 +6,11 @@ SPDX-License-Identifier: Apache-2.0
 package bridge
 
 import (
-	"justledger-amcl/amcl"
-	"justledger/bccsp/idemix/handlers"
+	"github.com/hyperledger/fabric-amcl/amcl"
+	"justledgerbccsp/idemix/handlers"
 
 	"github.com/golang/protobuf/proto"
-	cryptolib "justledger/idemix"
+	cryptolib "justledgeridemix"
 	"github.com/pkg/errors"
 )
 

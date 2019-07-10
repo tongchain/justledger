@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package blkstorage
 
 import (
-	"justledger/common/ledger"
-	l "justledger/core/ledger"
-	"justledger/protos/common"
-	"justledger/protos/peer"
+	"justledgercommon/ledger"
+	l "justledgercore/ledger"
+	"justledgerprotos/common"
+	"justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

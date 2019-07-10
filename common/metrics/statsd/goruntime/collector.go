@@ -10,7 +10,7 @@ import (
 	"runtime"
 	"time"
 
-	"justledger/common/metrics"
+	"justledgercommon/metrics"
 )
 
 type Collector struct {

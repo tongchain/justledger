@@ -9,17 +9,17 @@ package multichannel
 import (
 	"fmt"
 
-	"justledger/common/capabilities"
-	"justledger/common/channelconfig"
-	"justledger/common/configtx"
-	"justledger/common/tools/configtxgen/configtxgentest"
-	"justledger/common/tools/configtxgen/encoder"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
-	"justledger/orderer/common/blockcutter"
-	"justledger/orderer/common/msgprocessor"
-	"justledger/orderer/consensus"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	"justledgercommon/capabilities"
+	"justledgercommon/channelconfig"
+	"justledgercommon/configtx"
+	"justledgercommon/tools/configtxgen/configtxgentest"
+	"justledgercommon/tools/configtxgen/encoder"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
+	"justledgerorderer/common/blockcutter"
+	"justledgerorderer/common/msgprocessor"
+	"justledgerorderer/consensus"
+	cb "justledgerprotos/common"
+	"justledgerprotos/utils"
 )
 
 type mockConsenter struct {

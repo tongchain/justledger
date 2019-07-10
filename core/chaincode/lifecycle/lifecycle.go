@@ -9,7 +9,7 @@ package lifecycle
 import (
 	"fmt"
 
-	"justledger/core/chaincode/persistence"
+	"justledgercore/chaincode/persistence"
 	"github.com/pkg/errors"
 )
 

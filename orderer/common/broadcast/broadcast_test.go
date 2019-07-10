@@ -15,11 +15,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"justledger/orderer/common/broadcast"
-	"justledger/orderer/common/broadcast/mock"
-	"justledger/orderer/common/msgprocessor"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	"justledgerorderer/common/broadcast"
+	"justledgerorderer/common/broadcast/mock"
+	"justledgerorderer/common/msgprocessor"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
 )
 
 var _ = Describe("Broadcast", func() {

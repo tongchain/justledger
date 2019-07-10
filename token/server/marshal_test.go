@@ -12,9 +12,9 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"justledger/protos/token"
-	"justledger/token/server"
-	"justledger/token/server/mock"
+	"justledgerprotos/token"
+	"justledgertoken/server"
+	"justledgertoken/server/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

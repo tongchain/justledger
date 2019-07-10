@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package auth
 
 import (
-	"justledger/protos/peer"
+	"justledgerprotos/peer"
 )
 
 // Filter defines an authentication filter that intercepts

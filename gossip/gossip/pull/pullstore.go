@@ -10,12 +10,12 @@ import (
 	"sync"
 	"time"
 
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/gossip/algo"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	"justledgergossip/comm"
+	"justledgergossip/common"
+	"justledgergossip/discovery"
+	"justledgergossip/gossip/algo"
+	"justledgergossip/util"
+	proto "justledgerprotos/gossip"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )

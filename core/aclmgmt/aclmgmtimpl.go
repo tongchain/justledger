@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package aclmgmt
 
 import (
-	"justledger/common/flogging"
+	"justledgercommon/flogging"
 )
 
 var aclMgmtLogger = flogging.MustGetLogger("aclmgmt")

@@ -8,15 +8,15 @@ package tests
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	configtxtest "justledger/common/configtx/test"
-	"justledger/common/flogging"
-	lutils "justledger/core/ledger/util"
-	"justledger/protos/common"
-	"justledger/protos/ledger/rwset"
-	protopeer "justledger/protos/peer"
-	prototestutils "justledger/protos/testutils"
-	"justledger/protos/utils"
+	"justledgercommon/cauthdsl"
+	configtxtest "justledgercommon/configtx/test"
+	"justledgercommon/flogging"
+	lutils "justledgercore/ledger/util"
+	"justledgerprotos/common"
+	"justledgerprotos/ledger/rwset"
+	protopeer "justledgerprotos/peer"
+	prototestutils "justledgerprotos/testutils"
+	"justledgerprotos/utils"
 )
 
 var logger = flogging.MustGetLogger("test2")

@@ -19,7 +19,7 @@ package shim
 import (
 	"fmt"
 
-	pb "justledger/protos/peer"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

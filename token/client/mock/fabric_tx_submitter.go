@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	client "justledger/token/client"
+	client "justledgertoken/client"
 )
 
 type FabricTxSubmitter struct {

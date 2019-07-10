@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"runtime"
 
-	common "justledger/common/metadata"
+	common "justledgercommon/metadata"
 )
 
 // package-scoped variables

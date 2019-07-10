@@ -16,12 +16,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/core/comm"
-	"justledger/core/deliverservice/blocksprovider"
-	"justledger/core/deliverservice/mocks"
-	"justledger/protos/common"
-	"justledger/protos/orderer"
-	"justledger/protos/utils"
+	"justledgercore/comm"
+	"justledgercore/deliverservice/blocksprovider"
+	"justledgercore/deliverservice/mocks"
+	"justledgerprotos/common"
+	"justledgerprotos/orderer"
+	"justledgerprotos/utils"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 )

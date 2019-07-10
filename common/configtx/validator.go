@@ -10,10 +10,10 @@ import (
 	"regexp"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/flogging"
-	"justledger/common/policies"
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	"justledgercommon/flogging"
+	"justledgercommon/policies"
+	cb "justledgerprotos/common"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 )
 

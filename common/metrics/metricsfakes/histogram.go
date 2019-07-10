@@ -4,7 +4,7 @@ package metricsfakes
 import (
 	"sync"
 
-	"justledger/common/metrics"
+	"justledgercommon/metrics"
 )
 
 type Histogram struct {

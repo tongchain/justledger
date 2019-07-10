@@ -9,7 +9,7 @@ package deliver
 import (
 	"time"
 
-	"justledger/protos/common"
+	"justledgerprotos/common"
 	"github.com/pkg/errors"
 )
 

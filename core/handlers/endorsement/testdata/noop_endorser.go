@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"justledger/core/handlers/endorsement/api"
-	"justledger/protos/peer"
+	"justledgercore/handlers/endorsement/api"
+	"justledgerprotos/peer"
 )
 
 type NoOpEndorser struct {

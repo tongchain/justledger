@@ -12,8 +12,8 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"justledger/orderer/consensus/kafka"
-	"justledger/orderer/consensus/kafka/mock"
+	"justledgerorderer/consensus/kafka"
+	"justledgerorderer/consensus/kafka/mock"
 )
 
 var _ = Describe("Metrics", func() {

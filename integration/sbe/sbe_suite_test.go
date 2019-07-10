@@ -12,7 +12,7 @@ import (
 	"runtime"
 	"testing"
 
-	"justledger/integration/nwo"
+	"justledgerintegration/nwo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -23,7 +23,7 @@ import (
 	"hash"
 	"reflect"
 
-	"justledger/bccsp"
+	"justledgerbccsp"
 )
 
 type MockBCCSP struct {

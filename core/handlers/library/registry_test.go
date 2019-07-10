@@ -9,8 +9,8 @@ package library
 import (
 	"testing"
 
-	"justledger/core/handlers/auth"
-	"justledger/core/handlers/decoration"
+	"justledgercore/handlers/auth"
+	"justledgercore/handlers/decoration"
 	"github.com/stretchr/testify/assert"
 )
 

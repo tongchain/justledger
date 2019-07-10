@@ -24,9 +24,9 @@ import (
 	mrand "math/rand"
 	"testing"
 
-	"justledger/bccsp"
-	"justledger/bccsp/mocks"
-	"justledger/bccsp/utils"
+	"justledgerbccsp"
+	"justledgerbccsp/mocks"
+	"justledgerbccsp/utils"
 	"github.com/stretchr/testify/assert"
 )
 

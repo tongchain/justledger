@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package disabled_test
 
 import (
-	"justledger/common/metrics"
-	"justledger/common/metrics/disabled"
+	"justledgercommon/metrics"
+	"justledgercommon/metrics/disabled"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"justledger/core/middleware"
-	"justledger/core/middleware/fakes"
+	"justledgercore/middleware"
+	"justledgercore/middleware/fakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

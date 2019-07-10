@@ -9,10 +9,10 @@ package inquire
 import (
 	"fmt"
 
-	"justledger/common/flogging"
-	"justledger/common/graph"
-	"justledger/common/policies"
-	"justledger/protos/common"
+	"justledgercommon/flogging"
+	"justledgercommon/graph"
+	"justledgercommon/policies"
+	"justledgerprotos/common"
 )
 
 var logger = flogging.MustGetLogger("policies.inquire")

@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	bootfile "justledger/orderer/common/bootstrap/file"
-	cb "justledger/protos/common"
+	bootfile "justledgerorderer/common/bootstrap/file"
+	cb "justledgerprotos/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

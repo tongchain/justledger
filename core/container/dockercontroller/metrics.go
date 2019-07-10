@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package dockercontroller
 
-import "justledger/common/metrics"
+import "justledgercommon/metrics"
 
 var (
 	chaincodeImageBuildDuration = metrics.HistogramOpts{

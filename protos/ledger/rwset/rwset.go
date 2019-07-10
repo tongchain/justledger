@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"justledgerprotos/ledger/rwset/kvrwset"
 )
 
 func (txrws *TxReadWriteSet) DynamicSliceFields() []string {

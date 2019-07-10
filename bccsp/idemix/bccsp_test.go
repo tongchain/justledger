@@ -8,9 +8,9 @@ package idemix_test
 import (
 	"crypto/rand"
 
-	"justledger/bccsp"
-	"justledger/bccsp/idemix"
-	"justledger/bccsp/sw"
+	"justledgerbccsp"
+	"justledgerbccsp/idemix"
+	"justledgerbccsp/sw"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

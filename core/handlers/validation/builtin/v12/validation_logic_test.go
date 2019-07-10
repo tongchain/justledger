@@ -15,37 +15,37 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/capabilities"
-	"justledger/common/cauthdsl"
-	"justledger/common/channelconfig"
-	mc "justledger/common/mocks/config"
-	lm "justledger/common/mocks/ledger"
-	"justledger/common/mocks/scc"
-	"justledger/common/util"
-	aclmocks "justledger/core/aclmgmt/mocks"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/chaincode/shim"
-	"justledger/core/committer/txvalidator"
-	mocks2 "justledger/core/committer/txvalidator/mocks"
-	"justledger/core/common/ccpackage"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/privdata"
-	cutils "justledger/core/container/util"
-	"justledger/core/handlers/validation/api/capabilities"
-	"justledger/core/handlers/validation/builtin/v12/mocks"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	corepeer "justledger/core/peer"
-	"justledger/core/policy"
-	"justledger/core/scc/lscc"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	"justledger/msp/mgmt/testtools"
-	"justledger/protos/common"
-	"justledger/protos/ledger/rwset/kvrwset"
-	mspproto "justledger/protos/msp"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercommon/capabilities"
+	"justledgercommon/cauthdsl"
+	"justledgercommon/channelconfig"
+	mc "justledgercommon/mocks/config"
+	lm "justledgercommon/mocks/ledger"
+	"justledgercommon/mocks/scc"
+	"justledgercommon/util"
+	aclmocks "justledgercore/aclmgmt/mocks"
+	"justledgercore/chaincode/platforms"
+	"justledgercore/chaincode/platforms/golang"
+	"justledgercore/chaincode/shim"
+	"justledgercore/committer/txvalidator"
+	mocks2 "justledgercore/committer/txvalidator/mocks"
+	"justledgercore/common/ccpackage"
+	"justledgercore/common/ccprovider"
+	"justledgercore/common/privdata"
+	cutils "justledgercore/container/util"
+	"justledgercore/handlers/validation/api/capabilities"
+	"justledgercore/handlers/validation/builtin/v12/mocks"
+	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
+	corepeer "justledgercore/peer"
+	"justledgercore/policy"
+	"justledgercore/scc/lscc"
+	"justledgermsp"
+	mspmgmt "justledgermsp/mgmt"
+	"justledgermsp/mgmt/testtools"
+	"justledgerprotos/common"
+	"justledgerprotos/ledger/rwset/kvrwset"
+	mspproto "justledgerprotos/msp"
+	"justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -805,7 +805,7 @@ func TestAlreadyDeployed(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "alreadydeployed"
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "justledgerexamples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1183,7 +1183,7 @@ func TestValidateUpgradeOK(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradeok"
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "justledgerexamples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1246,7 +1246,7 @@ func TestInvalidateUpgradeBadVersion(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradebadversion"
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "justledgerexamples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1320,7 +1320,7 @@ func validateUpgradeWithCollection(t *testing.T, ccver string, V1_2Validation bo
 	}
 
 	ccname := "mycc"
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "justledgerexamples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, true)
 	if err != nil {
@@ -1502,7 +1502,7 @@ func TestValidateUpgradeWithPoliciesOK(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradewithpoliciesok"
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "justledgerexamples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {
@@ -1589,7 +1589,7 @@ func validateUpgradeWithNewFailAllIP(t *testing.T, ccver string, v11capability, 
 	// deploy the chaincode with an accept all policy
 
 	ccname := "mycc"
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "justledgerexamples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {
@@ -1666,7 +1666,7 @@ func TestValidateUpgradeWithPoliciesFail(t *testing.T) {
 
 	ccname := "mycc"
 	ccver := "upgradewithpoliciesfail"
-	path := "justledger/examples/chaincode/go/example02/cmd"
+	path := "justledgerexamples/chaincode/go/example02/cmd"
 
 	cds, err := constructDeploymentSpec(ccname, path, ccver, [][]byte{[]byte("init"), []byte("a"), []byte("100"), []byte("b"), []byte("200")}, false)
 	if err != nil {

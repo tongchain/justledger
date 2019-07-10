@@ -13,9 +13,9 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/util"
-	"justledger/gossip/api"
-	"justledger/gossip/common"
+	"justledgercommon/util"
+	"justledgergossip/api"
+	"justledgergossip/common"
 )
 
 // NewGossipMessageComparator creates a MessageReplacingPolicy given a maximum number of blocks to hold

@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"justledger/common/flogging"
+	"justledgercommon/flogging"
 )
 
 //go:generate counterfeiter -o fakes/logging.go -fake-name Logging . Logging

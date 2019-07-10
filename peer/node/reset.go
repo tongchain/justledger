@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"os"
 
-	"justledger/core/ledger/kvledger"
+	"justledgercore/ledger/kvledger"
 	"github.com/spf13/cobra"
 )
 

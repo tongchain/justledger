@@ -19,7 +19,7 @@ package historydb
 import (
 	"bytes"
 
-	"justledger/common/ledger/util"
+	"justledgercommon/ledger/util"
 )
 
 // CompositeKeySep is a nil byte used as a separator between different components of a composite key

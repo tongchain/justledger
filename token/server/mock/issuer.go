@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	token "justledger/protos/token"
-	server "justledger/token/server"
+	token "justledgerprotos/token"
+	server "justledgertoken/server"
 )
 
 type Issuer struct {

@@ -18,10 +18,10 @@ package rwsetutil
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/rwset"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/util"
+	"justledgerprotos/ledger/rwset"
+	"justledgerprotos/ledger/rwset/kvrwset"
 )
 
 /////////////////////////////////////////////////////////////////

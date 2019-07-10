@@ -4,7 +4,7 @@ package fake
 import (
 	sync "sync"
 
-	chaincode "justledger/core/chaincode"
+	chaincode "justledgercore/chaincode"
 )
 
 type Registry struct {

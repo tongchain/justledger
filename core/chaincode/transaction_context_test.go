@@ -9,8 +9,8 @@ package chaincode_test
 import (
 	"fmt"
 
-	"justledger/core/chaincode"
-	"justledger/core/chaincode/mock"
+	"justledgercore/chaincode"
+	"justledgercore/chaincode/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

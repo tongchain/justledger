@@ -24,9 +24,9 @@ import (
 	"reflect"
 	"testing"
 
-	mocks2 "justledger/bccsp/mocks"
-	"justledger/bccsp/sw/mocks"
-	"justledger/bccsp/utils"
+	mocks2 "justledgerbccsp/mocks"
+	"justledgerbccsp/sw/mocks"
+	"justledgerbccsp/utils"
 	"github.com/stretchr/testify/assert"
 )
 

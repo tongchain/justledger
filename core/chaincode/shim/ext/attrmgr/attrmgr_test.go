@@ -20,7 +20,7 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"justledger/core/chaincode/shim/ext/attrmgr"
+	"justledgercore/chaincode/shim/ext/attrmgr"
 	"github.com/stretchr/testify/assert"
 )
 

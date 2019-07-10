@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package broadcast
 
-import "justledger/common/metrics"
+import "justledgercommon/metrics"
 
 var (
 	validateDuration = metrics.HistogramOpts{

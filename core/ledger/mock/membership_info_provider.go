@@ -4,8 +4,8 @@ package mock
 import (
 	"sync"
 
-	"justledger/core/ledger"
-	"justledger/protos/common"
+	"justledgercore/ledger"
+	"justledgerprotos/common"
 )
 
 type MembershipInfoProvider struct {

@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledgercore/ledger/kvledger/txmgmt/statedb"
 )
 
 type ResultsIterator struct {

@@ -9,7 +9,7 @@ package tests
 import (
 	"testing"
 
-	"justledger/core/ledger"
+	"justledgercore/ledger"
 )
 
 func TestMissingCollConfig(t *testing.T) {

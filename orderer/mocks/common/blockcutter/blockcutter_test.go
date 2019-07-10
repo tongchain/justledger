@@ -19,7 +19,7 @@ package blockcutter
 import (
 	"testing"
 
-	"justledger/orderer/common/blockcutter"
+	"justledgerorderer/common/blockcutter"
 )
 
 func TestBlockCutterInterface(t *testing.T) {

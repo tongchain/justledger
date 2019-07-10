@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package disabled
 
 import (
-	"justledger/common/metrics"
+	"justledgercommon/metrics"
 )
 
 type Provider struct{}

@@ -26,8 +26,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/container/util"
-	"justledger/protos/peer"
+	"justledgercore/container/util"
+	"justledgerprotos/peer"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -79,7 +79,7 @@ func (m *mockCCInfoFSStorageMgrImpl) GetChaincode(ccname string, ccversion strin
 func TestCCInfoCache(t *testing.T) {
 	ccname := "foo"
 	ccver := "1.0"
-	ccpath := "justledger/examples/chaincode/go/example02/cmd"
+	ccpath := "justledgerexamples/chaincode/go/example02/cmd"
 
 	ccinfoFs := &mockCCInfoFSStorageMgrImpl{CCMap: map[string]CCPackage{}}
 	cccache := NewCCInfoCache(ccinfoFs)
@@ -134,7 +134,7 @@ func TestCCInfoCache(t *testing.T) {
 func TestPutChaincode(t *testing.T) {
 	ccname := ""
 	ccver := "1.0"
-	ccpath := "justledger/examples/chaincode/go/example02/cmd"
+	ccpath := "justledgerexamples/chaincode/go/example02/cmd"
 
 	ccinfoFs := &mockCCInfoFSStorageMgrImpl{CCMap: map[string]CCPackage{}}
 	NewCCInfoCache(ccinfoFs)
@@ -164,7 +164,7 @@ func TestPutChaincode(t *testing.T) {
 func TestCCInfoFSPeerInstance(t *testing.T) {
 	ccname := "bar"
 	ccver := "1.0"
-	ccpath := "justledger/examples/chaincode/go/example02/cmd"
+	ccpath := "justledgerexamples/chaincode/go/example02/cmd"
 
 	// the cc data is not yet in the cache
 	_, err := GetChaincodeFromFS(ccname, ccver)

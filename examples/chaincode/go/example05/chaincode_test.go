@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/core/chaincode/shim"
-	"justledger/examples/chaincode/go/example02"
+	"justledgercore/chaincode/shim"
+	"justledgerexamples/chaincode/go/example02"
 )
 
 var chaincodeName = "ex02"

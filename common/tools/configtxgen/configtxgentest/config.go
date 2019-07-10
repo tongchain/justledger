@@ -9,8 +9,8 @@ package configtxgentest
 import (
 	"fmt"
 
-	"justledger/common/tools/configtxgen/localconfig"
-	"justledger/core/config/configtest"
+	"justledgercommon/tools/configtxgen/localconfig"
+	"justledgercore/config/configtest"
 )
 
 func Load(profile string) *localconfig.Profile {

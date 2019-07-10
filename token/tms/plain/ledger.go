@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package plain
 
 import (
-	"justledger/common/ledger"
+	"justledgercommon/ledger"
 )
 
 // A MemoryLedger is an in-memory ledger of transactions and unspent outputs.

@@ -9,9 +9,9 @@ package mock
 import (
 	"testing"
 
-	"justledger/gossip/comm"
-	"justledger/gossip/common"
-	proto "justledger/protos/gossip"
+	"justledgergossip/comm"
+	"justledgergossip/common"
+	proto "justledgerprotos/gossip"
 	"github.com/stretchr/testify/assert"
 )
 

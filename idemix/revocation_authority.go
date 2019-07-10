@@ -13,9 +13,9 @@ import (
 	"crypto/sha256"
 
 	"github.com/golang/protobuf/proto"
-	"justledger-amcl/amcl"
-	"justledger-amcl/amcl/FP256BN"
-	"justledger/bccsp/utils"
+	"github.com/hyperledger/fabric-amcl/amcl"
+	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
+	"justledgerbccsp/utils"
 	"github.com/pkg/errors"
 )
 

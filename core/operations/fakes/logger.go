@@ -4,7 +4,7 @@ package fakes
 import (
 	sync "sync"
 
-	operations "justledger/core/operations"
+	operations "justledgercore/operations"
 )
 
 type Logger struct {

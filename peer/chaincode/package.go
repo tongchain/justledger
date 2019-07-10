@@ -21,13 +21,13 @@ import (
 	"io/ioutil"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/core/common/ccpackage"
-	"justledger/msp"
-	mspmgmt "justledger/msp/mgmt"
-	pcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercommon/cauthdsl"
+	"justledgercore/common/ccpackage"
+	"justledgermsp"
+	mspmgmt "justledgermsp/mgmt"
+	pcommon "justledgerprotos/common"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/spf13/cobra"
 )
 

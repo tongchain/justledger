@@ -22,8 +22,8 @@ import (
 	"errors"
 	"testing"
 
-	"justledger/bccsp/mocks"
-	"justledger/bccsp/utils"
+	"justledgerbccsp/mocks"
+	"justledgerbccsp/utils"
 	"github.com/stretchr/testify/assert"
 )
 

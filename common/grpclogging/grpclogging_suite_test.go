@@ -20,12 +20,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/grpclogging/testpb"
+	"justledgercommon/grpclogging/testpb"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-//go:generate protoc --proto_path=$GOPATH/src/justledger/common/grpclogging/testpb --go_out=plugins=grpc:$GOPATH/src $GOPATH/src/justledger/common/grpclogging/testpb/echo.proto
+//go:generate protoc --proto_path=$GOPATH/src/justledgercommon/grpclogging/testpb --go_out=plugins=grpc:$GOPATH/src $GOPATH/src/justledgercommon/grpclogging/testpb/echo.proto
 
 func TestGrpclogging(t *testing.T) {
 	RegisterFailHandler(Fail)

@@ -4,9 +4,9 @@ package mock
 import (
 	"sync"
 
-	"justledger/peer/common/api"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	"justledgerpeer/common/api"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
 )
 
 type DeliverService struct {

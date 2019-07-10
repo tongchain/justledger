@@ -7,12 +7,12 @@ SPDX-License-Identifier: Apache-2.0
 package internal
 
 import (
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/storageutil"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"justledgercore/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
+	"justledgercore/ledger/kvledger/txmgmt/statedb"
+	"justledgercore/ledger/kvledger/txmgmt/storageutil"
+	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledgerprotos/ledger/rwset/kvrwset"
 )
 
 func prepareTxOps(rwset *rwsetutil.TxRwSet, txht *version.Height,

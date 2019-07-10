@@ -10,10 +10,10 @@ import (
 	"reflect"
 	"testing"
 
-	"justledger/common/channelconfig"
-	deliverclient "justledger/core/deliverservice"
-	"justledger/gossip/util"
-	"justledger/protos/peer"
+	"justledgercommon/channelconfig"
+	deliverclient "justledgercore/deliverservice"
+	"justledgergossip/util"
+	"justledgerprotos/peer"
 )
 
 const testChainID = "foo"

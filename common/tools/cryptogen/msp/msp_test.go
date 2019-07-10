@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/common/tools/cryptogen/ca"
-	"justledger/common/tools/cryptogen/msp"
-	fabricmsp "justledger/msp"
+	"justledgercommon/tools/cryptogen/ca"
+	"justledgercommon/tools/cryptogen/msp"
+	fabricmsp "justledgermsp"
 	"github.com/stretchr/testify/assert"
 	"gopkg.in/yaml.v2"
 )

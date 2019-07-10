@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"sync"
 
-	"justledger/common/flogging"
-	"justledger/common/ledger/util"
+	"justledgercommon/flogging"
+	"justledgercommon/ledger/util"
 	"github.com/pkg/errors"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/iterator"

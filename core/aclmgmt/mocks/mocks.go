@@ -9,8 +9,8 @@ package mocks
 import (
 	"testing"
 
-	"justledger/core/ledger"
-	"justledger/protos/common"
+	"justledgercore/ledger"
+	"justledgerprotos/common"
 	"github.com/stretchr/testify/mock"
 )
 

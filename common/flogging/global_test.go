@@ -10,7 +10,7 @@ import (
 	"bytes"
 	"testing"
 
-	"justledger/common/flogging"
+	"justledgercommon/flogging"
 	"github.com/stretchr/testify/assert"
 )
 

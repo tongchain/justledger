@@ -17,8 +17,8 @@ limitations under the License.
 package policies
 
 import (
-	"justledger/common/policies"
-	cb "justledger/protos/common"
+	"justledgercommon/policies"
+	cb "justledgerprotos/common"
 )
 
 // Policy is a mock implementation of the policies.Policy interface

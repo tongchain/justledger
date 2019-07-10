@@ -9,8 +9,8 @@ package discovery
 import (
 	"fmt"
 
-	"justledger/gossip/common"
-	proto "justledger/protos/gossip"
+	"justledgergossip/common"
+	proto "justledgerprotos/gossip"
 )
 
 // CryptoService is an interface that the discovery expects to be implemented and passed on creation

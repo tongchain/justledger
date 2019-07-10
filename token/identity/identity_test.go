@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package identity_test
 
-import "justledger/msp"
+import "justledgermsp"
 
 //go:generate counterfeiter -o mock/issuing_validator.go -fake-name IssuingValidator . IssuingValidator
 //go:generate counterfeiter -o mock/public_info.go -fake-name PublicInfo . PublicInfo

@@ -8,7 +8,7 @@ package utils
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/protos/peer"
+	"justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

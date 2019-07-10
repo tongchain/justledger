@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	chaincode "justledger/common/chaincode"
-	ccprovider "justledger/core/common/ccprovider"
+	chaincode "justledgercommon/chaincode"
+	ccprovider "justledgercore/common/ccprovider"
 )
 
 type LegacyPackageProvider struct {

@@ -10,7 +10,7 @@ import (
 	"os"
 	"testing"
 
-	"justledger/core/chaincode/persistence"
+	"justledgercore/chaincode/persistence"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -15,9 +15,9 @@ import (
 	"strings"
 
 	"github.com/golang/protobuf/proto"
-	cb "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	cb "justledgerprotos/common"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

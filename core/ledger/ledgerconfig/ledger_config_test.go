@@ -19,7 +19,7 @@ package ledgerconfig
 import (
 	"testing"
 
-	ledgertestutil "justledger/core/ledger/testutil"
+	ledgertestutil "justledgercore/ledger/testutil"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

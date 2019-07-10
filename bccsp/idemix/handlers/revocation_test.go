@@ -14,10 +14,10 @@ import (
 	"encoding/pem"
 	"math/big"
 
-	"justledger/bccsp/idemix/handlers"
+	"justledgerbccsp/idemix/handlers"
 
-	"justledger/bccsp"
-	"justledger/bccsp/idemix/handlers/mock"
+	"justledgerbccsp"
+	"justledgerbccsp/idemix/handlers/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

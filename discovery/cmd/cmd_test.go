@@ -9,8 +9,8 @@ package discovery_test
 import (
 	"testing"
 
-	"justledger/discovery/cmd"
-	"justledger/discovery/cmd/mocks"
+	"justledgerdiscovery/cmd"
+	"justledgerdiscovery/cmd/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"gopkg.in/alecthomas/kingpin.v2"

@@ -14,10 +14,10 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/util"
-	cutil "justledger/core/container/util"
-	pb "justledger/protos/peer"
+	"justledgercore/chaincode/platforms"
+	"justledgercore/chaincode/platforms/util"
+	cutil "justledgercore/container/util"
+	pb "justledgerprotos/peer"
 )
 
 // Platform for the CAR type

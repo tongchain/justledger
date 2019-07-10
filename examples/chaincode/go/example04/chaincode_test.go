@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/core/chaincode/shim"
-	"justledger/examples/chaincode/go/example02"
+	"justledgercore/chaincode/shim"
+	"justledgerexamples/chaincode/go/example02"
 )
 
 // this is the response to any successful Invoke() on chaincode_example04

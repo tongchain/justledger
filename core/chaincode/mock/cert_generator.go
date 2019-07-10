@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	accesscontrol "justledger/core/chaincode/accesscontrol"
+	accesscontrol "justledgercore/chaincode/accesscontrol"
 )
 
 type CertGenerator struct {

@@ -9,12 +9,12 @@ package discovery
 import (
 	"context"
 
-	"justledger/cmd/common"
-	"justledger/cmd/common/comm"
-	"justledger/cmd/common/signer"
-	"justledger/discovery/client"
-	. "justledger/protos/discovery"
-	"justledger/protos/utils"
+	"justledgercmd/common"
+	"justledgercmd/common/comm"
+	"justledgercmd/common/signer"
+	"justledgerdiscovery/client"
+	. "justledgerprotos/discovery"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 )
 

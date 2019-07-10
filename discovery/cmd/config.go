@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"io"
 
-	"justledger/cmd/common"
-	"justledger/discovery/client"
+	"justledgercmd/common"
+	"justledgerdiscovery/client"
 	"github.com/pkg/errors"
 )
 

@@ -10,10 +10,10 @@ import (
 	"fmt"
 	"time"
 
-	"justledger/common/flogging"
-	"justledger/msp"
-	cb "justledger/protos/common"
-	mb "justledger/protos/msp"
+	"justledgercommon/flogging"
+	"justledgermsp"
+	cb "justledgerprotos/common"
+	mb "justledgerprotos/msp"
 	"go.uber.org/zap/zapcore"
 )
 

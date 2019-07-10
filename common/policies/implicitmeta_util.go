@@ -17,8 +17,8 @@ limitations under the License.
 package policies
 
 import (
-	cb "justledger/protos/common"
-	"justledger/protos/utils"
+	cb "justledgerprotos/common"
+	"justledgerprotos/utils"
 )
 
 // ImplicitMetaPolicyWithSubPolicy creates an implicitmeta policy

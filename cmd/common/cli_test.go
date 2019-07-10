@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/cmd/common/signer"
+	"justledgercmd/common/signer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

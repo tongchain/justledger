@@ -8,7 +8,7 @@ package fsblkstorage
 import (
 	"time"
 
-	"justledger/common/metrics"
+	"justledgercommon/metrics"
 )
 
 type stats struct {

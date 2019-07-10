@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"justledger/common/flogging"
+	"justledgercommon/flogging"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

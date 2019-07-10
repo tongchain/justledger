@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/token/server"
+	"justledgertoken/server"
 )
 
 type CapabilityChecker struct {

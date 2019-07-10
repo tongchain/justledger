@@ -19,15 +19,15 @@ import (
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"justledger/common/flogging/floggingtest"
-	"justledger/common/metrics/disabled"
-	"justledger/common/metrics/metricsfakes"
-	"justledger/common/util"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/golang"
-	"justledger/core/container/ccintf"
-	coreutil "justledger/core/testutil"
-	pb "justledger/protos/peer"
+	"justledgercommon/flogging/floggingtest"
+	"justledgercommon/metrics/disabled"
+	"justledgercommon/metrics/metricsfakes"
+	"justledgercommon/util"
+	"justledgercore/chaincode/platforms"
+	"justledgercore/chaincode/platforms/golang"
+	"justledgercore/container/ccintf"
+	coreutil "justledgercore/testutil"
+	pb "justledgerprotos/peer"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/spf13/viper"
@@ -123,7 +123,7 @@ func Test_Start(t *testing.T) {
 	gt.Expect(err).To(HaveOccurred())
 	buildErr = false
 
-	chaincodePath := "justledger/examples/chaincode/go/example01/cmd"
+	chaincodePath := "justledgerexamples/chaincode/go/example01/cmd"
 	spec := &pb.ChaincodeSpec{
 		Type:        pb.ChaincodeSpec_GOLANG,
 		ChaincodeId: &pb.ChaincodeID{Name: "ex01", Path: chaincodePath},

@@ -13,7 +13,7 @@ import (
 	"path"
 	"strings"
 
-	"justledger/common/flogging"
+	"justledgercommon/flogging"
 	"github.com/pkg/errors"
 )
 

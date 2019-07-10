@@ -13,8 +13,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	google_protobuf "github.com/golang/protobuf/ptypes/timestamp"
-	"justledger/protos/common"
-	"justledger/protos/peer"
+	"justledgerprotos/common"
+	"justledgerprotos/peer"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

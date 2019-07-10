@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"justledger/core/middleware"
+	"justledgercore/middleware"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

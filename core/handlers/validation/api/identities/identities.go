@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package validation
 
 import (
-	"justledger/core/handlers/validation/api"
-	"justledger/protos/msp"
+	"justledgercore/handlers/validation/api"
+	"justledgerprotos/msp"
 )
 
 // IdentityDeserializer converts serialized identities

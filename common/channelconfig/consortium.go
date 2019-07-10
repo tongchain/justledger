@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package channelconfig
 
 import (
-	cb "justledger/protos/common"
+	cb "justledgerprotos/common"
 	"github.com/pkg/errors"
 )
 

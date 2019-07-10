@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"strings"
 
-	"justledger/core/chaincode/shim"
-	pb "justledger/protos/peer"
+	"justledgercore/chaincode/shim"
+	pb "justledgerprotos/peer"
 )
 
 // MarblesPrivateChaincode example Chaincode implementation

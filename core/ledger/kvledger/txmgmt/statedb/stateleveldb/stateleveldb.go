@@ -8,11 +8,11 @@ package stateleveldb
 import (
 	"bytes"
 
-	"justledger/common/flogging"
-	"justledger/common/ledger/util/leveldbhelper"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/ledgerconfig"
+	"justledgercommon/flogging"
+	"justledgercommon/ledger/util/leveldbhelper"
+	"justledgercore/ledger/kvledger/txmgmt/statedb"
+	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/ledgerconfig"
 	"github.com/pkg/errors"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 )

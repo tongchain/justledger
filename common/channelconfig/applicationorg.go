@@ -9,8 +9,8 @@ package channelconfig
 import (
 	"fmt"
 
-	cb "justledger/protos/common"
-	pb "justledger/protos/peer"
+	cb "justledgerprotos/common"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

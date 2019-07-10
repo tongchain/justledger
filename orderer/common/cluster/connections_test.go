@@ -10,9 +10,9 @@ import (
 	"sync"
 	"testing"
 
-	"justledger/common/metrics/disabled"
-	"justledger/orderer/common/cluster"
-	"justledger/orderer/common/cluster/mocks"
+	"justledgercommon/metrics/disabled"
+	"justledgerorderer/common/cluster"
+	"justledgerorderer/common/cluster/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"google.golang.org/grpc"

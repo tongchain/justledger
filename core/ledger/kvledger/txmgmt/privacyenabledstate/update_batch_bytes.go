@@ -9,8 +9,8 @@ import (
 	"sort"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/util"
+	"justledgercore/ledger/kvledger/txmgmt/statedb"
+	"justledgercore/ledger/util"
 	"github.com/pkg/errors"
 )
 

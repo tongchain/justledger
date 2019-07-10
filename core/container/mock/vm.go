@@ -5,8 +5,8 @@ import (
 	context "context"
 	sync "sync"
 
-	container "justledger/core/container"
-	ccintf "justledger/core/container/ccintf"
+	container "justledgercore/container"
+	ccintf "justledgercore/container/ccintf"
 )
 
 type VM struct {

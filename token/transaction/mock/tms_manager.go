@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledger/token/transaction"
+	"justledgertoken/transaction"
 )
 
 type TMSManager struct {

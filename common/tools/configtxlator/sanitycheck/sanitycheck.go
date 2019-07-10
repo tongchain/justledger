@@ -10,9 +10,9 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	newchannelconfig "justledger/common/channelconfig"
-	cb "justledger/protos/common"
-	mspprotos "justledger/protos/msp"
+	newchannelconfig "justledgercommon/channelconfig"
+	cb "justledgerprotos/common"
+	mspprotos "justledgerprotos/msp"
 )
 
 type Messages struct {

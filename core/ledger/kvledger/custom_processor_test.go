@@ -10,14 +10,14 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/ledger/testutil"
-	"justledger/core/ledger"
-	"justledger/core/ledger/customtx"
-	lgrutil "justledger/core/ledger/util"
-	"justledger/protos/common"
-	"justledger/protos/ledger/rwset/kvrwset"
-	"justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercommon/ledger/testutil"
+	"justledgercore/ledger"
+	"justledgercore/ledger/customtx"
+	lgrutil "justledgercore/ledger/util"
+	"justledgerprotos/common"
+	"justledgerprotos/ledger/rwset/kvrwset"
+	"justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

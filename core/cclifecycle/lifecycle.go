@@ -9,8 +9,8 @@ package cc
 import (
 	"sync"
 
-	"justledger/common/chaincode"
-	"justledger/common/flogging"
+	"justledgercommon/chaincode"
+	"justledgercommon/flogging"
 	"github.com/pkg/errors"
 )
 

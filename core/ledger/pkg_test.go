@@ -8,7 +8,7 @@ package ledger
 import (
 	"testing"
 
-	"justledger/protos/ledger/rwset"
+	"justledgerprotos/ledger/rwset"
 	"github.com/stretchr/testify/assert"
 )
 

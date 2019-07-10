@@ -10,12 +10,12 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/common/channelconfig"
-	"justledger/common/crypto"
-	mockconfig "justledger/common/mocks/config"
-	cb "justledger/protos/common"
-	"justledger/protos/orderer"
-	"justledger/protos/utils"
+	"justledgercommon/channelconfig"
+	"justledgercommon/crypto"
+	mockconfig "justledgercommon/mocks/config"
+	cb "justledgerprotos/common"
+	"justledgerprotos/orderer"
+	"justledgerprotos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

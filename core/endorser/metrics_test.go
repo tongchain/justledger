@@ -9,7 +9,7 @@ package endorser
 import (
 	"testing"
 
-	"justledger/common/metrics/metricsfakes"
+	"justledgercommon/metrics/metricsfakes"
 	. "github.com/onsi/gomega"
 )
 

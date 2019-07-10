@@ -25,7 +25,7 @@ import (
 	"math/big"
 	"testing"
 
-	"justledger/bccsp/utils"
+	"justledgerbccsp/utils"
 	"github.com/stretchr/testify/assert"
 )
 

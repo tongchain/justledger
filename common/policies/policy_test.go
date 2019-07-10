@@ -13,8 +13,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	cb "justledger/protos/common"
-	"justledger/protos/msp"
+	cb "justledgerprotos/common"
+	"justledgerprotos/msp"
 	"github.com/stretchr/testify/assert"
 )
 

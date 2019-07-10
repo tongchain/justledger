@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"justledger/common/crypto/tlsgen"
-	"justledger/common/util"
+	"justledgercommon/crypto/tlsgen"
+	"justledgercommon/util"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/peer"
 )

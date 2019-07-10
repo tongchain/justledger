@@ -16,10 +16,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"justledger/gossip/common"
-	"justledger/gossip/gossip/msgstore"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	"justledgergossip/common"
+	"justledgergossip/gossip/msgstore"
+	"justledgergossip/util"
+	proto "justledgerprotos/gossip"
 	"github.com/pkg/errors"
 )
 

@@ -14,8 +14,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger-lib-go/healthz"
-	"justledger/common/crypto/tlsgen"
+	"github.com/hyperledger/fabric-lib-go/healthz"
+	"justledgercommon/crypto/tlsgen"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

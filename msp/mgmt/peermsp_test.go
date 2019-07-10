@@ -9,7 +9,7 @@ package mgmt
 import (
 	"testing"
 
-	"justledger/core/config/configtest"
+	"justledgercore/config/configtest"
 )
 
 func TestLocalMSP(t *testing.T) {

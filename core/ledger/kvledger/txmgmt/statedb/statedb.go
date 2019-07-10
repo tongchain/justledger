@@ -10,9 +10,9 @@ import (
 	"fmt"
 	"sort"
 
-	"justledger/core/common/ccprovider"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
+	"justledgercore/common/ccprovider"
+	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/util"
 )
 
 //go:generate counterfeiter -o mock/results_iterator.go -fake-name ResultsIterator . ResultsIterator

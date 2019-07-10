@@ -11,27 +11,27 @@ import (
 	"regexp"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	"justledger/common/flogging"
-	"justledger/core/aclmgmt"
-	"justledger/core/aclmgmt/resources"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/ccmetadata"
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/privdata"
-	"justledger/core/common/sysccprovider"
-	"justledger/core/ledger"
-	"justledger/core/ledger/cceventmgmt"
-	"justledger/core/peer"
-	"justledger/core/policy"
-	"justledger/core/policyprovider"
-	"justledger/msp"
-	"justledger/msp/mgmt"
-	"justledger/protos/common"
-	mb "justledger/protos/msp"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercommon/cauthdsl"
+	"justledgercommon/flogging"
+	"justledgercore/aclmgmt"
+	"justledgercore/aclmgmt/resources"
+	"justledgercore/chaincode/platforms"
+	"justledgercore/chaincode/platforms/ccmetadata"
+	"justledgercore/chaincode/shim"
+	"justledgercore/common/ccprovider"
+	"justledgercore/common/privdata"
+	"justledgercore/common/sysccprovider"
+	"justledgercore/ledger"
+	"justledgercore/ledger/cceventmgmt"
+	"justledgercore/peer"
+	"justledgercore/policy"
+	"justledgercore/policyprovider"
+	"justledgermsp"
+	"justledgermsp/mgmt"
+	"justledgerprotos/common"
+	mb "justledgerprotos/msp"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 )
 
@@ -154,7 +154,7 @@ func New(sccp sysccprovider.SystemChaincodeProvider, ACLProvider aclmgmt.ACLProv
 }
 
 func (lscc *LifeCycleSysCC) Name() string              { return "lscc" }
-func (lscc *LifeCycleSysCC) Path() string              { return "justledger/core/scc/lscc" }
+func (lscc *LifeCycleSysCC) Path() string              { return "justledgercore/scc/lscc" }
 func (lscc *LifeCycleSysCC) InitArgs() [][]byte        { return nil }
 func (lscc *LifeCycleSysCC) Chaincode() shim.Chaincode { return lscc }
 func (lscc *LifeCycleSysCC) InvokableExternal() bool   { return true }

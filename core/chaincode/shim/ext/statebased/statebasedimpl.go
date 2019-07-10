@@ -11,10 +11,10 @@ import (
 	"sort"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/cauthdsl"
-	cb "justledger/protos/common"
-	mb "justledger/protos/msp"
-	"justledger/protos/utils"
+	"justledgercommon/cauthdsl"
+	cb "justledgerprotos/common"
+	mb "justledgerprotos/msp"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 )
 

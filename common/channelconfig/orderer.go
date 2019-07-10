@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
-	"justledger/common/capabilities"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
+	"justledgercommon/capabilities"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
 	"github.com/pkg/errors"
 )
 

@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	ledger "justledger/common/ledger"
+	ledger "justledgercommon/ledger"
 )
 
 type QueryResultsIterator struct {

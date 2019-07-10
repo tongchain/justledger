@@ -11,9 +11,9 @@ import (
 	"fmt"
 	"time"
 
-	"justledger/gossip/api"
-	"justledger/gossip/common"
-	proto "justledger/protos/gossip"
+	"justledgergossip/api"
+	"justledgergossip/common"
+	proto "justledgerprotos/gossip"
 )
 
 // Comm is an object that enables to communicate with other peers

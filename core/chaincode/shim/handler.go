@@ -11,7 +11,7 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/proto"
-	pb "justledger/protos/peer"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

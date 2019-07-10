@@ -18,8 +18,8 @@ package msp
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledger/common/flogging"
-	"justledger/protos/msp"
+	"justledgercommon/flogging"
+	"justledgerprotos/msp"
 	"github.com/pkg/errors"
 )
 

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package crypto
 
 import (
-	cb "justledger/protos/common"
+	cb "justledgerprotos/common"
 )
 
 // LocalSigner is a temporary stub interface which will be implemented by the local MSP

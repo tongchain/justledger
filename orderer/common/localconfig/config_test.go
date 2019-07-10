@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/viperutil"
-	"justledger/core/config/configtest"
+	"justledgercommon/viperutil"
+	"justledgercore/config/configtest"
 	"github.com/stretchr/testify/assert"
 )
 

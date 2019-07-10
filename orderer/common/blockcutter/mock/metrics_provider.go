@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	metrics "justledger/common/metrics"
+	metrics "justledgercommon/metrics"
 )
 
 type MetricsProvider struct {

@@ -9,7 +9,7 @@ package comm
 import (
 	"context"
 
-	"justledger/common/metrics"
+	"justledgercommon/metrics"
 	"google.golang.org/grpc/stats"
 )
 

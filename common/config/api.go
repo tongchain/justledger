@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package config
 
 import (
-	cb "justledger/protos/common"
+	cb "justledgerprotos/common"
 )
 
 // Config encapsulates config (channel or resource) tree

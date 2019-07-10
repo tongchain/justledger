@@ -15,12 +15,12 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/cauthdsl"
-	"justledger/core/handlers/validation/api/state"
-	"justledger/protos/ledger/rwset"
-	"justledger/protos/ledger/rwset/kvrwset"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercommon/cauthdsl"
+	"justledgercore/handlers/validation/api/state"
+	"justledgerprotos/ledger/rwset"
+	"justledgerprotos/ledger/rwset/kvrwset"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

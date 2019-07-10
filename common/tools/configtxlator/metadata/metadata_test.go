@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"testing"
 
-	"justledger/common/tools/configtxlator/metadata"
+	"justledgercommon/tools/configtxlator/metadata"
 	"github.com/stretchr/testify/assert"
 )
 

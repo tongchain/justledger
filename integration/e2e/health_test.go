@@ -16,9 +16,9 @@ import (
 	"syscall"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"justledger-lib-go/healthz"
-	"justledger/integration/nwo"
-	"justledger/integration/runner"
+	"github.com/hyperledger/fabric-lib-go/healthz"
+	"justledgerintegration/nwo"
+	"justledgerintegration/runner"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/tedsuo/ifrit"

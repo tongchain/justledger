@@ -11,11 +11,11 @@ import (
 	"fmt"
 	"sync"
 
-	"justledger/common/flogging"
-	"justledger/core/chaincode/shim"
-	"justledger/core/container"
-	"justledger/core/container/ccintf"
-	pb "justledger/protos/peer"
+	"justledgercommon/flogging"
+	"justledgercore/chaincode/shim"
+	"justledgercore/container"
+	"justledgercore/container/ccintf"
+	pb "justledgerprotos/peer"
 )
 
 // ContainerType is the string which the inproc container type

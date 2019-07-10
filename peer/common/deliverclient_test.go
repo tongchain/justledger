@@ -12,12 +12,12 @@ import (
 	"sync"
 	"testing"
 
-	"justledger/core/config/configtest"
-	"justledger/msp/mgmt/testtools"
-	"justledger/peer/common/mock"
-	cb "justledger/protos/common"
-	ab "justledger/protos/orderer"
-	"justledger/protos/utils"
+	"justledgercore/config/configtest"
+	"justledgermsp/mgmt/testtools"
+	"justledgerpeer/common/mock"
+	cb "justledgerprotos/common"
+	ab "justledgerprotos/orderer"
+	"justledgerprotos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	token "justledger/token"
+	token "justledgertoken"
 )
 
 type SigningIdentity struct {

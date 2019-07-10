@@ -22,8 +22,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledger/peer/common"
-	cb "justledger/protos/common"
+	"justledgerpeer/common"
+	cb "justledgerprotos/common"
 	"github.com/stretchr/testify/assert"
 )
 

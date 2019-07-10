@@ -11,11 +11,11 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/flogging"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/util"
-	"justledger/protos/ledger/rwset"
-	"justledger/protos/ledger/rwset/kvrwset"
+	"justledgercommon/flogging"
+	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/util"
+	"justledgerprotos/ledger/rwset"
+	"justledgerprotos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 

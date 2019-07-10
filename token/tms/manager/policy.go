@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package manager
 
 import (
-	"justledger/token/identity"
+	"justledgertoken/identity"
 	"github.com/pkg/errors"
 )
 

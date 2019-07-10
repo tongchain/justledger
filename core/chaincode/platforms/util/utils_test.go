@@ -20,9 +20,9 @@ import (
 	"testing"
 	"time"
 
-	"justledger/common/util"
-	"justledger/core/config/configtest"
-	cutil "justledger/core/container/util"
+	"justledgercommon/util"
+	"justledgercore/config/configtest"
+	cutil "justledgercore/container/util"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

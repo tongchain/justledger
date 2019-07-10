@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"justledger/core/operations"
+	"justledgercore/operations"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledger/common/configtx"
-	cb "justledger/protos/common"
+	"justledgercommon/configtx"
+	cb "justledgerprotos/common"
 )
 
 type ConfigtxValidator struct {

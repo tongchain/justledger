@@ -15,8 +15,8 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/idemix"
-	m "justledger/msp"
+	"justledgeridemix"
+	m "justledgermsp"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

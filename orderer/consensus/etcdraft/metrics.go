@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package etcdraft
 
-import "justledger/common/metrics"
+import "justledgercommon/metrics"
 
 var (
 	clusterSizeOpts = metrics.GaugeOpts{

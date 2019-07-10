@@ -11,14 +11,14 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	privdatacommon "justledger/gossip/privdata/common"
-	"justledger/protos/common"
-	"justledger/protos/ledger/rwset"
-	"justledger/protos/ledger/rwset/kvrwset"
-	"justledger/protos/msp"
-	"justledger/protos/peer"
+	"justledgercore/ledger"
+	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
+	privdatacommon "justledgergossip/privdata/common"
+	"justledgerprotos/common"
+	"justledgerprotos/ledger/rwset"
+	"justledgerprotos/ledger/rwset/kvrwset"
+	"justledgerprotos/msp"
+	"justledgerprotos/peer"
 	"github.com/spf13/viper"
 )
 

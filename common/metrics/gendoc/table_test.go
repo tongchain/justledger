@@ -13,7 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"justledger/common/metrics/gendoc"
+	"justledgercommon/metrics/gendoc"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

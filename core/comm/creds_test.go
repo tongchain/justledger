@@ -15,8 +15,8 @@ import (
 	"sync"
 	"testing"
 
-	"justledger/common/flogging/floggingtest"
-	"justledger/core/comm"
+	"justledgercommon/flogging/floggingtest"
+	"justledgercore/comm"
 	"github.com/stretchr/testify/assert"
 )
 

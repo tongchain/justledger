@@ -12,12 +12,12 @@ import (
 	"sort"
 	"strings"
 
-	"justledger/core/chaincode/accesscontrol"
-	"justledger/core/chaincode/platforms"
-	"justledger/core/common/ccprovider"
-	"justledger/core/container"
-	"justledger/core/container/ccintf"
-	pb "justledger/protos/peer"
+	"justledgercore/chaincode/accesscontrol"
+	"justledgercore/chaincode/platforms"
+	"justledgercore/common/ccprovider"
+	"justledgercore/container"
+	"justledgercore/container/ccintf"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

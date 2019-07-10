@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	proto "github.com/golang/protobuf/proto"
-	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/kvledger/txmgmt/version"
 	"github.com/stretchr/testify/assert"
 )
 

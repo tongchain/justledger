@@ -8,8 +8,8 @@ package lockbasedtxmgr
 import (
 	"testing"
 
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger"
+	"justledgercore/ledger/kvledger/txmgmt/version"
 	"github.com/stretchr/testify/assert"
 )
 

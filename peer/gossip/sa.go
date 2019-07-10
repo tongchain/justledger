@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package gossip
 
 import (
-	"justledger/common/flogging"
-	"justledger/gossip/api"
-	"justledger/msp/mgmt"
+	"justledgercommon/flogging"
+	"justledgergossip/api"
+	"justledgermsp/mgmt"
 )
 
 var saLogger = flogging.MustGetLogger("peer.gossip.sa")

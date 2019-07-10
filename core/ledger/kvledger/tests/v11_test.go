@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/common/ledger/testutil"
-	protopeer "justledger/protos/peer"
+	"justledgercommon/ledger/testutil"
+	protopeer "justledgerprotos/peer"
 )
 
 // TestV11 tests that a ledgersData folder created by v1.1 can be used with future releases in a backward compatible way

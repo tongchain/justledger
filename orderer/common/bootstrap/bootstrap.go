@@ -4,7 +4,7 @@
 package bootstrap
 
 import (
-	ab "justledger/protos/common"
+	ab "justledgerprotos/common"
 )
 
 // Helper defines the functions a bootstrapping implementation should provide.

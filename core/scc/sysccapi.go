@@ -10,14 +10,14 @@ import (
 	"errors"
 	"fmt"
 
-	"justledger/common/flogging"
-	"justledger/common/util"
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	"justledger/core/container/ccintf"
-	"justledger/core/container/inproccontroller"
-	"justledger/core/peer"
-	pb "justledger/protos/peer"
+	"justledgercommon/flogging"
+	"justledgercommon/util"
+	"justledgercore/chaincode/shim"
+	"justledgercore/common/ccprovider"
+	"justledgercore/container/ccintf"
+	"justledgercore/container/inproccontroller"
+	"justledgercore/peer"
+	pb "justledgerprotos/peer"
 	"github.com/spf13/viper"
 )
 

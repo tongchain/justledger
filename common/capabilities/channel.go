@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package capabilities
 
 import (
-	"justledger/msp"
-	cb "justledger/protos/common"
+	"justledgermsp"
+	cb "justledgerprotos/common"
 )
 
 const (

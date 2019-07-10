@@ -12,9 +12,9 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"justledger/common/flogging"
-	"justledger/common/flogging/fabenc"
-	"justledger/common/flogging/mock"
+	"justledgercommon/flogging"
+	"justledgercommon/flogging/fabenc"
+	"justledgercommon/flogging/mock"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

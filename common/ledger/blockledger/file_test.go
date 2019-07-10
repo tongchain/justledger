@@ -20,10 +20,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	. "justledger/common/ledger/blockledger"
-	fileledger "justledger/common/ledger/blockledger/file"
-	"justledger/common/metrics/disabled"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	. "justledgercommon/ledger/blockledger"
+	fileledger "justledgercommon/ledger/blockledger/file"
+	"justledgercommon/metrics/disabled"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
 )
 
 func init() {

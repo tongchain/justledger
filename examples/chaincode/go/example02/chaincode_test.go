@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"testing"
 
-	"justledger/core/chaincode/shim"
+	"justledgercore/chaincode/shim"
 )
 
 func checkInit(t *testing.T, stub *shim.MockStub, args [][]byte) {

@@ -10,12 +10,12 @@ import (
 	"math"
 	"sync"
 
-	"justledger/core/ledger/kvledger/bookkeeping"
-	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledger/core/ledger/kvledger/txmgmt/statedb"
-	"justledger/core/ledger/kvledger/txmgmt/version"
-	"justledger/core/ledger/pvtdatapolicy"
-	"justledger/core/ledger/util"
+	"justledgercore/ledger/kvledger/bookkeeping"
+	"justledgercore/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledgercore/ledger/kvledger/txmgmt/statedb"
+	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/pvtdatapolicy"
+	"justledgercore/ledger/util"
 )
 
 // PurgeMgr manages purging of the expired pvtdata

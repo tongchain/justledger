@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"justledger/common/flogging"
-	ccutil "justledger/core/chaincode/platforms/util"
+	"justledgercommon/flogging"
+	ccutil "justledgercore/chaincode/platforms/util"
 )
 
 var includeFileTypes = map[string]bool{

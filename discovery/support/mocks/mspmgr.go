@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledger/msp"
-	mspprotos "justledger/protos/msp"
+	"justledgermsp"
+	mspprotos "justledgerprotos/msp"
 )
 
 type MSPManager struct {

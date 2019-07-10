@@ -9,7 +9,7 @@ package inactive_test
 import (
 	"testing"
 
-	"justledger/orderer/consensus/inactive"
+	"justledgerorderer/consensus/inactive"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

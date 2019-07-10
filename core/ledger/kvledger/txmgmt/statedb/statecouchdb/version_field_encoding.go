@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	proto "github.com/golang/protobuf/proto"
-	"justledger/core/ledger/kvledger/txmgmt/statedb/statecouchdb/msgs"
-	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/kvledger/txmgmt/statedb/statecouchdb/msgs"
+	"justledgercore/ledger/kvledger/txmgmt/version"
 )
 
 func encodeVersionAndMetadata(version *version.Height, metadata []byte) (string, error) {

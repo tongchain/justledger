@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package cache
 
 import (
-	"justledger/common/flogging"
-	"justledger/msp"
-	pmsp "justledger/protos/msp"
+	"justledgercommon/flogging"
+	"justledgermsp"
+	pmsp "justledgerprotos/msp"
 	"github.com/pkg/errors"
 )
 

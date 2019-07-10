@@ -14,12 +14,12 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/common/ccpackage"
-	"justledger/core/common/ccprovider"
-	"justledger/peer/common"
-	pcommon "justledger/protos/common"
-	pb "justledger/protos/peer"
-	"justledger/protos/utils"
+	"justledgercore/common/ccpackage"
+	"justledgercore/common/ccprovider"
+	"justledgerpeer/common"
+	pcommon "justledgerprotos/common"
+	pb "justledgerprotos/peer"
+	"justledgerprotos/utils"
 	"github.com/spf13/cobra"
 )
 

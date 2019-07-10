@@ -11,10 +11,10 @@ import (
 	"io"
 	"time"
 
-	"justledger/common/flogging"
-	"justledger/common/util"
-	"justledger/core/comm"
-	"justledger/protos/orderer"
+	"justledgercommon/flogging"
+	"justledgercommon/util"
+	"justledgercore/comm"
+	"justledgerprotos/orderer"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )

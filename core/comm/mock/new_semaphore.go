@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	comm "justledger/core/comm"
+	comm "justledgercore/comm"
 )
 
 type NewSemaphore struct {

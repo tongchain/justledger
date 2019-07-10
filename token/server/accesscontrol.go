@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package server
 
 import (
-	"justledger/protos/common"
-	"justledger/protos/token"
+	"justledgerprotos/common"
+	"justledgerprotos/token"
 	"github.com/pkg/errors"
 )
 

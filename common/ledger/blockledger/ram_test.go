@@ -17,9 +17,9 @@ limitations under the License.
 package blockledger_test
 
 import (
-	. "justledger/common/ledger/blockledger"
-	ramledger "justledger/common/ledger/blockledger/ram"
-	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	. "justledgercommon/ledger/blockledger"
+	ramledger "justledgercommon/ledger/blockledger/ram"
+	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
 )
 
 func init() {

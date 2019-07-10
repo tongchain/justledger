@@ -27,8 +27,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"justledger/common/flogging"
-	"justledger/core/ledger/ledgerconfig"
+	"justledgercommon/flogging"
+	"justledgercore/ledger/ledgerconfig"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )

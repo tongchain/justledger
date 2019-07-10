@@ -9,8 +9,8 @@ package msptesttools
 import (
 	"testing"
 
-	"justledger/common/util"
-	"justledger/msp/mgmt"
+	"justledgercommon/util"
+	"justledgermsp/mgmt"
 )
 
 func TestFakeSetup(t *testing.T) {

@@ -10,8 +10,8 @@ import (
 	"bytes"
 	"testing"
 
-	"justledger/bccsp/factory"
-	"justledger/bccsp/mocks"
+	"justledgerbccsp/factory"
+	"justledgerbccsp/mocks"
 	"github.com/stretchr/testify/assert"
 )
 

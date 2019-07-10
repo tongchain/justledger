@@ -10,9 +10,9 @@ import (
 	"testing"
 	"time"
 
-	"justledger/bccsp"
-	"justledger/bccsp/factory"
-	"justledger/common/crypto/tlsgen"
+	"justledgerbccsp"
+	"justledgerbccsp/factory"
+	"justledgercommon/crypto/tlsgen"
 	"github.com/stretchr/testify/assert"
 )
 

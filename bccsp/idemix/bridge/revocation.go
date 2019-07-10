@@ -9,9 +9,9 @@ import (
 	"crypto/ecdsa"
 
 	"github.com/golang/protobuf/proto"
-	"justledger-amcl/amcl/FP256BN"
-	"justledger/bccsp"
-	cryptolib "justledger/idemix"
+	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
+	"justledgerbccsp"
+	cryptolib "justledgeridemix"
 	"github.com/pkg/errors"
 )
 

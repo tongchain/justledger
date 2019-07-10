@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"justledger/bccsp/utils"
-	"justledger/common/tools/cryptogen/csp"
+	"justledgerbccsp/utils"
+	"justledgercommon/tools/cryptogen/csp"
 )
 
 type CA struct {

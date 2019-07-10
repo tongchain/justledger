@@ -64,7 +64,7 @@ NEXUS_REPO = nexus3.hyperledger.org:10001/hyperledger
 EXTRA_VERSION ?= $(shell git rev-parse --short HEAD)
 PROJECT_VERSION=$(BASE_VERSION)-snapshot-$(EXTRA_VERSION)
 
-PKGNAME = $(PROJECT_NAME)
+PKGNAME = justledger
 CGO_FLAGS = CGO_CFLAGS=" "
 ARCH=$(shell go env GOARCH)
 MARCH=$(shell go env GOOS)-$(shell go env GOARCH)

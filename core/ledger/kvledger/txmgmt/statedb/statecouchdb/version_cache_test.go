@@ -8,7 +8,7 @@ package statecouchdb
 import (
 	"testing"
 
-	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledgercore/ledger/kvledger/txmgmt/version"
 	"github.com/stretchr/testify/assert"
 )
 

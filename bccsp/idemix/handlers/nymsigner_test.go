@@ -8,9 +8,9 @@ package handlers_test
 import (
 	"errors"
 
-	"justledger/bccsp"
-	"justledger/bccsp/idemix/handlers"
-	"justledger/bccsp/idemix/handlers/mock"
+	"justledgerbccsp"
+	"justledgerbccsp/idemix/handlers"
+	"justledgerbccsp/idemix/handlers/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

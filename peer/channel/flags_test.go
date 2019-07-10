@@ -9,7 +9,7 @@ package channel
 import (
 	"testing"
 
-	"justledger/peer/common"
+	"justledgerpeer/common"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"

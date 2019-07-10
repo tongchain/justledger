@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"testing"
 
-	"justledger/common/flogging"
+	"justledgercommon/flogging"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zapcore"
 )

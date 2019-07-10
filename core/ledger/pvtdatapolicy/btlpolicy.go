@@ -10,8 +10,8 @@ import (
 	"math"
 	"sync"
 
-	"justledger/core/common/privdata"
-	"justledger/protos/common"
+	"justledgercore/common/privdata"
+	"justledgerprotos/common"
 )
 
 var defaultBTL uint64 = math.MaxUint64

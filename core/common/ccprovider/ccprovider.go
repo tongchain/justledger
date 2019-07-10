@@ -16,11 +16,11 @@ import (
 	"unicode"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/common/chaincode"
-	"justledger/common/flogging"
-	"justledger/core/common/privdata"
-	"justledger/core/ledger"
-	pb "justledger/protos/peer"
+	"justledgercommon/chaincode"
+	"justledgercommon/flogging"
+	"justledgercore/common/privdata"
+	"justledgercore/ledger"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

@@ -12,7 +12,7 @@ import (
 	"os"
 	"syscall"
 
-	"justledger/common/diag"
+	"justledgercommon/diag"
 )
 
 func addPlatformSignals(sigs map[os.Signal]func()) map[os.Signal]func() {

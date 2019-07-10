@@ -12,9 +12,9 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"justledger/common/crypto"
-	cb "justledger/protos/common"
-	pb "justledger/protos/peer"
+	"justledgercommon/crypto"
+	cb "justledgerprotos/common"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 )
 

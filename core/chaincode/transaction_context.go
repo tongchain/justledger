@@ -9,10 +9,10 @@ package chaincode
 import (
 	"sync"
 
-	commonledger "justledger/common/ledger"
-	"justledger/core/common/privdata"
-	"justledger/core/ledger"
-	pb "justledger/protos/peer"
+	commonledger "justledgercommon/ledger"
+	"justledgercore/common/privdata"
+	"justledgercore/ledger"
+	pb "justledgerprotos/peer"
 )
 
 type TransactionContext struct {

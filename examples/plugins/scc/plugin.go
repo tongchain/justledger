@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"justledger/core/chaincode/shim"
-	pb "justledger/protos/peer"
+	"justledgercore/chaincode/shim"
+	pb "justledgerprotos/peer"
 )
 
 // New returns an implementation of the chaincode interface

@@ -9,7 +9,7 @@ package config
 import (
 	"testing"
 
-	"justledger/common/channelconfig"
+	"justledgercommon/channelconfig"
 )
 
 func TestChannelConfigInterface(t *testing.T) {

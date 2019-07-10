@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package server_test
 
 import (
-	"justledger/token/server"
+	"justledgertoken/server"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

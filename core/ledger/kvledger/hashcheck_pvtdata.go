@@ -8,12 +8,12 @@ package kvledger
 import (
 	"bytes"
 
-	"justledger/common/util"
-	"justledger/core/ledger"
-	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
-	"justledger/core/ledger/ledgerstorage"
-	"justledger/protos/ledger/rwset"
-	"justledger/protos/utils"
+	"justledgercommon/util"
+	"justledgercore/ledger"
+	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
+	"justledgercore/ledger/ledgerstorage"
+	"justledgerprotos/ledger/rwset"
+	"justledgerprotos/utils"
 )
 
 // constructValidAndInvalidPvtData computes the valid pvt data and hash mismatch list

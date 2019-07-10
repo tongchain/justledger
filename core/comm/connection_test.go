@@ -18,7 +18,7 @@ import (
 	"testing"
 	"time"
 
-	testpb "justledger/core/comm/testdata/grpc"
+	testpb "justledgercore/comm/testdata/grpc"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"

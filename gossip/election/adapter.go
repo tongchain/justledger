@@ -11,11 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"justledger/gossip/common"
-	"justledger/gossip/discovery"
-	"justledger/gossip/metrics"
-	"justledger/gossip/util"
-	proto "justledger/protos/gossip"
+	"justledgergossip/common"
+	"justledgergossip/discovery"
+	"justledgergossip/metrics"
+	"justledgergossip/util"
+	proto "justledgerprotos/gossip"
 )
 
 type msgImpl struct {

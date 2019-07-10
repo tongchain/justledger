@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 package server
 
 import (
-	"justledger/protos/token"
+	"justledgerprotos/token"
 )
 
 //go:generate counterfeiter -o mock/issuer.go -fake-name Issuer . Issuer

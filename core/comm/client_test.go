@@ -19,8 +19,8 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledger/core/comm"
-	testpb "justledger/core/comm/testdata/grpc"
+	"justledgercore/comm"
+	testpb "justledgercore/comm/testdata/grpc"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"

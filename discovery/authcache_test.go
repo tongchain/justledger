@@ -12,7 +12,7 @@ import (
 	"sync"
 	"testing"
 
-	"justledger/protos/common"
+	"justledgerprotos/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

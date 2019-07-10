@@ -4,7 +4,7 @@ package fake
 import (
 	sync "sync"
 
-	channelconfig "justledger/common/channelconfig"
+	channelconfig "justledgercommon/channelconfig"
 )
 
 type ApplicationConfigRetriever struct {

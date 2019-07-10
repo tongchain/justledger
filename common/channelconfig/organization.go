@@ -9,9 +9,9 @@ package channelconfig
 import (
 	"fmt"
 
-	"justledger/msp"
-	cb "justledger/protos/common"
-	mspprotos "justledger/protos/msp"
+	"justledgermsp"
+	cb "justledgerprotos/common"
+	mspprotos "justledgerprotos/msp"
 	"github.com/pkg/errors"
 )
 

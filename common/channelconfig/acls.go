@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package channelconfig
 
 import (
-	pb "justledger/protos/peer"
+	pb "justledgerprotos/peer"
 )
 
 // aclsProvider provides mappings for resource to policy names

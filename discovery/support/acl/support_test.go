@@ -9,12 +9,12 @@ package acl_test
 import (
 	"testing"
 
-	"justledger/common/channelconfig"
-	"justledger/common/policies"
-	"justledger/discovery/support/acl"
-	"justledger/discovery/support/mocks"
-	gmocks "justledger/peer/gossip/mocks"
-	cb "justledger/protos/common"
+	"justledgercommon/channelconfig"
+	"justledgercommon/policies"
+	"justledgerdiscovery/support/acl"
+	"justledgerdiscovery/support/mocks"
+	gmocks "justledgerpeer/gossip/mocks"
+	cb "justledgerprotos/common"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

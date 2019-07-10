@@ -9,11 +9,11 @@ package lscc_test
 import (
 	"testing"
 
-	"justledger/core/chaincode/shim"
-	"justledger/core/common/ccprovider"
-	"justledger/core/common/sysccprovider"
-	"justledger/core/ledger"
-	"justledger/core/scc/lscc"
+	"justledgercore/chaincode/shim"
+	"justledgercore/common/ccprovider"
+	"justledgercore/common/sysccprovider"
+	"justledgercore/ledger"
+	"justledgercore/scc/lscc"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

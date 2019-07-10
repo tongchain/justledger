@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package pvtdatastorage
 
 import (
-	"justledger/core/ledger"
-	"justledger/core/ledger/pvtdatapolicy"
+	"justledgercore/ledger"
+	"justledgercore/ledger/pvtdatapolicy"
 )
 
 // Provider provides handle to specific 'Store' that in turn manages

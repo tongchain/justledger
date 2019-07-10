@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	ccprovider "justledger/core/common/ccprovider"
-	ledger "justledger/core/ledger"
+	ccprovider "justledgercore/common/ccprovider"
+	ledger "justledgercore/ledger"
 )
 
 type Lifecycle struct {

@@ -9,7 +9,7 @@ package customtx
 import (
 	"sync"
 
-	"justledger/protos/common"
+	"justledgerprotos/common"
 )
 
 var processors Processors

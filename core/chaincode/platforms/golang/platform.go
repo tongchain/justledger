@@ -19,11 +19,11 @@ import (
 	"sort"
 	"strings"
 
-	"justledger/core/chaincode/platforms"
-	"justledger/core/chaincode/platforms/ccmetadata"
-	"justledger/core/chaincode/platforms/util"
-	cutil "justledger/core/container/util"
-	pb "justledger/protos/peer"
+	"justledgercore/chaincode/platforms"
+	"justledgercore/chaincode/platforms/ccmetadata"
+	"justledgercore/chaincode/platforms/util"
+	cutil "justledgercore/container/util"
+	pb "justledgerprotos/peer"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
@@ -284,8 +284,8 @@ func (goPlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) {
 	// Remove any imports that are provided by the ccenv or system
 	// --------------------------------------------------------------------------------------
 	var provided = map[string]bool{
-		"justledger/core/chaincode/shim": true,
-		"justledger/protos/peer":         true,
+		"justledgercore/chaincode/shim": true,
+		"justledgerprotos/peer":         true,
 	}
 
 	// Golang "pseudo-packages" - packages which don't actually exist
@@ -427,7 +427,7 @@ func (goPlatform *Platform) GetDeploymentPayload(path string) ([]byte, error) {
 		// file.Name represents tar packagepath
 
 		// If the file is metadata rather than golang code, remove the leading go code path, for example:
-		// original file.Name:  src/justledger/examples/chaincode/go/marbles02/META-INF/statedb/couchdb/indexes/indexOwner.json
+		// original file.Name:  src/justledgerexamples/chaincode/go/marbles02/META-INF/statedb/couchdb/indexes/indexOwner.json
 		// updated file.Name:   META-INF/statedb/couchdb/indexes/indexOwner.json
 		if file.IsMetadata {
 

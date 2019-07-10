@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"justledger/gossip/util"
+	"justledgergossip/util"
 )
 
 // Gossip leader election module
