@@ -9,7 +9,7 @@ package chaincode
 import (
 	"sync"
 
-	"justledgerprotos/gossip"
+	"justledger/protos/gossip"
 )
 
 // InstalledChaincode defines metadata about an installed chaincode

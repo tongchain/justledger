@@ -9,7 +9,7 @@ package ccprovider
 import (
 	"path/filepath"
 
-	"justledgercore/config"
+	"justledger/core/config"
 )
 
 // GetChaincodeInstallPathFromViper returns the path where chaincodes are installed

@@ -13,12 +13,12 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/cauthdsl"
-	"justledgercore/ledger"
-	"justledgercore/ledger/util"
-	"justledgerprotos/common"
-	"justledgerprotos/ledger/rwset"
-	"justledgerprotos/transientstore"
+	"justledger/common/cauthdsl"
+	"justledger/core/ledger"
+	"justledger/core/ledger/util"
+	"justledger/protos/common"
+	"justledger/protos/ledger/rwset"
+	"justledger/protos/transientstore"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

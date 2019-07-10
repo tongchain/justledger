@@ -4,10 +4,10 @@ package mock
 import (
 	"sync"
 
-	"justledgerprotos/token"
-	"justledgertoken/identity"
-	"justledgertoken/ledger"
-	"justledgertoken/transaction"
+	"justledger/protos/token"
+	"justledger/token/identity"
+	"justledger/token/ledger"
+	"justledger/token/transaction"
 )
 
 type TMSTxProcessor struct {

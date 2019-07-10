@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"justledgercore/common/ccprovider"
-	"justledgercore/container/inproccontroller"
+	"justledger/core/common/ccprovider"
+	"justledger/core/container/inproccontroller"
 	"github.com/pkg/errors"
 )
 

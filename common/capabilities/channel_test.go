@@ -9,8 +9,8 @@ package capabilities
 import (
 	"testing"
 
-	"justledgermsp"
-	cb "justledgerprotos/common"
+	"justledger/msp"
+	cb "justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

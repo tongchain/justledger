@@ -23,10 +23,10 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledgerbccsp/factory"
-	"justledgercommon/tools/configtxgen/configtxgentest"
-	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
-	"justledgercore/config/configtest"
+	"justledger/bccsp/factory"
+	"justledger/common/tools/configtxgen/configtxgentest"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	"justledger/core/config/configtest"
 	"github.com/stretchr/testify/assert"
 )
 

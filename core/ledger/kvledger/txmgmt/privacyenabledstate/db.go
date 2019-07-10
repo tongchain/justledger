@@ -9,9 +9,9 @@ package privacyenabledstate
 import (
 	"fmt"
 
-	"justledgercore/ledger/cceventmgmt"
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/cceventmgmt"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
 )
 
 // DBProvider provides handle to a PvtVersionedDB

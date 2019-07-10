@@ -11,13 +11,13 @@ import (
 	"os"
 	"testing"
 
-	"justledgercommon/flogging"
-	commonledger "justledgercommon/ledger"
-	"justledgercore/ledger/kvledger/txmgmt/queryutil"
-	"justledgercore/ledger/kvledger/txmgmt/queryutil/mock"
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	statedbmock "justledgercore/ledger/kvledger/txmgmt/statedb/mock"
-	"justledgerprotos/ledger/queryresult"
+	"justledger/common/flogging"
+	commonledger "justledger/common/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/queryutil"
+	"justledger/core/ledger/kvledger/txmgmt/queryutil/mock"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	statedbmock "justledger/core/ledger/kvledger/txmgmt/statedb/mock"
+	"justledger/protos/ledger/queryresult"
 	"github.com/stretchr/testify/assert"
 )
 

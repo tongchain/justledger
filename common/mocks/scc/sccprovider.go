@@ -17,11 +17,11 @@ limitations under the License.
 package scc
 
 import (
-	"justledgercommon/channelconfig"
-	lm "justledgercommon/mocks/ledger"
-	"justledgercommon/policies"
-	"justledgercore/common/sysccprovider"
-	"justledgercore/ledger"
+	"justledger/common/channelconfig"
+	lm "justledger/common/mocks/ledger"
+	"justledger/common/policies"
+	"justledger/core/common/sysccprovider"
+	"justledger/core/ledger"
 )
 
 type MocksccProviderFactory struct {

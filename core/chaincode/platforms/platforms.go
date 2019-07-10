@@ -13,9 +13,9 @@ import (
 	"io"
 	"strings"
 
-	"justledgercommon/flogging"
-	"justledgercommon/metadata"
-	cutil "justledgercore/container/util"
+	"justledger/common/flogging"
+	"justledger/common/metadata"
+	cutil "justledger/core/container/util"
 )
 
 //MetadataProvider is implemented by each platform in a platform specific manner.

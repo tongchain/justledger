@@ -9,8 +9,8 @@ package etcdraft
 import (
 	"testing"
 
-	"justledgercommon/flogging"
-	cb "justledgerprotos/common"
+	"justledger/common/flogging"
+	cb "justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )

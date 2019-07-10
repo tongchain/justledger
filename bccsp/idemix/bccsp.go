@@ -8,12 +8,12 @@ package idemix
 import (
 	"reflect"
 
-	"justledgerbccsp/idemix/bridge"
+	"justledger/bccsp/idemix/bridge"
 
-	"justledgerbccsp/idemix/handlers"
+	"justledger/bccsp/idemix/handlers"
 
-	"justledgerbccsp"
-	"justledgerbccsp/sw"
+	"justledger/bccsp"
+	"justledger/bccsp/sw"
 	"github.com/pkg/errors"
 )
 

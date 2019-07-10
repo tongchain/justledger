@@ -26,9 +26,9 @@ import (
 	"path/filepath"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"justledgercommon/flogging"
-	"justledgercommon/util"
-	cutil "justledgercore/container/util"
+	"justledger/common/flogging"
+	"justledger/common/util"
+	cutil "justledger/core/container/util"
 )
 
 var logger = flogging.MustGetLogger("chaincode.platform.util")

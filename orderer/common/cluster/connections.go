@@ -12,7 +12,7 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"justledgercommon/metrics"
+	"justledger/common/metrics"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )

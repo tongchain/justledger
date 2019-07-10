@@ -12,9 +12,9 @@ import (
 	"io"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercmd/common"
-	"justledgerdiscovery/client"
-	"justledgerprotos/msp"
+	"justledger/cmd/common"
+	"justledger/discovery/client"
+	"justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

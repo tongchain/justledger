@@ -21,14 +21,14 @@ import (
 	"os"
 	"testing"
 
-	"justledgercommon/metrics/disabled"
+	"justledger/common/metrics/disabled"
 
-	"justledgercommon/configtx/test"
-	"justledgercore/chaincode/platforms"
-	"justledgercore/chaincode/platforms/golang"
-	"justledgercore/ledger"
-	"justledgercore/ledger/cceventmgmt"
-	"justledgercore/ledger/mock"
+	"justledger/common/configtx/test"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/golang"
+	"justledger/core/ledger"
+	"justledger/core/ledger/cceventmgmt"
+	"justledger/core/ledger/mock"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

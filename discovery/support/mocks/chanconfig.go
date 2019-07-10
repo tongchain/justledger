@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledgercommon/channelconfig"
-	"justledgerdiscovery/support/acl"
+	"justledger/common/channelconfig"
+	"justledger/discovery/support/acl"
 )
 
 type ChanConfig struct {

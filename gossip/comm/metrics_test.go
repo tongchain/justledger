@@ -11,9 +11,9 @@ import (
 	"testing"
 	"time"
 
-	"justledgergossip/metrics"
-	"justledgergossip/metrics/mocks"
-	"justledgergossip/util"
+	"justledger/gossip/metrics"
+	"justledger/gossip/metrics/mocks"
+	"justledger/gossip/util"
 	"github.com/stretchr/testify/assert"
 )
 

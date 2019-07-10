@@ -11,8 +11,8 @@ import (
 	"os"
 	"runtime"
 
-	"justledgerintegration/helpers"
-	"justledgerintegration/runner"
+	"justledger/integration/helpers"
+	"justledger/integration/runner"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )
@@ -34,27 +34,27 @@ func (c *Components) Build(args ...string) {
 	if c.Paths == nil {
 		c.Paths = map[string]string{}
 	}
-	cryptogen, err := gexec.Build("justledgercommon/tools/cryptogen", args...)
+	cryptogen, err := gexec.Build("justledger/common/tools/cryptogen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["cryptogen"] = cryptogen
 
-	idemixgen, err := gexec.Build("justledgercommon/tools/idemixgen", args...)
+	idemixgen, err := gexec.Build("justledger/common/tools/idemixgen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["idemixgen"] = idemixgen
 
-	configtxgen, err := gexec.Build("justledgercommon/tools/configtxgen", args...)
+	configtxgen, err := gexec.Build("justledger/common/tools/configtxgen", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["configtxgen"] = configtxgen
 
-	orderer, err := gexec.Build("justledgerorderer", args...)
+	orderer, err := gexec.Build("justledger/orderer", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["orderer"] = orderer
 
-	peer, err := gexec.Build("justledgerpeer", args...)
+	peer, err := gexec.Build("justledger/peer", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["peer"] = peer
 
-	discover, err := gexec.Build("justledgercmd/discover", args...)
+	discover, err := gexec.Build("justledger/cmd/discover", args...)
 	Expect(err).NotTo(HaveOccurred())
 	c.Paths["discover"] = discover
 }

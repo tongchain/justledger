@@ -9,10 +9,10 @@ package internal
 import (
 	"testing"
 
-	"justledgercore/ledger/kvledger/txmgmt/privacyenabledstate"
-	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgerprotos/ledger/rwset/kvrwset"
+	"justledger/core/ledger/kvledger/txmgmt/privacyenabledstate"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/protos/ledger/rwset/kvrwset"
 	"github.com/stretchr/testify/assert"
 )
 

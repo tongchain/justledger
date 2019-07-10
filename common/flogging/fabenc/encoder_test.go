@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"justledgercommon/flogging/fabenc"
+	"justledger/common/flogging/fabenc"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/buffer"

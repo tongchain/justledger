@@ -10,11 +10,11 @@ import (
 	"io"
 	"time"
 
-	"justledgercommon/flogging"
-	"justledgercommon/util"
-	"justledgerorderer/common/msgprocessor"
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
+	"justledger/common/flogging"
+	"justledger/common/util"
+	"justledger/orderer/common/msgprocessor"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 	"github.com/pkg/errors"
 )
 

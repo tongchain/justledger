@@ -19,7 +19,7 @@ package fsblkstorage
 import (
 	"sync"
 
-	"justledgercommon/ledger"
+	"justledger/common/ledger"
 )
 
 // blocksItr - an iterator for iterating over a sequence of blocks

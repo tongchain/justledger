@@ -11,8 +11,8 @@ package msgprocessor
 import (
 	"errors"
 
-	"justledgercommon/flogging"
-	cb "justledgerprotos/common"
+	"justledger/common/flogging"
+	cb "justledger/protos/common"
 )
 
 const (

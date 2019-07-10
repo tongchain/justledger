@@ -12,8 +12,8 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/proto"
-	"justledgerprotos/token"
-	"justledgertoken/tms"
+	"justledger/protos/token"
+	"justledger/token/tms"
 	"github.com/pkg/errors"
 )
 

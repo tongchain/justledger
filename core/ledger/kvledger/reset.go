@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 package kvledger
 
 import (
-	"justledgercommon/ledger/blkstorage/fsblkstorage"
-	"justledgercore/ledger/ledgerconfig"
+	"justledger/common/ledger/blkstorage/fsblkstorage"
+	"justledger/core/ledger/ledgerconfig"
 )
 
 // ResetAllKVLedgers resets all ledger to the genesis block.

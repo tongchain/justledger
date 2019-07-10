@@ -18,7 +18,7 @@ package sw
 import (
 	"errors"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 )
 
 // NewDummyKeyStore instantiate a dummy key store

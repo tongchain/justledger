@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledgercore/config/configtest"
+	"justledger/core/config/configtest"
 	"github.com/stretchr/testify/assert"
 )
 

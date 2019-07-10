@@ -10,9 +10,9 @@ import (
 	"os"
 	"testing"
 
-	"justledgercommon/crypto"
-	mspmgmt "justledgermsp/mgmt"
-	msptesttools "justledgermsp/mgmt/testtools"
+	"justledger/common/crypto"
+	mspmgmt "justledger/msp/mgmt"
+	msptesttools "justledger/msp/mgmt/testtools"
 	"github.com/stretchr/testify/assert"
 )
 

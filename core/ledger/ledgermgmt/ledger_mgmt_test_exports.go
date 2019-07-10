@@ -9,11 +9,11 @@ import (
 	"fmt"
 	"os"
 
-	"justledgercommon/metrics/disabled"
-	"justledgercore/chaincode/platforms"
-	"justledgercore/chaincode/platforms/golang"
-	"justledgercore/ledger/ledgerconfig"
-	"justledgercore/ledger/mock"
+	"justledger/common/metrics/disabled"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/golang"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/core/ledger/mock"
 )
 
 // InitializeTestEnv initializes ledgermgmt for tests

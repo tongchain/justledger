@@ -10,13 +10,13 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/proto"
-	newchannelconfig "justledgercommon/channelconfig"
-	"justledgercommon/configtx"
-	"justledgercommon/crypto"
-	"justledgercommon/ledger/blockledger"
-	"justledgercommon/util"
-	cb "justledgerprotos/common"
-	"justledgerprotos/utils"
+	newchannelconfig "justledger/common/channelconfig"
+	"justledger/common/configtx"
+	"justledger/common/crypto"
+	"justledger/common/ledger/blockledger"
+	"justledger/common/util"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 )
 
 type blockWriterSupport interface {

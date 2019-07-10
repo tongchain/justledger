@@ -17,8 +17,8 @@ limitations under the License.
 package common
 
 import (
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 	"github.com/pkg/errors"
 )
 

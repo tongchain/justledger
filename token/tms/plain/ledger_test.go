@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package plain_test
 
 import (
-	"justledgertoken/tms/plain"
+	"justledger/token/tms/plain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

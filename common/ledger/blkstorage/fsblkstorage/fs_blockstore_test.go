@@ -19,7 +19,7 @@ package fsblkstorage
 import (
 	"testing"
 
-	"justledgercommon/ledger/testutil"
+	"justledger/common/ledger/testutil"
 	"github.com/stretchr/testify/assert"
 )
 

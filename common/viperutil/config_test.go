@@ -16,7 +16,7 @@ import (
 	"testing"
 
 	"github.com/Shopify/sarama"
-	"justledgerorderer/mocks/util"
+	"justledger/orderer/mocks/util"
 	"github.com/spf13/viper"
 )
 

@@ -9,8 +9,8 @@ package operations
 import (
 	"sync"
 
-	"justledgercommon/metrics"
-	"justledgercommon/metrics/prometheus"
+	"justledger/common/metrics"
+	"justledger/common/metrics/prometheus"
 )
 
 var (

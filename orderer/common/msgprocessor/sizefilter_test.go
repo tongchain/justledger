@@ -10,9 +10,9 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	mockconfig "justledgercommon/mocks/config"
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
+	mockconfig "justledger/common/mocks/config"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 

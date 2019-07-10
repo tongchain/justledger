@@ -9,9 +9,9 @@ package privdata
 import (
 	"testing"
 
-	"justledgercommon/cauthdsl"
-	"justledgermsp"
-	"justledgerprotos/common"
+	"justledger/common/cauthdsl"
+	"justledger/msp"
+	"justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

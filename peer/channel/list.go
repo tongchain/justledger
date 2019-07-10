@@ -22,10 +22,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercore/scc/cscc"
-	common2 "justledgerprotos/common"
-	pb "justledgerprotos/peer"
-	"justledgerprotos/utils"
+	"justledger/core/scc/cscc"
+	common2 "justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/spf13/cobra"
 )
 

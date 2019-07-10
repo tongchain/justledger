@@ -9,7 +9,7 @@ package comm
 import (
 	"context"
 
-	"justledgercommon/semaphore"
+	"justledger/common/semaphore"
 	"google.golang.org/grpc"
 )
 

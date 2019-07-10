@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/fsouza/go-dockerclient"
-	"justledgerintegration/runner"
+	"justledger/integration/runner"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"

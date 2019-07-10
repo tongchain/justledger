@@ -20,7 +20,7 @@ import (
 	"sort"
 	"testing"
 
-	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/kvledger/txmgmt/version"
 	"github.com/stretchr/testify/assert"
 )
 

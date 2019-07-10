@@ -7,17 +7,17 @@ SPDX-License-Identifier: Apache-2.0
 package historyleveldb
 
 import (
-	"justledgercommon/flogging"
-	"justledgercommon/ledger/blkstorage"
-	"justledgercommon/ledger/util/leveldbhelper"
-	"justledgercore/ledger"
-	"justledgercore/ledger/kvledger/history/historydb"
-	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgercore/ledger/ledgerconfig"
-	"justledgercore/ledger/util"
-	"justledgerprotos/common"
-	putils "justledgerprotos/utils"
+	"justledger/common/flogging"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/util/leveldbhelper"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger/history/historydb"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/core/ledger/util"
+	"justledger/protos/common"
+	putils "justledger/protos/utils"
 )
 
 var logger historydbLogger = flogging.MustGetLogger("historyleveldb")

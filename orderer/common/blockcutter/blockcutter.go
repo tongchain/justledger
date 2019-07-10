@@ -9,9 +9,9 @@ package blockcutter
 import (
 	"time"
 
-	"justledgercommon/channelconfig"
-	"justledgercommon/flogging"
-	cb "justledgerprotos/common"
+	"justledger/common/channelconfig"
+	"justledger/common/flogging"
+	cb "justledger/protos/common"
 )
 
 var logger = flogging.MustGetLogger("orderer.common.blockcutter")

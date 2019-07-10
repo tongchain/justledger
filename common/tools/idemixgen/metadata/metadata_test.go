@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"testing"
 
-	"justledgercommon/tools/idemixgen/metadata"
+	"justledger/common/tools/idemixgen/metadata"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -19,8 +19,8 @@ import (
 	"hash"
 	"reflect"
 
-	"justledgerbccsp"
-	"justledgercommon/flogging"
+	"justledger/bccsp"
+	"justledger/common/flogging"
 	"github.com/pkg/errors"
 )
 

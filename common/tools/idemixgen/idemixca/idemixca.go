@@ -11,9 +11,9 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
-	"justledgeridemix"
-	"justledgermsp"
-	m "justledgerprotos/msp"
+	"justledger/idemix"
+	"justledger/msp"
+	m "justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

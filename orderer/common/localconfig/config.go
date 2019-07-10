@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	bccsp "justledgerbccsp/factory"
-	"justledgercommon/flogging"
-	"justledgercommon/viperutil"
-	coreconfig "justledgercore/config"
+	bccsp "justledger/bccsp/factory"
+	"justledger/common/flogging"
+	"justledger/common/viperutil"
+	coreconfig "justledger/core/config"
 	"github.com/spf13/viper"
 )
 

@@ -12,9 +12,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"justledgercommon/util"
-	"justledgercore/chaincode/persistence"
-	"justledgercore/chaincode/persistence/mock"
+	"justledger/common/util"
+	"justledger/core/chaincode/persistence"
+	"justledger/core/chaincode/persistence/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

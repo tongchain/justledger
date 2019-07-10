@@ -20,7 +20,7 @@ import (
 	"os"
 	"testing"
 
-	"justledgercore/ledger/ledgerconfig"
+	"justledger/core/ledger/ledgerconfig"
 )
 
 type testEnv struct {

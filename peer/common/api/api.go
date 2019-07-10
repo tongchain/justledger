@@ -9,9 +9,9 @@ package api
 import (
 	"context"
 
-	"justledgerpeer/chaincode/api"
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
+	"justledger/peer/chaincode/api"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 	"google.golang.org/grpc"
 )
 

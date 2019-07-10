@@ -9,10 +9,10 @@ package kafka
 import (
 	"github.com/Shopify/sarama"
 	"github.com/hyperledger/fabric-lib-go/healthz"
-	"justledgercommon/metrics"
-	"justledgerorderer/common/localconfig"
-	"justledgerorderer/consensus"
-	cb "justledgerprotos/common"
+	"justledger/common/metrics"
+	"justledger/orderer/common/localconfig"
+	"justledger/orderer/consensus"
+	cb "justledger/protos/common"
 	"github.com/op/go-logging"
 )
 

@@ -13,12 +13,12 @@ import (
 	"encoding/pem"
 	"time"
 
-	"justledgercommon/crypto"
-	"justledgercommon/flogging"
-	"justledgercore/comm"
-	"justledgerorderer/common/localconfig"
-	"justledgerprotos/common"
-	"justledgerprotos/utils"
+	"justledger/common/crypto"
+	"justledger/common/flogging"
+	"justledger/core/comm"
+	"justledger/orderer/common/localconfig"
+	"justledger/protos/common"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

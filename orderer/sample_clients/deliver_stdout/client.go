@@ -10,14 +10,14 @@ import (
 	"math"
 	"os"
 
-	"justledgercommon/crypto"
-	"justledgercommon/localmsp"
-	"justledgercommon/tools/protolator"
-	mspmgmt "justledgermsp/mgmt"
-	"justledgerorderer/common/localconfig"
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
-	"justledgerprotos/utils"
+	"justledger/common/crypto"
+	"justledger/common/localmsp"
+	"justledger/common/tools/protolator"
+	mspmgmt "justledger/msp/mgmt"
+	"justledger/orderer/common/localconfig"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
+	"justledger/protos/utils"
 	"google.golang.org/grpc"
 )
 

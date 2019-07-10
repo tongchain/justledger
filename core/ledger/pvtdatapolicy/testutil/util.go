@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package testutil
 
 import (
-	"justledgercore/ledger/pvtdatapolicy"
-	"justledgercore/ledger/pvtdatapolicy/mock"
-	"justledgerprotos/common"
+	"justledger/core/ledger/pvtdatapolicy"
+	"justledger/core/ledger/pvtdatapolicy/mock"
+	"justledger/protos/common"
 )
 
 // SampleBTLPolicy helps tests create a sample BTLPolicy

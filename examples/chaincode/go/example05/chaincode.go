@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"justledgercore/chaincode/shim"
-	pb "justledgerprotos/peer"
+	"justledger/core/chaincode/shim"
+	pb "justledger/protos/peer"
 )
 
 // This chaincode is a test for chaincode querying another chaincode - invokes chaincode_example02 and computes the sum of a and b and stores it as state

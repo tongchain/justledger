@@ -9,9 +9,9 @@ package persistence_test
 import (
 	"fmt"
 
-	"justledgercommon/chaincode"
-	"justledgercore/chaincode/persistence"
-	"justledgercore/chaincode/persistence/mock"
+	"justledger/common/chaincode"
+	"justledger/core/chaincode/persistence"
+	"justledger/core/chaincode/persistence/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

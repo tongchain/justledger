@@ -9,9 +9,9 @@ package channelconfig
 import (
 	"testing"
 
-	cb "justledgerprotos/common"
-	mspprotos "justledgerprotos/msp"
-	pb "justledgerprotos/peer"
+	cb "justledger/protos/common"
+	mspprotos "justledger/protos/msp"
+	pb "justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

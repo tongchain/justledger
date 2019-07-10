@@ -11,8 +11,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"justledgercommon/util"
-	"justledgerprotos/token"
+	"justledger/common/util"
+	"justledger/protos/token"
 	"github.com/pkg/errors"
 )
 

@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package channelconfig
 
 import (
-	"justledgercommon/cauthdsl"
-	"justledgercommon/configtx"
-	"justledgercommon/flogging"
-	"justledgercommon/policies"
-	"justledgermsp"
-	cb "justledgerprotos/common"
-	"justledgerprotos/utils"
+	"justledger/common/cauthdsl"
+	"justledger/common/configtx"
+	"justledger/common/flogging"
+	"justledger/common/policies"
+	"justledger/msp"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

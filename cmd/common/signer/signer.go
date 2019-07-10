@@ -15,10 +15,10 @@ import (
 	"io/ioutil"
 	"math/big"
 
-	"justledgerbccsp/utils"
-	"justledgercommon/util"
-	"justledgerprotos/msp"
-	proto_utils "justledgerprotos/utils"
+	"justledger/bccsp/utils"
+	"justledger/common/util"
+	"justledger/protos/msp"
+	proto_utils "justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

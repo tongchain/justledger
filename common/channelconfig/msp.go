@@ -10,9 +10,9 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgermsp"
-	"justledgermsp/cache"
-	mspprotos "justledgerprotos/msp"
+	"justledger/msp"
+	"justledger/msp/cache"
+	mspprotos "justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

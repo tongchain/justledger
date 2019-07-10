@@ -12,8 +12,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"justledgergossip/api"
-	"justledgergossip/common"
+	"justledger/gossip/api"
+	"justledger/gossip/common"
 	errors "github.com/pkg/errors"
 )
 

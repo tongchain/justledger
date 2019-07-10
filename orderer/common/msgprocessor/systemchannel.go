@@ -10,12 +10,12 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/channelconfig"
-	"justledgercommon/configtx"
-	"justledgercommon/crypto"
-	"justledgercommon/policies"
-	cb "justledgerprotos/common"
-	"justledgerprotos/utils"
+	"justledger/common/channelconfig"
+	"justledger/common/configtx"
+	"justledger/common/crypto"
+	"justledger/common/policies"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 
 	"github.com/pkg/errors"
 )

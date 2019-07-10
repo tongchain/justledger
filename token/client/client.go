@@ -8,9 +8,9 @@ package client
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledgerprotos/common"
-	"justledgerprotos/token"
-	tk "justledgertoken"
+	"justledger/protos/common"
+	"justledger/protos/token"
+	tk "justledger/token"
 )
 
 //go:generate counterfeiter -o mock/prover.go -fake-name Prover . Prover

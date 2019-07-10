@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package acl
 
 import (
-	"justledgercommon/channelconfig"
-	"justledgercommon/flogging"
-	"justledgercommon/policies"
-	cb "justledgerprotos/common"
-	"justledgerprotos/msp"
+	"justledger/common/channelconfig"
+	"justledger/common/flogging"
+	"justledger/common/policies"
+	cb "justledger/protos/common"
+	"justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

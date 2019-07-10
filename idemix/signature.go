@@ -12,7 +12,7 @@ import (
 
 	"github.com/hyperledger/fabric-amcl/amcl"
 	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
-	"justledgercommon/flogging"
+	"justledger/common/flogging"
 	"github.com/pkg/errors"
 )
 

@@ -15,17 +15,17 @@ import (
 	"reflect"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/flogging"
-	"justledgercommon/tools/configtxlator/metadata"
-	"justledgercommon/tools/configtxlator/rest"
-	"justledgercommon/tools/configtxlator/update"
-	"justledgercommon/tools/protolator"
-	_ "justledgerprotos/common"
-	cb "justledgerprotos/common" // Import these to register the proto types
-	_ "justledgerprotos/msp"
-	_ "justledgerprotos/orderer"
-	_ "justledgerprotos/orderer/etcdraft"
-	_ "justledgerprotos/peer"
+	"justledger/common/flogging"
+	"justledger/common/tools/configtxlator/metadata"
+	"justledger/common/tools/configtxlator/rest"
+	"justledger/common/tools/configtxlator/update"
+	"justledger/common/tools/protolator"
+	_ "justledger/protos/common"
+	cb "justledger/protos/common" // Import these to register the proto types
+	_ "justledger/protos/msp"
+	_ "justledger/protos/orderer"
+	_ "justledger/protos/orderer/etcdraft"
+	_ "justledger/protos/peer"
 
 	"github.com/gorilla/handlers"
 	"github.com/pkg/errors"

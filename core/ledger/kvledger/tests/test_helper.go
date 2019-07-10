@@ -9,8 +9,8 @@ package tests
 import (
 	"testing"
 
-	"justledgercore/ledger"
-	"justledgercore/ledger/ledgermgmt"
+	"justledger/core/ledger"
+	"justledger/core/ledger/ledgermgmt"
 	"github.com/stretchr/testify/assert"
 )
 

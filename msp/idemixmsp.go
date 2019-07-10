@@ -13,10 +13,10 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledgerbccsp"
-	idemixbccsp "justledgerbccsp/idemix"
-	"justledgerbccsp/sw"
-	m "justledgerprotos/msp"
+	"justledger/bccsp"
+	idemixbccsp "justledger/bccsp/idemix"
+	"justledger/bccsp/sw"
+	m "justledger/protos/msp"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )

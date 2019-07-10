@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package plain
 
 import (
-	"justledgerprotos/token"
+	"justledger/protos/token"
 )
 
 // An Issuer that can import new tokens

@@ -11,11 +11,11 @@ import (
 	"errors"
 	"path/filepath"
 
-	"justledgercommon/ledger/util"
-	"justledgercore/config"
-	"justledgercore/ledger"
-	"justledgerprotos/common"
-	"justledgerprotos/ledger/rwset"
+	"justledger/common/ledger/util"
+	"justledger/core/config"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	"justledger/protos/ledger/rwset"
 )
 
 var (

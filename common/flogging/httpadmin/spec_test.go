@@ -12,9 +12,9 @@ import (
 	"net/http/httptest"
 	"strings"
 
-	"justledgercommon/flogging"
-	"justledgercommon/flogging/httpadmin"
-	"justledgercommon/flogging/httpadmin/fakes"
+	"justledger/common/flogging"
+	"justledger/common/flogging/httpadmin"
+	"justledger/common/flogging/httpadmin/fakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

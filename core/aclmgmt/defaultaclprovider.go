@@ -9,13 +9,13 @@ package aclmgmt
 import (
 	"fmt"
 
-	"justledgercommon/policies"
-	"justledgercore/aclmgmt/resources"
-	"justledgercore/peer"
-	"justledgercore/policy"
-	"justledgermsp/mgmt"
-	"justledgerprotos/common"
-	pb "justledgerprotos/peer"
+	"justledger/common/policies"
+	"justledger/core/aclmgmt/resources"
+	"justledger/core/peer"
+	"justledger/core/policy"
+	"justledger/msp/mgmt"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
 )
 
 const (

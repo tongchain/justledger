@@ -17,9 +17,9 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/flogging"
-	"justledgercore/comm"
-	"justledgerprotos/orderer"
+	"justledger/common/flogging"
+	"justledger/core/comm"
+	"justledger/protos/orderer"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

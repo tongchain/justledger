@@ -24,7 +24,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 )
 
 // rsaPublicKey reflects the ASN.1 structure of a PKCS#1 public key.

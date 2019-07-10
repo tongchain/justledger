@@ -26,9 +26,9 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/timestamp"
-	"justledgerbccsp"
-	"justledgerbccsp/factory"
-	"justledgercommon/metadata"
+	"justledger/bccsp"
+	"justledger/bccsp/factory"
+	"justledger/common/metadata"
 )
 
 type alg struct {

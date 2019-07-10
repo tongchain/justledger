@@ -18,17 +18,17 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercore/handlers/endorsement/api"
-	"justledgercore/handlers/validation/api"
-	"justledgerprotos/peer"
+	"justledger/core/handlers/endorsement/api"
+	"justledger/core/handlers/validation/api"
+	"justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
-	authPluginPackage      = "justledgercore/handlers/auth/plugin"
-	decoratorPluginPackage = "justledgercore/handlers/decoration/plugin"
-	endorsementTestPlugin  = "justledgercore/handlers/endorsement/testdata/"
-	validationTestPlugin   = "justledgercore/handlers/validation/testdata/"
+	authPluginPackage      = "justledger/core/handlers/auth/plugin"
+	decoratorPluginPackage = "justledger/core/handlers/decoration/plugin"
+	endorsementTestPlugin  = "justledger/core/handlers/endorsement/testdata/"
+	validationTestPlugin   = "justledger/core/handlers/validation/testdata/"
 )
 
 // raceEnabled is set to true when the race build tag is enabled.

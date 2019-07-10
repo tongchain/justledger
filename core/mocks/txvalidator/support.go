@@ -19,12 +19,12 @@ package support
 import (
 	"sync"
 
-	"justledgercommon/channelconfig"
-	mockpolicies "justledgercommon/mocks/policies"
-	"justledgercommon/policies"
-	"justledgercore/ledger"
-	"justledgermsp"
-	"justledgerprotos/common"
+	"justledger/common/channelconfig"
+	mockpolicies "justledger/common/mocks/policies"
+	"justledger/common/policies"
+	"justledger/core/ledger"
+	"justledger/msp"
+	"justledger/protos/common"
 )
 
 type Support struct {

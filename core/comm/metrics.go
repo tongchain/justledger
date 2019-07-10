@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package comm
 
-import "justledgercommon/metrics"
+import "justledger/common/metrics"
 
 var (
 	openConnCounterOpts = metrics.CounterOpts{

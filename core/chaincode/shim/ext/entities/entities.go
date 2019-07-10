@@ -10,7 +10,7 @@ import (
 	"encoding/pem"
 	"reflect"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 	"github.com/pkg/errors"
 )
 

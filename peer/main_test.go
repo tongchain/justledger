@@ -22,7 +22,7 @@ import (
 
 func TestPluginLoadingFailure(t *testing.T) {
 	gt := NewGomegaWithT(t)
-	peer, err := gexec.Build("justledgerpeer")
+	peer, err := gexec.Build("justledger/peer")
 	gt.Expect(err).NotTo(HaveOccurred())
 	defer gexec.CleanupBuildArtifacts()
 

@@ -16,7 +16,7 @@ limitations under the License.
 package shim
 
 import (
-	pb "justledgerprotos/peer"
+	pb "justledger/protos/peer"
 )
 
 const (

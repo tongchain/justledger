@@ -8,10 +8,10 @@ package lockbasedtxmgr
 import (
 	"fmt"
 
-	commonledger "justledgercommon/ledger"
-	"justledgercore/ledger"
-	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
-	"justledgercore/ledger/kvledger/txmgmt/txmgr"
+	commonledger "justledger/common/ledger"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/kvledger/txmgmt/txmgr"
 	"github.com/pkg/errors"
 )
 

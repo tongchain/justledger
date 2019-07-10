@@ -7,10 +7,10 @@ package bridge
 
 import (
 	"github.com/hyperledger/fabric-amcl/amcl"
-	"justledgerbccsp/idemix/handlers"
+	"justledger/bccsp/idemix/handlers"
 
 	"github.com/golang/protobuf/proto"
-	cryptolib "justledgeridemix"
+	cryptolib "justledger/idemix"
 	"github.com/pkg/errors"
 )
 

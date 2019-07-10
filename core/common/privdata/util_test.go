@@ -9,7 +9,7 @@ package privdata
 import (
 	"testing"
 
-	"justledgerprotos/common"
+	"justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -12,13 +12,13 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"justledgercommon/flogging"
-	"justledgercommon/util"
-	"justledgercore/comm"
-	common2 "justledgergossip/common"
-	discovery2 "justledgergossip/discovery"
-	"justledgerprotos/common"
-	"justledgerprotos/discovery"
+	"justledger/common/flogging"
+	"justledger/common/util"
+	"justledger/core/comm"
+	common2 "justledger/gossip/common"
+	discovery2 "justledger/gossip/discovery"
+	"justledger/protos/common"
+	"justledger/protos/discovery"
 	"github.com/pkg/errors"
 )
 

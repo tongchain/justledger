@@ -9,9 +9,9 @@ package filter
 import (
 	"testing"
 
-	"justledgergossip/comm"
-	"justledgergossip/common"
-	"justledgergossip/discovery"
+	"justledger/gossip/comm"
+	"justledger/gossip/common"
+	"justledger/gossip/discovery"
 	"github.com/stretchr/testify/assert"
 )
 

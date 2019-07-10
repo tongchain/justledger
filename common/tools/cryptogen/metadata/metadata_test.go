@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"testing"
 
-	"justledgercommon/tools/cryptogen/metadata"
+	"justledger/common/tools/cryptogen/metadata"
 	"github.com/stretchr/testify/assert"
 )
 

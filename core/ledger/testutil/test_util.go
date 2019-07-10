@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"justledgercore/config/configtest"
+	"justledger/core/config/configtest"
 	"github.com/spf13/viper"
 )
 

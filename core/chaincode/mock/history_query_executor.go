@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	ledger "justledgercommon/ledger"
+	ledger "justledger/common/ledger"
 )
 
 type HistoryQueryExecutor struct {

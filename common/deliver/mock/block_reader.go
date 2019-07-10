@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	blockledger "justledgercommon/ledger/blockledger"
-	orderer "justledgerprotos/orderer"
+	blockledger "justledger/common/ledger/blockledger"
+	orderer "justledger/protos/orderer"
 )
 
 type BlockReader struct {

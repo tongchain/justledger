@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package validation
 
-import "justledgerprotos/common"
+import "justledger/protos/common"
 
 // Argument defines the argument for validation
 type Argument interface {

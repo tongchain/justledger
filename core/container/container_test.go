@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package container_test
 
 import (
-	"justledgercore/container"
-	"justledgercore/container/ccintf"
-	"justledgercore/container/mock"
+	"justledger/core/container"
+	"justledger/core/container/ccintf"
+	"justledger/core/container/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"

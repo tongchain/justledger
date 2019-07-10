@@ -12,12 +12,12 @@ import (
 	"testing"
 	"time"
 
-	"justledgercore/comm"
-	"justledgercore/deliverservice/mocks"
-	"justledgergossip/api"
-	common2 "justledgergossip/common"
-	"justledgerprotos/common"
-	"justledgerprotos/orderer"
+	"justledger/core/comm"
+	"justledger/core/deliverservice/mocks"
+	"justledger/gossip/api"
+	common2 "justledger/gossip/common"
+	"justledger/protos/common"
+	"justledger/protos/orderer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

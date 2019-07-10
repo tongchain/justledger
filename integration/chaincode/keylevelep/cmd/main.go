@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"os"
 
-	"justledgercore/chaincode/shim"
-	"justledgerintegration/chaincode/keylevelep"
+	"justledger/core/chaincode/shim"
+	"justledger/integration/chaincode/keylevelep"
 )
 
 func main() {

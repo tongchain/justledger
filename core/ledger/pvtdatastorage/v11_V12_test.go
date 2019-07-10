@@ -11,8 +11,8 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-	"justledgercommon/ledger/testutil"
-	btltestutil "justledgercore/ledger/pvtdatapolicy/testutil"
+	"justledger/common/ledger/testutil"
+	btltestutil "justledger/core/ledger/pvtdatapolicy/testutil"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

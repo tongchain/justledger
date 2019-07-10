@@ -9,9 +9,9 @@ package comm
 import (
 	"time"
 
-	"justledgercommon/crypto/tlsgen"
-	"justledgercommon/util"
-	"justledgercore/comm"
+	"justledger/common/crypto/tlsgen"
+	"justledger/common/util"
+	"justledger/core/comm"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 )

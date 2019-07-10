@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"runtime"
 
-	"justledgercommon/metadata"
+	"justledger/common/metadata"
 	"github.com/spf13/cobra"
 )
 

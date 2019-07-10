@@ -10,12 +10,12 @@ import (
 	"fmt"
 	"time"
 
-	"justledgergossip/api"
-	"justledgergossip/comm"
-	"justledgergossip/common"
-	"justledgergossip/discovery"
-	"justledgergossip/filter"
-	proto "justledgerprotos/gossip"
+	"justledger/gossip/api"
+	"justledger/gossip/comm"
+	"justledger/gossip/common"
+	"justledger/gossip/discovery"
+	"justledger/gossip/filter"
+	proto "justledger/protos/gossip"
 )
 
 // Gossip is the interface of the gossip component

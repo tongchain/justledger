@@ -2,7 +2,7 @@
 
 package mocks
 
-import cluster "justledgerorderer/common/cluster"
+import cluster "justledger/orderer/common/cluster"
 import grpc "google.golang.org/grpc"
 import mock "github.com/stretchr/testify/mock"
 

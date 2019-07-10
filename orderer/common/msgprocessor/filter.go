@@ -9,7 +9,7 @@ package msgprocessor
 import (
 	"errors"
 
-	ab "justledgerprotos/common"
+	ab "justledger/protos/common"
 )
 
 // ErrEmptyMessage is returned by the empty message filter on rejection.

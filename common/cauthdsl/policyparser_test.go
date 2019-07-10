@@ -10,9 +10,9 @@ import (
 	"reflect"
 	"testing"
 
-	"justledgerprotos/common"
-	"justledgerprotos/msp"
-	"justledgerprotos/utils"
+	"justledger/protos/common"
+	"justledger/protos/msp"
+	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

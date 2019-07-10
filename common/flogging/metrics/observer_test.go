@@ -9,9 +9,9 @@ package metrics_test
 import (
 	"testing"
 
-	"justledgercommon/flogging/metrics"
-	commonmetrics "justledgercommon/metrics"
-	"justledgercommon/metrics/metricsfakes"
+	"justledger/common/flogging/metrics"
+	commonmetrics "justledger/common/metrics"
+	"justledger/common/metrics/metricsfakes"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zapcore"
 )

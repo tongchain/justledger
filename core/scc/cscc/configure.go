@@ -15,21 +15,21 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/channelconfig"
-	"justledgercommon/config"
-	"justledgercommon/flogging"
-	"justledgercore/aclmgmt"
-	"justledgercore/aclmgmt/resources"
-	"justledgercore/chaincode/shim"
-	"justledgercore/common/ccprovider"
-	"justledgercore/common/sysccprovider"
-	"justledgercore/ledger/util"
-	"justledgercore/peer"
-	"justledgercore/policy"
-	"justledgermsp/mgmt"
-	"justledgerprotos/common"
-	pb "justledgerprotos/peer"
-	"justledgerprotos/utils"
+	"justledger/common/channelconfig"
+	"justledger/common/config"
+	"justledger/common/flogging"
+	"justledger/core/aclmgmt"
+	"justledger/core/aclmgmt/resources"
+	"justledger/core/chaincode/shim"
+	"justledger/core/common/ccprovider"
+	"justledger/core/common/sysccprovider"
+	"justledger/core/ledger/util"
+	"justledger/core/peer"
+	"justledger/core/policy"
+	"justledger/msp/mgmt"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 
@@ -50,7 +50,7 @@ func New(ccp ccprovider.ChaincodeProvider, sccp sysccprovider.SystemChaincodePro
 }
 
 func (e *PeerConfiger) Name() string              { return "cscc" }
-func (e *PeerConfiger) Path() string              { return "justledgercore/scc/cscc" }
+func (e *PeerConfiger) Path() string              { return "justledger/core/scc/cscc" }
 func (e *PeerConfiger) InitArgs() [][]byte        { return nil }
 func (e *PeerConfiger) Chaincode() shim.Chaincode { return e }
 func (e *PeerConfiger) InvokableExternal() bool   { return true }

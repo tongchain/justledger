@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	common "justledgerprotos/common"
+	common "justledger/protos/common"
 )
 
 type BlockIterator struct {

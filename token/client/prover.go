@@ -13,8 +13,8 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes"
-	"justledgerprotos/token"
-	tk "justledgertoken"
+	"justledger/protos/token"
+	tk "justledger/token"
 	"github.com/pkg/errors"
 )
 

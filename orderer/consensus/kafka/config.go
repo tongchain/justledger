@@ -10,7 +10,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 
-	localconfig "justledgerorderer/common/localconfig"
+	localconfig "justledger/orderer/common/localconfig"
 
 	"github.com/Shopify/sarama"
 )

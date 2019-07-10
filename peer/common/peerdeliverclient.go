@@ -9,8 +9,8 @@ package common
 import (
 	"context"
 
-	ccapi "justledgerpeer/chaincode/api"
-	pb "justledgerprotos/peer"
+	ccapi "justledger/peer/chaincode/api"
+	pb "justledger/protos/peer"
 	grpc "google.golang.org/grpc"
 )
 

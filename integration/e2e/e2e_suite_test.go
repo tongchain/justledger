@@ -13,7 +13,7 @@ import (
 	"sync"
 	"testing"
 
-	"justledgerintegration/nwo"
+	"justledger/integration/nwo"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"

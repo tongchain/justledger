@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	flogging "justledgercommon/flogging"
+	flogging "justledger/common/flogging"
 	zapcore "go.uber.org/zap/zapcore"
 )
 

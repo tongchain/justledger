@@ -9,11 +9,11 @@ package ramledger
 import (
 	"testing"
 
-	"justledgercommon/flogging"
-	"justledgercommon/ledger/blockledger"
-	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
+	"justledger/common/flogging"
+	"justledger/common/ledger/blockledger"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 )
 
 var genesisBlock = cb.NewBlock(0, nil)

@@ -12,14 +12,14 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/tools/configtxgen/configtxgentest"
-	"justledgercommon/tools/configtxgen/encoder"
-	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
-	"justledgercommon/tools/protolator"
-	cb "justledgerprotos/common"
-	"justledgerprotos/msp"
-	pb "justledgerprotos/peer"
-	"justledgerprotos/utils"
+	"justledger/common/tools/configtxgen/configtxgentest"
+	"justledger/common/tools/configtxgen/encoder"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	"justledger/common/tools/protolator"
+	cb "justledger/protos/common"
+	"justledger/protos/msp"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

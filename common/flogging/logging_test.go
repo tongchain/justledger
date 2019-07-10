@@ -13,8 +13,8 @@ import (
 	"os"
 	"testing"
 
-	"justledgercommon/flogging"
-	"justledgercommon/flogging/mock"
+	"justledger/common/flogging"
+	"justledger/common/flogging/mock"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zapcore"
 )

@@ -7,16 +7,16 @@
 package peer
 
 import (
-	"justledgercommon/channelconfig"
-	"justledgercommon/metrics"
-	"justledgercommon/policies"
-	"justledgercore/chaincode/platforms"
-	"justledgercore/committer/txvalidator"
-	"justledgercore/common/ccprovider"
-	"justledgercore/common/sysccprovider"
-	"justledgercore/ledger"
-	"justledgerprotos/common"
-	pb "justledgerprotos/peer"
+	"justledger/common/channelconfig"
+	"justledger/common/metrics"
+	"justledger/common/policies"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/committer/txvalidator"
+	"justledger/core/common/ccprovider"
+	"justledger/core/common/sysccprovider"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
 )
 
 // Operations exposes an interface to the package level functions that operated

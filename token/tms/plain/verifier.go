@@ -14,12 +14,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/flogging"
-	"justledgercore/ledger/customtx"
-	"justledgerprotos/token"
-	"justledgerprotos/utils"
-	"justledgertoken/identity"
-	"justledgertoken/ledger"
+	"justledger/common/flogging"
+	"justledger/core/ledger/customtx"
+	"justledger/protos/token"
+	"justledger/protos/utils"
+	"justledger/token/identity"
+	"justledger/token/ledger"
 	"github.com/pkg/errors"
 )
 

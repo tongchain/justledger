@@ -20,12 +20,12 @@ import (
 	"errors"
 	"fmt"
 
-	"justledgercommon/policies"
-	"justledgermsp"
-	"justledgermsp/mgmt"
-	"justledgerprotos/common"
-	pb "justledgerprotos/peer"
-	"justledgerprotos/utils"
+	"justledger/common/policies"
+	"justledger/msp"
+	"justledger/msp/mgmt"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/protos/utils"
 )
 
 // PolicyChecker offers methods to check a signed proposal against a specific policy

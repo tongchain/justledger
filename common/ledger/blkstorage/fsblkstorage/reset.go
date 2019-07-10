@@ -12,7 +12,7 @@ import (
 	"path"
 	"strconv"
 
-	"justledgercommon/ledger/util"
+	"justledger/common/ledger/util"
 )
 
 func ResetBlockStore(blockStorageDir string) error {

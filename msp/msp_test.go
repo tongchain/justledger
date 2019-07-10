@@ -21,11 +21,11 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledgerbccsp"
-	"justledgerbccsp/sw"
-	"justledgerbccsp/utils"
-	"justledgercore/config/configtest"
-	"justledgerprotos/msp"
+	"justledger/bccsp"
+	"justledger/bccsp/sw"
+	"justledger/bccsp/utils"
+	"justledger/core/config/configtest"
+	"justledger/protos/msp"
 	"github.com/stretchr/testify/assert"
 )
 

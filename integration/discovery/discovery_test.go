@@ -15,14 +15,14 @@ import (
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/cauthdsl"
-	"justledgerintegration/nwo"
-	"justledgerintegration/nwo/commands"
-	"justledgermsp"
-	"justledgerprotos/common"
-	"justledgerprotos/discovery"
-	pm "justledgerprotos/msp"
-	"justledgerprotos/utils"
+	"justledger/common/cauthdsl"
+	"justledger/integration/nwo"
+	"justledger/integration/nwo/commands"
+	"justledger/msp"
+	"justledger/protos/common"
+	"justledger/protos/discovery"
+	pm "justledger/protos/msp"
+	"justledger/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -102,7 +102,7 @@ var _ = Describe("DiscoveryService", func() {
 		chaincode := nwo.Chaincode{
 			Name:    "mycc",
 			Version: "1.0",
-			Path:    "justledgerintegration/chaincode/simple/cmd",
+			Path:    "justledger/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR (AND ('Org1MSP.member','Org2MSP.member'), AND ('Org1MSP.member','Org3MSP.member'), AND ('Org2MSP.member','Org3MSP.member'))`,
 		}
@@ -157,7 +157,7 @@ var _ = Describe("DiscoveryService", func() {
 		nwo.DeployChaincode(network, "testchannel", orderer, nwo.Chaincode{
 			Name:    "mycc2",
 			Version: "1.0",
-			Path:    "justledgerintegration/chaincode/simple/cmd",
+			Path:    "justledger/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `AND ('Org1MSP.member', 'Org2MSP.member', 'Org3MSP.member')`,
 		})
@@ -214,7 +214,7 @@ var _ = Describe("DiscoveryService", func() {
 		chaincode := nwo.Chaincode{
 			Name:    "mycc",
 			Version: "1.0",
-			Path:    "justledgerintegration/chaincode/simple/cmd",
+			Path:    "justledger/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `OR ('Org1MSP.member','Org2MSP.member', 'Org3MSP.member')`,
 		}

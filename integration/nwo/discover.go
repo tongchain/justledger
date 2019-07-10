@@ -9,7 +9,7 @@ package nwo
 import (
 	"encoding/json"
 
-	"justledgerintegration/nwo/commands"
+	"justledger/integration/nwo/commands"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )

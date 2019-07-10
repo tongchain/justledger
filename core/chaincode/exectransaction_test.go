@@ -26,43 +26,43 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledgerbccsp/factory"
-	"justledgercommon/channelconfig"
-	"justledgercommon/crypto/tlsgen"
-	"justledgercommon/flogging"
-	"justledgercommon/metrics/disabled"
-	mc "justledgercommon/mocks/config"
-	mockpolicies "justledgercommon/mocks/policies"
-	"justledgercommon/policies"
-	"justledgercommon/util"
-	"justledgercore/aclmgmt"
-	aclmocks "justledgercore/aclmgmt/mocks"
-	"justledgercore/chaincode/accesscontrol"
-	"justledgercore/chaincode/platforms"
-	"justledgercore/chaincode/platforms/golang"
-	"justledgercore/chaincode/shim"
-	"justledgercore/common/ccprovider"
-	"justledgercore/config"
-	"justledgercore/container"
-	"justledgercore/container/dockercontroller"
-	"justledgercore/container/inproccontroller"
-	"justledgercore/ledger"
-	"justledgercore/ledger/ledgerconfig"
-	"justledgercore/ledger/ledgermgmt"
-	cut "justledgercore/ledger/util"
-	"justledgercore/ledger/util/couchdb"
-	cmp "justledgercore/mocks/peer"
-	"justledgercore/peer"
-	"justledgercore/policy"
-	"justledgercore/policy/mocks"
-	"justledgercore/scc"
-	"justledgercore/scc/lscc"
-	"justledgermsp"
-	mspmgmt "justledgermsp/mgmt"
-	msptesttools "justledgermsp/mgmt/testtools"
-	"justledgerprotos/common"
-	pb "justledgerprotos/peer"
-	putils "justledgerprotos/utils"
+	"justledger/bccsp/factory"
+	"justledger/common/channelconfig"
+	"justledger/common/crypto/tlsgen"
+	"justledger/common/flogging"
+	"justledger/common/metrics/disabled"
+	mc "justledger/common/mocks/config"
+	mockpolicies "justledger/common/mocks/policies"
+	"justledger/common/policies"
+	"justledger/common/util"
+	"justledger/core/aclmgmt"
+	aclmocks "justledger/core/aclmgmt/mocks"
+	"justledger/core/chaincode/accesscontrol"
+	"justledger/core/chaincode/platforms"
+	"justledger/core/chaincode/platforms/golang"
+	"justledger/core/chaincode/shim"
+	"justledger/core/common/ccprovider"
+	"justledger/core/config"
+	"justledger/core/container"
+	"justledger/core/container/dockercontroller"
+	"justledger/core/container/inproccontroller"
+	"justledger/core/ledger"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/core/ledger/ledgermgmt"
+	cut "justledger/core/ledger/util"
+	"justledger/core/ledger/util/couchdb"
+	cmp "justledger/core/mocks/peer"
+	"justledger/core/peer"
+	"justledger/core/policy"
+	"justledger/core/policy/mocks"
+	"justledger/core/scc"
+	"justledger/core/scc/lscc"
+	"justledger/msp"
+	mspmgmt "justledger/msp/mgmt"
+	msptesttools "justledger/msp/mgmt/testtools"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
+	putils "justledger/protos/utils"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -618,10 +618,10 @@ func checkFinalState(chainID string, cccid *ccprovider.CCContext, a int, b int) 
 }
 
 const (
-	chaincodeExample02GolangPath   = "justledgerexamples/chaincode/go/example02/cmd"
-	chaincodeExample04GolangPath   = "justledgerexamples/chaincode/go/example04/cmd"
-	chaincodeEventSenderGolangPath = "justledgerexamples/chaincode/go/eventsender"
-	chaincodePassthruGolangPath    = "justledgerexamples/chaincode/go/passthru"
+	chaincodeExample02GolangPath   = "justledger/examples/chaincode/go/example02/cmd"
+	chaincodeExample04GolangPath   = "justledger/examples/chaincode/go/example04/cmd"
+	chaincodeEventSenderGolangPath = "justledger/examples/chaincode/go/eventsender"
+	chaincodePassthruGolangPath    = "justledger/examples/chaincode/go/passthru"
 	chaincodeExample02JavaPath     = "../../examples/chaincode/java/chaincode_example02"
 	chaincodeExample04JavaPath     = "../../examples/chaincode/java/chaincode_example04"
 	chaincodeExample06JavaPath     = "../../examples/chaincode/java/chaincode_example06"
@@ -975,7 +975,7 @@ func TestChaincodeInit(t *testing.T) {
 
 	defer cleanup()
 
-	url := "justledgercore/chaincode/testdata/chaincode/init_private_data"
+	url := "justledger/core/chaincode/testdata/chaincode/init_private_data"
 	cID := &pb.ChaincodeID{Name: "init_pvtdata", Path: url, Version: "0"}
 
 	f := "init"
@@ -1000,7 +1000,7 @@ func TestChaincodeInit(t *testing.T) {
 	_, err = deploy(chainID, cccid, spec, nextBlockNumber, chaincodeSupport)
 	assert.Contains(t, err.Error(), "private data APIs are not allowed in chaincode Init")
 
-	url = "justledgercore/chaincode/testdata/chaincode/init_public_data"
+	url = "justledger/core/chaincode/testdata/chaincode/init_public_data"
 	cID = &pb.ChaincodeID{Name: "init_public_data", Path: url, Version: "0"}
 
 	f = "init"
@@ -1043,7 +1043,7 @@ func TestQueries(t *testing.T) {
 
 	defer cleanup()
 
-	url := "justledgerexamples/chaincode/go/map"
+	url := "justledger/examples/chaincode/go/map"
 	cID := &pb.ChaincodeID{Name: "tmap", Path: url, Version: "0"}
 
 	f := "init"

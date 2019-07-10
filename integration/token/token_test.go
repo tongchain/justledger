@@ -16,9 +16,9 @@ import (
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/protobuf/proto"
-	"justledgerintegration/nwo"
-	"justledgerprotos/token"
-	tokenclient "justledgertoken/client"
+	"justledger/integration/nwo"
+	"justledger/protos/token"
+	tokenclient "justledger/token/client"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/tedsuo/ifrit"

@@ -8,17 +8,17 @@ package lockbasedtxmgr
 import (
 	"fmt"
 
-	commonledger "justledgercommon/ledger"
-	ledger "justledgercore/ledger"
-	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	"justledgercore/ledger/kvledger/txmgmt/storageutil"
-	"justledgercore/ledger/kvledger/txmgmt/txmgr"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgercore/ledger/ledgerconfig"
-	"justledgercore/ledger/util"
-	"justledgerprotos/ledger/queryresult"
-	"justledgerprotos/ledger/rwset/kvrwset"
+	commonledger "justledger/common/ledger"
+	ledger "justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/storageutil"
+	"justledger/core/ledger/kvledger/txmgmt/txmgr"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/core/ledger/util"
+	"justledger/protos/ledger/queryresult"
+	"justledger/protos/ledger/rwset/kvrwset"
 	"github.com/pkg/errors"
 )
 

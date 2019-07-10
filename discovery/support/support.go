@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package support
 
-import "justledgerdiscovery"
+import "justledger/discovery"
 
 // DiscoverySupport aggregates all the support needed for the discovery service
 type DiscoverySupport struct {

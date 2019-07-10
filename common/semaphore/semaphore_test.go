@@ -10,7 +10,7 @@ import (
 	"context"
 	"testing"
 
-	"justledgercommon/semaphore"
+	"justledger/common/semaphore"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/assert"
 )

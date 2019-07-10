@@ -11,7 +11,7 @@ import (
 	"os"
 	"plugin"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 )
 
 const (

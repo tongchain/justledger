@@ -18,8 +18,8 @@ package mgmt
 
 import (
 	"github.com/golang/protobuf/proto"
-	"justledgermsp"
-	mspproto "justledgerprotos/msp"
+	"justledger/msp"
+	mspproto "justledger/protos/msp"
 	"github.com/pkg/errors"
 )
 

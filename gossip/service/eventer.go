@@ -9,9 +9,9 @@ package service
 import (
 	"reflect"
 
-	"justledgercommon/channelconfig"
-	deliverclient "justledgercore/deliverservice"
-	"justledgerprotos/peer"
+	"justledger/common/channelconfig"
+	deliverclient "justledger/core/deliverservice"
+	"justledger/protos/peer"
 )
 
 // Config enumerates the configuration methods required by gossip

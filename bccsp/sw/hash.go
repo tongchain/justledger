@@ -19,7 +19,7 @@ package sw
 import (
 	"hash"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 )
 
 type hasher struct {

@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledgertoken/server"
+	"justledger/token/server"
 )
 
 type ACLProvider struct {

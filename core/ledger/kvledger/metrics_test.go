@@ -9,14 +9,14 @@ import (
 	"testing"
 	"time"
 
-	"justledgercommon/ledger/testutil"
-	"justledgercommon/metrics"
-	"justledgercommon/metrics/metricsfakes"
-	lgr "justledgercore/ledger"
-	"justledgercore/ledger/kvledger/txmgmt/txmgr"
-	"justledgercore/ledger/mock"
-	"justledgerprotos/common"
-	"justledgerprotos/peer"
+	"justledger/common/ledger/testutil"
+	"justledger/common/metrics"
+	"justledger/common/metrics/metricsfakes"
+	lgr "justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/txmgr"
+	"justledger/core/ledger/mock"
+	"justledger/protos/common"
+	"justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 )
 

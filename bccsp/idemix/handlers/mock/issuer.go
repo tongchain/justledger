@@ -4,7 +4,7 @@ package mock
 import (
 	"sync"
 
-	"justledgerbccsp/idemix/handlers"
+	"justledger/bccsp/idemix/handlers"
 )
 
 type Issuer struct {

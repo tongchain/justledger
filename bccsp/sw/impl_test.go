@@ -37,10 +37,10 @@ import (
 	"testing"
 	"time"
 
-	"justledgerbccsp"
-	"justledgerbccsp/signer"
-	"justledgerbccsp/sw/mocks"
-	"justledgerbccsp/utils"
+	"justledger/bccsp"
+	"justledger/bccsp/signer"
+	"justledger/bccsp/sw/mocks"
+	"justledger/bccsp/utils"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/sha3"
 )

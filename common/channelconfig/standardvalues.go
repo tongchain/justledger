@@ -11,7 +11,7 @@ import (
 	"reflect"
 
 	"github.com/golang/protobuf/proto"
-	cb "justledgerprotos/common"
+	cb "justledger/protos/common"
 )
 
 // DeserializeGroup deserializes the value for all values in a config group

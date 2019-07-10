@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledgerorderer/consensus/etcdraft"
-	"justledgerprotos/orderer"
+	"justledger/orderer/consensus/etcdraft"
+	"justledger/protos/orderer"
 )
 
 type FakeRPC struct {

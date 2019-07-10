@@ -18,8 +18,8 @@ package factory
 import (
 	"sync"
 
-	"justledgerbccsp"
-	"justledgercommon/flogging"
+	"justledger/bccsp"
+	"justledger/common/flogging"
 	"github.com/pkg/errors"
 )
 

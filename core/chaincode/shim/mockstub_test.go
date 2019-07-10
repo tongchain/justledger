@@ -12,7 +12,7 @@ import (
 	"reflect"
 	"testing"
 
-	"justledgercommon/flogging"
+	"justledger/common/flogging"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

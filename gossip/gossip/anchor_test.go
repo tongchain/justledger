@@ -16,12 +16,12 @@ import (
 	"testing"
 	"time"
 
-	"justledgercommon/util"
-	"justledgercore/comm"
-	"justledgergossip/api"
-	"justledgergossip/common"
-	utilgossip "justledgergossip/util"
-	proto "justledgerprotos/gossip"
+	"justledger/common/util"
+	"justledger/core/comm"
+	"justledger/gossip/api"
+	"justledger/gossip/common"
+	utilgossip "justledger/gossip/util"
+	proto "justledger/protos/gossip"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 )

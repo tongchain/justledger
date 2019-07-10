@@ -19,7 +19,7 @@ package crypto
 import (
 	"testing"
 
-	crypto "justledgercommon/crypto"
+	crypto "justledger/common/crypto"
 )
 
 func TestLocalSignerInterface(t *testing.T) {

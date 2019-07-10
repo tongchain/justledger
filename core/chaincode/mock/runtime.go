@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	ccprovider "justledgercore/common/ccprovider"
+	ccprovider "justledger/core/common/ccprovider"
 )
 
 type Runtime struct {

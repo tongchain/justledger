@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	deliver "justledgercommon/deliver"
+	deliver "justledger/common/deliver"
 )
 
 type ChainManager struct {

@@ -9,8 +9,8 @@ package main
 import (
 	"context"
 
-	"justledgercore/handlers/auth"
-	"justledgerprotos/peer"
+	"justledger/core/handlers/auth"
+	"justledger/protos/peer"
 )
 
 // NewFilter creates a new Filter

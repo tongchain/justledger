@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	container "justledgercore/container"
+	container "justledger/core/container"
 )
 
 type VMProvider struct {

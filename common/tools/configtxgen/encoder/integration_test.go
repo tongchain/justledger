@@ -12,11 +12,11 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"justledgercommon/channelconfig"
-	"justledgercommon/tools/configtxgen/configtxgentest"
-	"justledgercommon/tools/configtxgen/encoder"
-	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
-	cb "justledgerprotos/common"
+	"justledger/common/channelconfig"
+	"justledger/common/tools/configtxgen/configtxgentest"
+	"justledger/common/tools/configtxgen/encoder"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	cb "justledger/protos/common"
 
 	"github.com/pkg/errors"
 )

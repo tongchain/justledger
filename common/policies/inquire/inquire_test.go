@@ -11,9 +11,9 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/cauthdsl"
-	"justledgerprotos/msp"
-	"justledgerprotos/utils"
+	"justledger/common/cauthdsl"
+	"justledger/protos/msp"
+	"justledger/protos/utils"
 	"github.com/stretchr/testify/assert"
 )
 

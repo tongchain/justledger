@@ -11,11 +11,11 @@ import (
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
-	"justledgerbccsp"
-	"justledgerbccsp/idemix/bridge"
-	"justledgerbccsp/idemix/handlers"
-	"justledgerbccsp/idemix/handlers/mock"
-	cryptolib "justledgeridemix"
+	"justledger/bccsp"
+	"justledger/bccsp/idemix/bridge"
+	"justledger/bccsp/idemix/handlers"
+	"justledger/bccsp/idemix/handlers/mock"
+	cryptolib "justledger/idemix"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

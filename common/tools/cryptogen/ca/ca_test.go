@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"justledgercommon/tools/cryptogen/ca"
-	"justledgercommon/tools/cryptogen/csp"
+	"justledger/common/tools/cryptogen/ca"
+	"justledger/common/tools/cryptogen/csp"
 	"github.com/stretchr/testify/assert"
 )
 

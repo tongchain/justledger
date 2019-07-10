@@ -17,8 +17,8 @@ import (
 	"strings"
 	"time"
 
-	"justledgercommon/flogging"
-	"justledgercore/chaincode/platforms/ccmetadata"
+	"justledger/common/flogging"
+	"justledger/core/chaincode/platforms/ccmetadata"
 	"github.com/pkg/errors"
 )
 

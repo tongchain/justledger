@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"justledgercore/common/ccpackage"
-	"justledgerprotos/utils"
+	"justledger/core/common/ccpackage"
+	"justledger/protos/utils"
 	"github.com/spf13/cobra"
 )
 

@@ -9,8 +9,8 @@ package common
 import (
 	"io/ioutil"
 
-	"justledgercmd/common/comm"
-	"justledgercmd/common/signer"
+	"justledger/cmd/common/comm"
+	"justledger/cmd/common/signer"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )

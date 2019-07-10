@@ -9,7 +9,7 @@ package configtx
 import (
 	"testing"
 
-	cb "justledgerprotos/common"
+	cb "justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -11,7 +11,7 @@ import (
 	"regexp"
 	"strings"
 
-	"justledgercommon/metrics"
+	"justledger/common/metrics"
 )
 
 type Namer struct {

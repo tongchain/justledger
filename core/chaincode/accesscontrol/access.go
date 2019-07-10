@@ -11,9 +11,9 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/crypto/tlsgen"
-	"justledgercommon/flogging"
-	pb "justledgerprotos/peer"
+	"justledger/common/crypto/tlsgen"
+	"justledger/common/flogging"
+	pb "justledger/protos/peer"
 	"google.golang.org/grpc"
 )
 

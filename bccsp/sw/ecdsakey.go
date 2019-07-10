@@ -23,7 +23,7 @@ import (
 	"errors"
 	"fmt"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 )
 
 type ecdsaPrivateKey struct {

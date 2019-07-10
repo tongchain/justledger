@@ -11,8 +11,8 @@ import (
 	"fmt"
 	"os"
 
-	"justledgercore/ledger/kvledger"
-	"justledgerpeer/common"
+	"justledger/core/ledger/kvledger"
+	"justledger/peer/common"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

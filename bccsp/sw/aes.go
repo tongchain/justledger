@@ -25,7 +25,7 @@ import (
 	"fmt"
 	"io"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 )
 
 // GetRandomBytes returns len random looking bytes

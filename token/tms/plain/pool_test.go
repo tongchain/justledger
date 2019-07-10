@@ -9,9 +9,9 @@ package plain_test
 import (
 	"io"
 
-	"justledgerprotos/token"
-	"justledgertoken/tms"
-	"justledgertoken/tms/plain"
+	"justledger/protos/token"
+	"justledger/token/tms"
+	"justledger/token/tms/plain"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

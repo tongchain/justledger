@@ -9,10 +9,10 @@ package msgprocessor
 import (
 	"fmt"
 
-	"justledgercommon/channelconfig"
-	"justledgercommon/policies"
-	cb "justledgerprotos/common"
-	"justledgerprotos/orderer"
+	"justledger/common/channelconfig"
+	"justledger/common/policies"
+	cb "justledger/protos/common"
+	"justledger/protos/orderer"
 	"github.com/pkg/errors"
 )
 

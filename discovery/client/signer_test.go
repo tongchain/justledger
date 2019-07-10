@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"testing"
 
-	"justledgerbccsp/factory"
+	"justledger/bccsp/factory"
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )

@@ -20,9 +20,9 @@ import (
 	"sort"
 
 	"github.com/golang/protobuf/proto"
-	cb "justledgerprotos/common"
-	"justledgerprotos/msp"
-	"justledgerprotos/utils"
+	cb "justledger/protos/common"
+	"justledger/protos/msp"
+	"justledger/protos/utils"
 )
 
 // AcceptAllPolicy always evaluates to true

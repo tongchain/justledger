@@ -9,9 +9,9 @@ package filter
 import (
 	"math/rand"
 
-	"justledgergossip/comm"
-	"justledgergossip/discovery"
-	"justledgergossip/util"
+	"justledger/gossip/comm"
+	"justledger/gossip/discovery"
+	"justledger/gossip/util"
 )
 
 // RoutingFilter defines a predicate on a NetworkMember

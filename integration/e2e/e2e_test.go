@@ -24,15 +24,15 @@ import (
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-lib-go/healthz"
-	"justledgercommon/tools/configtxgen/encoder"
-	"justledgercommon/tools/configtxgen/localconfig"
-	"justledgercore/aclmgmt/resources"
-	"justledgerintegration/nwo"
-	"justledgerintegration/nwo/commands"
-	"justledgerprotos/common"
-	protosorderer "justledgerprotos/orderer"
-	"justledgerprotos/orderer/etcdraft"
-	"justledgerprotos/utils"
+	"justledger/common/tools/configtxgen/encoder"
+	"justledger/common/tools/configtxgen/localconfig"
+	"justledger/core/aclmgmt/resources"
+	"justledger/integration/nwo"
+	"justledger/integration/nwo/commands"
+	"justledger/protos/common"
+	protosorderer "justledger/protos/orderer"
+	"justledger/protos/orderer/etcdraft"
+	"justledger/protos/utils"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -61,7 +61,7 @@ var _ = Describe("EndToEnd", func() {
 		chaincode = nwo.Chaincode{
 			Name:    "mycc",
 			Version: "0.0",
-			Path:    "justledgerintegration/chaincode/simple/cmd",
+			Path:    "justledger/integration/chaincode/simple/cmd",
 			Ctor:    `{"Args":["init","a","100","b","200"]}`,
 			Policy:  `AND ('Org1MSP.member','Org2MSP.member')`,
 		}

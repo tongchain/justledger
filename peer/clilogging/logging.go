@@ -9,8 +9,8 @@ package clilogging
 import (
 	"fmt"
 
-	"justledgercommon/flogging"
-	"justledgerpeer/common"
+	"justledger/common/flogging"
+	"justledger/peer/common"
 	"github.com/spf13/cobra"
 )
 

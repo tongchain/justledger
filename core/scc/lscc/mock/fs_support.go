@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	ccprovider "justledgercore/common/ccprovider"
-	peer "justledgerprotos/peer"
+	ccprovider "justledger/core/common/ccprovider"
+	peer "justledger/protos/peer"
 )
 
 type FileSystemSupport struct {

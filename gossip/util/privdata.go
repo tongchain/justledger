@@ -11,11 +11,11 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/util"
-	"justledgercore/ledger"
-	"justledgerprotos/common"
-	"justledgerprotos/gossip"
-	"justledgerprotos/ledger/rwset"
+	"justledger/common/util"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	"justledger/protos/gossip"
+	"justledger/protos/ledger/rwset"
 	"github.com/pkg/errors"
 )
 

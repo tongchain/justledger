@@ -14,7 +14,7 @@ import (
 	"strconv"
 	"strings"
 
-	"justledgercommon/metrics"
+	"justledger/common/metrics"
 	"golang.org/x/tools/go/packages"
 )
 
@@ -70,7 +70,7 @@ func FileOptions(f *ast.File) ([]interface{}, error) {
 				if !ok {
 					continue
 				}
-				if imports[ident.Name] != "justledgercommon/metrics" {
+				if imports[ident.Name] != "justledger/common/metrics" {
 					continue
 				}
 				option, err := createOption(literalType)

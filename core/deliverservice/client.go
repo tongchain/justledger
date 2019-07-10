@@ -14,10 +14,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"justledgercore/comm"
-	"justledgercore/deliverservice/blocksprovider"
-	"justledgerprotos/common"
-	"justledgerprotos/orderer"
+	"justledger/core/comm"
+	"justledger/core/deliverservice/blocksprovider"
+	"justledger/protos/common"
+	"justledger/protos/orderer"
 	"google.golang.org/grpc"
 )
 

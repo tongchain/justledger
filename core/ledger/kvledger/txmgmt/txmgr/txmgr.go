@@ -17,10 +17,10 @@ limitations under the License.
 package txmgr
 
 import (
-	"justledgercore/ledger"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgerprotos/common"
-	"justledgerprotos/peer"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/protos/common"
+	"justledger/protos/peer"
 )
 
 // TxMgr - an interface that a transaction manager should implement

@@ -10,13 +10,13 @@ import (
 	"fmt"
 	"sync"
 
-	commonerrors "justledgercommon/errors"
-	"justledgercore/handlers/validation/api/policies"
-	"justledgercore/ledger"
-	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
-	"justledgerprotos/common"
-	"justledgerprotos/peer"
-	"justledgerprotos/utils"
+	commonerrors "justledger/common/errors"
+	"justledger/core/handlers/validation/api/policies"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/protos/common"
+	"justledger/protos/peer"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

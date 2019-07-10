@@ -11,9 +11,9 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgercore/ledger/util/couchdb"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/util/couchdb"
 	"github.com/pkg/errors"
 )
 

@@ -24,9 +24,9 @@ import (
 	"strings"
 
 	"github.com/Knetic/govaluate"
-	"justledgerprotos/common"
-	"justledgerprotos/msp"
-	"justledgerprotos/utils"
+	"justledger/protos/common"
+	"justledger/protos/msp"
+	"justledger/protos/utils"
 )
 
 // Gate values

@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package configtx
 
 import (
-	cb "justledgerprotos/common"
+	cb "justledger/protos/common"
 )
 
 // Validator is a mock implementation of configtx.Validator

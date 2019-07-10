@@ -15,9 +15,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"justledgerbccsp"
-	"justledgerbccsp/factory"
-	"justledgerbccsp/signer"
+	"justledger/bccsp"
+	"justledger/bccsp/factory"
+	"justledger/bccsp/signer"
 	"github.com/pkg/errors"
 )
 

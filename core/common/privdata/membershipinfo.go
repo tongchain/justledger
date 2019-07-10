@@ -7,9 +7,9 @@ SPDX-License-Identifier: Apache-2.0
 package privdata
 
 import (
-	"justledgercommon/flogging"
-	"justledgermsp"
-	"justledgerprotos/common"
+	"justledger/common/flogging"
+	"justledger/msp"
+	"justledger/protos/common"
 )
 
 var logger = flogging.MustGetLogger("common.privdata")

@@ -10,12 +10,12 @@ import (
 	"testing"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercore/common/ccprovider"
-	"justledgercore/common/privdata"
-	"justledgercore/ledger"
-	"justledgercore/scc/lscc"
-	"justledgercore/scc/lscc/mock"
-	"justledgerprotos/common"
+	"justledger/core/common/ccprovider"
+	"justledger/core/common/privdata"
+	"justledger/core/ledger"
+	"justledger/core/scc/lscc"
+	"justledger/core/scc/lscc/mock"
+	"justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

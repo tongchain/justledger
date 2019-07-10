@@ -9,7 +9,7 @@ package fabenc_test
 import (
 	"testing"
 
-	"justledgercommon/flogging/fabenc"
+	"justledger/common/flogging/fabenc"
 	"github.com/stretchr/testify/assert"
 )
 

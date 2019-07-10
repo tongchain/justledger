@@ -9,9 +9,9 @@ package mgmt
 import (
 	"testing"
 
-	"justledgercommon/util"
-	"justledgercore/config/configtest"
-	"justledgermsp"
+	"justledger/common/util"
+	"justledger/core/config/configtest"
+	"justledger/msp"
 	"github.com/stretchr/testify/assert"
 )
 

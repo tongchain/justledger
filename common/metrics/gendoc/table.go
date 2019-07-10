@@ -12,8 +12,8 @@ import (
 	"sort"
 	"strings"
 
-	"justledgercommon/metrics"
-	"justledgercommon/metrics/internal/namer"
+	"justledger/common/metrics"
+	"justledger/common/metrics/internal/namer"
 )
 
 // A Field represents data that is included in the reference table for metrics.

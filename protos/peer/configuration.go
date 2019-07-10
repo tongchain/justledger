@@ -20,8 +20,8 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgerprotos/common"
-	"justledgerprotos/msp"
+	"justledger/protos/common"
+	"justledger/protos/msp"
 )
 
 func init() {

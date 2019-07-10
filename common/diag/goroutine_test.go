@@ -9,8 +9,8 @@ package diag_test
 import (
 	"testing"
 
-	"justledgercommon/diag"
-	"justledgercommon/flogging/floggingtest"
+	"justledger/common/diag"
+	"justledger/common/flogging/floggingtest"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
 )
@@ -21,7 +21,7 @@ func TestCaptureGoRoutines(t *testing.T) {
 	gt.Expect(err).NotTo(HaveOccurred())
 
 	gt.Expect(output).To(MatchRegexp(`goroutine \d+ \[running\]:`))
-	gt.Expect(output).To(ContainSubstring("justledgercommon/diag.CaptureGoRoutines"))
+	gt.Expect(output).To(ContainSubstring("justledger/common/diag.CaptureGoRoutines"))
 }
 
 func TestLogGoRoutines(t *testing.T) {

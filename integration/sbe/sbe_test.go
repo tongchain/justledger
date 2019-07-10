@@ -15,9 +15,9 @@ import (
 	"time"
 
 	docker "github.com/fsouza/go-dockerclient"
-	"justledgerintegration/nwo"
-	"justledgerintegration/nwo/commands"
-	"justledgerprotos/common"
+	"justledger/integration/nwo"
+	"justledger/integration/nwo/commands"
+	"justledger/protos/common"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gbytes"
@@ -45,7 +45,7 @@ var _ = Describe("SBE_E2E", func() {
 		chaincode = nwo.Chaincode{
 			Name:              "mycc",
 			Version:           "0.0",
-			Path:              "justledgerintegration/chaincode/keylevelep/cmd",
+			Path:              "justledger/integration/chaincode/keylevelep/cmd",
 			Ctor:              `{"Args":["init"]}`,
 			CollectionsConfig: "testdata/collection_config.json",
 		}

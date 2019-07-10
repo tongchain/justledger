@@ -4,9 +4,9 @@ package mock
 import (
 	sync "sync"
 
-	token "justledgerprotos/token"
-	tokena "justledgertoken"
-	client "justledgertoken/client"
+	token "justledger/protos/token"
+	tokena "justledger/token"
+	client "justledger/token/client"
 )
 
 type Prover struct {

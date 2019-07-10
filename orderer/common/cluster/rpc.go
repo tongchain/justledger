@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"justledgercommon/flogging"
-	"justledgerprotos/orderer"
+	"justledger/common/flogging"
+	"justledger/protos/orderer"
 	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"

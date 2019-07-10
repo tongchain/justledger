@@ -13,7 +13,7 @@ package ccintf
 import (
 	"fmt"
 
-	pb "justledgerprotos/peer"
+	pb "justledger/protos/peer"
 )
 
 // ChaincodeStream interface for stream between Peer and chaincode instance.

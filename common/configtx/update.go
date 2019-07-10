@@ -9,8 +9,8 @@ package configtx
 import (
 	"strings"
 
-	"justledgercommon/policies"
-	cb "justledgerprotos/common"
+	"justledger/common/policies"
+	cb "justledger/protos/common"
 	"github.com/pkg/errors"
 )
 

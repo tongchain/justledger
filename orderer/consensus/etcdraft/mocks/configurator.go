@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledgerorderer/common/cluster"
-	"justledgerorderer/consensus/etcdraft"
+	"justledger/orderer/common/cluster"
+	"justledger/orderer/consensus/etcdraft"
 )
 
 type FakeConfigurator struct {

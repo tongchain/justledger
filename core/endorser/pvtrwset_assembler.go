@@ -13,10 +13,10 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercore/common/privdata"
-	"justledgerprotos/common"
-	"justledgerprotos/ledger/rwset"
-	"justledgerprotos/transientstore"
+	"justledger/core/common/privdata"
+	"justledger/protos/common"
+	"justledger/protos/ledger/rwset"
+	"justledger/protos/transientstore"
 	"github.com/pkg/errors"
 )
 

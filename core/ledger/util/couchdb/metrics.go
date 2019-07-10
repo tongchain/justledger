@@ -8,7 +8,7 @@ package couchdb
 import (
 	"time"
 
-	"justledgercommon/metrics"
+	"justledger/common/metrics"
 )
 
 var (

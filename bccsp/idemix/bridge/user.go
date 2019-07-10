@@ -8,8 +8,8 @@ package bridge
 import (
 	"github.com/hyperledger/fabric-amcl/amcl"
 	"github.com/hyperledger/fabric-amcl/amcl/FP256BN"
-	"justledgerbccsp/idemix/handlers"
-	cryptolib "justledgeridemix"
+	"justledger/bccsp/idemix/handlers"
+	cryptolib "justledger/idemix"
 	"github.com/pkg/errors"
 )
 

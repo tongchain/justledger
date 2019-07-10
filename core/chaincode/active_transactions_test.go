@@ -7,7 +7,7 @@ SPDX-License-Identifier: Apache-2.0
 package chaincode_test
 
 import (
-	"justledgercore/chaincode"
+	"justledger/core/chaincode"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/ginkgo/extensions/table"
 	. "github.com/onsi/gomega"

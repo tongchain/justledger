@@ -12,13 +12,13 @@ import (
 	"fmt"
 	"sync"
 
-	"justledgercommon/flogging"
-	"justledgercommon/metrics"
-	"justledgercore/common/ccprovider"
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgercore/ledger/ledgerconfig"
-	"justledgercore/ledger/util/couchdb"
+	"justledger/common/flogging"
+	"justledger/common/metrics"
+	"justledger/core/common/ccprovider"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/core/ledger/util/couchdb"
 	"github.com/pkg/errors"
 )
 

@@ -27,8 +27,8 @@ import (
 	"strconv"
 	"time"
 
-	"justledgercore/chaincode/shim"
-	pb "justledgerprotos/peer"
+	"justledger/core/chaincode/shim"
+	pb "justledger/protos/peer"
 )
 
 // SleeperChaincode example simple Chaincode implementation

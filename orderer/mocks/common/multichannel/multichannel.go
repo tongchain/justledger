@@ -7,13 +7,13 @@ SPDX-License-Identifier: Apache-2.0
 package multichannel
 
 import (
-	"justledgercommon/channelconfig"
-	mockconfig "justledgercommon/mocks/config"
-	"justledgerorderer/common/blockcutter"
-	"justledgerorderer/common/msgprocessor"
-	mockblockcutter "justledgerorderer/mocks/common/blockcutter"
-	cb "justledgerprotos/common"
-	"justledgerprotos/utils"
+	"justledger/common/channelconfig"
+	mockconfig "justledger/common/mocks/config"
+	"justledger/orderer/common/blockcutter"
+	"justledger/orderer/common/msgprocessor"
+	mockblockcutter "justledger/orderer/mocks/common/blockcutter"
+	cb "justledger/protos/common"
+	"justledger/protos/utils"
 )
 
 // ConsenterSupport is used to mock the multichannel.ConsenterSupport interface

@@ -10,10 +10,10 @@ import (
 	"errors"
 	"testing"
 
-	"justledgercore/endorser/mocks"
-	mocks2 "justledgercore/handlers/endorsement/builtin/mocks"
-	plgn "justledgercore/handlers/endorsement/plugin"
-	"justledgerprotos/peer"
+	"justledger/core/endorser/mocks"
+	mocks2 "justledger/core/handlers/endorsement/builtin/mocks"
+	plgn "justledger/core/handlers/endorsement/plugin"
+	"justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

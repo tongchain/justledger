@@ -13,7 +13,7 @@ import (
 	"sync"
 	"time"
 
-	"justledgercommon/flogging"
+	"justledger/common/flogging"
 	"google.golang.org/grpc"
 )
 

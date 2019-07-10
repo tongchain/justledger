@@ -17,9 +17,9 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/crypto/tlsgen"
-	"justledgercommon/flogging/floggingtest"
-	pb "justledgerprotos/peer"
+	"justledger/common/crypto/tlsgen"
+	"justledger/common/flogging/floggingtest"
+	pb "justledger/protos/peer"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap/zapcore"
 	"google.golang.org/grpc"

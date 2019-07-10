@@ -9,10 +9,10 @@ package peer
 import (
 	"fmt"
 
-	"justledgercore/ledger"
-	"justledgercore/ledger/customtx"
-	"justledgerprotos/common"
-	"justledgerprotos/utils"
+	"justledger/core/ledger"
+	"justledger/core/ledger/customtx"
+	"justledger/protos/common"
+	"justledger/protos/utils"
 )
 
 const (
@@ -20,7 +20,7 @@ const (
 	peerNamespace    = ""
 )
 
-// txProcessor implements the interface 'justledgercore/ledger/customtx/Processor'
+// txProcessor implements the interface 'justledger/core/ledger/customtx/Processor'
 type configtxProcessor struct {
 }
 
@@ -29,7 +29,7 @@ func newConfigTxProcessor() customtx.Processor {
 	return &configtxProcessor{}
 }
 
-// GenerateSimulationResults implements function in the interface 'justledgercore/ledger/customtx/Processor'
+// GenerateSimulationResults implements function in the interface 'justledger/core/ledger/customtx/Processor'
 // This implemantation processes following two types of transactions.
 // CONFIG  - simply stores the config in the statedb. Additionally, stores the resource config seed if the transaction is from the genesis block.
 // PEER_RESOURCE_UPDATE - In a normal course, this validates the transaction against the current resource bundle,

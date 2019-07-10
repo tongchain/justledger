@@ -9,7 +9,7 @@ package msp
 import (
 	"time"
 
-	"justledgerprotos/msp"
+	"justledger/protos/msp"
 )
 
 // IdentityDeserializer is implemented by both MSPManger and MSP

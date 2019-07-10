@@ -19,7 +19,7 @@ package policies
 import (
 	"testing"
 
-	"justledgercommon/policies"
+	"justledger/common/policies"
 )
 
 func TestPolicyManagerInterface(t *testing.T) {

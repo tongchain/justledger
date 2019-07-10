@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/Shopify/sarama"
-	"justledgercommon/flogging"
+	"justledger/common/flogging"
 	"github.com/onsi/gomega/gbytes"
 	"github.com/stretchr/testify/assert"
 )

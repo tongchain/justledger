@@ -11,8 +11,8 @@ import (
 	"os"
 	"testing"
 
-	"justledgercore/config/configtest"
-	"justledgermsp"
+	"justledger/core/config/configtest"
+	"justledger/msp"
 	"github.com/stretchr/testify/assert"
 )
 

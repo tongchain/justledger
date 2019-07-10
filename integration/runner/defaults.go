@@ -9,7 +9,7 @@ package runner
 import (
 	"time"
 
-	"justledgerintegration/helpers"
+	"justledger/integration/helpers"
 )
 
 const DefaultStartTimeout = 30 * time.Second

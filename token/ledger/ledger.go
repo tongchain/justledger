@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 package ledger
 
-import "justledgercommon/ledger"
+import "justledger/common/ledger"
 
 //go:generate counterfeiter -o mock/ledger_reader.go -fake-name LedgerReader . LedgerReader
 //go:generate counterfeiter -o mock/ledger_manager.go -fake-name LedgerManager . LedgerManager

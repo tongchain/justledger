@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	deliver "justledgercommon/deliver"
-	common "justledgerprotos/common"
+	deliver "justledger/common/deliver"
+	common "justledger/protos/common"
 )
 
 type PolicyChecker struct {

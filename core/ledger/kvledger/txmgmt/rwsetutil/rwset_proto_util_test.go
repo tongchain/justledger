@@ -21,8 +21,8 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/golang/protobuf/proto"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgerprotos/ledger/rwset/kvrwset"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/protos/ledger/rwset/kvrwset"
 	"github.com/kr/pretty"
 	"github.com/stretchr/testify/assert"
 )

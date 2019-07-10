@@ -10,12 +10,12 @@ import (
 	"errors"
 
 	"github.com/golang/protobuf/proto"
-	"justledgercommon/flogging"
-	"justledgercommon/ledger/util/leveldbhelper"
-	"justledgercommon/util"
-	"justledgercore/ledger"
-	"justledgerprotos/ledger/rwset"
-	"justledgerprotos/transientstore"
+	"justledger/common/flogging"
+	"justledger/common/ledger/util/leveldbhelper"
+	"justledger/common/util"
+	"justledger/core/ledger"
+	"justledger/protos/ledger/rwset"
+	"justledger/protos/transientstore"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 )
 

@@ -10,7 +10,7 @@ import (
 	"fmt"
 	"time"
 
-	localconfig "justledgerorderer/common/localconfig"
+	localconfig "justledger/orderer/common/localconfig"
 )
 
 type retryProcess struct {

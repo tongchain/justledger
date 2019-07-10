@@ -10,7 +10,7 @@ import (
 	"fmt"
 
 	"github.com/golang/protobuf/proto"
-	"justledgerprotos/common"
+	"justledger/protos/common"
 )
 
 func init() {

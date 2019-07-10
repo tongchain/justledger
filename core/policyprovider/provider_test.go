@@ -19,7 +19,7 @@ package policyprovider
 import (
 	"testing"
 
-	"justledgercore/policy"
+	"justledger/core/policy"
 	"github.com/stretchr/testify/assert"
 )
 

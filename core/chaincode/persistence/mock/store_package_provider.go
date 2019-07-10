@@ -4,7 +4,7 @@ package mock
 import (
 	sync "sync"
 
-	chaincode "justledgercommon/chaincode"
+	chaincode "justledger/common/chaincode"
 )
 
 type StorePackageProvider struct {

@@ -10,11 +10,11 @@ import (
 	"fmt"
 	"math"
 
-	"justledgerbccsp"
-	"justledgercommon/capabilities"
-	"justledgercommon/util"
-	"justledgermsp"
-	cb "justledgerprotos/common"
+	"justledger/bccsp"
+	"justledger/common/capabilities"
+	"justledger/common/util"
+	"justledger/msp"
+	cb "justledger/protos/common"
 	"github.com/pkg/errors"
 )
 

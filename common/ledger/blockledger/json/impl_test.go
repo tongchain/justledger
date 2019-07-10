@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"justledgercommon/flogging"
-	"justledgercommon/ledger/blockledger"
-	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
+	"justledger/common/flogging"
+	"justledger/common/ledger/blockledger"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 	"github.com/stretchr/testify/assert"
 )
 

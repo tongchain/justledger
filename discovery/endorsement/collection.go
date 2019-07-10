@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package endorsement
 
 import (
-	"justledgercommon/policies"
-	"justledgercore/common/privdata"
-	"justledgergossip/api"
-	. "justledgerprotos/discovery"
+	"justledger/common/policies"
+	"justledger/core/common/privdata"
+	"justledger/gossip/api"
+	. "justledger/protos/discovery"
 	"github.com/pkg/errors"
 )
 

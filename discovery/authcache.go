@@ -11,8 +11,8 @@ import (
 	"encoding/hex"
 	"sync"
 
-	"justledgercommon/util"
-	"justledgerprotos/common"
+	"justledger/common/util"
+	"justledger/protos/common"
 	"github.com/pkg/errors"
 )
 

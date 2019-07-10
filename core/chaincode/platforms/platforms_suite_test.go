@@ -9,7 +9,7 @@ package platforms_test
 import (
 	"testing"
 
-	"justledgercore/chaincode/platforms"
+	"justledger/core/chaincode/platforms"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

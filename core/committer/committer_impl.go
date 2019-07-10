@@ -7,10 +7,10 @@ SPDX-License-Identifier: Apache-2.0
 package committer
 
 import (
-	"justledgercommon/flogging"
-	"justledgercore/ledger"
-	"justledgerprotos/common"
-	"justledgerprotos/utils"
+	"justledger/common/flogging"
+	"justledger/core/ledger"
+	"justledger/protos/common"
+	"justledger/protos/utils"
 	"github.com/pkg/errors"
 )
 

@@ -4,9 +4,9 @@ package mock
 import (
 	"sync"
 
-	"justledgerprotos/common"
-	pb "justledgerprotos/peer"
-	"justledgertoken/client"
+	"justledger/protos/common"
+	pb "justledger/protos/peer"
+	"justledger/token/client"
 )
 
 type DeliverFiltered struct {

@@ -21,10 +21,10 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"justledgercommon/ledger/blkstorage"
-	"justledgercommon/ledger/blockledger"
-	"justledgercommon/metrics/disabled"
-	genesisconfig "justledgercommon/tools/configtxgen/localconfig"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/blockledger"
+	"justledger/common/metrics/disabled"
+	genesisconfig "justledger/common/tools/configtxgen/localconfig"
 	"github.com/stretchr/testify/assert"
 )
 

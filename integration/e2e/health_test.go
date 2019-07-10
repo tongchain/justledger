@@ -17,8 +17,8 @@ import (
 
 	docker "github.com/fsouza/go-dockerclient"
 	"github.com/hyperledger/fabric-lib-go/healthz"
-	"justledgerintegration/nwo"
-	"justledgerintegration/runner"
+	"justledger/integration/nwo"
+	"justledger/integration/runner"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/tedsuo/ifrit"

@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package main
 
 import (
-	"justledgercore/handlers/decoration"
-	"justledgerprotos/peer"
+	"justledger/core/handlers/decoration"
+	"justledger/protos/peer"
 )
 
 // NewDecorator creates a new decorator

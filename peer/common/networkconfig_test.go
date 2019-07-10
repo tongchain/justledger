@@ -9,7 +9,7 @@ package common_test
 import (
 	"testing"
 
-	"justledgerpeer/common"
+	"justledger/peer/common"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -5,7 +5,7 @@ import (
 	sync "sync"
 
 	healthz "github.com/hyperledger/fabric-lib-go/healthz"
-	ledger "justledgercore/ledger"
+	ledger "justledger/core/ledger"
 )
 
 type HealthCheckRegistry struct {

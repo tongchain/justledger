@@ -19,10 +19,10 @@ package statebasedval
 import (
 	"bytes"
 
-	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	"justledgercore/ledger/kvledger/txmgmt/version"
-	"justledgerprotos/ledger/rwset/kvrwset"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
+	"justledger/protos/ledger/rwset/kvrwset"
 )
 
 type rangeQueryValidator interface {

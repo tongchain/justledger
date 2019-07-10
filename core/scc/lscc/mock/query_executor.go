@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	ledger "justledgercommon/ledger"
-	ledgera "justledgercore/ledger"
+	ledger "justledger/common/ledger"
+	ledgera "justledger/core/ledger"
 )
 
 type QueryExecutor struct {

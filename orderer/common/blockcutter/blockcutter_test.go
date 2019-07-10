@@ -10,10 +10,10 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"justledgerorderer/common/blockcutter"
-	"justledgerorderer/common/blockcutter/mock"
-	cb "justledgerprotos/common"
-	ab "justledgerprotos/orderer"
+	"justledger/orderer/common/blockcutter"
+	"justledger/orderer/common/blockcutter/mock"
+	cb "justledger/protos/common"
+	ab "justledger/protos/orderer"
 )
 
 var _ = Describe("Blockcutter", func() {

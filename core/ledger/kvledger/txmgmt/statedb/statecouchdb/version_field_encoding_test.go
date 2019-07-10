@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"testing"
 
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
 	"github.com/stretchr/testify/assert"
 )
 

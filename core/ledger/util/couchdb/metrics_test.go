@@ -11,8 +11,8 @@ import (
 	"net/url"
 	"testing"
 
-	"justledgercommon/metrics/disabled"
-	"justledgercommon/metrics/metricsfakes"
+	"justledger/common/metrics/disabled"
+	"justledger/common/metrics/metricsfakes"
 	. "github.com/onsi/gomega"
 )
 

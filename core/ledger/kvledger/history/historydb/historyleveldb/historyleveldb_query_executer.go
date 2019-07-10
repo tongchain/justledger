@@ -7,15 +7,15 @@ SPDX-License-Identifier: Apache-2.0
 package historyleveldb
 
 import (
-	commonledger "justledgercommon/ledger"
-	"justledgercommon/ledger/blkstorage"
-	"justledgercommon/ledger/util"
-	"justledgercore/ledger/kvledger/history/historydb"
-	"justledgercore/ledger/kvledger/txmgmt/rwsetutil"
-	"justledgercore/ledger/ledgerconfig"
-	"justledgerprotos/common"
-	"justledgerprotos/ledger/queryresult"
-	putils "justledgerprotos/utils"
+	commonledger "justledger/common/ledger"
+	"justledger/common/ledger/blkstorage"
+	"justledger/common/ledger/util"
+	"justledger/core/ledger/kvledger/history/historydb"
+	"justledger/core/ledger/kvledger/txmgmt/rwsetutil"
+	"justledger/core/ledger/ledgerconfig"
+	"justledger/protos/common"
+	"justledger/protos/ledger/queryresult"
+	putils "justledger/protos/utils"
 	"github.com/pkg/errors"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 )

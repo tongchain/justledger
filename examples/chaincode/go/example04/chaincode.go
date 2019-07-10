@@ -10,8 +10,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"justledgercore/chaincode/shim"
-	pb "justledgerprotos/peer"
+	"justledger/core/chaincode/shim"
+	pb "justledger/protos/peer"
 )
 
 // This chaincode is a test for chaincode invoking another chaincode - invokes chaincode_example02

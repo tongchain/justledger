@@ -16,7 +16,7 @@ limitations under the License.
 
 // +build ignore
 
-//go:generate -command gencerts go run $GOPATH/src/justledgercore/comm/testdata/certs/generate.go
+//go:generate -command gencerts go run $GOPATH/src/justledger/core/comm/testdata/certs/generate.go
 //go:generate gencerts -orgs 2 -child-orgs 2 -servers 2 -clients 2
 
 package main

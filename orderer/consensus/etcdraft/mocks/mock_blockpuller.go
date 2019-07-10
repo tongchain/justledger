@@ -4,8 +4,8 @@ package mocks
 import (
 	"sync"
 
-	"justledgerorderer/consensus/etcdraft"
-	"justledgerprotos/common"
+	"justledger/orderer/consensus/etcdraft"
+	"justledger/protos/common"
 )
 
 type FakeBlockPuller struct {

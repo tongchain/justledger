@@ -13,13 +13,13 @@ import (
 	"sync"
 	"time"
 
-	util2 "justledgercommon/util"
-	"justledgercore/committer"
-	"justledgercore/ledger"
-	"justledgergossip/metrics"
-	privdatacommon "justledgergossip/privdata/common"
-	"justledgerprotos/common"
-	gossip2 "justledgerprotos/gossip"
+	util2 "justledger/common/util"
+	"justledger/core/committer"
+	"justledger/core/ledger"
+	"justledger/gossip/metrics"
+	privdatacommon "justledger/gossip/privdata/common"
+	"justledger/protos/common"
+	gossip2 "justledger/protos/gossip"
 	"github.com/pkg/errors"
 )
 

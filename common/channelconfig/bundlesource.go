@@ -9,9 +9,9 @@ package channelconfig
 import (
 	"sync/atomic"
 
-	"justledgercommon/configtx"
-	"justledgercommon/policies"
-	"justledgermsp"
+	"justledger/common/configtx"
+	"justledger/common/policies"
+	"justledger/msp"
 )
 
 // BundleSource stores a reference to the current configuration bundle

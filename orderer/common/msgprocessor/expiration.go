@@ -9,9 +9,9 @@ package msgprocessor
 import (
 	"time"
 
-	"justledgercommon/channelconfig"
-	"justledgercommon/crypto"
-	"justledgerprotos/common"
+	"justledger/common/channelconfig"
+	"justledger/common/crypto"
+	"justledger/protos/common"
 	"github.com/pkg/errors"
 )
 

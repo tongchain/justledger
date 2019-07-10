@@ -8,7 +8,7 @@ package main
 import (
 	"hash"
 
-	"justledgerbccsp"
+	"justledger/bccsp"
 )
 
 type impl struct{}

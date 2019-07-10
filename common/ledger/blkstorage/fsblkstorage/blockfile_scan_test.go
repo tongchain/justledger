@@ -20,9 +20,9 @@ import (
 	"os"
 	"testing"
 
-	"justledgercommon/ledger/testutil"
-	"justledgercommon/ledger/util"
-	"justledgerprotos/common"
+	"justledger/common/ledger/testutil"
+	"justledger/common/ledger/util"
+	"justledger/protos/common"
 	"github.com/stretchr/testify/assert"
 )
 

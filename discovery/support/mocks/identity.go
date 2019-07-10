@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"justledgermsp"
-	mspprotos "justledgerprotos/msp"
+	"justledger/msp"
+	mspprotos "justledger/protos/msp"
 )
 
 type Identity struct {

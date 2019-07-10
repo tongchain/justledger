@@ -20,8 +20,8 @@ import (
 	"strings"
 	"testing"
 
-	"justledgercore/ledger/kvledger/txmgmt/statedb"
-	"justledgercore/ledger/kvledger/txmgmt/version"
+	"justledger/core/ledger/kvledger/txmgmt/statedb"
+	"justledger/core/ledger/kvledger/txmgmt/version"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 )

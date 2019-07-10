@@ -4,8 +4,8 @@ package mock
 import (
 	sync "sync"
 
-	broadcast "justledgerorderer/common/broadcast"
-	common "justledgerprotos/common"
+	broadcast "justledger/orderer/common/broadcast"
+	common "justledger/protos/common"
 )
 
 type ChannelSupportRegistrar struct {

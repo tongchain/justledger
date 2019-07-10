@@ -9,8 +9,8 @@ package tests
 import (
 	"testing"
 
-	"justledgercore/ledger"
-	"justledgercore/ledger/kvledger"
+	"justledger/core/ledger"
+	"justledger/core/ledger/kvledger"
 	"github.com/stretchr/testify/assert"
 )
 

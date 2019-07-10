@@ -9,8 +9,8 @@ package cceventmgmt
 import (
 	"fmt"
 
-	"justledgercore/ledger"
-	"justledgerprotos/common"
+	"justledger/core/ledger"
+	"justledger/protos/common"
 )
 
 // ChaincodeDefinition captures the info about chaincode

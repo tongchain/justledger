@@ -9,7 +9,7 @@ package util
 import (
 	"sync"
 
-	"justledgercommon/flogging"
+	"justledger/common/flogging"
 	"go.uber.org/zap/zapcore"
 )
 
